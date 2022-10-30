@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>10</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Create.OpenGL\Create.OpenGL.csproj">
+      <Private>True</Private>
+      <PrivateAssets></PrivateAssets>
+    </ProjectReference>
+    <ProjectReference Include="..\Create.Resource\Create.Resource.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Analizatory\" />
+  </ItemGroup>
+
+</Project>
