@@ -229,23 +229,25 @@ public struct VirtualDictionaty<TKey, TValue> : IDictionary<TKey, TValue>
 
     internal class Proxy
     {
-        KeyValuePair<TKey, TValue>[] list;
+        Dictionary<TKey, TValue> dir;
         Exception? ex;
 
         public Proxy(VirtualDictionaty<TKey, TValue> o)
         {
             try
             {
-                list = o.enumerator_().AsEnumerable().ToArray();
+#pragma warning disable CS8714
+                dir = o.enumerator_().AsEnumerable().ToDictionary(v => v.Key, kvp => kvp.Value);
+#pragma warning restore CS8714
             }
             catch (Exception ex)
             {
                 this.ex = ex;
-                list = null!;
+                dir = null!;
             }
         }
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-        public KeyValuePair<TKey, TValue>[] array => list;
+        public ReadOnlyDictionaryView<TKey, TValue> array => new(dir);
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
         public Exception[] exception => ex != null ? new[] { ex } : Array.Empty<Exception>();
     }

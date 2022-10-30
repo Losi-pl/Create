@@ -545,10 +545,10 @@ public sealed class Shader : IDisposable
             this.shader = shader;
         }
 
-        public KeyValuePair<string, AttributInfo>[] Attributes => 
-            shader.attributInfos.ConvertAll(attr => new KeyValuePair<string, AttributInfo>(attr.Name, attr)).ToArray();
-        public KeyValuePair<string, UniformInfo>[] Uniforms => 
-            shader.uniformInfos.ConvertAll(attr => new KeyValuePair<string, UniformInfo>(attr.Name, attr)).ToArray();
+        public ReadOnlyDictionaryView<string, AttributInfo> Attributes =>
+           new(shader.attributInfos.ToDictionary(attr => attr.Name));
+        public ReadOnlyDictionaryView<string, UniformInfo> Uniforms =>
+            new(shader.uniformInfos.ToDictionary(uni => uni.Name));
         public VertexAttributesBind VerticesBind => shader.bind;
         public int Handle => shader.handle;
         public StandardMechanisc_ CreateMechanisc => new()
