@@ -2,9 +2,12 @@
 using Create.Virtuals;
 using OpenTK.Mathematics;
 using Create.OpenGL.Mathematic;
+using System.Diagnostics;
 
 namespace Create.OpenGL;
 
+[DebuggerTypeProxy(typeof(Proxy))]
+[DebuggerDisplay("Shader: {(new Proxy(this)).GetName()}")]
 public sealed class Shader : IDisposable
 {
     #region variables
@@ -48,7 +51,7 @@ public sealed class Shader : IDisposable
     internal (bool alphatest, bool depthtest) simple_mekanizms => (alphatest, depthtest);
     #endregion
 
-        internal void set_texture(int index, Texture texture) => textures[index] = texture;
+    internal void set_texture(int index, Texture texture) => textures[index] = texture;
 
     #region SetUniform
     public Shader SetUniform(string name, int value) => set_parametr(name, ActiveUniformType.Int, u => GL.Uniform1(u.Handle, value));
@@ -530,6 +533,75 @@ public sealed class Shader : IDisposable
         }
         public int ByteSize => byte_lenght;
         public ReadOnlySpan<(int index, int offset)> Binds => new(attributes);
+    }
+    #endregion
+
+    #region proxy
+    class Proxy
+    {
+        Shader shader;
+        public Proxy(Shader shader)
+        {
+            this.shader = shader;
+        }
+
+        public KeyValuePair<string, AttributInfo>[] Attributes => 
+            shader.attributInfos.ConvertAll(attr => new KeyValuePair<string, AttributInfo>(attr.Name, attr)).ToArray();
+        public KeyValuePair<string, UniformInfo>[] Uniforms => 
+            shader.uniformInfos.ConvertAll(attr => new KeyValuePair<string, UniformInfo>(attr.Name, attr)).ToArray();
+        public VertexAttributesBind VerticesBind => shader.bind;
+        public int Handle => shader.handle;
+        public StandardMechanisc_ CreateMechanisc => new()
+        {
+            Pozition = shader.pozition_variable,
+            Rotation = shader.rotation_variable,
+            Matrix = shader.use_default_matrix_mehanic
+        };
+        public OpenGLMechanisc_ OpenGLMechanisc => new(shader);
+
+        public object GetName() => shader.disposed ? new shader_dis() : new shader_han() { i = shader.handle };
+
+        [DebuggerDisplay("")]
+        public class StandardMechanisc_
+        {
+            public (string Name, int Handle)? Pozition;
+            public (string Name, int Handle)? Rotation;
+            public (string Name, int Handle)? Matrix;
+            public override string ToString() => string.Empty;
+        }
+        [DebuggerDisplay("")]
+        public class OpenGLMechanisc_
+        {
+            public OpenGLMechanisc_(Shader shader)
+            {
+                AlphaTest = new() { active = shader.simple_mekanizms.alphatest };
+                DepthTest = new() { active = shader.simple_mekanizms.depthtest };
+                CullFace = shader.cull_face != CullFaceMode.FrontAndBack ? shader.cull_face : new system() { active = false };
+                Blend = shader.blend.HasValue ? shader.blend : new system() { active = false };
+            }
+
+            public system AlphaTest;
+            public system DepthTest;
+            public object CullFace;
+            public object Blend;
+        }
+        [DebuggerDisplay("{Mode}")]
+        public struct system
+        {
+            [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+            public bool active;
+            [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+            public mode Mode => active ? mode.Enabled : mode.Disabled;
+            public enum mode
+            {
+                Disabled, Enabled
+            }
+        }
+
+        [DebuggerDisplay("Disposed")]
+        public struct shader_dis { }
+        [DebuggerDisplay("Handle: {i}")]
+        public struct shader_han { public int i; }
     }
     #endregion
 }
