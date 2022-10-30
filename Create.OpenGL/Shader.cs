@@ -7,7 +7,7 @@ using System.Diagnostics;
 namespace Create.OpenGL;
 
 [DebuggerTypeProxy(typeof(Proxy))]
-[DebuggerDisplay("Shader: {(new Proxy(this)).GetName()}")]
+[DebuggerDisplay("Shader: {(new Proxy(this)).get_status(),nq}")]
 public sealed class Shader : IDisposable
 {
     #region variables
@@ -559,7 +559,7 @@ public sealed class Shader : IDisposable
         };
         public OpenGLMechanisc_ OpenGLMechanisc => new(shader);
 
-        public object GetName() => shader.disposed ? new shader_dis() : new shader_han() { i = shader.handle };
+        public object get_status() => shader.disposed ? "Dispose" : $"Handle: {shader.handle}";
 
         [DebuggerDisplay("")]
         public class StandardMechanisc_
@@ -585,23 +585,13 @@ public sealed class Shader : IDisposable
             public object CullFace;
             public object Blend;
         }
-        [DebuggerDisplay("{Mode}")]
+        [DebuggerDisplay("{(active ? \"Enable\" : \"Disable\"),nq}")]
         public struct system
         {
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
             public bool active;
-            [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-            public mode Mode => active ? mode.Enabled : mode.Disabled;
-            public enum mode
-            {
-                Disabled, Enabled
-            }
         }
 
-        [DebuggerDisplay("Disposed")]
-        public struct shader_dis { }
-        [DebuggerDisplay("Handle: {i}")]
-        public struct shader_han { public int i; }
     }
     #endregion
 }
