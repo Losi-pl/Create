@@ -254,13 +254,13 @@ public static class Register
     }
     internal class IgnoreAttribute : Attribute { }
 
-    [DebuggerDisplay("{class_name}")]
+    [DebuggerDisplay("{class_name(),nq}")]
     [DebuggerTypeProxy(typeof(ElementRegister<>.Proxy))]
     public class ElementRegister<T> : IEnumerable<T> where T : Baze
     {
         List<T> list;
 
-        string class_name => $"{typeof(T).Name} elements: {list.Count}";
+        string class_name() => $"{typeof(T).Name} Register: {list.Count}";
 
         public IEnumerator<T> GetEnumerator() => list.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

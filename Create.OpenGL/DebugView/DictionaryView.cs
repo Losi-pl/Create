@@ -14,6 +14,8 @@ class DictionaryView<TKey, TValue>
         this.dictionary = dictionary;
     }
 
+    public object GetViewList() => new Proxy(this).Keys;
+
     private string DebuggerDisplay => "Count = " + dictionary.Count;
 
     private class Proxy
@@ -89,6 +91,8 @@ class ReadOnlyDictionaryView<TKey, TValue>
     {
         this.dictionary = dictionary;
     }
+
+    public object GetViewList() => new Proxy(this).Keys;
 
     private string DebuggerDisplay { get { return "Count = " + dictionary.Count; } }
 

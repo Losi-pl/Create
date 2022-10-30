@@ -229,8 +229,10 @@ public struct VirtualDictionaty<TKey, TValue> : IDictionary<TKey, TValue>
 
     internal class Proxy
     {
+#pragma warning disable CS8714
         Dictionary<TKey, TValue> dir;
         Exception? ex;
+#pragma warning restore CS8714
 
         public Proxy(VirtualDictionaty<TKey, TValue> o)
         {
@@ -247,9 +249,18 @@ public struct VirtualDictionaty<TKey, TValue> : IDictionary<TKey, TValue>
             }
         }
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-        public ReadOnlyDictionaryView<TKey, TValue> array => new(dir);
-        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-        public Exception[] exception => ex != null ? new[] { ex } : Array.Empty<Exception>();
+        public object? array => dir != null ? new ReadOnlyDictionaryView<TKey, TValue>(dir).GetViewList() : new except() { Exception = ex! };
+
+        struct except
+        {
+            [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+            Exception ex;
+            public Exception Exception
+            {
+                init => ex = value;
+                get => throw ex;
+            }
+        }
     }
 }
 public static class VirtualDictionaty
