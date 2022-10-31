@@ -30,6 +30,14 @@ public sealed class ResourceDirectory
 
     public ResourceDirectory GetSubPath(string path)
     {
+        if (path is "/" or "\\" or "")
+            return this;
+
+        if (path[^1] is '\\' or '/')
+            path = path.Remove(path.Length - 1);
+        if (path[0] is '\\' or '/')
+            path = path.Substring(1);
+
         IEnumerable<string> directories = path.Split('\\', '/')
             .Where(f => 
             {
