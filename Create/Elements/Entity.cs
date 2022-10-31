@@ -35,7 +35,7 @@ public abstract class Entity : Baze
     public virtual (float height, float width) GetMobSize(LivingEntity entity) => (1.7f, 0.68f);
     public virtual float GetCameraHeight(LivingEntity entity) => 1.7f;
     public virtual void OnPhisicUpdate(LivingEntity entity, float delta) { }
-    public Mesh GetModel(LivingEntity entity)
+    public virtual IDrawable GetModel(LivingEntity entity)
     {
         var mob_size = entity.Entity.GetMobSize(entity);
         var model = Mesh.Create(tmp_shader)

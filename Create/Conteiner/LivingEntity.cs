@@ -14,7 +14,7 @@ public sealed class LivingEntity
     DimentionSpace? dimention;
     Player? player;
     Entity entity;
-    Mesh mesh;
+    IDrawable mesh;
 
     public LivingEntity(Entity entity)
     {
@@ -39,14 +39,14 @@ public sealed class LivingEntity
             if (!chunk.HasValue)
                 return new();
             if (dimention == null)
-                throw new Exception("This being is not present in any dimension.");
+                throw new Exception("This entity is not present in any dimension");
             Vector2 ch = new(chunk.Value.X * Space.Chunk.QUARD_SIZE, chunk.Value.Z * Space.Chunk.QUARD_SIZE);
             return new(ch.X + in_chunk.X, in_chunk.Y, ch.Y + in_chunk.Z);
         }
         set
         {
             if (dimention == null)
-                throw new Exception("This being is not present in any dimension.");
+                throw new Exception("This entity is not present in any dimension");
             if (value.Y > Space.Chunk.CHUNK_HEIGHT)
                 value.Y = Space.Chunk.CHUNK_HEIGHT;
             
@@ -69,6 +69,6 @@ public sealed class LivingEntity
     public DataContainer Data => _container;
     public DimentionSpace? Dimention => dimention;
     public Player? Player => player;
-    public Mesh Mesh => mesh;
+    public IDrawable Mesh => mesh;
     public Entity Entity => entity;
 }

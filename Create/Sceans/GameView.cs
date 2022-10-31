@@ -76,7 +76,7 @@ internal sealed class GameView : Scean
         void pozition_entitys()
         {
             foreach (var entity in Server.Dimentions[Dimentions.OVERWORLD].AllEntities)
-                entity.Mesh.Position = entity.PozitionByCenter;
+                ((Mesh)entity.Mesh).Position = entity.PozitionByCenter;
         }
         void camera_rotation()
         {
