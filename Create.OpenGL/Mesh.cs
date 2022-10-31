@@ -6,7 +6,7 @@ namespace Create.OpenGL;
 
 [DebuggerTypeProxy(typeof(Proxy))]
 [DebuggerDisplay("Mesh: {((new Proxy(this)).status()),nq}")]
-public sealed partial class Mesh : IDisposable
+public sealed partial class Mesh : IDisposable, IDrawable
 {
     readonly static TextureUnit[] texture_uints = new[]
     {
@@ -52,15 +52,25 @@ public sealed partial class Mesh : IDisposable
     public Shader Shader => shader;
 
     public (int VertexBuffer, int IndexBuffer, int VertexArray) Handle => handlers;
-    public int TranglesCount => trangles_count;
+    public int TranglesCount => trangles_count / 3;
 
-    internal void Draw(Matrix4 world_matrix)
+    public void Draw(Matrix4 projection, Matrix4 model)
     {
         if (disposed)
             return;
         if (shader.IsDisposed) return;
 
         GL.UseProgram(shader.Handle);
+
+        Matrix4 world_matrix;
+        {
+            Matrix4 mat = Matrix4.CreateTranslation(Position) *
+            ((Rotation != new Vector3()) ?
+                Matrix4.CreateFromQuaternion(new(Rotation)) :
+                Engine.NeutralMatrix);
+
+            world_matrix = model * mat * projection;
+        }
 
         cull_face();
         simpler_tests();
@@ -117,7 +127,6 @@ public sealed partial class Mesh : IDisposable
             Engine.SetMekanizm(EnableCap.DepthTest, mekanizms.depthtest);
         }
     }
-    public void Draw() => Draw(Engine.NeutralMatrix);
 
     void bind_textures()
     {

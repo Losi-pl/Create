@@ -9,7 +9,7 @@ namespace Create.OpenGL;
 
 [DebuggerDisplay("{((new Proxy(this)).get_name()),nq}")]
 [DebuggerTypeProxy(typeof(Proxy))]
-public sealed partial class RenderLayer : IDisposable
+public sealed partial class RenderLayer : IDisposable, IDrawable
 {
     #region internal static
     internal static Shader default_shader { get; } = Shader.Create()
@@ -64,7 +64,7 @@ public sealed partial class RenderLayer : IDisposable
     #region get only
     public VirtualDictionaty<FramebufferAttachment, RenderTexture> Textures => frame_buffer_textures!.Value;
     public (int Width, int Height) Size => (buffer_creation_data.width, buffer_creation_data.height);
-    public List<Mesh> Meshes { get; } = new();
+    public List<IDrawable> Meshes { get; } = new();
     public bool IsDisposed => disposed;
     #endregion
 
@@ -194,8 +194,8 @@ public sealed partial class RenderLayer : IDisposable
     #endregion
 
     #region drawing
-    internal void Bind() => GL.BindFramebuffer(FramebufferTarget.Framebuffer, handles.frame_buffer);
-    internal void Unbind() => GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+    void Bind() => GL.BindFramebuffer(FramebufferTarget.Framebuffer, handles.frame_buffer);
+    void Unbind() => GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
     public void Clear()
     {
         Bind();
@@ -207,45 +207,41 @@ public sealed partial class RenderLayer : IDisposable
     {
         Bind();
         Matrix4 projection = projection_matrix();
+        Matrix4 model = model_matrix();
         GL.ClearColor(color);
         GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
         foreach (var mesh in Meshes)
-            mesh.Draw(model_matrix(mesh) * projection);
+            mesh.Draw(projection, model);
         Unbind();
+
+        //Methods
+        Matrix4 projection_matrix()
+        {
+            if (camera != null)
+            {
+                var reve = new Vector3(camera.RevertAxis.x ? -1 : 1, camera.RevertAxis.y ? -1 : 1, camera.RevertAxis.z ? -1 : 1);
+                Matrix4 sca = Matrix4.CreateScale(reve);
+                Matrix4 poz = Matrix4.CreateTranslation(-camera.Pozition * reve);
+                Matrix4 rot = Matrix4.CreateRotationY(MathF.PI) * (camera.Rotation != new Vector3() ? Matrix4.CreateFromQuaternion(camera.RotationQuaternion) : Engine.NeutralMatrix);
+                Matrix4 cam = camera.Projection;
+                return sca * poz * rot * cam;
+            }
+            return Engine.NeutralMatrix;
+        }
+        Matrix4 model_matrix() => camera != null ? camera.Model : Engine.NeutralMatrix;
     }
-    internal void Draw()
+    public void Draw(Matrix4 proj, Matrix4 mat)
     {
         if (custom_model.HasValue)
         {
             custom_model.Value.action(this, custom_model.Value.sender);
-            custom_model.Value.model.Draw();
+            custom_model.Value.model.Draw(proj, mat);
         }
         else
         {
             default_shader.set_texture(0, textures![0].texture);
-            default_mesh.Draw();
+            default_mesh.Draw(proj, mat);
         }
-    }
-    Matrix4 projection_matrix()
-    {
-        if(camera != null)
-        {
-            var reve = new Vector3(camera.RevertAxis.x ? -1 : 1, camera.RevertAxis.y ? -1 : 1, camera.RevertAxis.z ? -1 : 1);
-            Matrix4 sca = Matrix4.CreateScale(reve);
-            Matrix4 poz = Matrix4.CreateTranslation(-camera.Pozition * reve);
-            Matrix4 rot = Matrix4.CreateRotationY(MathF.PI) * (camera.Rotation != new Vector3() ? Matrix4.CreateFromQuaternion(camera.RotationQuaternion) : Engine.NeutralMatrix);
-            Matrix4 cam = camera.Projection;
-            return sca * poz * rot * cam;
-        }
-        return Engine.NeutralMatrix;
-    }
-    Matrix4 model_matrix(Mesh mesh)
-    {
-        Matrix4 mat = Matrix4.CreateTranslation(mesh.Position) *
-            ((mesh.Rotation != new Vector3()) ?
-                Matrix4.CreateFromQuaternion(new(mesh.Rotation)) :
-                Engine.NeutralMatrix);
-        return (camera != null ? camera.Model : Engine.NeutralMatrix) * mat;
     }
     public void ExecuteIn(Action action)
     {
