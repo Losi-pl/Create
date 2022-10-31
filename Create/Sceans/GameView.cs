@@ -1,4 +1,5 @@
 ﻿using Create.Elements;
+using Create.Elements.Bazic.Entitys;
 using Create.Input;
 using Create.Net;
 using Create.OpenGL;
@@ -43,7 +44,7 @@ internal sealed class GameView : Scean
 
     protected override void RenderFrame(FrameEventArgs args)
     {
-        camera.Pozition = Client.Me.Entity!.Pozition + new Vector3(0, Client.Me.Entity.Entity.GetCameraHeight(Client.Me.Entity), 0);
+        camera.Pozition = Client.Me.Entity!.Pozition + new Vector3(0, ((Mob)Client.Me.Entity.Entity).GetCameraHeight(Client.Me.Entity), 0);
         nontransparent_blocks.UpdateContent();
         binded_world_layer.Clear();
         binded_world_layer.ExecuteIn(nontransparent_blocks.Draw);
