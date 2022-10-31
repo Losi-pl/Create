@@ -28,5 +28,6 @@ public abstract class Resources
 
     public static DirectoryResources.Creator CreateFromDirectory() => new();
     public static SingleFileResources.Constructor CreateFromFile() => new();
+    public static MargedResources.Constructor FromOthers() => new();
     
 }
