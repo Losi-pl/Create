@@ -37,7 +37,7 @@ public sealed class Overworld : Dimention
     public override (int x, int y, int z) GetNewSpawnPoint()
     {
         (int x, int z) map_point = (Chunk.QUARD_SIZE / 2, Chunk.QUARD_SIZE / 2);
-        var h = (int)MathF.Abs(noise.Sample2D(map_point.x * .0001f, map_point.z * .0001f) * 5) + 8;
-        return (map_point.x, h, map_point.z);
+        var h = (int)MathF.Abs(noise.Sample2D(map_point.x * .006f, map_point.z * .006f) * 5) + 8;
+        return (map_point.x, h + 2, map_point.z);
     }
 }

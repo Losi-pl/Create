@@ -32,9 +32,8 @@ internal sealed class GameView : Scean
 
     protected override void SceanLoad()
     {
-        KeyDown(new(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Up, 0, OpenTK.Windowing.GraphicsLibraryFramework.KeyModifiers.Super, false));    
         camera.Projection = matrix;
-        Input.Mouse.Lock = true;
+        Mouse.Lock = true;
         camera.Pozition = Server.Dimentions[Dimentions.OVERWORLD].Dimention.GetNewSpawnPoint().ToVector() + new Vector3(0, 1.7f, 0);
         binded_world_layer.Color = System.Drawing.Color.FromArgb(255, 100, 171, 236);
         camera.Model = Matrix4.CreateTranslation(-.5f, 0, -.5f);
