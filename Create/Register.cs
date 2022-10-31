@@ -133,6 +133,9 @@ public static class Register
             load_resources(resource.resource);
 
         foreach (var mod in all_mods)
+            Mod.add_to_mod_list(mod.mod);
+
+        foreach (var mod in all_mods)
             mod.method(mod.mod);
 
         Textures.finish_attlas();
