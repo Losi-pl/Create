@@ -1,8 +1,11 @@
 ﻿using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
+using System.Diagnostics;
 
 namespace Create.OpenGL;
 
+[DebuggerTypeProxy(typeof(Proxy))]
+[DebuggerDisplay("Mesh: {((new Proxy(this)).status()),nq}")]
 public sealed partial class Mesh : IDisposable
 {
     readonly static TextureUnit[] texture_uints = new[]
