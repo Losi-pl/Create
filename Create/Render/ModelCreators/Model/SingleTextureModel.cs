@@ -52,7 +52,7 @@ public sealed class SingleTextureModel : ChunkModel
             }")
         .CullFace(OpenTK.Graphics.OpenGL.CullFaceMode.Front)
         .ProjectionMatrixUniform("matrix")
-        .Finish(s => s.SetUniform("block_atlas", Textures.Attlas).SetUniform("is_debug_mode", false));
+        .Finish(s => s.SetUniform("block_atlas", Assets.BlockAtlas.Attlas).SetUniform("is_debug_mode", false));
 
     public void AddSide(SingleTextureSide side)
     {

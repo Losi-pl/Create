@@ -50,7 +50,7 @@ public sealed class MultiTextureColorModel : ChunkModel
             }")
         .CullFace(OpenTK.Graphics.OpenGL.CullFaceMode.Front)
         .ProjectionMatrixUniform("matrix")
-        .Finish(s => s.SetUniform("block_atlas", Textures.Attlas));
+        .Finish(s => s.SetUniform("block_atlas", Assets.BlockAtlas.Attlas));
 
     public override Mesh FinischModel() => Mesh.Create(Shader)
         .SetTrangles(trangles.ToArray())

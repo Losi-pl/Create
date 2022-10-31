@@ -23,7 +23,7 @@ public abstract class GrassBase : Block
         {
             if (textures.HasValue)
                 return (base.BlockTexture, textures.Value.side, textures.Value.top);
-            return (Render.Textures.NoneHandle, Render.Textures.NoneHandle, Render.Textures.NoneHandle);
+            return (Assets.BlockAtlas.NoneHandle, Assets.BlockAtlas.NoneHandle, Assets.BlockAtlas.NoneHandle);
         }
     }
     public Color GrassColor => textures.HasValue ? textures.Value.color : Color.White;
@@ -65,7 +65,7 @@ public abstract class GrassBase : Block
                 uvs = stackalloc Vector2[4],
                 trangles = stackalloc int[6],
                 texture_bottom = BlockTexture.Handle,
-                texture_top = textures.HasValue ? textures.Value.side.Handle : Textures.NoneHandle.Handle,
+                texture_top = textures.HasValue ? textures.Value.side.Handle : Assets.BlockAtlas.NoneHandle.Handle,
                 top_color = color
             };
             side_model.uvs = stackalloc Vector2[]
@@ -131,7 +131,7 @@ public abstract class GrassBase : Block
                 pozitions = stackalloc Vector3[4],
                 uvs = stackalloc Vector2[4],
                 trangles = stackalloc int[6],
-                texture_side = textures.HasValue ? textures.Value.top.Handle : Textures.NoneHandle.Handle,
+                texture_side = textures.HasValue ? textures.Value.top.Handle : Assets.BlockAtlas.NoneHandle.Handle,
                 color = color
             };
             side_model.uvs = stackalloc Vector2[]

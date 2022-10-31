@@ -19,7 +19,7 @@ public abstract class Block : Baze
 
     #region
 #pragma warning disable CS8618
-    static BlockTextureHandle null_texture = Textures.NoneHandle;
+    static BlockTextureHandle null_texture = Assets.BlockAtlas.NoneHandle;
 #pragma warning restore CS8618
     #endregion
 

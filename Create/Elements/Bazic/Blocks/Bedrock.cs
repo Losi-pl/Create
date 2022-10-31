@@ -7,6 +7,6 @@ internal class Bedrock : Block
 {
     public override void OnRegistered()
     {
-        SetTexture(Textures.Handles["create:bedrock"]);
+        SetTexture(Assets.BlockAtlas.Handles["create:bedrock"]);
     }
 }

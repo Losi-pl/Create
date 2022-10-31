@@ -129,16 +129,14 @@ public static class Register
         .Where(m => m.mod != null)
         .ToArray();
 
-        foreach (var resource in all_mods)
-            load_resources(resource.resource);
-
         foreach (var mod in all_mods)
             Mod.add_to_mod_list(mod.mod);
 
+        Assets.load_resources();
+        Assets.first_proces_resources();
+
         foreach (var mod in all_mods)
             mod.method(mod.mod);
-
-        Textures.finish_attlas();
 
         //Methods
         Action<Mod>? find_starter_method(Type @class)
@@ -188,46 +186,6 @@ public static class Register
     static void bazic_setup()
     {
 
-    }
-
-    static void load_resources(Resources resources)
-    {
-        var assest = resources.GetPath("assets");
-        foreach(var resors in assest.SubPaths)
-        {
-            #if DEBUG
-            textures(resors);
-            #else
-            try
-            {
-                textures(resors);
-            }
-            catch (Exception ex)
-            { throw new($"Ładowanie pakietu {resors.Name} niepowiodło się", ex); }
-            #endif
-        }
-
-        //Methods
-        void textures(ResourceDirectory directory)
-        {
-            string pack_name = directory.Name;
-            directory = directory.GetSubPath("textures");
-            foreach (var texture in directory.GetSubPath("blocks").Files)
-                Textures.set_texture(load_image(texture.GetStream(), texture.Name), $"{pack_name}:{texture.Name}");
-
-            //Methods
-            Image load_image(Stream stream, string name)
-            {
-                #if DEBUG
-                return Image.Load(stream);
-                #else
-                try
-                { return Image.Load(stream); }
-                catch (Exception ex)
-                { throw new($"Konwertowanie tekstury {pack_name}:{name} niepowiodło się", ex); }
-                #endif
-            }
-        }
     }
 
     internal static IEnumerable<(T element, string name)> get_all_elements<T>(Type where) where T : Baze =>
