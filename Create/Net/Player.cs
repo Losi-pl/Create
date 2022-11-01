@@ -8,6 +8,11 @@ public sealed class Player
     Account account;
     LivingEntity? entity;
 
+    public Player(Account account)
+    {
+        this.account = account;
+    }
+
     public Account Account => account;
     public LivingEntity? Entity { get => entity; set
         {
