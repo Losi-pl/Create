@@ -1,8 +1,10 @@
 ﻿using Create;
+using Create.App.Windows;
 
 #if DEBUG
 Engine.CreateActivator().Finish();
 #else
+ConsoleVisibility.Hide();
 try
 {
     Console.WriteLine("Create running...");
@@ -10,6 +12,8 @@ try
 }
 catch (Exception ex)
 {
+    ConsoleVisibility.Show();
+    Create.OpenGL.Engine.Visible = false;
     write_ex(ex);
     Console.ReadKey();
 }
