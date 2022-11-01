@@ -54,7 +54,7 @@ public static partial class Keyboard
         }
 
         public Keys KeyCode => key;
-        public bool Statud => keys_status[key];
+        public bool Status => keys_status[key];
         public bool Down => keys_down.Contains(key);
         public bool Up => keys_up.Contains(key);
     }
