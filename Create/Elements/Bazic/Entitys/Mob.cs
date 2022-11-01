@@ -96,7 +96,7 @@ public abstract class Mob : Entity
         }
         else
             move_delta = new Vector3(0, move_delta.Y, 0);
-        if (Input.Keyboard.Space)
+        if (Input.Keyboard.Space.Statud)
             if(IsOnGround(entity))
                 move_delta.Y = 7;
 
@@ -104,10 +104,11 @@ public abstract class Mob : Entity
 
         int? move_vector()
         {
-            bool up = Input.Keyboard.W;
-            bool down = Input.Keyboard.S;
-            bool left = Input.Keyboard.A;
-            bool right = Input.Keyboard.D;
+            bool up = Input.Keyboard.W.Statud;
+            bool down = Input.Keyboard.S.Statud;
+            bool left = Input.Keyboard.A.Statud;
+            bool right = Input.Keyboard.D.Statud;
+
             if (!(up || down || left || right))
                 return null;
             if (up && down)

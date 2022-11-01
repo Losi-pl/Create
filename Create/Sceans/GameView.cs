@@ -38,6 +38,9 @@ internal sealed partial class GameView : Scean
     }
     protected override void UpdateFrame(FrameEventArgs args)
     {
+        if (Keyboard.Escape.Down)
+            Mouse.Lock = !Mouse.Lock;
+
         Mouse.Visible = !Mouse.Lock;
         if (!Mouse.Lock)
             return;
@@ -77,8 +80,8 @@ internal sealed partial class GameView : Scean
 
     protected override void KeyDown(KeyboardKeyEventArgs args)
     {
-        if(args.Key == OpenTK.Windowing.GraphicsLibraryFramework.Keys.Escape)
-            Mouse.Lock = !Mouse.Lock;
+        //if(args.Key == OpenTK.Windowing.GraphicsLibraryFramework.Keys.Escape)
+        //    Mouse.Lock = !Mouse.Lock;
     }
 
     Matrix4 Projection => Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, OpenGL.Engine.Size.X / (float)OpenGL.Engine.Size.Y, .01f, 10000f);

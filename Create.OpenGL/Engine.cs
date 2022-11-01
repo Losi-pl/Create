@@ -227,6 +227,7 @@ public static class Engine
         OnUpdateFrame?.Invoke(args);
         Input.Mouse.clear_data();
         disposing.execute();
+        Input.Keyboard.clear();
     }
     #endregion
     #endregion
