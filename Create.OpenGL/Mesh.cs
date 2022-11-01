@@ -148,11 +148,24 @@ public sealed partial class Mesh : IDisposable, IDrawable
             return;
         disposed = true;
         GC.SuppressFinalize(this);
-        GL.BindVertexArray(0);
-        GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-        GL.DeleteVertexArray(handlers.vertex_buffer);
-        GL.DeleteBuffer(handlers.index_buffer);
-        GL.DeleteBuffer(handlers.vertex_buffer);
+        OpenGL.disposing.add(new disposing() { 
+            va = handlers.vertex_array, 
+            ib = handlers.index_buffer, 
+            vb = handlers.vertex_buffer });
         shader = null!;
+    }
+
+    struct disposing : OpenGL.disposing.gl_element
+    {
+        public int va, ib, vb;
+
+        public void Dispose()
+        {
+            GL.BindVertexArray(0);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+            GL.DeleteVertexArray(va);
+            GL.DeleteBuffer(ib);
+            GL.DeleteBuffer(vb);
+        }
     }
 }

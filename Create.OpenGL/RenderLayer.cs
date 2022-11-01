@@ -259,15 +259,41 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
             return;
         disposed = true;
         GC.SuppressFinalize(this);
-        lock (Engine.TaskLock)
+        int[] handles;
         {
-            Unbind();
-            releise_buffers();
+            if (textures != null)
+            {
+                handles = new int[textures.Length];
+                for (int i = 0; i < textures.Length; i++)
+                    handles[i] = textures[i].texture.Handle;
+            }
+            else
+                handles = new int[0];
         }
+        OpenGL.disposing.add(new disposing() {
+            textures = handles,
+            handel = (this.handles.frame_buffer, this.handles.render_buffer) });
         textures = null!;
         if(custom_model.HasValue)
             custom_model = null;
         frame_buffer_textures = null;
     }
+
+    struct disposing : OpenGL.disposing.gl_element
+    {
+        public (int frame, int render) handel;
+        public int[] textures;
+
+        public void Dispose()
+        {
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            GL.DeleteFramebuffer(handel.frame);
+            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
+            GL.DeleteRenderbuffer(handel.render);
+            for (int i = 0; i < textures.Length; i++)
+                GL.DeleteTexture(textures[i]);
+        }
+    }
+
     #endregion
 }

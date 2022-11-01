@@ -123,15 +123,24 @@ public sealed partial class Shader : IDisposable
             return;
         disposed = true;
         GC.SuppressFinalize(this);
-
-        GL.UseProgram(0);
-        GL.DeleteProgram(handle);
+        OpenGL.disposing.add(new disposing() { handle = handle });
         attributInfos = null!;
         uniformInfos = null!;
         textures = null!;
         virtual_attribut = VirtualList.Create<AttributInfo>().Finish();
         virtual_uniform = VirtualList.Create<UniformInfo>().Finish();
         virtual_textures = VirtualList.Create<Texture>().Finish();
+    }
+
+    struct disposing : OpenGL.disposing.gl_element
+    {
+        public int handle;
+
+        public void Dispose()
+        {
+            GL.UseProgram(0);
+            GL.DeleteProgram(handle);
+        }
     }
     #endregion
 
