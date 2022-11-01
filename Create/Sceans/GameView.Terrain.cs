@@ -14,6 +14,7 @@ partial class GameView
     {
         Dictionary<ChunkPoz, ChunkConstructor.FinischedChunkModel> chunk_models = new();
         List<ChunkPoz> chunks_to_add = new();
+        List<ChunkPoz> chunks_to_rem = new();
         RenderLayer binded_world_layer, nontransparent_blocks;
         object task_lock = new();
         (Task task, float query, float last) new_chunks = (null!, 2, 0);
@@ -33,7 +34,6 @@ partial class GameView
             get => binded_world_layer.Color;
             set => binded_world_layer.Color = value;
         }
-
         public float NewChunkFrequency
         {
             get => new_chunks.query;
@@ -55,11 +55,11 @@ partial class GameView
         {
             lock(task_lock)
             {
-                var meshs = nontransparent_blocks.Meshes;
-                if (!chunk_models.Remove(chunk, out var ch_mod))
+                if (!chunk_models.ContainsKey(chunk))
                     return;
-                foreach (var m in ch_mod.AllModelParts())
-                    meshs.Remove(m);
+                if (chunks_to_rem.Contains(chunk))
+                    return;
+                chunks_to_rem.Add(chunk);
             }
         }
 
@@ -74,6 +74,7 @@ partial class GameView
         public void ChunkUpdate(double time)
         {
             render_new_chunk();
+            remove_old_chunk();
             chunk_rendering_task();
 
             //Methods
@@ -91,6 +92,22 @@ partial class GameView
                     chunks_to_add.RemoveAt(0);
                 }
             }
+            void remove_old_chunk()
+            {
+                if (chunks_to_rem.Count == 0)
+                    return;
+                var chunk = chunks_to_rem[0];
+                var model = chunk_models[chunk];
+                var m = nontransparent_blocks.Meshes;
+                foreach (var me in model.AllModelParts())
+                    m.Remove(me);
+                lock (task_lock)
+                {
+                    chunk_models.Remove(chunk);
+                    chunks_to_rem.RemoveAt(0);
+                }
+            }
+            
             void chunk_rendering_task()
             {
                 if (new_chunks.last > new_chunks.query)
