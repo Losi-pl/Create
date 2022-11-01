@@ -16,6 +16,7 @@ partial class GameView
         List<ChunkPoz> chunks_to_add = new();
         RenderLayer binded_world_layer, nontransparent_blocks;
         object task_lock = new();
+        (Task task, float query, float last) new_chunks = (null!, 2, 0);
 
         public Terrain(Camera camera)
         {
@@ -24,12 +25,19 @@ partial class GameView
             nontransparent_blocks.Meshes.AddRange(Server.Dimentions[Dimentions.OVERWORLD].AllEntities.ConvertAll(e => e.Model));
             nontransparent_blocks.Meshes.Remove(Client.Me.Entity!.Model);
             binded_world_layer.Meshes.Add(nontransparent_blocks);
+            new_chunks.last = new_chunks.query;
         }
 
         public Color SkyColor
         {
             get => binded_world_layer.Color;
             set => binded_world_layer.Color = value;
+        }
+
+        public float NewChunkFrequency
+        {
+            get => new_chunks.query;
+            set => new_chunks.query = value;
         }
 
         public void Add(ChunkPoz chunk)
@@ -63,10 +71,11 @@ partial class GameView
         }
         public RenderLayer Finisched => binded_world_layer;
 
-        public void ChunkUpdate()
+        public void ChunkUpdate(double time)
         {
             render_new_chunk();
-            
+            chunk_rendering_task();
+
             //Methods
             void render_new_chunk()
             {
@@ -81,6 +90,30 @@ partial class GameView
                     chunk_models.Add(chunk, done_model);
                     chunks_to_add.RemoveAt(0);
                 }
+            }
+            void chunk_rendering_task()
+            {
+                if (new_chunks.last > new_chunks.query)
+                {
+                    new_chunks.last -= new_chunks.query;
+                    new_chunks.task = Task.Run(() =>
+                    {
+                        if (Client.Me.Entity == null)
+                            return;
+                        var en = Client.Me.Entity;
+                        var dim = en.Dimention;
+                        if (dim == null)
+                            return;
+                        foreach (var ch in MathC.GetElementsFromCenter(10))
+                        {
+                            if (!dim.IsChunkLoadet(new ChunkPoz(ch.x, ch.y) + en.Chunk))
+                                continue;
+                            Add(new ChunkPoz(ch.x, ch.y) + en.Chunk);
+                        }
+                    });
+                }
+                else
+                    new_chunks.last += (float)time;
             }
         }
         public void Resize(Vector2i size)

@@ -14,14 +14,11 @@ internal sealed partial class GameView : Scean
 {
     Camera camera;
     Terrain terrain;
-    Matrix4 matrix;
 
     public GameView()
     {
         camera = new();
         terrain = new(camera);
-        foreach (var v in MathC.GetElementsFromCenter(10))
-            terrain.Add(new(v.x, v.y));
     }
 
     protected override void SceanLoad()
@@ -45,7 +42,7 @@ internal sealed partial class GameView : Scean
         if (!Mouse.Lock)
             return;
 
-        terrain.ChunkUpdate();
+        terrain.ChunkUpdate(args.Time);
         camera_rotation();
         
         void camera_rotation()

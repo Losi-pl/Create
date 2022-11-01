@@ -39,6 +39,7 @@ public sealed class DimentionSpace
         return null;
     }
 
+    public bool IsChunkLoadet(ChunkPoz chunk) => chunks.ContainsKey(chunk);
     bool is_chunk_saved(ChunkPoz poz) => false; // Testing if chunk is alredy saved
     public void PlaceOnPlatform(LivingEntity entity, Vector3 pozition)
     {
