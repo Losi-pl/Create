@@ -20,16 +20,13 @@ internal sealed partial class GameView : Scean
     {
         camera = new();
         terrain = new(camera);
-        matrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, OpenGL.Engine.Size.X / (float)OpenGL.Engine.Size.Y, .01f, 10000f);
-        camera.Projection = matrix;
-
         foreach (var v in MathC.GetElementsFromCenter(10))
             terrain.Add(new(v.x, v.y));
     }
 
     protected override void SceanLoad()
     {
-        camera.Projection = matrix;
+        camera.Projection = Projection;
         Mouse.Lock = true;
         terrain.SkyColor = Color.FromArgb(255, 100, 171, 236);
         camera.Model = Matrix4.CreateTranslation(-.5f, 0, -.5f);
@@ -42,7 +39,6 @@ internal sealed partial class GameView : Scean
         terrain.Draw();
         OpenGL.Engine.FinishFrame();
     }
-
     protected override void UpdateFrame(FrameEventArgs args)
     {
         Mouse.Visible = !Mouse.Lock;
@@ -79,8 +75,7 @@ internal sealed partial class GameView : Scean
         if (args.Size == new Vector2i())
             return;
         terrain.Resize(args.Size);
-        matrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, OpenGL.Engine.Size.X / (float)OpenGL.Engine.Size.Y, .01f, 10000f);
-        camera.Projection = matrix;
+        camera.Projection = Projection;
     }
 
     protected override void KeyDown(KeyboardKeyEventArgs args)
@@ -88,4 +83,6 @@ internal sealed partial class GameView : Scean
         if(args.Key == OpenTK.Windowing.GraphicsLibraryFramework.Keys.Escape)
             Mouse.Lock = !Mouse.Lock;
     }
+
+    Matrix4 Projection => Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, OpenGL.Engine.Size.X / (float)OpenGL.Engine.Size.Y, .01f, 10000f);
 }
