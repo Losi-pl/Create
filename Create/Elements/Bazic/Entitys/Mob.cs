@@ -177,6 +177,7 @@ public abstract class Mob : Entity
 
         return new(model);
     }
+    
     public static bool Move(LivingEntity entity, Vector3 move)
     {
         bool collid = false;
@@ -579,9 +580,9 @@ public abstract class Mob : Entity
                 (MathC.Section(entity_plane_f.z.min, 1), MathC.Section(entity_plane_f.z.max, 1)));
         }
         var start_y = MathC.Section(entity_pozition.Y, 1);
-        for (int y = start_y - 1; y < start_y; y++)
-            for (int x = entity_plane.x.min; x < entity_plane.x.min + 1; x++)
-                for (int z = entity_plane.z.min; z < entity_plane.z.min + 1; z++)
+        for (int y = start_y - 1; y < start_y + 1; y++)
+            for (int x = entity_plane.x.min; x < entity_plane.x.max + 1; x++)
+                for (int z = entity_plane.z.min; z < entity_plane.z.max + 1; z++)
                 {
                     Block.BlockCollider[] colliders;
                     {
