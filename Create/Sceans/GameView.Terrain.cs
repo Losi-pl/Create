@@ -5,6 +5,7 @@ using Create.Render;
 using Create.Space;
 using OpenTK.Mathematics;
 using System.Drawing;
+using System.Reflection;
 
 namespace Create.Sceans;
 
@@ -15,6 +16,7 @@ partial class GameView
         Dictionary<ChunkPoz, ChunkConstructor.FinischedChunkModel> chunk_models = new();
         List<ChunkPoz> chunks_to_add = new();
         List<ChunkPoz> chunks_to_rem = new();
+        List<ChunkPoz> chunks_to_ren = new();
         RenderLayer binded_world_layer, nontransparent_blocks;
         object task_lock = new();
         (Task task, float query, float last) new_chunks = (null!, 2, 0);
@@ -62,6 +64,17 @@ partial class GameView
                 chunks_to_rem.Add(chunk);
             }
         }
+        public void Renew(ChunkPoz chunk)
+        {
+            lock (task_lock)
+            {
+                if (!chunk_models.ContainsKey(chunk))
+                    return;
+                if (chunks_to_ren.Contains(chunk))
+                    return;
+                chunks_to_ren.Add(chunk);
+            }
+        }
 
         public void Draw()
         {
@@ -75,6 +88,7 @@ partial class GameView
         {
             render_new_chunk();
             remove_old_chunk();
+            renew_old_chunk();
             chunk_rendering_task();
 
             //Methods
@@ -84,11 +98,10 @@ partial class GameView
                     return;
                 var chunk = chunks_to_add[0];
                 var done_model = ChunkConstructor.GenerateModel(Server.Dimentions[Dimentions.OVERWORLD], chunk);
-                foreach (var m in done_model.AllModelParts())
-                    nontransparent_blocks.Meshes.Add(m);
                 lock(task_lock)
                 {
                     chunk_models.Add(chunk, done_model);
+                    nontransparent_blocks.Meshes.Add(done_model);
                     chunks_to_add.RemoveAt(0);
                 }
             }
@@ -97,14 +110,29 @@ partial class GameView
                 if (chunks_to_rem.Count == 0)
                     return;
                 var chunk = chunks_to_rem[0];
-                var model = chunk_models[chunk];
                 var m = nontransparent_blocks.Meshes;
-                foreach (var me in model.AllModelParts())
-                    m.Remove(me);
                 lock (task_lock)
                 {
-                    chunk_models.Remove(chunk);
+                    chunk_models.Remove(chunk, out var model);
+                    m.Remove(model!);
+                    model!.Dispose();
                     chunks_to_rem.RemoveAt(0);
+                }
+            }
+            void renew_old_chunk()
+            {
+                if (chunks_to_ren.Count == 0)
+                    return;
+                var chunk = chunks_to_ren[0];
+                var m = nontransparent_blocks.Meshes;
+                var new_model = ChunkConstructor.GenerateModel(Server.Dimentions[Dimentions.OVERWORLD], chunk);
+                lock(task_lock)
+                {
+                    var old_model = chunk_models[chunk];
+                    chunk_models[chunk] = new_model;
+                    m.Add(new_model);
+                    m.Remove(old_model);
+                    chunks_to_ren.RemoveAt(0);
                 }
             }
             
@@ -123,9 +151,16 @@ partial class GameView
                             return;
                         foreach (var ch in MathC.GetElementsFromCenter(10))
                         {
-                            if (!dim.IsChunkLoadet(new ChunkPoz(ch.x, ch.y) + en.Chunk))
+                            var chunk_poz = new ChunkPoz(ch.x, ch.y) + en.Chunk;
+                            if (!dim.IsChunkLoadet(chunk_poz))
                                 continue;
-                            Add(new ChunkPoz(ch.x, ch.y) + en.Chunk);
+                            if (chunk_models.ContainsKey(chunk_poz))
+                                continue;
+                            Add(chunk_poz);
+                            Renew(chunk_poz + new ChunkPoz(-1, 0));
+                            Renew(chunk_poz + new ChunkPoz(1, 0));
+                            Renew(chunk_poz + new ChunkPoz(0, -1));
+                            Renew(chunk_poz + new ChunkPoz(0, 1));
                         }
                     });
                 }

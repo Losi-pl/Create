@@ -74,7 +74,7 @@ public sealed class ChunkConstructor : ModelConstructor
     public ChunkPoz CurrentChunk => poz;
     public DimentionSpace Dimention => dimention;
 
-    public class FinischedChunkModel
+    public class FinischedChunkModel : IDrawable, IDisposable
     {
         Dictionary<Type, Mesh>[] models = new Dictionary<Type, Mesh>[Chunk.QUARD_STACK];
         ChunkPoz pozition;
@@ -94,5 +94,19 @@ public sealed class ChunkConstructor : ModelConstructor
             .IsContainMethod(d => false)
             .GetMethod(i => VirtualDictionaty.Create(models[i]).Finsh())
             .Finish();
+
+        public void Dispose()
+        {
+            for (int i = 0; i < models.Length; i++)
+                foreach (var mod in models[i])
+                    mod.Value.Dispose();
+        }
+
+        public void Draw(Matrix4 projection, Matrix4 model)
+        {
+            for(int i = 0; i < models.Length; i++)
+                foreach(var mod in models[i])
+                    mod.Value.Draw(projection, model);
+        }
     }
 }
