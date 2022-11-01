@@ -1,6 +1,7 @@
 ﻿using Create.Elements;
 using Create.Net;
 using Create.OpenGL;
+using Create.Render;
 using Create.Space;
 using OpenTK.Mathematics;
 
@@ -14,13 +15,14 @@ public sealed class LivingEntity
     DimentionSpace? dimention;
     Player? player;
     Entity entity;
-    IDrawable mesh;
+    EntityModel mesh;
 
     public LivingEntity(Entity entity)
     {
         this.entity = entity;
         in_chunk = new();
         mesh = entity.GetModel(this);
+        mesh.set_entity(this);
     }
 
     internal void set_player(Player? player) => this.player = player;
@@ -69,6 +71,6 @@ public sealed class LivingEntity
     public DataContainer Data => _container;
     public DimentionSpace? Dimention => dimention;
     public Player? Player => player;
-    public IDrawable Mesh => mesh;
+    public EntityModel Model => mesh;
     public Entity Entity => entity;
 }

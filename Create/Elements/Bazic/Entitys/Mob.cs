@@ -1,5 +1,6 @@
 ﻿using Create.Conteiner;
 using Create.OpenGL;
+using Create.Render;
 using OpenTK.Mathematics;
 
 namespace Create.Elements.Bazic.Entitys;
@@ -148,7 +149,7 @@ public abstract class Mob : Entity
         
     }
 
-    public override IDrawable GetModel(LivingEntity entity)
+    public override EntityModel GetModel(LivingEntity entity)
     {
         var mob_size = ((Mob)entity.Entity).GetMobSize(entity);
         var model = Mesh.Create(tmp_shader)
@@ -174,7 +175,7 @@ public abstract class Mob : Entity
             }.ConvertAll(t => --t))
             .Finish();
 
-        return model;
+        return new(model);
     }
     public static bool Move(LivingEntity entity, Vector3 move)
     {

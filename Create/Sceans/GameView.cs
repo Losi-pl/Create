@@ -27,8 +27,8 @@ internal sealed class GameView : Scean
         foreach (var v in MathC.GetElementsFromCenter(10))
             chunks_to_add.Add(new(v.x, v.y));
         matrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, OpenGL.Engine.Size.X / (float)OpenGL.Engine.Size.Y, .01f, 10000f);
-        nontransparent_blocks.Meshes.AddRange(Server.Dimentions[Dimentions.OVERWORLD].AllEntities.ConvertAll(e => e.Mesh));
-        nontransparent_blocks.Meshes.Remove(Client.Me.Entity!.Mesh);
+        nontransparent_blocks.Meshes.AddRange(Server.Dimentions[Dimentions.OVERWORLD].AllEntities.ConvertAll(e => e.Model));
+        nontransparent_blocks.Meshes.Remove(Client.Me.Entity!.Model);
     }
 
     protected override void SceanLoad()
@@ -58,11 +58,9 @@ internal sealed class GameView : Scean
         if (!Mouse.Lock)
             return;
 
-        pozition_entitys();
         camera_rotation();
         render_new_chunk();
         
-
         void render_new_chunk()
         {
             if (chunks_to_add.Count == 0)
@@ -73,11 +71,6 @@ internal sealed class GameView : Scean
             chunk_models.Add(chunk, done_model);
             foreach(var m in done_model.AllModelParts())
                 nontransparent_blocks.Meshes.Add(m);
-        }
-        void pozition_entitys()
-        {
-            foreach (var entity in Server.Dimentions[Dimentions.OVERWORLD].AllEntities)
-                ((Mesh)entity.Mesh).Position = entity.PozitionByCenter;
         }
         void camera_rotation()
         {
