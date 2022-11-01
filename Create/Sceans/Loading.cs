@@ -19,7 +19,7 @@ internal sealed class Loading : Scean
             Register.load_mods(new[] { main_mod });
         });
         OpenGL.Engine.Title = $"Create - {Engine.Version}";
-        OpenGL.Engine.Size = new(960, 540);
+        OpenGL.Engine.Size = new(1443, 866);
         OpenGL.Engine.Visible = true;
         render_layer = RenderLayer.Create().Finisch();
         render_layer.Color = System.Drawing.Color.FromArgb(255, 239, 39, 39);
