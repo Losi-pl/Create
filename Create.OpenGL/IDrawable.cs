@@ -7,7 +7,7 @@ public interface IDrawable
     public void Draw(Matrix4 projection, Matrix4 model);
 
     public static IDrawable None { get; } = new empty_model();
-    struct empty_model : IDrawable
+    private struct empty_model : IDrawable
     {
         public void Draw(Matrix4 projection, Matrix4 model) { }
     }

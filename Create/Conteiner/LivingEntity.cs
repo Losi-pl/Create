@@ -49,8 +49,6 @@ public sealed class LivingEntity
         {
             if (dimention == null)
                 throw new Exception("This entity is not present in any dimension");
-            if (value.Y > Space.Chunk.CHUNK_HEIGHT)
-                value.Y = Space.Chunk.CHUNK_HEIGHT;
             
             var in_c = (MathC.InSection(value.X, Space.Chunk.QUARD_SIZE), value.Y, MathC.InSection(value.Z, Space.Chunk.QUARD_SIZE)).ToVector();
             var ch = new ChunkPoz(MathC.Section(value.X, Space.Chunk.QUARD_SIZE), MathC.Section(value.Z, Space.Chunk.QUARD_SIZE));
