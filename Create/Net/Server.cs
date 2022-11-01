@@ -38,6 +38,7 @@ public static class Server
     internal static void phisic_update(FrameEventArgs args)
     {
         var delta_time = (float)args.Time;
+        chunk_loading.update(args.Time);
         foreach (var d in dimentions)
             world_phisic(d, delta_time);
     }
@@ -55,9 +56,50 @@ public static class Server
     internal static Player LoadPlayer(Account account)
     {
         var entity_poz = Elements.Dimentions.OVERWORLD.GetNewSpawnPoint();
-        var entity = Dimentions[Elements.Dimentions.OVERWORLD].Spawn(Entitys.PLAYER, entity_poz.ToVector().ToNumeric());
+        var dimention = Dimentions[Elements.Dimentions.OVERWORLD];
+        var ch_poz = DimentionSpace.calculate_chunk_pozition(entity_poz.x, entity_poz.z);
+        if (!dimention.IsChunkLoadet(ch_poz))
+            dimention.add_chunk(ch_poz);
+        var entity = dimention.Spawn(Entitys.PLAYER, entity_poz.ToVector().ToNumeric());
         var player = new Player(account);
         player.Entity = entity;
+        players.Add(player);
         return player;
+    }
+
+    static class chunk_loading
+    {
+        static Task? task;
+        static float query = 2;
+        static float last = query;
+        public static void update(double time)
+        {
+            if (last >= query)
+            {
+                last -= query;
+                if(task != null)
+                {
+                    if (task.IsCanceled)
+                        if (task.IsFaulted)
+                            throw task.Exception!.InnerException!;
+                }
+                task = Task.Run(() =>
+                {
+                    foreach(var player in players.Where(p => p.Entity?.Dimention != null))
+                    {
+                        var dimen = player.Entity!.Dimention!;
+                        foreach(var ch in MathC.GetElementsFromCenter(10)
+                            .ConvertAll(ch => player.Entity!.Chunk + new ChunkPoz(ch.x, ch.y)))
+                        {
+                            if (dimen.IsChunkLoadet(ch))
+                                continue;
+                            dimen.add_chunk(ch);
+                        }
+                    }
+                });
+            }
+            else
+                last += (float)time;
+        }
     }
 }

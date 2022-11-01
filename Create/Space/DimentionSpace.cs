@@ -66,7 +66,7 @@ public sealed class DimentionSpace
         if (chunks.TryGetValue(new_chunk, out chunk))
             chunk.local_entitys.Add(entity);
     }
-    static ChunkPoz calculate_chunk_pozition(int x, int z) => new()
+    internal static ChunkPoz calculate_chunk_pozition(int x, int z) => new()
     {
         X = MathC.Section(x, Chunk.QUARD_SIZE),
         Z = MathC.Section(z, Chunk.QUARD_SIZE)
