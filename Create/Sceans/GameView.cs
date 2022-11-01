@@ -3,52 +3,43 @@ using Create.Elements.Bazic.Entitys;
 using Create.Input;
 using Create.Net;
 using Create.OpenGL;
-using Create.OpenGL.Textures;
 using Create.Render;
-using Create.Space;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
+using System.Drawing;
 
 namespace Create.Sceans;
 
-internal sealed class GameView : Scean
+internal sealed partial class GameView : Scean
 {
     Camera camera;
-    Dictionary<ChunkPoz, ChunkConstructor.FinischedChunkModel> chunk_models = new();
-    List<ChunkPoz> chunks_to_add = new(), chunks_to_remove = new();
-    RenderLayer binded_world_layer, nontransparent_blocks;
+    Terrain terrain;
     Matrix4 matrix;
 
     public GameView()
     {
         camera = new();
-        binded_world_layer = RenderLayer.Create().Finisch();
-        nontransparent_blocks = RenderLayer.Create().Camera(camera).Finisch();
-        foreach (var v in MathC.GetElementsFromCenter(10))
-            chunks_to_add.Add(new(v.x, v.y));
+        terrain = new(camera);
         matrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, OpenGL.Engine.Size.X / (float)OpenGL.Engine.Size.Y, .01f, 10000f);
-        nontransparent_blocks.Meshes.AddRange(Server.Dimentions[Dimentions.OVERWORLD].AllEntities.ConvertAll(e => e.Model));
-        nontransparent_blocks.Meshes.Remove(Client.Me.Entity!.Model);
+        camera.Projection = matrix;
+
+        foreach (var v in MathC.GetElementsFromCenter(10))
+            terrain.Add(new(v.x, v.y));
     }
 
     protected override void SceanLoad()
     {
         camera.Projection = matrix;
         Mouse.Lock = true;
-        camera.Pozition = Server.Dimentions[Dimentions.OVERWORLD].Dimention.GetNewSpawnPoint().ToVector() + new Vector3(0, 1.7f, 0);
-        binded_world_layer.Color = System.Drawing.Color.FromArgb(255, 100, 171, 236);
+        terrain.SkyColor = Color.FromArgb(255, 100, 171, 236);
         camera.Model = Matrix4.CreateTranslation(-.5f, 0, -.5f);
         camera.RevertAxis.x = true;
-        Conteiner.DataContainer c = new();
     }
 
     protected override void RenderFrame(FrameEventArgs args)
     {
         camera.Pozition = Client.Me.Entity!.Pozition + new Vector3(0, ((Mob)Client.Me.Entity.Entity).GetCameraHeight(Client.Me.Entity), 0);
-        nontransparent_blocks.UpdateContent();
-        binded_world_layer.Clear();
-        binded_world_layer.ExecuteIn(nontransparent_blocks.Draw);
-        binded_world_layer.Draw();
+        terrain.Draw();
         OpenGL.Engine.FinishFrame();
     }
 
@@ -58,20 +49,9 @@ internal sealed class GameView : Scean
         if (!Mouse.Lock)
             return;
 
+        terrain.ChunkUpdate();
         camera_rotation();
-        render_new_chunk();
         
-        void render_new_chunk()
-        {
-            if (chunks_to_add.Count == 0)
-                return;
-            var chunk = chunks_to_add[0];
-            chunks_to_add.RemoveAt(0);
-            var done_model = ChunkConstructor.GenerateModel(Server.Dimentions[Dimentions.OVERWORLD], chunk);
-            chunk_models.Add(chunk, done_model);
-            foreach(var m in done_model.AllModelParts())
-                nontransparent_blocks.Meshes.Add(m);
-        }
         void camera_rotation()
         {
             Vector2 rot;
@@ -98,8 +78,7 @@ internal sealed class GameView : Scean
     {
         if (args.Size == new Vector2i())
             return;
-        binded_world_layer.Resize(args.Size);
-        nontransparent_blocks.Resize(args.Size);
+        terrain.Resize(args.Size);
         matrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, OpenGL.Engine.Size.X / (float)OpenGL.Engine.Size.Y, .01f, 10000f);
         camera.Projection = matrix;
     }
@@ -107,6 +86,6 @@ internal sealed class GameView : Scean
     protected override void KeyDown(KeyboardKeyEventArgs args)
     {
         if(args.Key == OpenTK.Windowing.GraphicsLibraryFramework.Keys.Escape)
-            Input.Mouse.Lock = !Input.Mouse.Lock;
+            Mouse.Lock = !Mouse.Lock;
     }
 }
