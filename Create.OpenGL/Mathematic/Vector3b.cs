@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+
 namespace Create.OpenGL.Mathematic;
 
+[DebuggerDisplay("{ToString(),nq}")]
 public struct Vector3b
 {
     public bool X, Y, Z;
@@ -23,6 +26,8 @@ public struct Vector3b
         Y = v2.X;
         Z = v2.Y;
     }
+
+    public override string ToString() => $"({X}, {Y}, {Z})";
 
     public Vector3b Xyz => new(X, Y, Z);
     public Vector3b Xzy => new(X, Z, Y);
