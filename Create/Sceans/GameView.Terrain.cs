@@ -162,6 +162,12 @@ partial class GameView
                             Renew(chunk_poz + new ChunkPoz(0, -1));
                             Renew(chunk_poz + new ChunkPoz(0, 1));
                         }
+                        ChunkConstructor.FinischedChunkModel[] models;
+                        lock (task_lock)
+                            models = chunk_models.Values.ToArray();
+                        foreach(var chm in models)
+                            if (en.Chunk.Distance(chm.Pozition) >= 15)
+                                Remove(chm.Pozition);
                     });
                 }
                 else

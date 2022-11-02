@@ -72,6 +72,7 @@ public sealed class DimentionSpace
         Z = MathC.Section(z, Chunk.QUARD_SIZE)
     };
     public IEnumerable<LivingEntity> AllEntities => entities;
+    public IEnumerable<ChunkPoz> LoadetChunks => chunks.Keys;
     public LivingEntity Spawn(Entity entity, Vector3 pozition, object? specialArgs = null)
     {
         var ent = new LivingEntity(entity);
