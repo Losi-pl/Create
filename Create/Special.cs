@@ -1,5 +1,6 @@
 ﻿using Create.OpenGL;
 using Create.Render;
+using Create.Space;
 
 namespace Create;
 
@@ -40,5 +41,10 @@ internal static partial class Special
         foreach (var quard in model.ModelParts)
             foreach (var mesh in quard)
                 yield return mesh.Value;
+    }
+    public static float Distance(this ChunkPoz v1, ChunkPoz v2)
+    {
+        var poi = (MathF.Abs(v1.X - v2.X), MathF.Abs(v1.Z - v2.Z));
+        return MathF.Sqrt((poi.Item1 * poi.Item1) + (poi.Item2 * poi.Item2));
     }
 }
