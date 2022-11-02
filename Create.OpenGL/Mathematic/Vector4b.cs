@@ -1,5 +1,8 @@
-﻿namespace Create.OpenGL.Mathematic;
+﻿using System.Diagnostics;
 
+namespace Create.OpenGL.Mathematic;
+
+[DebuggerDisplay("{ToString(),nq}")]
 public struct Vector4b
 {
     public bool X, Y, Z, W;
@@ -50,6 +53,8 @@ public struct Vector4b
         Z = v.Z;
         W = w;
     }
+
+    public override string ToString() => $"({X}, {Y}, {Z}, {W})";
 
     public Vector4b Xyzw => new(X, Y, Z, W);
     public Vector4b Xywz => new(X, Y, W, Z);
