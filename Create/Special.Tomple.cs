@@ -2,6 +2,7 @@
 
 partial class Special
 {
+    #region Deconstruct
     public static IEnumerable<T> Deconstruct<T>(this (T, T)[] values)
     {
         foreach (var value in values)
@@ -110,7 +111,9 @@ partial class Special
             yield return value.Item10;
         }
     }
+    #endregion
 
+    #region GroupInX
     public static IEnumerable<(T, T)> GroupIn2<T>(this IEnumerable<T> enumerable)
     {
         (T, T) val;
@@ -574,4 +577,152 @@ partial class Special
             return !v;
         }
     }
+    #endregion
+
+    #region Any - bool
+    public static bool Any(this (bool, bool) values)
+    {
+        if (values.Item1)
+            return true;
+        if (values.Item2)
+            return true;
+        return false;
+    }
+    public static bool Any(this (bool, bool, bool) values)
+    {
+        if (values.Item1)
+            return true;
+        if (values.Item2)
+            return true;
+        if (values.Item3)
+            return true;
+        return false;
+    }
+    public static bool Any(this (bool, bool, bool, bool) values)
+    {
+        if (values.Item1)
+            return true;
+        if (values.Item2)
+            return true;
+        if (values.Item3)
+            return true;
+        if (values.Item4)
+            return true;
+        return false;
+    }
+    public static bool Any(this (bool, bool, bool, bool, bool) values)
+    {
+        if (values.Item1)
+            return true;
+        if (values.Item2)
+            return true;
+        if (values.Item3)
+            return true;
+        if (values.Item4)
+            return true;
+        if (values.Item5)
+            return true;
+        return false;
+    }
+    public static bool Any(this (bool, bool, bool, bool, bool, bool) values)
+    {
+        if (values.Item1)
+            return true;
+        if (values.Item2)
+            return true;
+        if (values.Item3)
+            return true;
+        if (values.Item4)
+            return true;
+        if (values.Item5)
+            return true;
+        if (values.Item6)
+            return true;
+        return false;
+    }
+    public static bool Any(this (bool, bool, bool, bool, bool, bool, bool) values)
+    {
+        if (values.Item1)
+            return true;
+        if (values.Item2)
+            return true;
+        if (values.Item3)
+            return true;
+        if (values.Item4)
+            return true;
+        if (values.Item5)
+            return true;
+        if (values.Item6)
+            return true;
+        if (values.Item7)
+            return true;
+        return false;
+    }
+    public static bool Any(this (bool, bool, bool, bool, bool, bool, bool, bool) values)
+    {
+        if (values.Item1)
+            return true;
+        if (values.Item2)
+            return true;
+        if (values.Item3)
+            return true;
+        if (values.Item4)
+            return true;
+        if (values.Item5)
+            return true;
+        if (values.Item6)
+            return true;
+        if (values.Item7)
+            return true;
+        if (values.Item8)
+            return true;
+        return false;
+    }
+    public static bool Any(this (bool, bool, bool, bool, bool, bool, bool, bool, bool) values)
+    {
+        if (values.Item1)
+            return true;
+        if (values.Item2)
+            return true;
+        if (values.Item3)
+            return true;
+        if (values.Item4)
+            return true;
+        if (values.Item5)
+            return true;
+        if (values.Item6)
+            return true;
+        if (values.Item7)
+            return true;
+        if (values.Item8)
+            return true;
+        if (values.Item9)
+            return true;
+        return false;
+    }
+    public static bool Any(this (bool, bool, bool, bool, bool, bool, bool, bool, bool, bool) values)
+    {
+        if (values.Item1)
+            return true;
+        if (values.Item2)
+            return true;
+        if (values.Item3)
+            return true;
+        if (values.Item4)
+            return true;
+        if (values.Item5)
+            return true;
+        if (values.Item6)
+            return true;
+        if (values.Item7)
+            return true;
+        if (values.Item8)
+            return true;
+        if (values.Item9)
+            return true;
+        if (values.Item10)
+            return true;
+        return false;
+    }
+    #endregion
 }
