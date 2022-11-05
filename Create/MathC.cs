@@ -2,7 +2,7 @@
 
 namespace Create;
 
-static class MathC
+static partial class MathC
 {
     #region InSection
     public static int InSection(int value, int section)
