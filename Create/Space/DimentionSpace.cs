@@ -10,6 +10,7 @@ public sealed class DimentionSpace
     Dictionary<ChunkPoz, Chunk> chunks = new();
     DimentionWorld world;
     List<LivingEntity> entities = new();
+    List<ChunkPoz> changet_chunks = new();
 
     internal DimentionSpace(Dimention dimention)
     {
@@ -72,6 +73,25 @@ public sealed class DimentionSpace
         Z = MathC.Section(z, Chunk.QUARD_SIZE)
     };
     public IEnumerable<LivingEntity> AllEntities => entities;
+    internal IEnumerable<(ChunkPoz chunk, uint quard)> get_changet_chunks()
+    {
+        lock (changet_chunks)
+        {
+            if(changet_chunks.Count == 0)
+                return Enumerable.Empty<(ChunkPoz chunk, uint quard)>();
+            return result().ToArray();
+        }
+        IEnumerable<(ChunkPoz chunk, uint quard)> result()
+        {
+            for (int i = 0; i < changet_chunks.Count; i++)
+            {
+                var ch = changet_chunks[i];
+                foreach (var q in chunks[ch].las_modified_quards())
+                    yield return (ch, (uint)q);
+            }
+            changet_chunks.Clear();
+        }
+    }
     public IEnumerable<ChunkPoz> LoadetChunks => chunks.Keys;
     public LivingEntity Spawn(Entity entity, Vector3 pozition, object? specialArgs = null)
     {
@@ -108,7 +128,11 @@ public sealed class DimentionSpace
             var chunk_poz = calculate_chunk_pozition(x, z);
             var ib = (x - (chunk_poz.X * Chunk.QUARD_SIZE), z - (chunk_poz.Z * Chunk.QUARD_SIZE));
             if (dimentionSpace.chunks.TryGetValue(chunk_poz, out var chunk))
+            {
                 chunk[ib.Item1, y, ib.Item2] = block;
+                if (!dimentionSpace.changet_chunks.Contains(chunk_poz))
+                    dimentionSpace.changet_chunks.Add(chunk_poz);
+            }
         }
     }
     internal class DimentionWorldFaster : World
@@ -128,9 +152,7 @@ public sealed class DimentionSpace
             var ib = (x - (chunk_poz.X * Chunk.QUARD_SIZE), z - (chunk_poz.Z * Chunk.QUARD_SIZE));
             if (get_chunk(chunk_poz, out var chunk))
                 return chunk[ib.Item1, y, ib.Item2];
-            return new(Elements.Blocks.STONE);
-
-
+            return new(Blocks.STONE);
         }
 
         bool get_chunk(ChunkPoz poz, out Chunk chunk)
@@ -152,7 +174,11 @@ public sealed class DimentionSpace
             var chunk_poz = calculate_chunk_pozition(x, z);
             var ib = (x - (chunk_poz.X * Chunk.QUARD_SIZE), z - (chunk_poz.Z * Chunk.QUARD_SIZE));
             if (get_chunk(chunk_poz, out var chunk))
+            {
                 chunk[ib.Item1, y, ib.Item2] = block;
+                if (!dimentionSpace.changet_chunks.Contains(chunk_poz))
+                    dimentionSpace.changet_chunks.Add(chunk_poz);
+            }
         }
     }
 }

@@ -59,6 +59,8 @@ public sealed class Chunk
                     if (old.Block == Blocks.AIR)
                         block_content[y_]++;
                 }
+                if(!modified_quard.Contains(y_))
+                    modified_quard.Add(y_);
             }
         }
     }

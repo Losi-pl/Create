@@ -25,7 +25,7 @@ partial class GameView
         {
             binded_world_layer = RenderLayer.Create().Finisch();
             nontransparent_blocks = RenderLayer.Create().Camera(camera).Finisch();
-            nontransparent_blocks.Meshes.AddRange(Server.Dimentions[Dimentions.OVERWORLD].AllEntities.ConvertAll(e => e.Model));
+            nontransparent_blocks.Meshes.AddRange(Client.Me.Entity!.Dimention!.AllEntities.ConvertAll(e => e.Model));
             nontransparent_blocks.Meshes.Remove(Client.Me.Entity!.Model);
             binded_world_layer.Meshes.Add(nontransparent_blocks);
             new_chunks.last = new_chunks.query;
@@ -51,6 +51,26 @@ partial class GameView
                 if (chunks_to_add.Contains(chunk))
                     return;
                 chunks_to_add.Add(chunk);
+            }
+        }
+        public void EmidietRenew(ChunkPoz chunk)
+        {
+            lock (task_lock)
+            {
+                nontransparent_blocks.Meshes.Remove(chunk_models[chunk]);
+                var new_chunk = ChunkConstructor.GenerateModel(Client.Me.Entity!.Dimention!, chunk);
+                nontransparent_blocks.Meshes.Add(new_chunk);
+                chunk_models[chunk].Dispose();
+                chunk_models[chunk] = new_chunk;
+            }
+        }
+        public void EmidietRenew(ChunkPoz chunk, int quard)
+        {
+            lock (task_lock)
+            {
+                var chunk_m = chunk_models[chunk];
+                var new_quard = ChunkConstructor.QuardModel(Client.Me.Entity!.Dimention!, chunk, quard);
+                chunk_m.set_new_quard(new_quard, quard);
             }
         }
         public void Remove(ChunkPoz chunk)
@@ -89,6 +109,7 @@ partial class GameView
             render_new_chunk();
             remove_old_chunk();
             renew_old_chunk();
+            emidiet_renew();
             chunk_rendering_task();
 
             //Methods
@@ -135,7 +156,11 @@ partial class GameView
                     chunks_to_ren.RemoveAt(0);
                 }
             }
-            
+            void emidiet_renew()
+            {
+                foreach (var ch_q in Client.Me.Entity!.Dimention!.get_changet_chunks())
+                    EmidietRenew(ch_q.chunk, (int)ch_q.quard);
+            }
             void chunk_rendering_task()
             {
                 if (new_chunks.last > new_chunks.query)

@@ -28,6 +28,30 @@ public sealed class ChunkConstructor : ModelConstructor
         hc.CalculateModel();
         return hc.model!;
     }
+    public static Dictionary<Type, Mesh> QuardModel(DimentionSpace dimention, ChunkPoz chunk, int quard)
+    {
+        var chunk_s = dimention.get_chunk(chunk);
+        World world = new DimentionSpace.DimentionWorldFaster(dimention, chunk);
+        ChunkConstructor constructor = new(dimention, chunk);
+        int Y = quard * Chunk.QUARD_SIZE;
+        for (int x = 0; x < Chunk.QUARD_SIZE; x++)
+            for (int z = 0; z < Chunk.QUARD_SIZE; z++)
+                for (int y = 0; y < Chunk.QUARD_SIZE; y++)
+                {
+                    var poz = ((chunk.X * Chunk.QUARD_SIZE) + x, Y + y, (chunk.Z * Chunk.QUARD_SIZE) + z);
+                    var bl = world.GetBlock(poz);
+                    bl.Block.GenerateModel(new()
+                    {
+                        pozition = poz,
+                        block = bl,
+                        world = world
+                    }, constructor);
+                }
+        Dictionary<Type, Mesh> quard_m = new();
+        foreach (var elem in constructor.Models)
+            quard_m.Add(elem.Key, elem.Value.FinischModel());
+        return quard_m;
+    }
 
     public void CalculateModel()
     {
@@ -95,18 +119,24 @@ public sealed class ChunkConstructor : ModelConstructor
             .GetMethod(i => VirtualDictionaty.Create(models[i]).Finsh())
             .Finish();
 
+        internal void set_new_quard(Dictionary<Type, Mesh> model, int poz)
+        {
+            foreach (var mod in models[poz].Values)
+                mod.Dispose();
+            models[poz] = model;
+        }
         public void Dispose()
         {
             for (int i = 0; i < models.Length; i++)
-                foreach (var mod in models[i])
-                    mod.Value.Dispose();
+                foreach (var mod in models[i].Values)
+                    mod.Dispose();
         }
 
         public void Draw(Matrix4 projection, Matrix4 model)
         {
             for(int i = 0; i < models.Length; i++)
-                foreach(var mod in models[i])
-                    mod.Value.Draw(projection, model);
+                foreach(var mod in models[i].Values)
+                    mod.Draw(projection, model);
         }
     }
 }
