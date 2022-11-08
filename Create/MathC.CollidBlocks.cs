@@ -44,7 +44,7 @@ namespace Create
             }
         }
 
-        public static (bool top, bool Bottom, bool North, bool East, bool Solth, bool West)? ReyIsCollision(
+        public static (bool Top, bool Bottom, bool North, bool East, bool South, bool West)? ReyIsCollision(
             (Vector3 pozition, Vector2 rotation) camera,
             (Vector3 pozition, Vector3 size) point,
             float distance)
@@ -56,11 +56,11 @@ namespace Create
                     v.Value.Bottom.HasValue,
                     v.Value.North.HasValue,
                     v.Value.East.HasValue,
-                    v.Value.Solth.HasValue,
+                    v.Value.South.HasValue,
                     v.Value.West.HasValue);
             else return null;
         }
-        public static (Vector3? Top, Vector3? Bottom, Vector3? North, Vector3? East, Vector3? Solth, Vector3? West)? ReyCollisionStatus(
+        public static (Vector3? Top, Vector3? Bottom, Vector3? North, Vector3? East, Vector3? South, Vector3? West)? ReyCollisionStatus(
             (Vector3 pozition, Vector2 rotation) camera,
             (Vector3 pozition, Vector3 size) point, 
             float distance)
