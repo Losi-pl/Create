@@ -604,4 +604,27 @@ public abstract class Mob : Entity
 
         return false;
     }
+    public static ((int x, int y, int z) pozition, int hitBoxNumer, Block.BlockSide side)? ImLookingAt(LivingEntity entity, float distance)
+    {
+        if (entity.Dimention == null)
+            throw new("Entity need to be in dimention");
+        if (entity.Entity is not Mob)
+            throw new("This method work only for mob or subclass");
+        var cam_h = ((Mob)entity.Entity).GetCameraHeight(entity);
+        var start_poz = entity.PozitionByCenter + new Vector3(0, cam_h, 0);
+        Vector2 cam_rot = new();
+        {
+            var obj = entity.Data.Get("camera_rot");
+            if (obj is Vector2)
+                cam_rot = (Vector2)obj;
+        }
+        return ImLookingAt(entity.Dimention!.World, start_poz, cam_rot, distance);
+    }
+    public static ((int x, int y, int z) pozition, int hitBoxNumer, Block.BlockSide side)? ImLookingAt(World world, Vector3 start, Vector2 lootRotation, float distance)
+    {
+        foreach(var bl_poz in MathC.CollidBlocks(start, lootRotation, distance))
+            world.SetBlock(bl_poz, new(Elements.Blocks.STONE));
+
+        return null;
+    }
 }

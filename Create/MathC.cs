@@ -2,7 +2,7 @@
 
 namespace Create;
 
-static partial class MathC
+public static partial class MathC
 {
     #region InSection
     public static int InSection(int value, int section)
@@ -104,4 +104,7 @@ static partial class MathC
             return MathF.Sqrt(squ);
         }
     }
+
+    internal static float cast_angle_to_pi(float angle) => angle / 180f * MathF.PI;
+    internal static float cast_angle_to_normal(float angle) => angle / MathF.PI * 180f;
 }
