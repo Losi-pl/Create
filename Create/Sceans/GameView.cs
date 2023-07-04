@@ -61,7 +61,7 @@ internal sealed partial class GameView : Scean
             
             var rota_d = Mouse.Delta;
             rot.X += (float)(rota_d.x * args.Time) * 3;
-            rot.Y += (float)(rota_d.y * args.Time) * 3;
+            rot.Y -= (float)(rota_d.y * args.Time) * 3;
 
             if (rot.Y < -90f)
                 rot.Y = -90f;

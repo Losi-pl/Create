@@ -14,7 +14,7 @@ public sealed class Camera
     public CameraAxis RevertAxis => revert;
 
     public Vector3 Pozition { get => pozition; set => pozition = value; }
-    internal Quaternion RotationQuaternion => new(rotation / 180f * MathF.PI);
+    internal Quaternion RotationQuaternion => new((rotation * new Vector3(-1, 1, 1)) / 180f * MathF.PI);
     public Vector3 Rotation { get => rotation; set => rotation = value; }
     public Matrix4 Projection { get => projection; set => projection = value; }
     public Matrix4 Model { get => model; set => model = value; }
