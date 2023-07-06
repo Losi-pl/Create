@@ -11,12 +11,19 @@ public static class Server
     static List<DimentionSpace> dimentions = new();
     static List<Player> players = new();
 
+    /// <summary>
+    /// Załadowane światy
+    /// </summary>
     public static VirtualDictionaty<Dimention, DimentionSpace> Dimentions { get; } = VirtualDictionaty.Create<Dimention, DimentionSpace>()
         .EnumerableMethod(() => ((IEnumerable<DimentionSpace>)dimentions).ConvertAll(d => new KeyValuePair<Dimention, DimentionSpace>(d.Dimention, d)))
         .GetMethod(n => dimentions.Find(d => d.Dimention == n, new KeyNotFoundException()))
         .IsConteinedMethod(n => dimentions.Find(d => d.Dimention == n) != null)
         .CountMethod(() => dimentions.Count)
         .Finsh();
+    
+    /// <summary>
+    /// Połączeni gracze
+    /// </summary>
     public static VirtualDictionaty<Account, Player> Players { get; } = VirtualDictionaty.Create<Account, Player>()
         .EnumerableMethod(() => ((IEnumerable<Player>)players).ConvertAll(p => new KeyValuePair<Account, Player>(p.Account, p)))
         .GetMethod(a => players.Find(p => p.Account.Equals(a), new KeyNotFoundException()))
@@ -24,17 +31,29 @@ public static class Server
         .CountMethod(() => players.Count)
         .Finsh();
 
+    /// <summary>
+    /// Aktywuje serwer w trybie lokalnym albo globalnym weterminowanym przez <paramref name="global_server"/>
+    /// </summary>
+    /// <param name="global_server">Czy serwer ma być w trybie globalnym</param>
     internal static void init_server(bool global_server)
     {
         load_save();
         OpenGL.Engine.OnUpdateFrame += phisic_update;
     }
     
+    /// <summary>
+    /// Załaduj świat z plików
+    /// </summary>
     static void load_save()
     {
         foreach (var d in Register.Dimentions)
             dimentions.Add(new(d));
     }
+    
+    /// <summary>
+    /// Obliczanie fizyki w całości
+    /// </summary>
+    /// <param name="args"></param>
     internal static void phisic_update(FrameEventArgs args)
     {
         var delta_time = (float)args.Time;
@@ -42,6 +61,12 @@ public static class Server
         foreach (var d in dimentions)
             world_phisic(d, delta_time);
     }
+    
+    /// <summary>
+    /// Obliczanie fizyki pojedyńczych światów
+    /// </summary>
+    /// <param name="dimention"></param>
+    /// <param name="args">od ostatniego obliczania</param>
     static void world_phisic(DimentionSpace dimention, float args)
     {
         mob_physic(dimention.AllEntities);
@@ -53,6 +78,12 @@ public static class Server
                 entity.Entity.OnPhisicUpdate(entity, args);
         }
     }
+    
+    /// <summary>
+    /// Ładuje gracza za pomocą o identyikatorze <paramref name="account"/>
+    /// </summary>
+    /// <param name="account"></param>
+    /// <returns></returns>
     internal static Player LoadPlayer(Account account)
     {
         var entity_poz = Elements.Dimentions.OVERWORLD.GetNewSpawnPoint();
@@ -67,11 +98,18 @@ public static class Server
         return player;
     }
 
+    /// <summary>
+    /// Mechanizm ładowania chunków w wontku pobocznym
+    /// </summary>
     static class chunk_loading
     {
         static Task? task;
         static float query = 2;
         static float last = query;
+        /// <summary>
+        /// W odstępach czasowych określonych w <see cref="query"/> ładuje chunki o odległości 10 chunków od graczy jeżeli te nie są jeszcze załadowane
+        /// </summary>
+        /// <param name="time">Czas od ostatniego obliczenia</param>
         public static void update(double time)
         {
             if (last >= query)

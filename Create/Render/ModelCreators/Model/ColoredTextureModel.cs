@@ -45,6 +45,11 @@ public sealed class ColoredTextureModel : ChunkModel
         .ProjectionMatrixUniform("matrix")
         .Finish(s => s.SetUniform("block_atlas", Assets.BlockAtlas.Attlas));
 
+    /// <summary>
+    /// Dodaje dane o sześcianie do modelu
+    /// </summary>
+    /// <param name="side"></param>
+    /// <exception cref="Exception"></exception>
     public void AddSide(ColoredTextureSide side)
     {
         if (side.uvs.Length != side.pozitions.Length)

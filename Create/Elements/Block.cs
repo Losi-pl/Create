@@ -1,16 +1,19 @@
-﻿using Create.Conteiner;
+using Create.Conteiner;
 using Create.OpenGL.Textures;
 using Create.Render;
 using Create.Render.ModelCreators.Model;
 using Create.Render.ModelCreators.Side;
 using Create.Space;
-using OpenTK.Graphics.ES11;
 using OpenTK.Mathematics;
 
 namespace Create.Elements;
 
+/// <summary>
+/// Baza do budowy bloków
+/// </summary>
 public abstract class Block : Baze
 {
+    //Ustawienie bazowego typu elementu na Block
     public sealed override Type ElementBazicType => typeof(Block);
 
     #region parametry
@@ -23,8 +26,17 @@ public abstract class Block : Baze
 #pragma warning restore CS8618
     #endregion
 
+    /// <summary>
+    /// Tekstura bloku
+    /// </summary>
     public BlockTextureHandle BlockTexture => default_textre ?? null_texture;
 
+    /// <summary>
+    /// Ustawia teksture bloku
+    /// </summary>
+    /// <param name="texture"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     protected Block SetTexture(BlockTextureHandle texture)
     {
         if (IsRegistered)
@@ -33,7 +45,19 @@ public abstract class Block : Baze
         return this;
     }
 
+    /// <summary>
+    /// Czy ściana <paramref name="side"/> jest widoczna?
+    /// </summary>
+    /// <param name="sideSet">Parametry bloku</param>
+    /// <param name="side">Śtrona bloku</param>
+    /// <returns></returns>
     public virtual bool IsSideVisible(StandardBlockSet sideSet, BlockSide side) => false;
+    
+    /// <summary>
+    /// Generowanie modelu bloku
+    /// </summary>
+    /// <param name="args">Parametry bloku</param>
+    /// <param name="constructor">Konstruktor modelu terenu</param>
     public virtual void GenerateModel(StandardBlockSet args, ModelConstructor constructor)
     {
         SingleTextureModel? con = null;
@@ -166,7 +190,20 @@ public abstract class Block : Baze
             return block.Block.IsSideVisible(block_set, side);
         }
     }
+
+    /// <summary>
+    /// Zwraca teksture danej ściany
+    /// </summary>
+    /// <param name="sideSet">Parametry bloku</param>
+    /// <param name="side">Śtrona bloku</param>
+    /// <returns></returns>
     public virtual BlockTextureHandle GetSideTexture(StandardBlockSet sideSet, BlockSide side) => default_textre ?? null_texture;
+    
+    /// <summary>
+    /// Fizyczne bariery bloku
+    /// </summary>
+    /// <param name="set">Parametry bloku</param>
+    /// <returns></returns>
     public virtual BlockCollider[] GetPhisicCollision(StandardBlockSet set)
     {
         return new BlockCollider[]
@@ -174,6 +211,12 @@ public abstract class Block : Baze
             new() { pozition = (.5f, .5f, .5f), size = (1, 1, 1) }
         };
     }
+
+    /// <summary>
+    /// Interakcyjne bariery bloku
+    /// </summary>
+    /// <param name="set">Parametry bloku</param>
+    /// <returns></returns>
     public virtual BlockCollider[] GetInteractionCollision(StandardBlockSet set)
     {
         return new BlockCollider[]
@@ -192,14 +235,20 @@ public abstract class Block : Baze
         East = 16,
         West = 32
     }
+
+    /// <summary>
+    /// Standardowe parametry bloku
+    /// </summary>
     public struct StandardBlockSet
     {
         public (int x, int y, int z) pozition;
-        //public ModelConstructor constructor;
         public PlacedBlock block;
         public World world;
     }
 
+    /// <summary>
+    /// Parametry granic bloku
+    /// </summary>
     public struct BlockCollider
     {
         public (float x, float y, float z) pozition;

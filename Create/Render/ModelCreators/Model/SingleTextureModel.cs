@@ -54,6 +54,11 @@ public sealed class SingleTextureModel : ChunkModel
         .ProjectionMatrixUniform("matrix")
         .Finish(s => s.SetUniform("block_atlas", Assets.BlockAtlas.Attlas).SetUniform("is_debug_mode", false));
 
+    /// <summary>
+    /// Dodaje dane o sześcianie do modelu
+    /// </summary>
+    /// <param name="side"></param>
+    /// <exception cref="Exception"></exception>
     public void AddSide(SingleTextureSide side)
     {
         if (side.uvs.Length != side.pozitions.Length)

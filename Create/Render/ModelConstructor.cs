@@ -2,12 +2,23 @@
 
 namespace Create.Render;
 
+/// <summary>
+/// Mechanizm grupujące podrzędne mechanizm budowania modelu terenu
+/// </summary>
 public abstract class ModelConstructor
 {
     Dictionary<Type, ChunkModel> models;
 
     VirtualDictionaty<Type, ChunkModel> model_mekanizm;
+
+    /// <summary>
+    /// Oddzielne mechanizmy do generowania modelu terenu
+    /// </summary>
     public VirtualDictionaty<Type, ChunkModel> ModelMekanizm => model_mekanizm;
+
+    /// <summary>
+    /// Biblioteka z wrzystkimi urzytymi mechanizmami generowania terenu
+    /// </summary>
     protected Dictionary<Type, ChunkModel> Models => models;
 
     public ModelConstructor()
@@ -16,6 +27,12 @@ public abstract class ModelConstructor
         model_mekanizm = create_dictionary(this);
     }
 
+    /// <summary>
+    /// Tworzy wirtualną biblioteke zwracajoncą odzielne mechanizmy do generowania modelu terenu a jeżeli te nie zostały jeszcze stworzone to je generuje
+    /// </summary>
+    /// <param name="mc">faktyczna bibliotega zawierająca mechanizmy</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
     static VirtualDictionaty<Type, ChunkModel> create_dictionary(ModelConstructor mc) => VirtualDictionaty.Create(mc.models)
         .GetMethod(s =>
         {

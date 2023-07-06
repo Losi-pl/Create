@@ -3,6 +3,9 @@ using Create.Elements.Bazic.Entitys;
 
 namespace Create.Net;
 
+/// <summary>
+/// Instancja połączonego gracza
+/// </summary>
 public sealed class Player
 {
     Account account;
@@ -13,7 +16,14 @@ public sealed class Player
         this.account = account;
     }
 
+    /// <summary>
+    /// Identyfikator gracza
+    /// </summary>
     public Account Account => account;
+
+    /// <summary>
+    /// Byt połączony z graczem
+    /// </summary>
     public LivingEntity? Entity { get => entity; set
         {
             if(value == null)

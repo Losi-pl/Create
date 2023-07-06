@@ -2,6 +2,9 @@
 
 namespace Create.Render;
 
+/// <summary>
+/// Podstawa elementu modelu terenu
+/// </summary>
 public class BlockQuard
 {
     Vector2[] uvs;

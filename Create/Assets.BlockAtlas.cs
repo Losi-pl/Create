@@ -1,4 +1,4 @@
-﻿using Create.OpenGL.Textures;
+using Create.OpenGL.Textures;
 using Create.Render;
 using Create.Virtuals;
 using SixLabors.ImageSharp;
@@ -8,23 +8,61 @@ namespace Create;
 
 partial class Assets
 {
+    /// <summary>
+    /// Przechowuje przekonwertowane informacje o teksturach bloków
+    /// </summary>
     public static class BlockAtlas
     {
+        /// <summary>
+        /// Odwołania do tekstur zapisanych w atlasie <see cref="atlas"/>
+        /// </summary>
         static Dictionary<string, BlockTextureHandle> block_atlas_handles = new();
+        
+        /// <summary>
+        /// Wirtualny strukt odwołująca się do <see cref="block_atlas_handles"/> i zwracająca <see cref="BlockTextureHandle.None"/> jeżeli tekstura nie może być zlokalizowana
+        /// </summary>
         static VirtualDictionaty<string, BlockTextureHandle> handle_attlas = VirtualDictionaty.Create(block_atlas_handles).GetMethod(g =>
         {
             if (block_atlas_handles.TryGetValue(g, out var wyn))
                 return wyn;
             return BlockTextureHandle.None;
         }).Finsh();
+
+        /// <summary>
+        /// Lista tekstór przed wprowadzeniem ich do <see cref="atlas"/>
+        /// </summary>
         static List<Image> texture = new();
+
+        /// <summary>
+        /// Attlas...
+        /// </summary>
         static Texture2DArray? atlas;
 
+        /// <summary>
+        /// <inheritdoc cref="handle_attlas"/>
+        /// </summary>
         public static VirtualDictionaty<string, BlockTextureHandle> Handles => handle_attlas;
+
+        /// <summary>
+        /// Odwołanie do braku tekstury w <see cref="atlas"/>
+        /// </summary>
         public static BlockTextureHandle NoneHandle => BlockTextureHandle.None;
+
+        /// <summary>
+        /// Sprawdza czy <see cref="Attlas"/> został wygenerowany
+        /// </summary>
         public static bool IsAttlasComplited => atlas != null;
+
+        /// <summary>
+        /// <inheritdoc cref="atlas"/>
+        /// </summary>
         public static Texture2DArray Attlas => atlas ?? throw new Exception("Attlas not complited");
 
+        /// <summary>
+        /// Dodanie teksture do <see cref="texture"/> i znacznik odwołania do <see cref="block_atlas_handles"/> albo jeżeli znacznik już istnieje zastępuje ją w <see cref="texture"/>
+        /// </summary>
+        /// <param name="im">Tekstura <para>Tekstury nie o wymiarach 16x16 są automatycznie odrzucane</para></param>
+        /// <param name="path">Ścieżka do tekstury np. <c>create:stone</c></param>
         internal static void set_texture(Image im, string path)
         {
             if (im.Width != 16 || im.Height != 16)
@@ -39,6 +77,9 @@ partial class Assets
             }
         }
 
+        /// <summary>
+        /// Generuje gotowy atlas na podstawie <see cref="texture"/> i gdy atlas jest gotowy <see cref="texture"/> jest czyszczony
+        /// </summary>
         internal static void finish_attlas()
         {
             {
@@ -59,6 +100,11 @@ partial class Assets
             }
             GC.Collect();
         }
+
+        /// <summary>
+        /// Generuje teksture braku tekstury
+        /// </summary>
+        /// <returns>Tablica kolorów braku tekstury</returns>
         static Rgba32[,] null_texture()
         {
             Rgba32[,] tex = new Rgba32[16, 16];

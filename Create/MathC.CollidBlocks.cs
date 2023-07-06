@@ -1,10 +1,17 @@
-﻿using Create.Elements;
+using Create.Elements;
 using OpenTK.Mathematics;
 
 namespace Create
 {
     partial class MathC
     {
+        /// <summary>
+        /// Podaje wszystkie bloki przez które przechodzi promień z punktu <paramref name="camera_poz"/>, pod kątem <paramref name="camera_rotation"/> i o długości <paramref name="distance"/>
+        /// </summary>
+        /// <param name="camera_poz">Punkt wyjściowy promienia</param>
+        /// <param name="camera_rotation">Kierunek promienia z punktu wyjścia</param>
+        /// <param name="distance">Długość promienia</param>
+        /// <returns></returns>
         public static IEnumerable<Vector3i> CollidBlocks(Vector3 camera_poz, Vector2 camera_rotation, float distance)
         {
             var start_block = MathC.Section(camera_poz, 1);
@@ -33,6 +40,13 @@ namespace Create
             while ((hit.HasValue ? hit.Value.Exit.HasValue : false) && i < 20);
         }
 
+        /// <summary>
+        /// Tworzy instancje promienia
+        /// </summary>
+        /// <param name="start">Punkt startowy promienia</param>
+        /// <param name="rotation">Nachylenie promienia</param>
+        /// <param name="distance">Opcjonalna długość promienia</param>
+        /// <returns></returns>
         public static Ray CreateRay(Vector3 start, Vector2 rotation, float? distance = null)
         {
             Ray r = new();
@@ -40,7 +54,9 @@ namespace Create
             return r;
         }
 
-
+        /// <summary>
+        /// Technologia Ray-Cast
+        /// </summary>
         public class Ray : IDisposable
         {
             (float x, float y, float z) _start;
@@ -49,6 +65,9 @@ namespace Create
             (float x, float y) _orientaction;
             bool _disposed;
 
+            /// <summary>
+            /// Czyszczenie ustawień promienia
+            /// </summary>
             public void Dispose()
             {
                 if (_disposed)
@@ -61,6 +80,12 @@ namespace Create
                 _disposed = true;
             }
 
+            /// <summary>
+            /// Ustawienie ustawień promienia
+            /// </summary>
+            /// <param name="start"></param>
+            /// <param name="rotation"></param>
+            /// <param name="distance"></param>
             public void Set(Vector3 start, Vector2 rotation, float? distance = null)
             {
                 _start = start.ToTumple();
@@ -73,6 +98,12 @@ namespace Create
                 } // _delta
             }
 
+            /// <summary>
+            /// Sprawdzenie czy promień przechodzi przez sześcien o pozycji <paramref name="pozition"/> i wymiarach <paramref name="size"/>
+            /// </summary>
+            /// <param name="pozition">Pozycja sześcianu</param>
+            /// <param name="size">Wymiary sześcianu</param>
+            /// <returns>Informacje kolizji. Jeżeli funkcja nic nie zwruci nie doszło do kolizji</returns>
             public BoxHit? CastBox(Vector3 pozition, Vector3 size)
             {
                 if (size.X <= 0 || size.Y <= 0 || size.Z <= 0)

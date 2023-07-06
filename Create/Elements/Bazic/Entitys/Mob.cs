@@ -1,6 +1,7 @@
-﻿using Create.Conteiner;
+using Create.Conteiner;
 using Create.OpenGL;
 using Create.Render;
+using Create.Space;
 using OpenTK.Mathematics;
 
 namespace Create.Elements.Bazic.Entitys;
@@ -35,7 +36,18 @@ public abstract class Mob : Entity
         .ProjectionMatrixUniform("matrix")
         .Finish(s => s.SetUniform("color", new Vector4(61 / 255f, 172 / 255f, 27 / 255f, 1)));
 
+    /// <summary>
+    /// Podaje wymiary moba
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
     public virtual (float height, float width) GetMobSize(LivingEntity entity) => (1.86f, 0.68f);
+    
+    /// <summary>
+    /// Na jakiej wysokości znajduje się kamera
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
     public virtual float GetCameraHeight(LivingEntity entity) => 1.7f;
 
     public override void OnPhisicUpdate(LivingEntity entity, float delta)
@@ -73,6 +85,10 @@ public abstract class Mob : Entity
         entity.Data.Set("move_delta", move_delta);
     }
 
+    /// <summary>
+    /// Kontrola instancji przez gracza
+    /// </summary>
+    /// <param name="entity"></param>
     void player_control(LivingEntity entity)
     {
         float cam_rot;
@@ -145,6 +161,12 @@ public abstract class Mob : Entity
                 return 2;
         }
     }
+    
+    /// <summary>
+    /// Kontrola postaci przez AI
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="delta"></param>
     void mob_control(LivingEntity entity, float delta)
     {
         
@@ -179,6 +201,12 @@ public abstract class Mob : Entity
         return new(model);
     }
     
+    /// <summary>
+    /// Mów instancje <paramref name="entity"/> o <paramref name="move"/>
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="move"></param>
+    /// <returns></returns>
     public static bool Move(LivingEntity entity, Vector3 move)
     {
         bool collid = false;
@@ -200,6 +228,14 @@ public abstract class Mob : Entity
         }
         return collid;
     }
+    
+    /// <summary>
+    /// Mów instancje <paramref name="entity"/> w osi Y o <paramref name="move"/>
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="move"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
     public static bool MoveByY(LivingEntity entity, float move)
     {
         if (entity == null)
@@ -321,6 +357,14 @@ public abstract class Mob : Entity
             }
         }
     }
+
+    /// <summary>
+    /// Mów instancje <paramref name="entity"/> w osi X o <paramref name="move"/>
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="move"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
     public static bool MoveByX(LivingEntity entity, float move)
     {
         if (move == 0)
@@ -443,6 +487,14 @@ public abstract class Mob : Entity
             }
         }
     }
+
+    /// <summary>
+    /// Mów instancje <paramref name="entity"/> w osi Z o <paramref name="move"/>
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="move"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
     public static bool MoveByZ(LivingEntity entity, float move)
     {
         if (move == 0)
@@ -565,6 +617,12 @@ public abstract class Mob : Entity
             }
         }
     }
+    
+    /// <summary>
+    /// Czy byt stoji na ziemi
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
     public static bool IsOnGround(LivingEntity entity)
     {
         var world = entity.Dimention!.World;
@@ -604,6 +662,13 @@ public abstract class Mob : Entity
 
         return false;
     }
+    
+    /// <summary>
+    /// Gdzie instancja się patrzy
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="distance"></param>
+    /// <returns></returns>
     public static ((int x, int y, int z) pozition, int hitBoxNumer, Block.BlockSide side)? ImLookingAt(LivingEntity entity, float distance)
     {
         if (entity.Dimention == null)
@@ -620,6 +685,13 @@ public abstract class Mob : Entity
         }
         return ImLookingAt(entity.Dimention!.World, start_poz, cam_rot, distance);
     }
+
+    /// <summary>
+    /// Gdzie trafia promień
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="distance"></param>
+    /// <returns></returns>
     public static ((int x, int y, int z) pozition, int hitBoxNumer, Block.BlockSide side)? ImLookingAt(World world, Vector3 start, Vector2 lootRotation, float distance)
     {
         foreach(var bl_poz in MathC.CollidBlocks(start, lootRotation, distance))

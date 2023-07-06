@@ -1,9 +1,11 @@
 ﻿using Create.Conteiner;
 using Create.Elements;
-using System.Runtime.CompilerServices;
 
 namespace Create.Space;
 
+/// <summary>
+/// Jednostka zawierająca kolumne terenu podzieloną na mniejsze sekcje terenu aby ułatwić organizacje kawałków terenu
+/// </summary>
 public sealed class Chunk
 {
     public const int QUARD_SIZE = 16, QUARD_STACK = 16, CHUNK_HEIGHT = QUARD_SIZE * QUARD_STACK;
@@ -65,7 +67,15 @@ public sealed class Chunk
         }
     }
 
+    /// <summary>
+    /// Ile bloków w karzdym sześcianie jest innych niż powietrze
+    /// </summary>
     internal uint[] quards_content => block_content;
+
+    /// <summary>
+    /// Lista sześcianów chunka których zawartość została zmieniona od ostatniego sprawdzenia
+    /// </summary>
+    /// <returns></returns>
     internal IEnumerable<int> las_modified_quards()
     {
         lock(task_lock)

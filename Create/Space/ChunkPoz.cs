@@ -2,6 +2,9 @@
 
 namespace Create.Space;
 
+/// <summary>
+/// Pozycja kawałku terenu <see cref="Chunk"/> w światach opartych na <see cref="DimentionSpace"/>
+/// </summary>
 public struct ChunkPoz
 {
     public int X { get; set; }

@@ -61,6 +61,11 @@ public sealed class MultiTextureColorModel : ChunkModel
         .SetVertex("tex_color", color.ToArray())
         .Finish();
 
+    /// <summary>
+    /// Dodaje dane o sześcianie do modelu
+    /// </summary>
+    /// <param name="side"></param>
+    /// <exception cref="Exception"></exception>
     public void AddSide(MultiTextureColorSide side)
     {
         if (side.uvs.Length != side.pozitions.Length)

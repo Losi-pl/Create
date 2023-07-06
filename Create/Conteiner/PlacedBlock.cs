@@ -1,7 +1,10 @@
-﻿using Create.Elements;
+using Create.Elements;
 
 namespace Create.Conteiner;
 
+/// <summary>
+/// Postawiony blok
+/// </summary>
 public readonly struct PlacedBlock
 {
     readonly Block block;
@@ -36,10 +39,28 @@ public readonly struct PlacedBlock
         this.meta = meta;
     }
 
+    /// <summary>
+    /// Typ bloku
+    /// </summary>
     public Block Block => block ?? Blocks.AIR;
+    
+    /// <summary>
+    /// Pod typ bloku
+    /// </summary>
     public byte Type => editor;
+
+    /// <summary>
+    /// Dodatkowe parametry bloku
+    /// </summary>
     public string Meta => meta ?? String.Empty;
 
+    /// <summary>
+    /// Test czy Typ bloku jest zarejestrowany w rejestrze
+    /// </summary>
+    /// <param name="paramName"></param>
+    /// <param name="block">Typ bloku</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="Exception"></exception>
     static void test_block(string paramName, Block block)
     {
         if (block == null)

@@ -1,7 +1,10 @@
-﻿using Create.Elements.Bazic.Blocks;
+using Create.Elements.Bazic.Blocks;
 
 namespace Create.Elements;
 
+/// <summary>
+/// Wrzystkie bloki
+/// </summary>
 public static class Blocks
 {
     public static readonly Block AIR = new Air();

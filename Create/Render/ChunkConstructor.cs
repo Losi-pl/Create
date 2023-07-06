@@ -2,13 +2,12 @@
 using Create.Space;
 using Create.Virtuals;
 using OpenTK.Mathematics;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace Create.Render;
 
-
+/// <summary>
+/// Generator modelu terenu oparty o mechanike Chunków
+/// </summary>
 public sealed class ChunkConstructor : ModelConstructor
 {
     DimentionSpace dimention;
@@ -22,12 +21,26 @@ public sealed class ChunkConstructor : ModelConstructor
         this.poz = poz;
     }
 
+    /// <summary>
+    /// Generuje model całego chunka z ze świata <paramref name="dimention"/> o pozycji <paramref name="chunk"/>
+    /// </summary>
+    /// <param name="dimention">Świat źrudłowy</param>
+    /// <param name="chunk">Pozycja chunka</param>
+    /// <returns></returns>
     public static FinischedChunkModel GenerateModel(DimentionSpace dimention, ChunkPoz chunk)
     {
         ChunkConstructor hc = new(dimention, chunk);
         hc.CalculateModel();
         return hc.model!;
     }
+
+    /// <summary>
+    /// Generuje model sześcianu chunka ze świata <paramref name="dimention"/> o pozycji <paramref name="chunk"/> i o szescianie numer <paramref name="quard"/>
+    /// </summary>
+    /// <param name="dimention">Świat źrudłowy</param>
+    /// <param name="chunk">Pozycja chunka</param>
+    /// <param name="quard">Numer sześcianu od dołu do wygenerowania</param>
+    /// <returns></returns>
     public static Dictionary<Type, Mesh> QuardModel(DimentionSpace dimention, ChunkPoz chunk, int quard)
     {
         var chunk_s = dimention.get_chunk(chunk);
@@ -53,6 +66,9 @@ public sealed class ChunkConstructor : ModelConstructor
         return quard_m;
     }
 
+    /// <summary>
+    /// Przetworzenie gotowych zebranych danych terenu w modele
+    /// </summary>
     public void CalculateModel()
     {
         if (finish)
@@ -95,9 +111,20 @@ public sealed class ChunkConstructor : ModelConstructor
         }
         model = new(models, poz);
     }
+    
+    /// <summary>
+    /// Pozycja generowanego chunka
+    /// </summary>
     public ChunkPoz CurrentChunk => poz;
+
+    /// <summary>
+    /// Świat źrudłowy dla modelu
+    /// </summary>
     public DimentionSpace Dimention => dimention;
 
+    /// <summary>
+    /// Gotowy model całego chunka
+    /// </summary>
     public class FinischedChunkModel : IDrawable, IDisposable
     {
         Dictionary<Type, Mesh>[] models = new Dictionary<Type, Mesh>[Chunk.QUARD_STACK];
@@ -108,9 +135,14 @@ public sealed class ChunkConstructor : ModelConstructor
             this.pozition = pozition;
         }
 
-        public ChunkPoz Pozition => pozition;
         /// <summary>
-        /// This element is very unoptimized and it is recommended to use it as rarely as possible
+        /// Pozycja chunka w świecie
+        /// </summary>
+        public ChunkPoz Pozition => pozition;
+        
+        /// <summary>
+        /// Części gotowego modelu całego chunka
+        /// <para>This element is very unoptimized and it is recommended to use it as rarely as possible</para>
         /// </summary>
         public VirtualList<VirtualDictionaty<Type, Mesh>> ModelParts => VirtualList.Create<VirtualDictionaty<Type, Mesh>>()
             .CountMethod(() => models.Length)
@@ -119,12 +151,18 @@ public sealed class ChunkConstructor : ModelConstructor
             .GetMethod(i => VirtualDictionaty.Create(models[i]).Finsh())
             .Finish();
 
+        /// <summary>
+        /// Ustawia cześcian modelu w chunku
+        /// </summary>
+        /// <param name="model">Części modelu sześcianu</param>
+        /// <param name="poz">Gdzie ten element się znajduje</param>
         internal void set_new_quard(Dictionary<Type, Mesh> model, int poz)
         {
             foreach (var mod in models[poz].Values)
                 mod.Dispose();
             models[poz] = model;
         }
+        
         public void Dispose()
         {
             for (int i = 0; i < models.Length; i++)
@@ -132,6 +170,11 @@ public sealed class ChunkConstructor : ModelConstructor
                     mod.Dispose();
         }
 
+        /// <summary>
+        /// Rysuje model
+        /// </summary>
+        /// <param name="projection"></param>
+        /// <param name="model"></param>
         public void Draw(Matrix4 projection, Matrix4 model)
         {
             for(int i = 0; i < models.Length; i++)

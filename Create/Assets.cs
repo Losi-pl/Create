@@ -1,13 +1,18 @@
-﻿using Create.Render;
 using Create.Resource;
 using SixLabors.ImageSharp;
 
 namespace Create;
 
+/// <summary>
+/// Klasa przechowująca globalny pakiet zasobów i podklasy ułatwiające dostęp do danych
+/// </summary>
 public static partial class Assets
 {
     static MargedResources? resources;
 
+    /// <summary>
+    /// Ładuje wszystkie pakiety zasobów i łączy je w jeden globalny pakiet
+    /// </summary>
     internal static void load_resources()
     {
         var cons = Resources.FromOthers();
@@ -22,8 +27,17 @@ public static partial class Assets
         IEnumerable<Resources> resource_packs() => Enumerable.Empty<Resources>();
     }
 
+    /// <summary>
+    /// Globalny pakiet zasobów
+    /// </summary>
     public static Resources? Resources => resources;
 
+    /// <summary>
+    /// Pobiera dane z globalnedo pakieto i dystrybuuje je do odpowiednich elementów gry
+    /// <para>
+    ///   Rozmieszcza tekstury bloków do <see cref="BlockAtlas"/>
+    /// </para>
+    /// </summary>
     internal static void first_proces_resources()
     {
         if (resources == null)

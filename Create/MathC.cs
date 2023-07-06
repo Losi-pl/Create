@@ -1,10 +1,16 @@
-﻿using OpenTK.Mathematics;
+using OpenTK.Mathematics;
 
 namespace Create;
 
 public static partial class MathC
 {
     #region InSection
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o rozmiarze <paramref name="section"/> i zwraca gdzie w sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <returns></returns>
     public static int InSection(int value, int section)
     {
         if (value > 0)
@@ -12,6 +18,13 @@ public static partial class MathC
         else
             return (value % section) == 0 ? 0 : section + (value % section);
     }
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o rozmiarze <paramref name="section"/> i zwraca gdzie w sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <returns></returns>
     public static float InSection(float value, float section)
     {
         if (value > 0)
@@ -19,29 +32,189 @@ public static partial class MathC
         else
             return (value % section) == 0 ? 0 : section + (value % section);
     }
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o rozmiarze <paramref name="section"/> i z przesunięciem <paramref name="offset"/> następnie zwraca gdzie w sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie przedziału</param>
+    /// <returns></returns>
     public static int InSection(int value, int section, int offset) => InSection(value - offset, section);
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o rozmiarze <paramref name="section"/> i z przesunięciem <paramref name="offset"/> następnie zwraca gdzie w sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie przedziału</param>
+    /// <returns></returns>
     public static float InSection(float value, float section, float offset) => InSection(value - offset, section);
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o rozmiarze <paramref name="section"/> i zwraca gdzie w sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <returns></returns>
     public static Vector2 InSection(Vector2 value, float section) => new(InSection(value.X, section), InSection(value.Y, section));
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o rozmiarze <paramref name="section"/> i z przesunięciem <paramref name="offset"/> następnie zwraca gdzie w sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie przedziału</param>
+    /// <returns></returns>
     public static Vector2 InSection(Vector2 value, float section, float offset) => InSection(new Vector2(value.X - offset, value.Y - offset), section);
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o rozmiarze <paramref name="section"/> i zwraca gdzie w sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <returns></returns>
     public static Vector2i InSection(Vector2i value, int section) => new(InSection(value.X, section), InSection(value.Y, section));
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o rozmiarze <paramref name="section"/> i z przesunięciem <paramref name="offset"/> następnie zwraca gdzie w sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie przedziału</param>
+    /// <returns></returns>
     public static Vector2i InSection(Vector2i value, int section, int offset) => InSection(new Vector2i(value.X - offset, value.Y - offset), section);
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o rozmiarze <paramref name="section"/> i zwraca gdzie w sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <returns></returns>
     public static Vector3 InSection(Vector3 value, float section) => new(InSection(value.X, section), InSection(value.Y, section), InSection(value.Z, section));
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o rozmiarze <paramref name="section"/> i z przesunięciem <paramref name="offset"/> następnie zwraca gdzie w sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie przedziału</param>
+    /// <returns></returns>
     public static Vector3 InSection(Vector3 value, float section, float offset) => InSection(new Vector3(value.X - offset, value.Y - offset, value.Z - offset), section);
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o rozmiarze <paramref name="section"/> i zwraca gdzie w sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <returns></returns>
     public static Vector3i InSection(Vector3i value, int section) => new(InSection(value.X, section), InSection(value.Y, section), InSection(value.Z, section));
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o rozmiarze <paramref name="section"/> i z przesunięciem <paramref name="offset"/> następnie zwraca gdzie w sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie przedziału</param>
+    /// <returns></returns>
     public static Vector3i InSection(Vector3i value, int section, int offset) => InSection(new Vector3i(value.X - offset, value.Y - offset, value.Z - offset), section);
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o rozmiarze <paramref name="section"/> i zwraca gdzie w sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <returns></returns>
     public static Vector4 InSection(Vector4 value, float section) => new(InSection(value.X, section), InSection(value.Y, section), InSection(value.Z, section), InSection(value.W, section));
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o rozmiarze <paramref name="section"/> i z przesunięciem <paramref name="offset"/> następnie zwraca gdzie w sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie przedziału</param>
+    /// <returns></returns>
     public static Vector4 InSection(Vector4 value, float section, float offset) => InSection(new Vector4(value.X - offset, value.Y - offset, value.Z - offset, value.W - offset), section);
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o rozmiarze <paramref name="section"/> i zwraca gdzie w sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <returns></returns>
     public static Vector4i InSection(Vector4i value, int section) => new(InSection(value.X, section), InSection(value.Y, section), InSection(value.Z, section), InSection(value.W, section));
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o rozmiarze <paramref name="section"/> i z przesunięciem <paramref name="offset"/> następnie zwraca gdzie w sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie przedziału</param>
+    /// <returns></returns>
     public static Vector4i InSection(Vector4i value, int section, int offset) => InSection(new Vector4i(value.X - offset, value.Y - offset, value.Z - offset, value.W - offset), section);
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o rozmiarze <paramref name="section"/> i z przesunięciem <paramref name="offset"/> następnie zwraca gdzie w sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie przedziału</param>
+    /// <returns></returns>
     public static Vector2 InSection(Vector2 value, float section, Vector2 offset) => InSection(value - offset, section);
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o rozmiarze <paramref name="section"/> i z przesunięciem <paramref name="offset"/> następnie zwraca gdzie w sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie przedziału</param>
+    /// <returns></returns>
     public static Vector2i InSection(Vector2i value, int section, Vector2i offset) => InSection(value - offset, section);
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o rozmiarze <paramref name="section"/> i z przesunięciem <paramref name="offset"/> następnie zwraca gdzie w sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie przedziału</param>
+    /// <returns></returns>
     public static Vector3 InSection(Vector3 value, float section, Vector3 offset) => InSection(value - offset, section);
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o rozmiarze <paramref name="section"/> i z przesunięciem <paramref name="offset"/> następnie zwraca gdzie w sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie przedziału</param>
+    /// <returns></returns>
     public static Vector3i InSection(Vector3i value, int section, Vector3i offset) => InSection(value - offset, section);
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o rozmiarze <paramref name="section"/> i z przesunięciem <paramref name="offset"/> następnie zwraca gdzie w sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie przedziału</param>
+    /// <returns></returns>
     public static Vector4 InSection(Vector4 value, float section, Vector4 offset) => InSection(value - offset, section);
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o rozmiarze <paramref name="section"/> i z przesunięciem <paramref name="offset"/> następnie zwraca gdzie w sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie przedziału</param>
+    /// <returns></returns>
     public static Vector4i InSection(Vector4i value, int section, Vector4i offset) => InSection(value - offset, section);
     #endregion
 
     #region Section
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o wymiarach <paramref name="section"/> i zwraca w której sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="sect">Rozmiar sekcji</param>
+    /// <returns></returns>
     public static int Section(float value, float sect)
     {
         if (value < 0)
@@ -49,6 +222,13 @@ public static partial class MathC
         else
             return (int)(value / sect);
     }
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o wymiarach <paramref name="section"/> i zwraca w której sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="sect">Rozmiar sekcji</param>
+    /// <returns></returns>
     public static int Section(int value, int sect)
     {
         if (value < 0)
@@ -56,28 +236,187 @@ public static partial class MathC
         else
             return value / sect;
     }
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o wymiarach <paramref name="section"/> i przesuniętą o <paramref name="offset"/> następnie zwraca w której sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie sekcji</param>
+    /// <returns></returns>
     public static int Section(int value, int section, int offset) => Section(value - offset, section);
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o wymiarach <paramref name="section"/> i przesuniętą o <paramref name="offset"/> następnie zwraca w której sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="section">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie sekcji</param>
+    /// <returns></returns>
     public static int Section(float value, float section, float offset) => Section(value - offset, section);
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o wymiarach <paramref name="section"/> i zwraca w której sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="sect">Rozmiar sekcji</param>
+    /// <returns></returns>
     public static Vector2i Section(Vector2 value, float sect) => new(Section(value.X, sect), Section(value.Y, sect));
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o wymiarach <paramref name="section"/> i przesuniętą o <paramref name="offset"/> następnie zwraca w której sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="sect">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie sekcji</param>
+    /// <returns></returns>
     public static Vector2i Section(Vector2 value, float sect, float offset) => new(Section(value.X - offset, sect), Section(value.Y - offset, sect));
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o wymiarach <paramref name="section"/> i zwraca w której sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="sect">Rozmiar sekcji</param>
+    /// <returns></returns>
     public static Vector2i Section(Vector2i value, int sect) => new(Section(value.X, sect), Section(value.Y, sect));
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o wymiarach <paramref name="section"/> i przesuniętą o <paramref name="offset"/> następnie zwraca w której sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="sect">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie sekcji</param>
+    /// <returns></returns>
     public static Vector2i Section(Vector2i value, int sect, int offset) => new(Section(value.X - offset, sect), Section(value.Y - offset, sect));
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o wymiarach <paramref name="section"/> i zwraca w której sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="sect">Rozmiar sekcji</param>
+    /// <returns></returns>
     public static Vector3i Section(Vector3 value, float sect) => new(Section(value.X, sect), Section(value.Y, sect), Section(value.Z, sect));
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o wymiarach <paramref name="section"/> i przesuniętą o <paramref name="offset"/> następnie zwraca w której sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="sect">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie sekcji</param>
+    /// <returns></returns>
     public static Vector3i Section(Vector3 value, float sect, float offset) => new(Section(value.X - offset, sect), Section(value.Y - offset, sect), Section(value.Z - offset, sect));
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o wymiarach <paramref name="section"/> i zwraca w której sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="sect">Rozmiar sekcji</param>
+    /// <returns></returns>
     public static Vector3i Section(Vector3i value, int sect) => new(Section(value.X, sect), Section(value.Y, sect), Section(value.Z, sect));
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o wymiarach <paramref name="section"/> i przesuniętą o <paramref name="offset"/> następnie zwraca w której sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="sect">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie sekcji</param>
+    /// <returns></returns>
     public static Vector3i Section(Vector3i value, int sect, int offset) => new(Section(value.X - offset, sect), Section(value.Y - offset, sect), Section(value.Z - offset, sect));
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o wymiarach <paramref name="section"/> i zwraca w której sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="sect">Rozmiar sekcji</param>
+    /// <returns></returns>
     public static Vector4i Section(Vector4 value, float sect) => new(Section(value.X, sect), Section(value.Y, sect), Section(value.Z, sect), Section(value.W, sect));
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o wymiarach <paramref name="section"/> i przesuniętą o <paramref name="offset"/> następnie zwraca w której sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="sect">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie sekcji</param>
+    /// <returns></returns>
     public static Vector4i Section(Vector4 value, float sect, float offset) => new(Section(value.X - offset, sect), Section(value.Y - offset, sect), Section(value.Z - offset, sect), Section(value.W - offset, sect));
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o wymiarach <paramref name="section"/> i zwraca w której sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="sect">Rozmiar sekcji</param>
+    /// <returns></returns>
     public static Vector4i Section(Vector4i value, int sect) => new(Section(value.X, sect), Section(value.Y, sect), Section(value.Z, sect), Section(value.W, sect));
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o wymiarach <paramref name="section"/> i przesuniętą o <paramref name="offset"/> następnie zwraca w której sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="sect">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie sekcji</param>
+    /// <returns></returns>
     public static Vector4i Section(Vector4i value, int sect, int offset) => new(Section(value.X - offset, sect), Section(value.Y - offset, sect), Section(value.Z - offset, sect), Section(value.W - offset, sect));
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o wymiarach <paramref name="section"/> i przesuniętą o <paramref name="offset"/> następnie zwraca w której sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="sect">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie sekcji</param>
+    /// <returns></returns>
     public static Vector2i Section(Vector2 value, float sect, Vector2 offset) => Section(value - offset, sect);
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o wymiarach <paramref name="section"/> i przesuniętą o <paramref name="offset"/> następnie zwraca w której sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="sect">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie sekcji</param>
+    /// <returns></returns>
     public static Vector3i Section(Vector3 value, float sect, Vector3 offset) => Section(value - offset, sect);
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o wymiarach <paramref name="section"/> i przesuniętą o <paramref name="offset"/> następnie zwraca w której sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="sect">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie sekcji</param>
+    /// <returns></returns>
     public static Vector4i Section(Vector4 value, float sect, Vector4 offset) => Section(value - offset, sect);
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o wymiarach <paramref name="section"/> i przesuniętą o <paramref name="offset"/> następnie zwraca w której sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="sect">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie sekcji</param>
+    /// <returns></returns>
     public static Vector2i Section(Vector2i value, int sect, Vector2i offset) => Section(value - offset, sect);
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o wymiarach <paramref name="section"/> i przesuniętą o <paramref name="offset"/> następnie zwraca w której sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="sect">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie sekcji</param>
+    /// <returns></returns>
     public static Vector3i Section(Vector3i value, int sect, Vector3i offset) => Section(value - offset, sect);
+
+    /// <summary>
+    /// Dzieli <paramref name="value"/> na sekcje o wymiarach <paramref name="section"/> i przesuniętą o <paramref name="offset"/> następnie zwraca w której sekcji <paramref name="value"/> się znajduje
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="sect">Rozmiar sekcji</param>
+    /// <param name="offset">Przesunięcie sekcji</param>
+    /// <returns></returns>
     public static Vector4i Section(Vector4i value, int sect, Vector4i offset) => Section(value - offset, sect);
     #endregion
 
+    /// <summary>
+    /// Punkty w formie koła o średnicy <paramref name="range"/>. W kolejności od środka do granic
+    /// </summary>
+    /// <param name="range"></param>
+    /// <returns></returns>
     public static IEnumerable<(int x, int y)> GetElementsFromCenter(int range)
     {
         List<(int x, int y)> elems = new();
@@ -105,6 +444,17 @@ public static partial class MathC
         }
     }
 
+    /// <summary>
+    /// Zmienia kąty podane w stopniach na podane w π
+    /// </summary>
+    /// <param name="angle"></param>
+    /// <returns></returns>
     internal static float cast_angle_to_pi(float angle) => angle / 180f * MathF.PI;
+
+    /// <summary>
+    /// Zmienia kąty podane w π na kąty podane w stopniach
+    /// </summary>
+    /// <param name="angle"></param>
+    /// <returns></returns>
     internal static float cast_angle_to_normal(float angle) => angle / MathF.PI * 180f;
 }

@@ -6,15 +6,14 @@ using System.Reflection;
 using Create.Initialization;
 using SixLabors.ImageSharp;
 using Create.Resource;
-using Create.Render;
-using System.Xml.Linq;
 using System.Collections;
 using System.Diagnostics;
-using System.Collections.Generic;
-using System.IO;
 
 namespace Create;
 
+/// <summary>
+/// Podstawowa klasa zawierająca rejesty elementów
+/// </summary>
 [Mod("1.0.0.0", "create")]
 public static class Register
 {
@@ -26,6 +25,10 @@ public static class Register
     public static readonly ElementRegister<Dimention> Dimentions = dimentions_console.Register;
     public static readonly ElementRegister<Entity> Entitys = entitys_console.Register;
 
+    /// <summary>
+    /// Załadowanie podstawowego pakietu zasobów
+    /// </summary>
+    /// <returns></returns>
     internal static Resources create_resource()
     {
         #if DEBUG
@@ -91,6 +94,10 @@ public static class Register
         }
     }
 
+    /// <summary>
+    /// Załadowanie wrzystkich modyfikacji z <paramref name="mod_assemblys"/>
+    /// </summary>
+    /// <param name="mod_assemblys"></param>
     internal static void load_mods((Assembly? assembly, Resources resource)[] mod_assemblys)
     {
         var all_mods = ((IEnumerable<(Assembly? assembly, Resources resource)>)mod_assemblys).ConvertAll(z =>
@@ -171,6 +178,10 @@ public static class Register
         }
     }
 
+    /// <summary>
+    /// Metoda inicjalizacyjna elementów
+    /// </summary>
+    /// <param name="mod">Klasa modyfikacji</param>
     [ModIniter]
     static void load_create(Mod mod)
     {
@@ -183,11 +194,20 @@ public static class Register
             .ForEvery(e => mod.RegisterElement(e.name, e.element));
     }
 
+    /// <summary>
+    /// Wywoływana przed załadowaniem elementów
+    /// </summary>
     static void bazic_setup()
     {
 
     }
 
+    /// <summary>
+    /// Ładuje wrzystkie elementy z klasy <paramref name="where"/>
+    /// </summary>
+    /// <typeparam name="T">Typ ładowanych elementów</typeparam>
+    /// <param name="where">Z kąd te elementy mają być ładowane</param>
+    /// <returns></returns>
     internal static IEnumerable<(T element, string name)> get_all_elements<T>(Type where) where T : Baze =>
         where.GetFields(BindingFlags.Static | BindingFlags.Public)
             .Where(t => t.FieldType == typeof(T))
@@ -204,6 +224,9 @@ public static class Register
                 return (d, name);
             });
 
+    /// <summary>
+    /// Ustawienie innej nazwy elementu
+    /// </summary>
     internal class ElementNameAttribute : Attribute
     {
         string new_name;
@@ -213,17 +236,38 @@ public static class Register
         }
         public string Name => new_name;
     }
+    
+    /// <summary>
+    /// Pominięcie w ładowaniu danego elementu
+    /// </summary>
     internal class IgnoreAttribute : Attribute { }
 
+    /// <summary>
+    /// Rejestr elementów typu <typeparamref name="T"/>
+    /// </summary>
+    /// <typeparam name="T">Typ elementu</typeparam>
     [DebuggerDisplay("{class_name(),nq}")]
     [DebuggerTypeProxy(typeof(ElementRegister<>.Proxy))]
     public class ElementRegister<T> : IEnumerable<T> where T : Baze
     {
         List<T> list;
 
+        /// <summary>
+        /// Debugowy podgląd klasy
+        /// </summary>
+        /// <returns></returns>
         string class_name() => $"{typeof(T).Name} Register: {list.Count}";
 
+        /// <summary>
+        /// Enumerator wrzystkich elementów w rejestrze
+        /// </summary>
+        /// <returns></returns>
         public IEnumerator<T> GetEnumerator() => list.GetEnumerator();
+        
+        /// <summary>
+        /// <inheritdoc cref="GetEnumerator"/>
+        /// </summary>
+        /// <returns></returns>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         VirtualDictionaty<ushort, T> by_id;
@@ -231,7 +275,14 @@ public static class Register
         object task_lock = new();
         static object static_task_lock = new();
 
+        /// <summary>
+        /// Elementy rejestru po nazwie
+        /// </summary>
         public VirtualDictionaty<string, T> ByName => by_name;
+
+        /// <summary>
+        /// Elementy rejestru po numerze
+        /// </summary>
         public VirtualDictionaty<ushort, T> ById => by_id;
 
         public ElementRegister()
@@ -261,12 +312,27 @@ public static class Register
                 })
                 .Finsh();
         }
+        
+        /// <summary>
+        /// Konsole do edycji rejestru
+        /// </summary>
         public class Console
         {
             ElementRegister<T> register = new();
 
+            /// <summary>
+            /// Rejestr sparowany z konsolą
+            /// </summary>
             public ElementRegister<T> Register => register;
 
+            /// <summary>
+            /// Rejestrowanie nowego elementu w rejestrze
+            /// </summary>
+            /// <param name="element">Element do zajerestrowania</param>
+            /// <param name="name">Nazwa elementu</param>
+            /// <param name="mod">Modyfikacja pochodzenia</param>
+            /// <exception cref="ArgumentNullException"></exception>
+            /// <exception cref="ArgumentException"></exception>
             public void RegisterElement(T element, string name, Mod mod)
             {
                 if (element == null)
@@ -286,13 +352,23 @@ public static class Register
             }
         }
 
+        /// <summary>
+        /// Debugowy podgląd rejestru
+        /// </summary>
         private class Proxy
         {
             ElementRegister<T> elms;
 
             public Proxy(ElementRegister<T> elements) => elms = elements;
 
+            /// <summary>
+            /// Elementy po nazwie
+            /// </summary>
             public VirtualDictionaty<string, T> Names => elms.ByName;
+
+            /// <summary>
+            /// Elementy po numerze
+            /// </summary>
             public VirtualDictionaty<ushort, T> IDs => elms.ById;
         }
     }

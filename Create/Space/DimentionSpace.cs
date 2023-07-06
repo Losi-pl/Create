@@ -18,8 +18,20 @@ public sealed class DimentionSpace
         world = new(this);
     }
 
+    /// <summary>
+    /// Mechanizm do modyfikowania terenu w danym wymiarze
+    /// </summary>
     public World World => new DimentionWorld(this);
+    
+    /// <summary>
+    /// Parametry i statystyki danego świata
+    /// </summary>
     public Dimention Dimention => dimention;
+    
+    /// <summary>
+    /// Dodaj przez wygenerowanie albo załadowanie <see cref="Chunk"/>a z plików do świata
+    /// </summary>
+    /// <param name="position"></param>
     internal void add_chunk(ChunkPoz position)
     {
         if(is_chunk_saved(position))
@@ -33,6 +45,12 @@ public sealed class DimentionSpace
             chunks.Add(position, ch);
         }
     }
+    
+    /// <summary>
+    /// Zwróć chunk jeżeli znajduje on się w pamięci
+    /// </summary>
+    /// <param name="poz"></param>
+    /// <returns>Jeżali zwraca <see langword="null"/>, <see cref="Chunk"/> nie znajduje się w pamięci</returns>
     internal Chunk? get_chunk(ChunkPoz poz)
     {
         if (chunks.TryGetValue(poz, out var chunk))
@@ -40,8 +58,25 @@ public sealed class DimentionSpace
         return null;
     }
 
+    /// <summary>
+    /// Sprawdza czy <see cref="Chunk"/> jest załadowany do pamięci
+    /// </summary>
+    /// <param name="chunk"></param>
+    /// <returns></returns>
     public bool IsChunkLoadet(ChunkPoz chunk) => chunks.ContainsKey(chunk);
+
+    /// <summary>
+    /// Ma sprawdzać czy <see cref="Chunk"/> został zapisany w plikach
+    /// </summary>
+    /// <param name="poz"></param>
+    /// <returns></returns>
     bool is_chunk_saved(ChunkPoz poz) => false; // Testing if chunk is alredy saved
+    
+    /// <summary>
+    /// Umieszcza instancje na płaszczyźnie świata
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="pozition">Pozycja w świecie gdze byt zostanie umieszczony</param>
     public void PlaceOnPlatform(LivingEntity entity, Vector3 pozition)
     {
         if (entity.Dimention == this)
@@ -52,6 +87,11 @@ public sealed class DimentionSpace
         entity.set_diment(this);
         entity.Pozition = pozition.ToOpenGL();
     }
+    
+    /// <summary>
+    /// Usunie instancje z płaszczyzny świata bez niszczenia go
+    /// </summary>
+    /// <param name="entity"></param>
     public void RemoveFromPlatform(LivingEntity entity)
     {
         if (entity.Dimention == null)
@@ -60,6 +100,12 @@ public sealed class DimentionSpace
         entity.set_diment(null);
         entity.remove_chunk();
     }
+    
+    /// <summary>
+    /// Gdy <see cref="Chunk"/> na kturym stoji instancja się zmieni
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="new_chunk"></param>
     internal void change_entity_chunk(LivingEntity entity, ChunkPoz new_chunk)
     {
         if(chunks.TryGetValue(entity.Chunk, out var chunk))
@@ -67,12 +113,28 @@ public sealed class DimentionSpace
         if (chunks.TryGetValue(new_chunk, out chunk))
             chunk.local_entitys.Add(entity);
     }
+    
+    /// <summary>
+    /// Oblicza w którym <see cref="Chunk"/>u blok o współrzędnych (<paramref name="x"/>, y, <paramref name="z"/>) się znajduje
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="z"></param>
+    /// <returns></returns>
     internal static ChunkPoz calculate_chunk_pozition(int x, int z) => new()
     {
         X = MathC.Section(x, Chunk.QUARD_SIZE),
         Z = MathC.Section(z, Chunk.QUARD_SIZE)
     };
+    
+    /// <summary>
+    /// Kolekcja wrzystkich instancji bytów na tym świecie
+    /// </summary>
     public IEnumerable<LivingEntity> AllEntities => entities;
+    
+    /// <summary>
+    /// Kolekcja wrzystkich sześcianów w <see cref="Chunk"/>ach zostały zmienione od ostatniego sprawdzenia
+    /// </summary>
+    /// <returns></returns>
     internal IEnumerable<(ChunkPoz chunk, uint quard)> get_changet_chunks()
     {
         lock (changet_chunks)
@@ -92,7 +154,19 @@ public sealed class DimentionSpace
             changet_chunks.Clear();
         }
     }
+    
+    /// <summary>
+    /// Kolekcja <see cref="ChunkPoz"/> wrzystkich załadowanych <see cref="Chunk"/>ów w tym świecie
+    /// </summary>
     public IEnumerable<ChunkPoz> LoadetChunks => chunks.Keys;
+    
+    /// <summary>
+    /// Tworzy i umieszcza instancje bytu w tym świecie
+    /// </summary>
+    /// <param name="entity">Typ bytu</param>
+    /// <param name="pozition">Pozycja w świecie</param>
+    /// <param name="specialArgs">Dodatkowy parametr tworzenia bytu</param>
+    /// <returns></returns>
     public LivingEntity Spawn(Entity entity, Vector3 pozition, object? specialArgs = null)
     {
         var ent = new LivingEntity(entity);
@@ -102,6 +176,9 @@ public sealed class DimentionSpace
     }
     public static explicit operator World(DimentionSpace ds) => ds.world;
 
+    /// <summary>
+    /// Teren połączony z danym światem
+    /// </summary>
     class DimentionWorld : World
     {
         DimentionSpace dimentionSpace;
@@ -135,6 +212,10 @@ public sealed class DimentionSpace
             }
         }
     }
+    
+    /// <summary>
+    /// Teren połączony z danym światem ale zoptymalizowany na urzywanie kąkretnego chunka
+    /// </summary>
     internal class DimentionWorldFaster : World
     {
         DimentionSpace dimentionSpace;
