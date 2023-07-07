@@ -1,5 +1,8 @@
 ﻿namespace Create.OpenGL;
 
+/// <summary>
+/// Gdy kompilacja shedera w karcie graficznej się nie powiedze
+/// </summary>
 public class ShaderCompilationException : Exception
 {
     string? vertex, fragment;

@@ -1,20 +1,17 @@
 ﻿using Create.OpenGL.Mathematic;
 using Create.OpenGL.Textures;
-using Create.OpenGL;
-using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SixLabors.ImageSharp;
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
-using System.Resources;
-using System.Runtime;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace Create;
 
 internal static partial class Special
 {
+    /// <summary>
+    /// Przekłada <see cref="ActiveAttribType"/> z OpenGL na <see cref="Type"/> z C#
+    /// </summary>
     public static Type? GetCSharpType(this ActiveAttribType type) => type switch
     {
         ActiveAttribType.None => null,
@@ -59,6 +56,10 @@ internal static partial class Special
 
         _ => throw new("Not valid enume")
     };
+
+    /// <summary>
+    /// Przekłada <see cref="ActiveUniformType"/> z OpenGL na <see cref="Type"/> z C#
+    /// </summary>
     public static Type GetCSharpType(this ActiveUniformType type) => type switch
     {
         //Int
@@ -101,6 +102,10 @@ internal static partial class Special
 
         _ => throw new Exception("Uncnown type")
     };
+
+    /// <summary>
+    /// Ile bajtów w pamięci karty graficznej zajmuje typ <paramref name="type"/>
+    /// </summary>
     public static int ElementByteSize(this ActiveAttribType type) => type switch
     {
         ActiveAttribType.None => 0,
@@ -146,6 +151,10 @@ internal static partial class Special
 
         _ => throw new("Ungnown")
     };
+
+    /// <summary>
+    /// Tworzy kolekcje z kopią zawartości <see cref="System.ReadOnlySpan{T}"/>
+    /// </summary>
     public static IEnumerable<T> ToEnumerable<T>(this ReadOnlySpan<T> span)
     {
         T[] array = new T[span.Length];
@@ -153,6 +162,10 @@ internal static partial class Special
             array[i] = span[i];
         return array;
     }
+    
+    /// <summary>
+    /// Zwraca obiekt i gdzie w kolekcji się on znajduje który spełnia warunki <paramref name="condition"/>
+    /// </summary>
     public static (T element, int index)? FindAndWhere<T>(this IEnumerable<T> enumerable, Func<T, bool> condition)
     {
         int i = 0;
@@ -164,6 +177,10 @@ internal static partial class Special
         }
         return null;
     }
+
+    /// <summary>
+    /// Zwraca element z kolekcji spełnaijący warunki <paramref name="condition"/>
+    /// </summary>
     public static T Find<T>(this IEnumerable<T> enume, Func<T, bool> condition, Exception? ifNotFound)
     {
         foreach(var element in enume)
@@ -173,12 +190,20 @@ internal static partial class Special
             throw ifNotFound;
         return default!;
     }
+
+    /// <summary>
+    /// Sprawdza czy w kolekcji znajduje się jaki kolwiek obiekt spełniający warunki <paramref name="condition"/>
+    /// </summary>
     public static bool ConditionsMeet<T>(this IEnumerable<T> enume, Func<T, bool> condition)
     {
         foreach(var elem in enume)
             if(condition(elem)) return true;
         return false;
     }
+    
+    /// <summary>
+    /// Przekłada z jakiego typu informacji zbudowane są wyrzsze typy zmiennych i ile zajmują one w pamięci karty graficznej
+    /// </summary>
     public static (int values, VertexAttribPointerType type) ValueBindData(this ActiveAttribType value) => value switch
     {
         ActiveAttribType.None => (0, VertexAttribPointerType.Float),
@@ -223,8 +248,20 @@ internal static partial class Special
 
         _ => throw new("Ungnown")
     };
+    
+    /// <summary>
+    /// Konwertowanie jednej wartości w inną za pomocą <paramref name="func"/>
+    /// </summary>
     public static TOut Cast<TIn, TOut>(this TIn @in, Func<TIn, TOut> func) => func(@in);
+    
+    /// <summary>
+    /// Konwertuje wartości w kolekcji za pomocą <paramref name="func"/>
+    /// </summary>
     public static IEnumerable<TOut> ConvertAll<TIn, TOut>(this IEnumerable<TIn> enume, Func<TIn, TOut> func) => new CastEnumerable<TIn, TOut>(enume, func);
+
+    /// <summary>
+    /// Konwertuje wartości w tablicy za pomocą <paramref name="func"/>
+    /// </summary>
     public static TOut[] ConvertAll<TIn, TOut>(this TIn[] array, Func<TIn, TOut> func)
     {
         var _array = new TOut[array.Length];
@@ -232,7 +269,15 @@ internal static partial class Special
             _array[l] = func(array[l]);
         return _array;
     }
+    
+    /// <summary>
+    /// Konwertuje przediał wartości w kolekcje numerów
+    /// </summary>
     public static foreach_range GetEnumerator(this Range range) => new(range);
+    
+    /// <summary>
+    /// <inheritdoc cref="GetEnumerator(Range)"/>
+    /// </summary>
     public ref struct foreach_range
     {
         int index, end;
@@ -253,6 +298,10 @@ internal static partial class Special
         }
         public int Current => index;
     }
+    
+    /// <summary>
+    /// Konwertuje tablice kolorów w obraz
+    /// </summary>
     public static Image<T> ToImage<T>(this T[,] array) where T : unmanaged, IPixel<T>
     {
         var size = array.GetSize();
@@ -264,61 +313,197 @@ internal static partial class Special
                 image[x, y] = array[x, y];
         return image;
     }
+    
+    /// <summary>
+    /// Konwertuje Enumerator w Enumerowalny (Kolekcje)
+    /// </summary>
     public static IEnumerable<T> AsEnumerable<T>(this IEnumerator<T> enume)
     {
         var e = enume;
         while (e.MoveNext())
             yield return e.Current;
     }
-    
+
     #region Vector - Tumple Conversion
+    /// <summary>
+    /// Przekłada <see cref="Vector2"/> na krotke
+    /// </summary>
     public static (float X, float Y) ToTumple(this Vector2 vector) => (vector.X, vector.Y);
+
+    /// <summary>
+    /// Przekłada <see cref="Vector3"/> na krotke
+    /// </summary>
     public static (float X, float Y, float Z) ToTumple(this Vector3 vector) => (vector.X, vector.Y, vector.Z);
+
+    /// <summary>
+    /// Przekłada <see cref="Vector4"/> na krotke
+    /// </summary>
     public static (float X, float Y, float Z, float W) ToTumple(this Vector4 vector) => (vector.X, vector.Y, vector.Z, vector.W);
+
+    /// <summary>
+    /// Przekłada krotke na <see cref="Vector2"/>
+    /// </summary>
     public static Vector2 ToVector(this (float X, float Y) vector) => new(vector.X, vector.Y);
+
+    /// <summary>
+    /// Przekłada krotke na <see cref="Vector3"/>
+    /// </summary>
     public static Vector3 ToVector(this (float X, float Y, float Z) vector) => new(vector.X, vector.Y, vector.Z);
+
+    /// <summary>
+    /// Przekłada krotke na <see cref="Vector4"/>
+    /// </summary>
     public static Vector4 ToVector(this (float X, float Y, float Z, float W) vector) => new(vector.X, vector.Y, vector.Z, vector.W);
 
+    /// <summary>
+    /// Przekłada <see cref="Vector2i"/> na krotke
+    /// </summary>
     public static (int X, int Y) ToTumple(this Vector2i vector) => (vector.X, vector.Y);
+
+    /// <summary>
+    /// Przekłada <see cref="Vector3i"/> na krotke
+    /// </summary>
     public static (int X, int Y, int Z) ToTumple(this Vector3i vector) => (vector.X, vector.Y, vector.Z);
+
+    /// <summary>
+    /// Przekłada <see cref="Vector4i"/> na krotke
+    /// </summary>
     public static (int X, int Y, int Z, int W) ToTumple(this Vector4i vector) => (vector.X, vector.Y, vector.Z, vector.W);
+
+    /// <summary>
+    /// Przekłada krotke na <see cref="Vector2i"/>
+    /// </summary>
     public static Vector2i ToVector(this (int X, int Y) vector) => new(vector.X, vector.Y);
+
+    /// <summary>
+    /// Przekłada krotke na <see cref="Vector3i"/>
+    /// </summary>
     public static Vector3i ToVector(this (int X, int Y, int Z) vector) => new(vector.X, vector.Y, vector.Z);
+
+    /// <summary>
+    /// Przekłada krotke na <see cref="Vector4i"/>
+    /// </summary>
     public static Vector4i ToVector(this (int X, int Y, int Z, int W) vector) => new(vector.X, vector.Y, vector.Z, vector.W);
 
+
+    /// <summary>
+    /// Przekłada <see cref="Vector2d"/> na krotke
+    /// </summary>
     public static (double X, double Y) ToTumple(this Vector2d vector) => (vector.X, vector.Y);
+
+    /// <summary>
+    /// Przekłada <see cref="Vector3d"/> na krotke
+    /// </summary>
     public static (double X, double Y, double Z) ToTumple(this Vector3d vector) => (vector.X, vector.Y, vector.Z);
+
+    /// <summary>
+    /// Przekłada <see cref="Vector4d"/> na krotke
+    /// </summary>
     public static (double X, double Y, double Z, double W) ToTumple(this Vector4d vector) => (vector.X, vector.Y, vector.Z, vector.W);
+
+    /// <summary>
+    /// Przekłada krotke na <see cref="Vector2d"/>
+    /// </summary>
     public static Vector2d ToVector(this (double X, double Y) vector) => new(vector.X, vector.Y);
+
+    /// <summary>
+    /// Przekłada krotke na <see cref="Vector3d"/>
+    /// </summary>
     public static Vector3d ToVector(this (double X, double Y, double Z) vector) => new(vector.X, vector.Y, vector.Z);
+
+    /// <summary>
+    /// Przekłada krotke na <see cref="Vector4d"/>
+    /// </summary>
     public static Vector4d ToVector(this (double X, double Y, double Z, double W) vector) => new(vector.X, vector.Y, vector.Z, vector.W);
 
+
+    /// <summary>
+    /// Przekłada <see cref="Vector2b"/> na krotke
+    /// </summary>
     public static (bool X, bool Y) ToTumple(this Vector2b vector) => (vector.X, vector.Y);
+
+    /// <summary>
+    /// Przekłada <see cref="Vector3b"/> na krotke
+    /// </summary>
     public static (bool X, bool Y, bool Z) ToTumple(this Vector3b vector) => (vector.X, vector.Y, vector.Z);
+
+    /// <summary>
+    /// Przekłada <see cref="Vector4b"/> na krotke
+    /// </summary>
     public static (bool X, bool Y, bool Z, bool W) ToTumple(this Vector4b vector) => (vector.X, vector.Y, vector.Z, vector.W);
+
+    /// <summary>
+    /// Przekłada krotke na <see cref="Vector2b"/>
+    /// </summary>
     public static Vector2b ToVector(this (bool X, bool Y) vector) => new(vector.X, vector.Y);
+
+    /// <summary>
+    /// Przekłada krotke na <see cref="Vector3b"/>
+    /// </summary>
     public static Vector3b ToVector(this (bool X, bool Y, bool Z) vector) => new(vector.X, vector.Y, vector.Z);
+
+    /// <summary>
+    /// Przekłada krotke na <see cref="Vector4b"/>
+    /// </summary>
     public static Vector4b ToVector(this (bool X, bool Y, bool Z, bool W) vector) => new(vector.X, vector.Y, vector.Z, vector.W);
     #endregion
 
     #region Array Sizes
+    /// <summary>
+    /// Pobiera rozmiar tabeli w 2 osich
+    /// </summary>
     public static (int dim0, int dim1) GetSize<T>(this T[,] array) => (array.GetLength(0), array.GetLength(1));
+
+    /// <summary>
+    /// Pobiera rozmiar tabeli w 3 osich
+    /// </summary>
     public static (int dim0, int dim1, int dim2) GetSize<T>(this T[,,] array) => (array.GetLength(0), array.GetLength(1), array.GetLength(2));
+
+    /// <summary>
+    /// Pobiera rozmiar tabeli w 4 osich
+    /// </summary>
     public static (int dim0, int dim1, int dim2, int dim3) GetSize<T>(this T[,,,] array) => (array.GetLength(0), array.GetLength(1), array.GetLength(2), array.GetLength(3));
+
+    /// <summary>
+    /// Pobiera rozmiar tabeli w 5 osich
+    /// </summary>
     public static (int dim0, int dim1, int dim2, int dim3, int dim4) GetSize<T>(this T[,,,,] array) => 
         (array.GetLength(0), array.GetLength(1), array.GetLength(2), array.GetLength(3), array.GetLength(4));
+
+    /// <summary>
+    /// Pobiera rozmiar tabeli w 6 osich
+    /// </summary>
     public static (int dim0, int dim1, int dim2, int dim3, int dim4, int dim5) GetSize<T>(this T[,,,,,] array) =>
         (array.GetLength(0), array.GetLength(1), array.GetLength(2), array.GetLength(3), array.GetLength(4), array.GetLength(5));
+
+    /// <summary>
+    /// Pobiera rozmiar tabeli w 7 osich
+    /// </summary>
     public static (int dim0, int dim1, int dim2, int dim3, int dim4, int dim5, int dim6) GetSize<T>(this T[,,,,,,] array) =>
         (array.GetLength(0), array.GetLength(1), array.GetLength(2), array.GetLength(3), array.GetLength(4), array.GetLength(5), array.GetLength(6));
+
+    /// <summary>
+    /// Pobiera rozmiar tabeli w 8 osich
+    /// </summary>
     public static (int dim0, int dim1, int dim2, int dim3, int dim4, int dim5, int dim6, int dim7) GetSize<T>(this T[,,,,,,,] array) =>
         (array.GetLength(0), array.GetLength(1), array.GetLength(2), array.GetLength(3), array.GetLength(4), array.GetLength(5), array.GetLength(6), array.GetLength(7));
+
+    /// <summary>
+    /// Pobiera rozmiar tabeli w 9 osich
+    /// </summary>
     public static (int dim0, int dim1, int dim2, int dim3, int dim4, int dim5, int dim6, int dim7, int dim8) GetSize<T>(this T[,,,,,,,,] array) =>
         (array.GetLength(0), array.GetLength(1), array.GetLength(2), array.GetLength(3), array.GetLength(4), array.GetLength(5), array.GetLength(6), array.GetLength(7), array.GetLength(8));
+
+    /// <summary>
+    /// Pobiera rozmiar tabeli w 10 osich
+    /// </summary>
     public static (int dim0, int dim1, int dim2, int dim3, int dim4, int dim5, int dim6, int dim7, int dim8, int dim9) GetSize<T>(this T[,,,,,,,,,] array) =>
         (array.GetLength(0), array.GetLength(1), array.GetLength(2), array.GetLength(3), array.GetLength(4), array.GetLength(5), array.GetLength(6), array.GetLength(7), array.GetLength(8), array.GetLength(9));
     #endregion
 
+    /// <summary>
+    /// <inheritdoc cref="Cast{TIn, TOut}(TIn, Func{TIn, TOut})"/>
+    /// </summary>
     private struct CastEnumerable<TIn, TOut> : IEnumerable<TOut>
     {
         Func<TIn, TOut> _func;

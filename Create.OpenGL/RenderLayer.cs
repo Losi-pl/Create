@@ -7,6 +7,9 @@ using static Create.OpenGL.RenderLayer.Constructor;
 
 namespace Create.OpenGL;
 
+/// <summary>
+/// Płutno na którym obraz jest renderowany
+/// </summary>
 [DebuggerDisplay("{((new Proxy(this)).get_name()),nq}")]
 [DebuggerTypeProxy(typeof(Proxy))]
 public sealed partial class RenderLayer : IDisposable, IDrawable
@@ -62,13 +65,27 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
     #endregion
 
     #region get only
+    /// <summary>
+    /// Kanały renderowania podłączone do tego płutna
+    /// </summary>
     public VirtualDictionaty<FramebufferAttachment, RenderTexture> Textures => frame_buffer_textures!.Value;
+
+    /// <summary>
+    /// Rozmiar płotna
+    /// </summary>
     public (int Width, int Height) Size => (buffer_creation_data.width, buffer_creation_data.height);
+
+    /// <summary>
+    /// Modele renderowane na tym płutnie
+    /// </summary>
     public List<IDrawable> Meshes { get; } = new();
     public bool IsDisposed => disposed;
     #endregion
 
     #region get set
+    /// <summary>
+    /// Kolor płutna po jego wyczyszczeniu
+    /// </summary>
     public Color Color
     {
         get => Color.FromArgb(
@@ -80,6 +97,9 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
     }
     #endregion
 
+    /// <summary>
+    /// Parametry tworzenia płutna
+    /// </summary>
     struct creation_data
     {
         public int width, height;
@@ -88,6 +108,10 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
     }
 
     #region buffers
+    /// <summary>
+    /// tworzenie kanałów i płutna
+    /// </summary>
+    /// <exception cref="Exception"></exception>
     void create_buffers()
     {
         lock (Engine.TaskLock)
@@ -170,6 +194,10 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
             return status;
         }
     }
+    
+    /// <summary>
+    /// Rozłącza elementy płutna i je usuwa
+    /// </summary>
     void releise_buffers()
     {
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
@@ -194,8 +222,19 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
     #endregion
 
     #region drawing
+    /// <summary>
+    /// Aktywuje to płutno jako obecnie aktywne
+    /// </summary>
     void Bind() => GL.BindFramebuffer(FramebufferTarget.Framebuffer, handles.frame_buffer);
+    
+    /// <summary>
+    /// Przełącza obecnie używane płutno na domyślne
+    /// </summary>
     void Unbind() => GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+    
+    /// <summary>
+    /// Wyczyść to płutno
+    /// </summary>
     public void Clear()
     {
         Bind();
@@ -203,6 +242,10 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
         GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
         Unbind();
     }
+    
+    /// <summary>
+    /// Odświerza zawartość wyrenderowaną na płutnie
+    /// </summary>
     public void UpdateContent()
     {
         Bind();
@@ -230,6 +273,10 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
         }
         Matrix4 model_matrix() => camera != null ? camera.Model : Engine.NeutralMatrix;
     }
+    
+    /// <summary>
+    /// Renderuje to płutno jako obiekt na innym płutnie
+    /// </summary>
     public void Draw(Matrix4 proj, Matrix4 mat)
     {
         if (custom_model.HasValue)
@@ -243,6 +290,11 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
             default_mesh.Draw(proj, mat);
         }
     }
+    
+    /// <summary>
+    /// Wykonuje inne operacje w OpenGL na tym płutnie
+    /// </summary>
+    /// <param name="action"></param>
     public void ExecuteIn(Action action)
     {
         Bind();
@@ -279,6 +331,9 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
         frame_buffer_textures = null;
     }
 
+    /// <summary>
+    /// Niszczenie tego płutna i jego kanałów
+    /// </summary>
     struct disposing : OpenGL.disposing.gl_element
     {
         public (int frame, int render) handel;
@@ -294,6 +349,5 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
                 GL.DeleteTexture(textures[i]);
         }
     }
-
     #endregion
 }

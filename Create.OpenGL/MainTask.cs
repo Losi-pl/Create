@@ -1,15 +1,22 @@
-﻿using System;
+﻿namespace Create.OpenGL;
 
-namespace Create.OpenGL;
-
+/// <summary>
+/// Do wykonywania operacji w wątku głównym z wątków pobocznych
+/// </summary>
 public static class MainTask
 {
     static List<Action> actions = new();
     static object task_lock = new();
     static Thread? main_thread;
 
+    /// <summary>
+    /// Uzyskanie kłównego wątku
+    /// </summary>
     internal static void set_main_task() => main_thread = main_thread ?? Thread.CurrentThread;
 
+    /// <summary>
+    /// Wykonuje funkcje w wątku głównym
+    /// </summary>
     internal static void make_listed_tasks()
     {
         lock(task_lock)
@@ -27,6 +34,9 @@ public static class MainTask
         }
     }
 
+    /// <summary>
+    /// Wywołuje funkce w wątku głównym wątek wywołujący zostanie zatrzymany do momentu zakończenia operacji
+    /// </summary>
     public static void Run(Action action)
     {
         if (main_thread == Thread.CurrentThread)
@@ -35,6 +45,11 @@ public static class MainTask
             lock(task_lock)
                 actions.Add(action);
     }
+
+    /// <summary>
+    /// Wywołuje funkce w wątku głównym wątek wywołujący zostanie zatrzymany do momentu zakończenia operacji
+    /// <para>Funkcja może zwracać wartość</para>
+    /// </summary>
     public static T Run<T>(Func<T> func)
     {
         if (main_thread == Thread.CurrentThread)
@@ -50,6 +65,11 @@ public static class MainTask
         }
             
     }
+
+    /// <summary>
+    /// Wywołuje funkce w wątku głównym
+    /// <para>Funkcja może zwracać wartość</para>
+    /// </summary>
     public static Task<T> RunAsync<T>(Func<T> func)
     {
         return Task.Run(() =>
@@ -62,6 +82,10 @@ public static class MainTask
             return wyn;
         });
     }
+
+    /// <summary>
+    /// Wywołuje funkce w wątku głównym
+    /// </summary>
     public static Task RunAsync(Action action)
     {
         return Task.Run(() =>

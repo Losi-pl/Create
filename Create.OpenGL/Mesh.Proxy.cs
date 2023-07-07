@@ -4,6 +4,9 @@ namespace Create.OpenGL;
 
 partial class Mesh
 {
+    /// <summary>
+    /// Debugowy podgląd dla <see cref="Mesh"/>ów
+    /// </summary>
     class Proxy
     {
         Mesh mesh;

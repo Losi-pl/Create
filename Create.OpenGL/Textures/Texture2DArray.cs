@@ -1,10 +1,12 @@
 ﻿using OpenTK.Mathematics;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.ColorSpaces;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace Create.OpenGL.Textures;
 
+/// <summary>
+/// Atlas 2-wymiarowych tekstur w standardzie RGBA
+/// </summary>
 public sealed class Texture2DArray : Texture
 {
     int handle;
@@ -12,11 +14,30 @@ public sealed class Texture2DArray : Texture
     int layers;
     public static Constructor Create() => new();
 
+    /// <summary>
+    /// Konstruktor atlasu
+    /// </summary>
     public class Constructor
     {
         List<object> images = new();
         (int w, int h)? size;
 
+        /// <summary>
+        /// Dodanie obrazu do atlasu
+        /// <para>
+        /// Wspierane standardy:
+        /// <br></br>
+        ///   <see cref="Rgb24"/>,
+        ///   <see cref="Rgb48"/>,
+        ///   <see cref="Rgba32"/>,
+        ///   <see cref="Rgba64"/>,
+        ///   <see cref="Rgba1010102"/>,
+        ///   <see cref="RgbaVector"/>,
+        ///   <see cref="Short2"/>,
+        ///   <see cref="Short4"/>
+        /// </para>
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
         public Constructor Add(Image image)
         {
             switch (image)
@@ -38,6 +59,11 @@ public sealed class Texture2DArray : Texture
 
             return this;
         }
+
+        /// <summary>
+        /// <inheritdoc cref="Add(Image)"/>
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
         public Constructor Add<T>(Image<T> image) where T : unmanaged, IPixel<T>
         {
             switch (image)
@@ -59,6 +85,11 @@ public sealed class Texture2DArray : Texture
 
             return this;
         }
+
+        /// <summary>
+        /// <inheritdoc cref="Add(Image)"/>
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
         public Constructor Add<T>(T[,] image) where T : unmanaged, IPixel<T>
         {
             switch (image)
@@ -80,6 +111,12 @@ public sealed class Texture2DArray : Texture
 
             return this;
         }
+        
+        /// <summary>
+        /// Test czy wymiary wrzystkich obrazów są takie same
+        /// </summary>
+        /// <param name="size"></param>
+        /// <exception cref="Exception"></exception>
         void test_size((int w, int h) size)
         {
             if (!this.size.HasValue)
@@ -88,6 +125,9 @@ public sealed class Texture2DArray : Texture
                 throw new Exception("Sizes of images are not match");
         }
 
+        /// <summary>
+        /// Składa wrzystkie obrazy w jeden atlas
+        /// </summary>
         public Texture2DArray Finish()
         {
             if (images.Count == 0)
@@ -155,6 +195,9 @@ public sealed class Texture2DArray : Texture
         }
     }
 
+    /// <summary>
+    /// Zwraca Tablice kolorów jednego obrazu z atlasu
+    /// </summary>
     public Rgba32[,] GerTexture(int index)
     {
         //return MainTask.Run(() =>

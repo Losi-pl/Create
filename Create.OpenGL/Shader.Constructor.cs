@@ -6,6 +6,10 @@ namespace Create.OpenGL;
 partial class Shader
 {
     public static Constructor.IVertexShader Create() => new Constructor();
+    
+    /// <summary>
+    /// Konstruktor do <see cref="Shader"/>a
+    /// </summary>
     public class Constructor : Constructor.IFragmentShader, Constructor.IVertexShader
     {
         #region variable
@@ -49,6 +53,10 @@ partial class Shader
         #endregion
 
         #region system uniforms
+        /// <summary>
+        /// Ustawia która statuczna zmienna przechowuje pozycje modelu
+        /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
         public Constructor PozitionUniform(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -56,6 +64,11 @@ partial class Shader
             pozition_variable = name;
             return this;
         }
+
+        /// <summary>
+        /// Ustawia która statuczna zmienna przechowuje orjentacje modelu
+        /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
         public Constructor RotationUniform(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -63,6 +76,11 @@ partial class Shader
             rotation_variable = name;
             return this;
         }
+
+        /// <summary>
+        /// Ustawia która statuczna zmienna przechowuje dodatkowy <see cref="OpenTK.Mathematics.Matrix4"/>
+        /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
         public Constructor ProjectionMatrixUniform(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -73,23 +91,50 @@ partial class Shader
         #endregion
 
         #region gl systems
+        /// <summary>
+        /// Pod jakim kątem trujkąty <see cref="Shader"/>a mają być widoczne
+        /// </summary>
+        /// <param name="mode"></param>
+        /// <returns></returns>
         public Constructor CullFace(CullFaceMode mode)
         {
             cull_face = mode;
             return this;
         }
+
+        /// <summary>
+        /// Włącz wsparcie przezroczystości w <see cref="Shader"/>ze
+        /// </summary>
+        /// <returns></returns>
         public Constructor AlphaTest() => AlphaTest(true);
+
+        /// <summary>
+        /// Czy <see cref="Shader"/> wspiera mechanizm przezroczystości
+        /// </summary>
+        /// <returns></returns>
         public Constructor AlphaTest(bool active)
         {
             alphatest = active;
             return this;
         }
+        
+        /// <summary>
+        /// Czy <see cref="Shader"/> wspiera głębokość obrazu
+        /// </summary>
         public Constructor DepthTest(bool active)
         {
             depthtest = active;
             return this;
         }
+
+        /// <summary>
+        /// Ustawia domyślne ustawienia przezroczystości
+        /// </summary>
         public Constructor Blend() => Blend(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
+        /// <summary>
+        /// Ustawienia mechanizmu przezroczystości
+        /// </summary>
         public Constructor Blend(BlendingFactor sfactor, BlendingFactor dfactor)
         {
             blend = (sfactor, dfactor);
@@ -98,6 +143,11 @@ partial class Shader
         #endregion
 
         #region Finish
+        /// <summary>
+        /// Zakończ tworzenie <see cref="Shader"/>a
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="ShaderCompilationException"></exception>
         public Shader Finish()
         {
             Shader shader = new();
@@ -318,6 +368,12 @@ partial class Shader
                 return properties;
             }
         }
+        
+        /// <summary>
+        /// Zakończ tworzenie <see cref="Shader"/>a i wykonaj na nim operacje <paramref name="action"/>
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
         public Shader Finish(Action<Shader> action)
         {
             var s = Finish();
@@ -327,14 +383,37 @@ partial class Shader
         #endregion
 
         #region interface
+        /// <summary>
+        /// Wprowadź program Fragment Shader
+        /// </summary>
         public interface IFragmentShader
         {
+            /// <summary>
+            /// Kod do fragment <see cref="Shader"/>a
+            /// </summary>
             public Constructor FragmentCode(string code);
+
+            /// <summary>
+            /// Podłącz już istniejący fragment <see cref="Shader"/>
+            /// </summary>
+            /// <param name="deletAfter">Czy urzyty fragment <see cref="Shader"/> ma zostać usunięty po użyciu</param>
             public Constructor FragmentHandle(int handle, bool deletAfter = false);
         }
+
+        /// <summary>
+        /// Wprowadź program Vertex Shader
+        /// </summary>
         public interface IVertexShader
         {
+            /// <summary>
+            /// Kod do vertex <see cref="Shader"/>a
+            /// </summary>
             public IFragmentShader VertexCode(string code);
+
+            /// <summary>
+            /// Podłącz już istniejący vertex <see cref="Shader"/>
+            /// </summary>
+            /// <param name="deletAfter">Czy urzyty vertex <see cref="Shader"/> ma zostać usunięty po użyciu</param>
             public IFragmentShader VertexHandle(int handle, bool deletAfter = false);
         }
         #endregion

@@ -1,9 +1,11 @@
-﻿using OpenTK.Graphics.OpenGL;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using System.Diagnostics;
 
 namespace Create.OpenGL;
 
+/// <summary>
+/// Odwołanie do modelu zawartego w pamięci karty graficznej
+/// </summary>
 [DebuggerTypeProxy(typeof(Proxy))]
 [DebuggerDisplay("Mesh: {((new Proxy(this)).status()),nq}")]
 public sealed partial class Mesh : IDisposable, IDrawable
@@ -33,11 +35,18 @@ public sealed partial class Mesh : IDisposable, IDrawable
 
     bool disposed;
 
+    /// <summary>
+    /// Pozycja modelu w przestrzeni
+    /// </summary>
     public Vector3 Position
     {
         get => position;
         set => position = value;
     }
+    
+    /// <summary>
+    /// Orjentacja modelu w przestrzeni
+    /// </summary>
     public Vector3 Rotation
     {
         get => rotation;
@@ -49,9 +58,19 @@ public sealed partial class Mesh : IDisposable, IDrawable
         this.shader = shader;
     }
 
+    /// <summary>
+    /// <see cref="OpenGL.Shader"/> używany do renderowania danego modelu
+    /// </summary>
     public Shader Shader => shader;
 
+    /// <summary>
+    /// Odwołania do obiektów zapisanych w pamięci karty graficznej
+    /// </summary>
     public (int VertexBuffer, int IndexBuffer, int VertexArray) Handle => handlers;
+
+    /// <summary>
+    /// Liczba trujkątów z których model jest złorzony
+    /// </summary>
     public int TranglesCount => trangles_count / 3;
 
     public void Draw(Matrix4 projection, Matrix4 model)
@@ -128,6 +147,9 @@ public sealed partial class Mesh : IDisposable, IDrawable
         }
     }
 
+    /// <summary>
+    /// Aktywuje w pamięci tekstury używane przez ten model
+    /// </summary>
     void bind_textures()
     {
         for(int i = 0; i< shader.Textures.Count;i++)
@@ -155,6 +177,9 @@ public sealed partial class Mesh : IDisposable, IDrawable
         shader = null!;
     }
 
+    /// <summary>
+    /// Niszczenie modelu gdy nie jest już potrzebny
+    /// </summary>
     struct disposing : OpenGL.disposing.gl_element
     {
         public int va, ib, vb;

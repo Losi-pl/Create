@@ -1,6 +1,4 @@
-﻿using static Create.Input.Keyboard;
-
-namespace Create.Input;
+﻿namespace Create.Input;
 
 partial class Keyboard
 {

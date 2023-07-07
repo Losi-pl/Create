@@ -9,6 +9,9 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("Create", AllInternalsVisible = false)]
 namespace Create.OpenGL;
 
+/// <summary>
+/// Podstawowe mechanizmy modyfikacji okna
+/// </summary>
 public static class Engine
 {
     #region variable
@@ -17,6 +20,9 @@ public static class Engine
     static Scean? scean;
     #endregion
 
+    /// <summary>
+    /// <see cref="Matrix4"/> który nie wykonuje rzdnych zmian
+    /// </summary>
     public static Matrix4 NeutralMatrix { get; } = new(
         new(1, 0, 0, 0),
         new(0, 1, 0, 0),
@@ -24,7 +30,16 @@ public static class Engine
         new(0, 0, 0, 1));
 
     #region game window
+    /// <summary>
+    /// Ustawienia okna przechowywane na wypadek potrzeby odtworzenia okna
+    /// </summary>
     static window_settings settings = new();
+    
+    /// <summary>
+    /// Tworzy okno na podstawie ustawień w <paramref name="s"/>
+    /// </summary>
+    /// <param name="s"></param>
+    /// <returns></returns>
     static GameWindow create_window(window_settings s)
     {
         MainTask.set_main_task();
@@ -68,22 +83,37 @@ public static class Engine
 
         return gw;
     }
+    
+    /// <summary>
+    /// <inheritdoc cref="settings"/>
+    /// </summary>
     struct window_settings
     {
         string? title;
         bool? fullscreen;
         bool? isvisible;
 
+        /// <summary>
+        /// Nazwa okna widoczna dla użytkownika
+        /// </summary>
         public string Title
         {
             get => title ?? "Create.OpenGL";
             set => title = value;
         }
+
+        /// <summary>
+        /// Czy okno jest w trybie pełno-ekranowym
+        /// </summary>
         public bool FullScreen
         {
             get => fullscreen ?? false;
             set => fullscreen = value;
         }
+
+        /// <summary>
+        /// Czy okno ma zostać stworzone widoczne
+        /// </summary>
         public bool IsVisible
         {
             get => isvisible ?? false;
@@ -92,6 +122,9 @@ public static class Engine
     }
 
     #region methods
+    /// <summary>
+    /// <inheritdoc cref="NativeWindow.Closing"/>
+    /// </summary>
     static void w_gl_Closing(CancelEventArgs args)
     {
         if (OnClosing != null)
@@ -99,36 +132,60 @@ public static class Engine
         Scean?.m_Closing(args);
         window.IsVisible = false;
     }
+
+    /// <summary>
+    /// <inheritdoc cref="NativeWindow.FileDrop"/>
+    /// </summary>
     static void w_gl_FileDrop(FileDropEventArgs args)
     {
         if (OnFileDrop != null)
             OnFileDrop?.Invoke(args);
         Scean?.m_FileDrop(args);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="NativeWindow.FocusedChanged"/>
+    /// </summary>
     static void w_gl_FocusedChanged(FocusedChangedEventArgs args)
     {
         if (OnFocusedChanged != null)
             OnFocusedChanged?.Invoke(args);
         Scean?.m_FocusedChanged(args);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="NativeWindow.JoystickConnected"/>
+    /// </summary>
     static void w_gl_JoystickConnected(JoystickEventArgs args)
     {
         if (OnJoystickConnected != null)
             OnJoystickConnected?.Invoke(args);
         Scean?.m_JoystickConnected(args);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="NativeWindow.KeyDown"/>
+    /// </summary>
     static void w_gl_KeyDown(KeyboardKeyEventArgs args)
     {
         Input.Keyboard.KeyDown(args);
         OnKeyDown?.Invoke(args);
         Scean?.m_KeyDown(args);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="NativeWindow.KeyUp"/>
+    /// </summary>
     static void w_gl_KeyUp(KeyboardKeyEventArgs args)
     {
         Input.Keyboard.KeyUp(args);
         OnKeyUp?.Invoke(args);
         Scean?.m_KeyUp(args);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="GameWindow.Load"/>
+    /// </summary>
     static void w_gl_Load()
     {
         GL.Enable(EnableCap.DebugOutput);
@@ -141,84 +198,148 @@ public static class Engine
         OnLoad?.Invoke();
         Scean?.m_Load();
     }
+
+    /// <summary>
+    /// <inheritdoc cref="NativeWindow.Maximized"/>
+    /// </summary>
     static void w_gl_Maximized(MaximizedEventArgs args)
     {
         OnMaximized?.Invoke(args);
         Scean?.m_Maximized(args);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="NativeWindow.Minimized"/>
+    /// </summary>
     static void w_gl_Minimized(MinimizedEventArgs args)
     {
         OnMinimized?.Invoke(args);
         Scean?.m_Minimized(args);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="NativeWindow.MouseDown"/>
+    /// </summary>
     static void w_gl_MouseDown(MouseButtonEventArgs args)
     {
         OnMouseDown?.Invoke(args);
         Scean?.m_MouseDown(args);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="NativeWindow.MouseEnter"/>
+    /// </summary>
     static void w_gl_MouseEnter()
     {
         OnMouseEnter?.Invoke();
         Scean?.m_MouseEnter();
     }
+
+    /// <summary>
+    /// <inheritdoc cref="NativeWindow.MouseLeave"/>
+    /// </summary>
     static void w_gl_MouseLeave()
     {
         OnMouseLeave?.Invoke();
         Scean?.m_MouseLeave();
     }
+
+    /// <summary>
+    /// <inheritdoc cref="NativeWindow.MouseMove"/>
+    /// </summary>
     static void w_gl_MouseMove(MouseMoveEventArgs args)
     {
         Input.Mouse.mouse_move(args);
         OnMouseMove?.Invoke(args);
         Scean?.m_MouseMove(args);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="NativeWindow.MouseUp"/>
+    /// </summary>
     static void w_gl_MouseUp(MouseButtonEventArgs args)
     {
         OnMouseUp?.Invoke(args);
         Scean?.m_MouseUp(args);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="NativeWindow.MouseWheel"/>
+    /// </summary>
     static void w_gl_MouseWheel(MouseWheelEventArgs args)
     {
         OnMouseWheel?.Invoke(args);
         Scean?.m_MouseWheel(args);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="NativeWindow.Move"/>
+    /// </summary>
     static void w_gl_Move(WindowPositionEventArgs args)
     {
         OnMove?.Invoke(args);
         Scean?.m_Move(args);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="NativeWindow.Refresh"/>
+    /// </summary>
     static void w_gl_Refresh()
     {
         OnRefresh?.Invoke();
         Scean?.m_Refresh();
     }
+
+    /// <summary>
+    /// <inheritdoc cref="GameWindow.RenderFrame"/>
+    /// </summary>
     static void w_gl_RenderFrame(FrameEventArgs args)
     {
         MainTask.make_listed_tasks();
         OnRenderFrame?.Invoke(args);
         Scean?.m_RenderFrame(args);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="GameWindow.RenderThreadStarted"/>
+    /// </summary>
     static void w_gl_RenderThreadStarted()
     {
         OnRenderThreadStarted?.Invoke();
         Scean?.m_RenderThreadStarted();
     }
+
+    /// <summary>
+    /// <inheritdoc cref="NativeWindow.Resize"/>
+    /// </summary>
     static void w_gl_Resize(ResizeEventArgs args)
     {
         GL.Viewport(0, 0, args.Width, args.Height);
         OnResize?.Invoke(args);
         Scean?.m_Resize(args);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="NativeWindow.TextInput"/>
+    /// </summary>
     static void w_gl_TextInput(TextInputEventArgs args)
     {
         OnTextInput?.Invoke(args);
         Scean?.m_TextInput(args);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="GameWindow.Unload"/>
+    /// </summary>
     static void w_gl_Unload()
     {
         OnUnload?.Invoke();
         Scean?.m_Unload();
     }
+
+    /// <summary>
+    /// <inheritdoc cref="GameWindow.UpdateFrame"/>
+    /// </summary>
     static void w_gl_UpdateFrame(FrameEventArgs args)
     {
         Input.Mouse.standard_mode(args);
@@ -233,6 +354,10 @@ public static class Engine
     #endregion
 
     static DebugProc gl_debig_method = OnDebugMessage;
+
+    /// <summary>
+    /// Wywoływany kiedy w OpenGL wystąpi jakiś Wyjątek
+    /// </summary>
     private static void OnDebugMessage(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr pMessage, IntPtr pUserParam)
     {
         string message = Marshal.PtrToStringAnsi(pMessage, length);
@@ -243,10 +368,16 @@ public static class Engine
     }
 
     #region get only
+    /// <summary>
+    /// Urzywany do zamrarzania wątków pobocznych przy modyfikowaniu globalnych wartości
+    /// </summary>
     public static object TaskLock => tasl_lock;
     #endregion
 
     #region get set
+    /// <summary>
+    /// Wyświetlana nazwa okna
+    /// </summary>
     public static string Title
     {
         get => window.Title; 
@@ -256,6 +387,10 @@ public static class Engine
             settings.Title = value;
         }
     }
+    
+    /// <summary>
+    /// Czy okno jest widzoczne
+    /// </summary>
     public static bool Visible
     {
         get => window.IsVisible; 
@@ -265,6 +400,10 @@ public static class Engine
             settings.IsVisible = value;
         }
     }
+    
+    /// <summary>
+    /// Czy okno jest w trybie pełno ekranowym
+    /// </summary>
     public static bool FullScreen
     {
         get => window.IsFullscreen; 
@@ -274,6 +413,10 @@ public static class Engine
             window.WindowState = value ? WindowState.Fullscreen : WindowState.Normal;
         }
     }
+    
+    /// <summary>
+    /// Obecnie wyświetlana na ekranie scena
+    /// </summary>
     public static Scean? Scean
     {
         get => scean;
@@ -287,6 +430,10 @@ public static class Engine
             GC.Collect();
         }
     }
+    
+    /// <summary>
+    /// Wymiary okna
+    /// </summary>
     public static Vector2i Size
     {
         get => window.Size;
@@ -297,6 +444,10 @@ public static class Engine
     #region memory clear
     static float last_memory_clear = 0;
     static float? memory_clear_query = null;
+    
+    /// <summary>
+    /// Częstotliwość wykonywania przymusowego czyszczenia pamięci
+    /// </summary>
     public static float? MemoryClearFrequency
     {
         get => memory_clear_query;
@@ -308,6 +459,11 @@ public static class Engine
             memory_clear_query = value;
         }
     }
+    
+    /// <summary>
+    /// Mechanizm wykonywania rutynowego czyszczenia pamięci w odstępach czasowych określonych w <see cref="MemoryClearFrequency"/>
+    /// </summary>
+    /// <param name="time_left"></param>
     static void clear_memory(float time_left)
     {
         if (!MemoryClearFrequency.HasValue)
@@ -321,6 +477,10 @@ public static class Engine
     }
     #endregion
 
+    /// <summary>
+    /// Zmienia wyświetlaną ikone okna
+    /// </summary>
+    /// <param name="image"></param>
     public static void SetIcon(SixLabors.ImageSharp.Image image)
     {
         var tex_buff = Textures.Texture2D.get_bytes_array(image);
@@ -329,6 +489,11 @@ public static class Engine
         window.Icon = icon;
     }
 
+    /// <summary>
+    /// Włącza i wyłącza mechanizm  <paramref name="cap"/> w silniku OpenGL
+    /// </summary>
+    /// <param name="cap"></param>
+    /// <param name="status"></param>
     internal static void SetMekanizm(EnableCap cap, bool status)
     {
         if(GL.IsEnabled(cap) != status)
@@ -340,6 +505,9 @@ public static class Engine
         }
     }
 
+    /// <summary>
+    /// Wywoływany gdy renderowanie klatki zostało skończone i można ją wyświetlić na ekranie
+    /// </summary>
     public static void FinishFrame()
     {
         window.SwapBuffers();

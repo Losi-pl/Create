@@ -4,6 +4,9 @@ using System.Collections;
 
 namespace Create.Virtuals;
 
+/// <summary>
+/// Wirtualna bibliotega złorzona z kilku funkcji zastempujące podstawowe funkcje
+/// </summary>
 [DebuggerDisplay("Count = {Count}")]
 [DebuggerTypeProxy(typeof(VirtualDictionaty<,>.Proxy))]
 public struct VirtualDictionaty<TKey, TValue> : IDictionary<TKey, TValue>
@@ -13,11 +16,34 @@ public struct VirtualDictionaty<TKey, TValue> : IDictionary<TKey, TValue>
     Func<IEnumerable<KeyValuePair<TKey, TValue>>> enumerator;
     Func<TKey, bool> contain_key;
 
+    /// <summary>
+    /// <inheritdoc cref="Constructor.GetMethod(Func{TKey, TValue})"/>
+    /// </summary>
     IEnumerator<KeyValuePair<TKey, TValue>> enumerator_() => (enumerator != null ? enumerator() : Enumerable.Empty<KeyValuePair<TKey, TValue>>()).GetEnumerator();
+
+    /// <summary>
+    /// Przetwarza biblioteke w <see cref="ICollection{T}"/> wartości
+    /// </summary>
     ICollection<TValue> value_list_() => (enumerator != null ? enumerator() : Enumerable.Empty<KeyValuePair<TKey, TValue>>()).ConvertAll(t => t.Value).ToArray();
+
+    /// <summary>
+    /// Przetwarza biblioteke w <see cref="ICollection{T}"/> kluczy
+    /// </summary>
     ICollection<TKey> key_list_() => (enumerator != null ? enumerator() : Enumerable.Empty<KeyValuePair<TKey, TValue>>()).ConvertAll(t => t.Key).ToArray();
+
+    /// <summary>
+    /// <inheritdoc cref="Constructor.IsConteinedMethod(Func{TKey, bool})"/>
+    /// </summary>
     bool contain_key_(TKey key) => contain_key != null ? contain_key(key) : false;
+
+    /// <summary>
+    /// <inheritdoc cref="Constructor.GetMethod(Func{TKey, TValue})"/>
+    /// </summary>
     TValue get_(TKey key) => get != null ? get(key) : default!;
+
+    /// <summary>
+    /// <inheritdoc cref="Constructor.CountMethod(Func{int})"/>
+    /// </summary>
     int lenght_() => lengh != null ? lengh() : 0;
 
     public TValue this[TKey key] => get_(key);
@@ -60,6 +86,9 @@ public struct VirtualDictionaty<TKey, TValue> : IDictionary<TKey, TValue>
         }
     }
 
+    /// <summary>
+    /// Konstruktor do <see cref="VirtualDictionaty{TKey, TValue}"/>
+    /// </summary>
     public struct Constructor
     {
         Func<TKey, TValue> get;
@@ -67,27 +96,47 @@ public struct VirtualDictionaty<TKey, TValue> : IDictionary<TKey, TValue>
         Func<IEnumerable<KeyValuePair<TKey, TValue>>> enumerator;
         Func<TKey, bool> contain_key;
 
+        /// <summary>
+        /// Gdzy wartość jest pobierana z biblioteki
+        /// </summary>
+        /// <param name="func"></param>
+        /// <returns></returns>
         public Constructor GetMethod(Func<TKey, TValue> get)
         {
             this.get = get;
             return this;
         }
+
+        /// <summary>
+        /// Gdy długość biblioteki jest pobierana
+        /// </summary>
         public Constructor CountMethod(Func<int> count)
         {
             lengh = count;
             return this;
         }
+
+        /// <summary>
+        /// Gdy pobiera kolekcje obiektów z biblioteki
+        /// </summary>
         public Constructor EnumerableMethod(Func<IEnumerable<KeyValuePair<TKey, TValue>>> enumerable)
         {
             enumerator = enumerable;
             return this;
         }
+
+        /// <summary>
+        /// Czy klucz jest zawarty w bibliotece
+        /// </summary>
         public Constructor IsConteinedMethod(Func<TKey, bool> contain)
         {
             contain_key = contain;
             return this;
         }
 
+        /// <summary>
+        /// Zakończenie konstrukcji
+        /// </summary>
         public VirtualDictionaty<TKey, TValue> Finsh()
         {
             VirtualDictionaty<TKey, TValue> dictionary = new();
@@ -98,6 +147,10 @@ public struct VirtualDictionaty<TKey, TValue> : IDictionary<TKey, TValue>
             return dictionary;
         }
     }
+    
+    /// <summary>
+    /// Pusta kolekcja
+    /// </summary>
     struct empty_collection<T> : ICollection<T>
     {
         public int Count => 0;
@@ -119,6 +172,9 @@ public struct VirtualDictionaty<TKey, TValue> : IDictionary<TKey, TValue>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
+    /// <summary>
+    /// Debuger do <see cref="VirtualDictionaty{TKey, TValue}"/>
+    /// </summary>
     internal class Proxy
     {
 #pragma warning disable CS8714

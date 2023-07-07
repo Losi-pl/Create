@@ -5,6 +5,10 @@ namespace Create.OpenGL;
 
 partial class Mesh
 {
+    /// <summary>
+    /// konwertuje dane z <paramref name="values"/> i wkleje je do <paramref name="bytes"/> z przesunięciem <paramref name="offser"/> i w odstępach <paramref name="sequence"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintValue(byte[] bytes, Array values, int offser, int sequence)
     {
         var typ = values.GetType().GetElementType();
@@ -64,6 +68,10 @@ partial class Mesh
             throw new NotSupportedException("Array content is not supported");
     }
 
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintValue(byte[] bytes, int[] values, int offser, int sequence)
     {
         for(int i = 0; i < values.Length; i++)
@@ -72,6 +80,11 @@ partial class Mesh
             InprintBytes(bytes, values[i], s);
         }
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintValue(byte[] bytes, Vector2i[] values, int offser, int sequence)
     {
         for (int i = 0; i < values.Length; i++)
@@ -80,6 +93,11 @@ partial class Mesh
             InprintBytes(bytes, values[i], s);
         }
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintValue(byte[] bytes, Vector3i[] values, int offser, int sequence)
     {
         for (int i = 0; i < values.Length; i++)
@@ -88,6 +106,11 @@ partial class Mesh
             InprintBytes(bytes, values[i], s);
         }
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintValue(byte[] bytes, Vector4i[] values, int offser, int sequence)
     {
         for (int i = 0; i < values.Length; i++)
@@ -97,6 +120,11 @@ partial class Mesh
         }
     }
 
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintValue(byte[] bytes, bool[] values, int offser, int sequence)
     {
         for (int i = 0; i < values.Length; i++)
@@ -105,6 +133,11 @@ partial class Mesh
             InprintBytes(bytes, values[i], s);
         }
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintValue(byte[] bytes, Vector2b[] values, int offser, int sequence)
     {
         for (int i = 0; i < values.Length; i++)
@@ -113,6 +146,11 @@ partial class Mesh
             InprintBytes(bytes, values[i], s);
         }
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintValue(byte[] bytes, Vector3b[] values, int offser, int sequence)
     {
         for (int i = 0; i < values.Length; i++)
@@ -121,6 +159,11 @@ partial class Mesh
             InprintBytes(bytes, values[i], s);
         }
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintValue(byte[] bytes, Vector4b[] values, int offser, int sequence)
     {
         for (int i = 0; i < values.Length; i++)
@@ -130,6 +173,11 @@ partial class Mesh
         }
     }
 
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintValue(byte[] bytes, float[] values, int offser, int sequence)
     {
         for (int i = 0; i < values.Length; i++)
@@ -138,6 +186,11 @@ partial class Mesh
             InprintBytes(bytes, values[i], s);
         }
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintValue(byte[] bytes, Vector2[] values, int offser, int sequence)
     {
         for (int i = 0; i < values.Length; i++)
@@ -146,6 +199,11 @@ partial class Mesh
             InprintBytes(bytes, values[i], s);
         }
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintValue(byte[] bytes, Vector3[] values, int offser, int sequence)
     {
         for (int i = 0; i < values.Length; i++)
@@ -154,6 +212,11 @@ partial class Mesh
             InprintBytes(bytes, values[i], s);
         }
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintValue(byte[] bytes, Vector4[] values, int offser, int sequence)
     {
         for (int i = 0; i < values.Length; i++)
@@ -163,6 +226,11 @@ partial class Mesh
         }
     }
 
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintValue(byte[] bytes, Matrix2[] values, int offser, int sequence)
     {
         for (int i = 0; i < values.Length; i++)
@@ -171,6 +239,11 @@ partial class Mesh
             InprintBytes(bytes, values[i], s);
         }
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintValue(byte[] bytes, Matrix2x3[] values, int offser, int sequence)
     {
         for (int i = 0; i < values.Length; i++)
@@ -179,6 +252,11 @@ partial class Mesh
             InprintBytes(bytes, values[i], s);
         }
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintValue(byte[] bytes, Matrix2x4[] values, int offser, int sequence)
     {
         for (int i = 0; i < values.Length; i++)
@@ -188,6 +266,11 @@ partial class Mesh
         }
     }
 
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintValue(byte[] bytes, Matrix3x2[] values, int offser, int sequence)
     {
         for (int i = 0; i < values.Length; i++)
@@ -196,6 +279,11 @@ partial class Mesh
             InprintBytes(bytes, values[i], s);
         }
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintValue(byte[] bytes, Matrix3[] values, int offser, int sequence)
     {
         for (int i = 0; i < values.Length; i++)
@@ -204,6 +292,11 @@ partial class Mesh
             InprintBytes(bytes, values[i], s);
         }
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintValue(byte[] bytes, Matrix3x4[] values, int offser, int sequence)
     {
         for (int i = 0; i < values.Length; i++)
@@ -213,6 +306,11 @@ partial class Mesh
         }
     }
 
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintValue(byte[] bytes, Matrix4x2[] values, int offser, int sequence)
     {
         for (int i = 0; i < values.Length; i++)
@@ -221,6 +319,11 @@ partial class Mesh
             InprintBytes(bytes, values[i], s);
         }
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintValue(byte[] bytes, Matrix4x3[] values, int offser, int sequence)
     {
         for (int i = 0; i < values.Length; i++)
@@ -229,6 +332,11 @@ partial class Mesh
             InprintBytes(bytes, values[i], s);
         }
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintValue(byte[] bytes, Matrix4[] values, int offser, int sequence)
     {
         for (int i = 0; i < values.Length; i++)
@@ -238,6 +346,11 @@ partial class Mesh
         }
     }
 
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintValue(byte[] bytes, Color4[] values, int offser, int sequence)
     {
         for (int i = 0; i < values.Length; i++)
@@ -248,28 +361,53 @@ partial class Mesh
         }
     }
 
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintArray<T>(T[] print_to, T[] print_from, int offset, int lenght)
     {
         for(int i = 0; i < lenght; i++)
             print_to[i + offset] = print_from[i];
     }
-    
+
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintBytes(byte[] bytes, int value, int offset)
     {
         var byts = BitConverter.GetBytes(value);
         InprintArray(bytes, byts, offset, 4);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintBytes(byte[] bytes, Vector2i value, int offset)
     {
         InprintBytes(bytes, value.X, offset);
         InprintBytes(bytes, value.Y, offset + 4);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintBytes(byte[] bytes, Vector3i value, int offset)
     {
         InprintBytes(bytes, value.X, offset);
         InprintBytes(bytes, value.Y, offset + 4);
         InprintBytes(bytes, value.Z, offset + 8);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintBytes(byte[] bytes, Vector4i value, int offset)
     {
         InprintBytes(bytes, value.X, offset);
@@ -278,22 +416,42 @@ partial class Mesh
         InprintBytes(bytes, value.W, offset + 12);
     }
 
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintBytes(byte[] bytes, bool value, int offset)
     {
         var byts = BitConverter.GetBytes(value);
         InprintArray(bytes, byts, offset, 1);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintBytes(byte[] bytes, Vector2b value, int offset)
     {
         InprintBytes(bytes, value.X, offset);
         InprintBytes(bytes, value.Y, offset + 1);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintBytes(byte[] bytes, Vector3b value, int offset)
     {
         InprintBytes(bytes, value.X, offset);
         InprintBytes(bytes, value.Y, offset + 1);
         InprintBytes(bytes, value.Z, offset + 2);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintBytes(byte[] bytes, Vector4b value, int offset)
     {
         InprintBytes(bytes, value.X, offset);
@@ -302,22 +460,42 @@ partial class Mesh
         InprintBytes(bytes, value.W, offset + 3);
     }
 
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintBytes(byte[] bytes, float value, int offset)
     {
         var byts = BitConverter.GetBytes(value);
         InprintArray(bytes, byts, offset, 4);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintBytes(byte[] bytes, Vector2 value, int offset)
     {
         InprintBytes(bytes, value.X, offset);
         InprintBytes(bytes, value.Y, offset + 4);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintBytes(byte[] bytes, Vector3 value, int offset)
     {
         InprintBytes(bytes, value.X, offset);
         InprintBytes(bytes, value.Y, offset + 4);
         InprintBytes(bytes, value.Z, offset + 8);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintBytes(byte[] bytes, Vector4 value, int offset)
     {
         InprintBytes(bytes, value.X, offset);
@@ -326,17 +504,32 @@ partial class Mesh
         InprintBytes(bytes, value.W, offset + 12);
     }
 
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintBytes(byte[] bytes, Matrix2 value, int offset)
     {
         InprintBytes(bytes, value.Column0, offset);
         InprintBytes(bytes, value.Column1, offset + 8);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintBytes(byte[] bytes, Matrix2x3 value, int offset)
     {
         InprintBytes(bytes, value.Column0, offset);
         InprintBytes(bytes, value.Column1, offset + 8);
         InprintBytes(bytes, value.Column2, offset + 16);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintBytes(byte[] bytes, Matrix2x4 value, int offset)
     {
         InprintBytes(bytes, value.Column0, offset);
@@ -345,17 +538,32 @@ partial class Mesh
         InprintBytes(bytes, value.Column3, offset + 24);
     }
 
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintBytes(byte[] bytes, Matrix3x2 value, int offset)
     {
         InprintBytes(bytes, value.Column0, offset);
         InprintBytes(bytes, value.Column1, offset + 12);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintBytes(byte[] bytes, Matrix3 value, int offset)
     {
         InprintBytes(bytes, value.Column0, offset);
         InprintBytes(bytes, value.Column1, offset + 12);
         InprintBytes(bytes, value.Column2, offset + 24);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintBytes(byte[] bytes, Matrix3x4 value, int offset)
     {
         InprintBytes(bytes, value.Column0, offset);
@@ -364,17 +572,32 @@ partial class Mesh
         InprintBytes(bytes, value.Column3, offset + 36);
     }
 
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintBytes(byte[] bytes, Matrix4x2 value, int offset)
     {
         InprintBytes(bytes, value.Column0, offset);
         InprintBytes(bytes, value.Column1, offset + 16);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintBytes(byte[] bytes, Matrix4x3 value, int offset)
     {
         InprintBytes(bytes, value.Column0, offset);
         InprintBytes(bytes, value.Column1, offset + 16);
         InprintBytes(bytes, value.Column2, offset + 32);
     }
+
+    /// <summary>
+    /// <inheritdoc cref="InprintValue(byte[], Array, int, int)"/>
+    /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     static void InprintBytes(byte[] bytes, Matrix4 value, int offset)
     {
         InprintBytes(bytes, value.Column0, offset);

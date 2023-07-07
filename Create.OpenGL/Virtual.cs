@@ -1,19 +1,28 @@
-﻿using System.Collections;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+﻿namespace Create.Virtuals;
 
-namespace Create.Virtuals;
-
+/// <summary>
+/// <inheritdoc cref="VirtualList{TValue}"/>
+/// </summary>
 public static class VirtualList
 {
-
+    /// <summary>
+    /// Tworzenie nie skonfigurowanego konstruktora
+    /// </summary>
     public static VirtualList<T>.Creator Create<T>() => new();
+
+    /// <summary>
+    /// Tworzenie konstruktora z tablicy
+    /// </summary>
     public static VirtualList<T>.Creator Create<T>(T[] array) =>
         Create<T>()
         .GetMethod(i => array[i])
         .CountMethod(() => array.Length)
         .IsContainMethod(o => ((IList<T>)array).Contains(o))
         .EnumerableMethod(() => array);
+
+    /// <summary>
+    /// Tworzenie konstruktora z <see cref="IList{T}"/>
+    /// </summary>
     public static VirtualList<T>.Creator Create<T>(IList<T> list) =>
         Create<T>()
         .GetMethod(i => list[i])
@@ -21,6 +30,10 @@ public static class VirtualList
         .IsContainMethod(list.Contains)
         .EnumerableMethod(() => list);
 }
+
+/// <summary>
+/// <inheritdoc cref="VirtualDictionaty{TKey, TValue}"/>
+/// </summary>
 public static class VirtualDictionaty
 {
     public static VirtualDictionaty<TKey, TValue>.Constructor Create<TKey, TValue>() => new();

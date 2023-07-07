@@ -4,6 +4,9 @@ namespace Create.OpenGL;
 
 partial class Shader
 {
+    /// <summary>
+    /// Debuger do <see cref="Shader"/>a
+    /// </summary>
     class Proxy
     {
         Shader shader;

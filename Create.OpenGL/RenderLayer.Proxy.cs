@@ -6,6 +6,9 @@ namespace Create.OpenGL;
 
 partial class RenderLayer
 {
+    /// <summary>
+    /// Debuger do <see cref="RenderLayer"/>
+    /// </summary>
     class Proxy
     {
         RenderLayer render;

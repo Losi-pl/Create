@@ -1,10 +1,12 @@
-﻿using Create.OpenGL;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace Create.OpenGL.Textures;
 
+/// <summary>
+/// Standardowa 2-wymiarowa tekstura w standardzie RGBA
+/// </summary>
 public sealed class Texture2D : Texture, IDisposable
 {
     readonly int handle;
@@ -17,6 +19,24 @@ public sealed class Texture2D : Texture, IDisposable
         this.size = size;
     }
 
+    /// <summary>
+    /// Tworzy teksture z obrazu(<see cref="Image"/>)
+    /// <para>
+    /// Wspierane standardy:
+    /// <br></br>
+    ///   <see cref="Rg32"/>,
+    ///   <see cref="Rgb24"/>,
+    ///   <see cref="Rgb48"/>,
+    ///   <see cref="Rgba32"/>,
+    ///   <see cref="Rgba64"/>,
+    ///   <see cref="Rgba1010102"/>,
+    ///   <see cref="RgbaVector"/>,
+    ///   <see cref="Short2"/>,
+    ///   <see cref="Short4"/>
+    /// </para>
+    /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="NotImplementedException"></exception>
     public static Texture2D Create(Image image)
     {
         if (image == null)
@@ -25,6 +45,25 @@ public sealed class Texture2D : Texture, IDisposable
         var handle = create_texture(get_gl_bytes_array(image), size);
         return new(handle, size);
     }
+
+    /// <summary>
+    /// Tworzy teksture z obrazu(<see cref="Image{T}"/>)
+    /// <para>
+    /// Wspierane standardy dla <typeparamref name="T"/>:
+    /// <br></br>
+    ///   <see cref="Rg32"/>,
+    ///   <see cref="Rgb24"/>,
+    ///   <see cref="Rgb48"/>,
+    ///   <see cref="Rgba32"/>,
+    ///   <see cref="Rgba64"/>,
+    ///   <see cref="Rgba1010102"/>,
+    ///   <see cref="RgbaVector"/>,
+    ///   <see cref="Short2"/>,
+    ///   <see cref="Short4"/>
+    /// </para>
+    /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="NotImplementedException"></exception>
     public static Texture2D Create<T>(Image<T> image) where T : unmanaged, IPixel<T>
     {
         if (image == null)
@@ -33,6 +72,25 @@ public sealed class Texture2D : Texture, IDisposable
         var handle = create_texture(get_gl_bytes_array(image), size);
         return new(handle, size);
     }
+
+    /// <summary>
+    /// Tworzy teksture z tablicy kolorów
+    /// <para>
+    /// Wspierane standardy dla <typeparamref name="T"/>:
+    /// <br></br>
+    ///   <see cref="Rg32"/>,
+    ///   <see cref="Rgb24"/>,
+    ///   <see cref="Rgb48"/>,
+    ///   <see cref="Rgba32"/>,
+    ///   <see cref="Rgba64"/>,
+    ///   <see cref="Rgba1010102"/>,
+    ///   <see cref="RgbaVector"/>,
+    ///   <see cref="Short2"/>,
+    ///   <see cref="Short4"/>
+    /// </para>
+    /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="NotImplementedException"></exception>
     public static Texture2D Create<T>(T[,] image) where T : unmanaged, IPixel<T>
     {
         if (image == null)
@@ -42,6 +100,9 @@ public sealed class Texture2D : Texture, IDisposable
         return new(handle, size);
     }
 
+    /// <summary>
+    /// Zapisuje bufor danych w pamięci karty graficznej i zwraca odnośnik do niego
+    /// </summary>
     static int create_texture(byte[] bytes, Vector2i size)
     {
         int handle = GL.GenTexture();
@@ -57,6 +118,22 @@ public sealed class Texture2D : Texture, IDisposable
         return handle;
     }
 
+    /// <summary>
+    /// Konwertuje obraz w jednym ze wsperanych standardów w bufor kolorów dla karty graficznej
+    /// <para>
+    ///   Wspierane  standardy:<br></br>
+    ///   <see cref="Rg32"/>,
+    ///   <see cref="Rgb24"/>,
+    ///   <see cref="Rgb48"/>,
+    ///   <see cref="Rgba32"/>,
+    ///   <see cref="Rgba64"/>,
+    ///   <see cref="Rgba1010102"/>,
+    ///   <see cref="RgbaVector"/>,
+    ///   <see cref="Short2"/>,
+    ///   <see cref="Short4"/>
+    /// </para>
+    /// </summary>
+    /// <exception cref="NotImplementedException">Kiedy standard obrazu nie jest wspierany</exception>
     internal static byte[] get_gl_bytes_array(Image image) => image switch
     {
         Image<Rg32> => get_gl_bytes_array(new(image.Width, image.Height), t => ((Image<Rg32>)image)[t.x,t.y]
@@ -91,6 +168,24 @@ public sealed class Texture2D : Texture, IDisposable
 
         _ => throw new NotImplementedException($"Type \"{image.GetType()}\" is not supported")
     };
+
+    /// <summary>
+    /// Konwertuje tablice kolorów w jednym ze wsperanych standardów w bufor kolorów dla karty graficznej
+    /// </summary>
+    /// <typeparam name="T">
+    /// Wspierane standardy:
+    /// <br></br>
+    ///   <see cref="Rg32"/>,
+    ///   <see cref="Rgb24"/>,
+    ///   <see cref="Rgb48"/>,
+    ///   <see cref="Rgba32"/>,
+    ///   <see cref="Rgba64"/>,
+    ///   <see cref="Rgba1010102"/>,
+    ///   <see cref="RgbaVector"/>,
+    ///   <see cref="Short2"/>,
+    ///   <see cref="Short4"/>
+    /// </typeparam>
+    /// <exception cref="NotImplementedException"></exception>
     internal static byte[] get_gl_bytes_array<T>(T[,] array) where T : unmanaged, IPixel<T>
     {
         Vector2i size = new(array.GetLength(0), array.GetLength(1));
@@ -129,6 +224,10 @@ public sealed class Texture2D : Texture, IDisposable
             _ => throw new NotImplementedException($"Type \"{typeof(T[,])}\" is not supported")
         };
     }
+    
+    /// <summary>
+    /// Podstawa do konwertowania Tablic kolorów w bufor danych dla karty graficznej
+    /// </summary>
     static byte[] get_gl_bytes_array(Vector2i size, Func<(int x, int y), Rgba32> get_pix)
     {
         byte[] bytes = new byte[size.X * size.Y * 4];
@@ -147,6 +246,11 @@ public sealed class Texture2D : Texture, IDisposable
         }
         return bytes;
     }
+
+    /// <summary>
+    /// <inheritdoc cref="get_gl_bytes_array(Image)"/>
+    /// </summary>
+    /// <exception cref="NotImplementedException"></exception>
     internal static byte[] get_bytes_array(Image image) => image switch
     {
         Image<Rg32> => get_bytes_array(new(image.Width, image.Height), t => ((Image<Rg32>)image)[t.x, t.y]
@@ -181,6 +285,24 @@ public sealed class Texture2D : Texture, IDisposable
 
         _ => throw new NotImplementedException($"Type \"{image.GetType()}\" is not supported")
     };
+
+    /// <summary>
+    /// <inheritdoc cref="get_gl_bytes_array{T}(T[,])"/>
+    /// </summary>
+    /// <typeparam name="T">
+    /// Wspierane standardy:
+    /// <br></br>
+    ///   <see cref="Rg32"/>,
+    ///   <see cref="Rgb24"/>,
+    ///   <see cref="Rgb48"/>,
+    ///   <see cref="Rgba32"/>,
+    ///   <see cref="Rgba64"/>,
+    ///   <see cref="Rgba1010102"/>,
+    ///   <see cref="RgbaVector"/>,
+    ///   <see cref="Short2"/>,
+    ///   <see cref="Short4"/>
+    /// </typeparam>
+    /// <exception cref="NotImplementedException"></exception>
     internal static byte[] get_bytes_array<T>(T[,] array) where T : unmanaged, IPixel<T>
     {
         Vector2i size = new(array.GetLength(0), array.GetLength(1));
@@ -219,6 +341,13 @@ public sealed class Texture2D : Texture, IDisposable
             _ => throw new NotImplementedException($"Type \"{typeof(T[,])}\" is not supported")
         };
     }
+    
+    /// <summary>
+    /// <inheritdoc cref="get_gl_bytes_array(Vector2i, Func{(int x, int y), Rgba32})"/>
+    /// </summary>
+    /// <param name="size"></param>
+    /// <param name="get_pix"></param>
+    /// <returns></returns>
     static byte[] get_bytes_array(Vector2i size, Func<(int x, int y), Rgba32> get_pix)
     {
         byte[] bytes = new byte[size.X * size.Y * 4];
@@ -238,8 +367,10 @@ public sealed class Texture2D : Texture, IDisposable
         return bytes;
     }
 
-
-
+    /// <summary>
+    /// Zwraca tablice kolorów tej tekstury
+    /// <para>Za karzdym razem jest tworzona nowa instancja</para>
+    /// </summary>
     public Rgba32[,] GetTexture()
     {
         //return MainTask.Run(() =>
@@ -250,6 +381,9 @@ public sealed class Texture2D : Texture, IDisposable
         }//);
     }
 
+    /// <summary>
+    /// Konwertuje bufor danych z karty graficznej i konwertuje go w teblece kolorów obrazu
+    /// </summary>
     internal static Rgba32[,] decode_image_from_buffer(byte[] bytes, Vector2i size, int offset)
     {
         var image = new Rgba32[size.X, size.Y];
@@ -274,6 +408,10 @@ public sealed class Texture2D : Texture, IDisposable
     }
 
     public override int Handle => handle;
+
+    /// <summary>
+    /// Wymiary tekstury
+    /// </summary>
     public (int Width, int Height) Size => size.ToTumple();
     public bool IsDisposed => disposable;
     public override TextureTarget Target => TextureTarget.Texture2D;
