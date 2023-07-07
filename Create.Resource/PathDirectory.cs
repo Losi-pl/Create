@@ -1,7 +1,8 @@
-﻿using System.Diagnostics.Metrics;
+﻿namespace Create.Resource;
 
-namespace Create.Resource;
-
+/// <summary>
+/// Wrzystkie ścierzki w trakcie tworzenia <see cref="Resources"/>
+/// </summary>
 public sealed class PathDirectory
 {
     directory main = new();
@@ -9,6 +10,12 @@ public sealed class PathDirectory
 
     public PathDirectory() => all_registered.Add(string.Empty, main);
 
+    /// <summary>
+    /// Dodaj plik o ścierzce <paramref name="path"/>
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="file">Obiekt urzywany do wyciągania <see cref="Stream"/>a z pliku</param>
+    /// <exception cref="Exception"></exception>
     public void AddFile(string path, object? file)
     {
         var path_data = validate_path(path);
@@ -39,6 +46,12 @@ public sealed class PathDirectory
         dir.files.Add(new() { name = path_data.file, sender = file });
     }
 
+    /// <summary>
+    /// Konwertuje ścierzke i sprawdza czy jej składnia jest poprawna
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
     static (string path, string file, string[] segments) validate_path(string path)
     {
         path = path.Replace("/", "\\");
@@ -59,8 +72,14 @@ public sealed class PathDirectory
         return (path.Remove(last_set + 1), path.Substring(last_set + 1), sects);
     }
 
+    /// <summary>
+    /// Konwertuje strukture na strukture w <see cref="ResourceDirectory"/>
+    /// </summary>
     internal ResourceDirectory get_main_directory() => get_directory(main);
 
+    /// <summary>
+    /// <inheritdoc cref="get_main_directory"/>
+    /// </summary>
     ResourceDirectory get_directory(directory dir)
     {
         var files = dir.files.Cast(f => new ResourceFile(f.name, f.sender)).ToArray();
@@ -68,6 +87,9 @@ public sealed class PathDirectory
         return new(dir.name, folders, files);
     }
 
+    /// <summary>
+    /// Parametry i zawartość pod folderu
+    /// </summary>
     class directory
     {
         #pragma warning disable CS8618
@@ -76,6 +98,10 @@ public sealed class PathDirectory
         public List<directory> folders = new();
         public List<file> files = new();
     }
+
+    /// <summary>
+    /// Parametry i zawartość pliku
+    /// </summary>
     class file
     {
         #pragma warning disable CS8618

@@ -1,15 +1,28 @@
 ﻿namespace Create.Resource;
 
+/// <summary>
+/// Repozytorium stworzenie z kilku innych repozytoriów połączonych w jedno
+/// </summary>
 public sealed class MargedResources : Resources
 {
     private MargedResources(PathDirectory paths) : base(paths) { }
 
     protected internal override Stream GetStream(GetStreamStruct args) => ((ResourceFile)args.Sender!).GetStream();
 
+    /// <summary>
+    /// Kostruktor dla <see cref="MargedResources"/>
+    /// </summary>
     public class Constructor
     {
         Dictionary<string, ResourceFile> files = new();
 
+        /// <summary>
+        /// Nałorzenie kawałka <see cref="Resources"/> z <paramref name="srcPath"/> do <paramref name="desPath"/> w <see cref="MargedResources"/>
+        /// </summary>
+        /// <param name="resources">Repozytorium źrudła</param>
+        /// <param name="srcPath">Ścierzka źrudła</param>
+        /// <param name="desPath">Docelowa ścierzka</param>
+        /// <returns></returns>
         public Constructor MargeFiles(Resources resources, string srcPath, string desPath)
         {
             valid_paths();
@@ -61,6 +74,10 @@ public sealed class MargedResources : Resources
             }
         }
 
+        /// <summary>
+        /// Zakończ nakładanie repozytoriów
+        /// </summary>
+        /// <returns></returns>
         public MargedResources Finish()
         {
             PathDirectory paths = new();

@@ -1,5 +1,8 @@
 ﻿namespace Create.Resource;
 
+/// <summary>
+/// <see cref="Stream"/> do pliku w repozytorium <see cref="SingleFileResources"/>
+/// </summary>
 public sealed class ResourceStream : Stream
 {
     SingleFileResources base_;

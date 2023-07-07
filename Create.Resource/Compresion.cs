@@ -2,10 +2,16 @@
 
 namespace Create.Resource;
 
+/// <summary>
+/// Kompresowanie repozytorium
+/// </summary>
 public static class Compresion
 {
     public static SingleFile CompresToOneFile(this Resources resources) => new(resources);
 
+    /// <summary>
+    /// Kompiluje całe repozytorium do pojedyńczego pliku
+    /// </summary>
     public sealed class SingleFile
     {
         Resources resources;
@@ -14,6 +20,11 @@ public static class Compresion
         {
             this.resources = resources;
         }
+        
+        /// <summary>
+        /// Gdzie ma zapisać skompresowane repozutorium
+        /// </summary>
+        /// <exception cref="IOException"></exception>
         public void SaveTo(string path)
         {
             path = Path.GetFullPath(path);
@@ -31,6 +42,10 @@ public static class Compresion
             s.Close();
             s.Dispose();
         }
+
+        /// <summary>
+        /// Gdzie ma zapisać skompresowane repozutorium
+        /// </summary>
         public void SaveTo(Stream stream)
         {
             long offs = 0;
@@ -53,7 +68,18 @@ public static class Compresion
                 stream.WriteStream(file.file.stream);
         }
 
+        /// <summary>
+        /// Pobiera wrzystkie pliki obecne w repozytorium
+        /// </summary>
+        /// <returns></returns>
         IEnumerable<(Stream stream, ResourceFile file)> get_all_files() => resources.AllFiles.Cast(f => (f.GetStream(), f));
+
+        /// <summary>
+        /// Generuje gotową zawartość pliku
+        /// </summary>
+        /// <param name="file_pozitions">Parametry poszczegulnych plików</param>
+        /// <param name="directory">Obecny folder do dodania go manifestu</param>
+        /// <returns></returns>
         IEnumerable<byte> generate_manifest(((Stream stream, ResourceFile file) file, (long offset, long lenght))[] file_pozitions, ResourceDirectory directory)
         {
             var files_count = (uint)directory.Files.Count();

@@ -11,6 +11,9 @@ namespace Create.Sceans;
 
 partial class GameView
 {
+    /// <summary>
+    /// Mechanizm renderowania terenu
+    /// </summary>
     public class Terrain
     {
         Dictionary<ChunkPoz, ChunkConstructor.FinischedChunkModel> chunk_models = new();
@@ -31,17 +34,27 @@ partial class GameView
             new_chunks.last = new_chunks.query;
         }
 
+        /// <summary>
+        /// Kolor nieba
+        /// </summary>
         public Color SkyColor
         {
             get => binded_world_layer.Color;
             set => binded_world_layer.Color = value;
         }
+        
+        /// <summary>
+        /// Częstotliwość generowania modeli nowych <see cref="Chunk"/>ów
+        /// </summary>
         public float NewChunkFrequency
         {
             get => new_chunks.query;
             set => new_chunks.query = value;
         }
 
+        /// <summary>
+        /// Dodaj nowy <see cref="Chunk"/> do listy do wyrenderowania
+        /// </summary>
         public void Add(ChunkPoz chunk)
         {
             lock(task_lock)
@@ -53,6 +66,10 @@ partial class GameView
                 chunks_to_add.Add(chunk);
             }
         }
+        
+        /// <summary>
+        /// Wygeneruj model <see cref="Chunk"/>a natychmiastowo
+        /// </summary>
         public void EmidietRenew(ChunkPoz chunk)
         {
             lock (task_lock)
@@ -64,6 +81,12 @@ partial class GameView
                 chunk_models[chunk] = new_chunk;
             }
         }
+
+        /// <summary>
+        /// Wygeneruj sześcian z modelu <see cref="Chunk"/>a natychmiastowo
+        /// </summary>
+        /// <param name="chunk"></param>
+        /// <param name="quard"></param>
         public void EmidietRenew(ChunkPoz chunk, int quard)
         {
             lock (task_lock)
@@ -73,6 +96,10 @@ partial class GameView
                 chunk_m.set_new_quard(new_quard, quard);
             }
         }
+        
+        /// <summary>
+        /// Usuwa model z wygenerowanych albo z listy do wygenerowania modelu
+        /// </summary>
         public void Remove(ChunkPoz chunk)
         {
             lock(task_lock)
@@ -84,6 +111,10 @@ partial class GameView
                 chunks_to_rem.Add(chunk);
             }
         }
+        
+        /// <summary>
+        /// Wygeneruj model <see cref="Chunk"/>a ponownie
+        /// </summary>
         public void Renew(ChunkPoz chunk)
         {
             lock (task_lock)
@@ -96,14 +127,25 @@ partial class GameView
             }
         }
 
+        /// <summary>
+        /// Wyrenderuj obraz terenu na ekranie
+        /// </summary>
         public void Draw()
         {
             nontransparent_blocks.UpdateContent();
             binded_world_layer.UpdateContent();
             binded_world_layer.Draw();
         }
+        
+        /// <summary>
+        /// Gotowy obraz terenu
+        /// </summary>
         public RenderLayer Finisched => binded_world_layer;
 
+        /// <summary>
+        /// Zarządzanie i tworzenie nowych modeli chunków co określony czas w <see cref="NewChunkFrequency"/>
+        /// </summary>
+        /// <param name="time"></param>
         public void ChunkUpdate(double time)
         {
             render_new_chunk();
@@ -199,6 +241,11 @@ partial class GameView
                     new_chunks.last += (float)time;
             }
         }
+        
+        /// <summary>
+        /// Odświerzenie rozmiaru płuten na których elementy są renderowane
+        /// </summary>
+        /// <param name="size"></param>
         public void Resize(Vector2i size)
         {
             nontransparent_blocks.Resize(size);

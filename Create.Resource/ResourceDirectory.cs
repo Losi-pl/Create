@@ -1,12 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
+﻿namespace Create.Resource;
 
-namespace Create.Resource;
-
+/// <summary>
+/// Folder w repozytorium
+/// </summary>
 public sealed class ResourceDirectory
 {
     string name;
@@ -26,8 +22,15 @@ public sealed class ResourceDirectory
             files[i].directory = this;
     }
 
+    /// <summary>
+    /// Folder wyrzszy
+    /// </summary>
     public ResourceDirectory? Parent => parent;
 
+    /// <summary>
+    /// Pobierz podfolder
+    /// </summary>
+    /// <exception cref="Exception"></exception>
     public ResourceDirectory GetSubPath(string path)
     {
         if (path is "/" or "\\" or "")
@@ -56,6 +59,11 @@ public sealed class ResourceDirectory
             path_ = path_.subpaths.FirstOrDefault(p_ => p_.name == p) ?? throw new Exception($"Paht \"{path}\" doesn't exist");
         return path_;
     }
+    
+    /// <summary>
+    /// Czy pod-folder istnieje
+    /// </summary>
+    /// <exception cref="Exception"></exception>
     public bool IsPathExist(string path)
     {
         IEnumerable<string> directories = path.Split('\\', '/')
@@ -81,15 +89,40 @@ public sealed class ResourceDirectory
         return true;
     }
     
+    /// <summary>
+    /// Podfoldery
+    /// </summary>
     public IEnumerable<ResourceDirectory> SubPaths => subpaths;
 
+    /// <summary>
+    /// Wyciąganie pliku z tego folderu
+    /// </summary>
     public ResourceFile GetFile(string name) => files.FirstOrDefault(f => f.Name == name) ?? throw new Exception($"File \"{name}\" doesn't exist");
+    
+    /// <summary>
+    /// Czy plik istnieje w tym folderze
+    /// </summary>
     public bool IsFileExist(string name) => files.FirstOrDefault(f => f.Name == name) != null;
 
+    /// <summary>
+    /// Nazwa tego folderu
+    /// </summary>
     public string Name => name;
+
+    /// <summary>
+    /// Ścierzka tego folderu
+    /// </summary>
     public string Path => path();
+
+    /// <summary>
+    /// Repozytorium do którego ten folder nalerzy
+    /// </summary>
     public Resources Resources => resources!;
     public override string ToString() => path();
+
+    /// <summary>
+    /// Generuje ścierzke do tego folderu
+    /// </summary>
     string path()
     {
         if (Parent == null)
@@ -97,7 +130,15 @@ public sealed class ResourceDirectory
         return Parent.parent != null ? $"{Parent.path()}{Name}/" : $"{Name}/";
     }
 
+    /// <summary>
+    /// Wrzystkie pod-foldery
+    /// </summary>
     public IEnumerable<ResourceDirectory> AllSubPaths => all_directories();
+    
+    /// <summary>
+    /// Generuje kolekcje wrzystkich pod-folderów
+    /// </summary>
+    /// <returns></returns>
     IEnumerable<ResourceDirectory> all_directories()
     {
         List<ResourceDirectory> directories = new();
@@ -110,9 +151,15 @@ public sealed class ResourceDirectory
                 list_dir(d);
         }
     }
+    
+    /// <summary>
+    /// Wrzystkie pliki w folderze i pod-folderach
+    /// </summary>
     public IEnumerable<ResourceFile> AllSubFiles => AllSubPaths.Cast(d => d.files).MargEnumerables();
 
-
+    /// <summary>
+    /// W trakcie budowania repozytorium przypina wrzystkie foldery do repozytorium <paramref name="resor"/>
+    /// </summary>
     internal void set_mather_resources(Resources resor)
     {
         set_in_directories(this);
@@ -124,5 +171,8 @@ public sealed class ResourceDirectory
         }
     }
 
+    /// <summary>
+    /// Pliki w tym folderze
+    /// </summary>
     public IEnumerable<ResourceFile> Files => files;
 }

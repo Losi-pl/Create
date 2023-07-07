@@ -2,6 +2,9 @@
 
 namespace Create.Resource;
 
+/// <summary>
+/// Repozytorium załadowane z jednego pliku
+/// </summary>
 public class SingleFileResources : Resources
 {
     Stream baze_stream;
@@ -12,7 +15,14 @@ public class SingleFileResources : Resources
         baze_stream = stream;
     }
 
+    /// <summary>
+    /// Do zadbania że tylko jeden wątek urzywa pliku żrudłowego na raz
+    /// </summary>
     internal object TaskLock => task_lock;
+
+    /// <summary>
+    /// Plik żrudłowy
+    /// </summary>
     internal Stream Stream => baze_stream;
 
     protected internal override Stream GetStream(GetStreamStruct args)
@@ -20,12 +30,20 @@ public class SingleFileResources : Resources
         (long offset, long lenght) data = ((long, long))args.Sender!;
         return new ResourceStream(this, args.File, data.lenght, data.offset);
     }
+    
+    /// <summary>
+    /// Konstruktor dla <see cref="SingleFileResources"/>
+    /// </summary>
     public class Constructor
     {
 #pragma warning disable CS8618
         Stream stream;
 #pragma warning restore CS8618
 
+        /// <summary>
+        /// Załaduj repozytorium z pliku
+        /// </summary>
+        /// <exception cref="Exception"></exception>
         public Constructor FromFile(string path)
         {
             if (!File.Exists(path))
@@ -33,12 +51,21 @@ public class SingleFileResources : Resources
             stream = File.OpenRead(path);
             return this;
         }
+
+        /// <summary>
+        /// Załaduj repozytorium z <see cref="System.IO.Stream"/>a
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
         public Constructor FromFile(Stream stream)
         {
             this.stream = stream;
             return this;
         }
 
+        /// <summary>
+        /// Zakończ konstrukcje <see cref="SingleFileResources"/>
+        /// </summary>
         public SingleFileResources Finish()
         {
             stream.Position = 0;
@@ -103,6 +130,9 @@ public class SingleFileResources : Resources
             }
         }
 
+        /// <summary>
+        /// Pozycje plików w fliku źrudłowym
+        /// </summary>
         class directory
         {
             public string name = null!;

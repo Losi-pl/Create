@@ -2,7 +2,15 @@
 
 internal static class Special
 {
+    /// <summary>
+    /// Odpowiednik <see cref="Stream.Read(byte[], int, int)"/> obsługujący wastości więkrze niż <see cref="int.MaxValue"/>
+    /// </summary>
     public static long ReadLong(this Stream stream, byte[] bytes) => ReadLong(stream, bytes, 0, bytes.LongLength);
+
+    /// <summary>
+    /// <inheritdoc cref="ReadLong(Stream, byte[])"/>
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
     public static long ReadLong(this Stream stream, byte[] bytes, long offset, long count)
     {
         if (count < 0 || offset < 0)
@@ -48,7 +56,16 @@ internal static class Special
         }
     }
 
+
+    /// <summary>
+    /// Odpowiednik <see cref="Stream.Write(byte[], int, int)"/> obsługujący wastości więkrze niż <see cref="int.MaxValue"/>
+    /// </summary>
     public static void WriteLong(this Stream stream, byte[] bytes) => WriteLong(stream, bytes, 0, bytes.LongLength);
+
+    /// <summary>
+    /// <inheritdoc cref="WriteLong(Stream, byte[])"/>
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
     public static void WriteLong(this Stream stream, byte[] bytes, long offset, long count)
     {
         if (count < 0 || offset < 0)
@@ -84,6 +101,11 @@ internal static class Special
         }
     }
     
+    /// <summary>
+    /// Kopiuje jeden <see cref="Stream"/> do drugiego
+    /// </summary>
+    /// <param name="dest"></param>
+    /// <param name="src"></param>
     public static void WriteStream(this Stream dest, Stream src)
     {
         if (dest.Length - dest.Position < src.Length)
@@ -102,6 +124,12 @@ internal static class Special
         }
     }
 
+    /// <summary>
+    /// Wytnij pierwszy ciąg <paramref name="remove"/> z całaści <paramref name="main"/>
+    /// </summary>
+    /// <param name="main"></param>
+    /// <param name="remove"></param>
+    /// <returns></returns>
     public static string RemoveFirstSubString(this string main, string remove)
     {
         int index = main.IndexOf(remove);
@@ -110,19 +138,39 @@ internal static class Special
             : main.Remove(index, remove.Length);
     }
 
+    /// <summary>
+    /// Połącz kilka kolekcji w jedną
+    /// </summary>
     public static IEnumerable<T> MargEnumerables<T>(this IEnumerable<IEnumerable<T>> values)
     {
         foreach(var en in values)
             foreach(var e in en)
                 yield return e;
     }
+    
+    /// <summary>
+    /// Przekonwertuj obiekt za pobocą <paramref name="func"/>
+    /// </summary>
     public static IEnumerable<TOut> Cast<TIn, TOut>(this IEnumerable<TIn> values, Func<TIn, TOut> func)
     {
         foreach(var v in values)
             yield return func(v);
     }
 
+    /// <summary>
+    /// Czy na liście znajduje się element <paramref name="element"/>
+    /// <para>W sparawdzaniu pomiń <paramref name="exclude"/></para>
+    /// </summary>
+    /// <param name="exclude">Numer obiektu który ma być pominięty w sprawdzaniu</param>
+    /// <returns></returns>
     public static bool IsConteinedEx<T>(this List<T> list, T element, int exclude) => IsConteinedEx(list, el => el?.Equals(element) ?? false, exclude);
+    
+    /// <summary>
+    /// Czy na liście znajduje się element spełniający warunki <paramref name="condition"/>
+    /// <para>W sparawdzaniu pomiń <paramref name="exclude"/></para>
+    /// </summary>
+    /// <param name="exclude">Numer obiektu który ma być pominięty w sprawdzaniu</param>
+    /// <returns></returns>
     public static bool IsConteinedEx<T>(this List<T> list, Func<T, bool> condition, int exclude)
     {
         for (int i = 0; i < list.Count; i++)
@@ -136,6 +184,13 @@ internal static class Special
         return false;
     }
 
+    /// <summary>
+    /// Znajdź jeden ciąg w drugim
+    /// <para>Szuka od końca</para>
+    /// </summary>
+    /// <param name="text">Ciąg główny</param>
+    /// <param name="subString">Ciąg do znalezienia</param>
+    /// <param name="notFound">Jeśli ciąg nie został znajeziony</param>
     public static int FindFromEnd(this string text, string subString, int notFound = -1)
     {
         for(int i = text.Length - subString.Length - 1; i >= 0; i--)
@@ -149,6 +204,14 @@ internal static class Special
         }
         return notFound;
     }
+
+    /// <summary>
+    /// Znajdź jeden z ciągów w głównym ciągu
+    /// <para>Szuka od końca</para>
+    /// </summary>
+    /// <param name="text">Ciąg główny</param>
+    /// <param name="find">Jeden z poszukiwanych ciągów</param>
+    /// <param name="notFound">Jeśli ciąg nie został znajeziony</param>
     public static int FindFromEnd(this string text, string[] find, int notFound = -1)
     {
         int? last = null;
@@ -169,6 +232,14 @@ internal static class Special
 
         return last ?? notFound;
     }
+
+    /// <summary>
+    /// Znajdź litere w ciągu
+    /// <para>Szuka od końca</para>
+    /// </summary>
+    /// <param name="text">Przeszukiwany ciąg</param>
+    /// <param name="find">Ciąg do znalezienia</param>
+    /// <param name="notFound">Jeśli ciąg nie został znajeziony</param>
     public static int FindFromEnd(this string text, char find, int notFound = -1)
     {
         for (int i = text.Length - 1; i >= 0; i--)
@@ -176,6 +247,14 @@ internal static class Special
                 return i;
         return notFound;
     }
+
+    /// <summary>
+    /// Znajdź jedną z liter w ciągu
+    /// <para>Szuka od końca</para>
+    /// </summary>
+    /// <param name="text">Przeszukiwany ciąg</param>
+    /// <param name="find">Litery do znalezienia</param>
+    /// <param name="notFound">Jeśli ciąg nie został znajeziony</param>
     public static int FindFromEnd(this string text, char[] find, int notFound = -1)
     {
         int? last = null;

@@ -1,5 +1,8 @@
 ﻿namespace Create.Resource;
 
+/// <summary>
+/// Repozytorium zbudowane z folderu w komputerze
+/// </summary>
 public class DirectoryResources : Resources
 {
     private DirectoryResources(PathDirectory rootDirectory) : base(rootDirectory) { }
@@ -11,12 +14,19 @@ public class DirectoryResources : Resources
         return stream;
     }
 
+    /// <summary>
+    /// Konstruktor dla <see cref="DirectoryResources"/>
+    /// </summary>
     public class Creator
     {
         List<(string drive, string resource)> paths = new();
 
         public Creator() { }
 
+        /// <summary>
+        /// Wygeneruj gotowe <see cref="DirectoryResources"/>
+        /// </summary>
+        /// <returns></returns>
         public DirectoryResources Finish()
         {
             PathDirectory paths = new();
@@ -26,6 +36,13 @@ public class DirectoryResources : Resources
             return new(paths);
         }
 
+        /// <summary>
+        /// Połącz folder z repozytorium
+        /// </summary>
+        /// <param name="folderPath">Folder na komputerze</param>
+        /// <param name="resourcePath">Ścieżka w repozutorium</param>
+        /// <param name="modyfication">Modyfikacje no pliku</param>
+        /// <returns></returns>
         public Creator AddFolder(string folderPath, string resourcePath, Action<PathModyfication>? modyfication = null)
         {
             if (folderPath[^1] is not '\\' or '/')
@@ -84,6 +101,10 @@ public class DirectoryResources : Resources
             IEnumerable<string> all_files(IEnumerable<string> folders) => folders.Cast(Directory.GetFiles).MargEnumerables();
         }
 
+        /// <summary>
+        /// Test kolizji nazw plików
+        /// </summary>
+        /// <exception cref="Exception"></exception>
         public void test_file_colizions()
         {
             for (int i = 0; i < paths.Count; i++)
@@ -94,6 +115,9 @@ public class DirectoryResources : Resources
             }
         }
 
+        /// <summary>
+        /// Modyfikacja parametrów plików w repozutorium
+        /// </summary>
         public class PathModyfication
         {
             internal bool ignore;
@@ -107,10 +131,24 @@ public class DirectoryResources : Resources
                 this.file_path = file_path;
             }
 
+            /// <summary>
+            /// Zignoruj ten plik w repozytorium
+            /// </summary>
             public void Ignore() => ignore = true;
 
+            /// <summary>
+            /// Ścierzka w repozutorium
+            /// </summary>
             public string RegisterPath => path;
+
+            /// <summary>
+            /// Ścierzka na komputerze
+            /// </summary>
             public string FilePath => file_path;
+
+            /// <summary>
+            /// Nazwa pliku na komputerze
+            /// </summary>
             public string FileName
             {
                 get
@@ -120,12 +158,18 @@ public class DirectoryResources : Resources
                 }
             }
 
-
+            /// <summary>
+            /// Przeniesienie do kolejnych pod-folderów
+            /// </summary>
             public PathModyfication SubPath(string path)
             {
                 alter_sub_path = path;
                 return this;
             }
+
+            /// <summary>
+            /// Zmiana nazwy w repozytorium
+            /// </summary>
             public PathModyfication Rename(string name)
             {
                 alter_name = name;
