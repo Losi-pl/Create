@@ -10,6 +10,7 @@ public sealed class SpacePoint
     SpacePoint parent = null!;
     List<SpacePoint> childs = new List<SpacePoint>();
     Vector2 ancor1 = new(.5f, .5f), ancor2 = new(.5f, .5f);
+    Element? element;
 
     int width, height;
     int poz_x, poz_y;
@@ -18,6 +19,11 @@ public sealed class SpacePoint
     /// Wrzystkie podrzędne elementy tego obiektu
     /// </summary>
     public List<SpacePoint> Children => childs;
+
+    /// <summary>
+    /// Jak ma zostać wyrenderowany ten obiekt w <see cref="Interface"/>
+    /// </summary>
+    public Element? Element { get => element; set => element = value; }
 
     /// <summary>
     /// Pozycja na płutnie
