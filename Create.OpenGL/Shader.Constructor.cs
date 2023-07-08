@@ -78,7 +78,7 @@ partial class Shader
         }
 
         /// <summary>
-        /// Ustawia która statuczna zmienna przechowuje dodatkowy <see cref="OpenTK.Mathematics.Matrix4"/>
+        /// Ustawia która statuczna zmienna przechowuje podstawowy <see cref="OpenTK.Mathematics.Matrix4"/> do transformacji modelu
         /// </summary>
         /// <exception cref="ArgumentNullException"></exception>
         public Constructor ProjectionMatrixUniform(string name)
