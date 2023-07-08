@@ -249,7 +249,7 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
     public void UpdateContent()
     {
         Bind();
-        Matrix4 projection = projection_matrix();
+        Matrix4 projection = camera != null ? camera.CombinedMatrix : Engine.NeutralMatrix;
         Matrix4 model = model_matrix();
         GL.ClearColor(color);
         GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
@@ -258,19 +258,6 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
         Unbind();
 
         //Methods
-        Matrix4 projection_matrix()
-        {
-            if (camera != null)
-            {
-                var reve = new Vector3(camera.RevertAxis.x ? -1 : 1, camera.RevertAxis.y ? -1 : 1, camera.RevertAxis.z ? -1 : 1);
-                Matrix4 sca = Matrix4.CreateScale(reve);
-                Matrix4 poz = Matrix4.CreateTranslation(-camera.Pozition * reve);
-                Matrix4 rot = Matrix4.CreateRotationY(MathF.PI) * (camera.Rotation != new Vector3() ? Matrix4.CreateFromQuaternion(camera.RotationQuaternion) : Engine.NeutralMatrix);
-                Matrix4 cam = camera.Projection;
-                return sca * poz * rot * cam;
-            }
-            return Engine.NeutralMatrix;
-        }
         Matrix4 model_matrix() => camera != null ? camera.Model : Engine.NeutralMatrix;
     }
     
