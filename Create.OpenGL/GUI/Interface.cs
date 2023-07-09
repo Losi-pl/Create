@@ -46,7 +46,7 @@ public sealed class Interface
     /// </summary>
     public void Refrasch()
     {
-        Matrix4 main = Matrix4.CreateScale(1f / main_layer.Size.Width, 1f / main_layer.Size.Height, 1);
+        Matrix4 main = Matrix4.CreateScale(1f / main_layer.Size.Width * 2, 1f / main_layer.Size.Height * 2, 1);
         main_layer.Clear();
         main_layer.ExecuteIn(() =>
         {
