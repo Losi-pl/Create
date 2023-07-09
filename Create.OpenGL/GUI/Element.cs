@@ -7,5 +7,13 @@ namespace Create.OpenGL.GUI;
 /// </summary>
 public abstract class Element
 {
-    public abstract void Draw(Matrix4 projection, Matrix4 model, SpacePoint point);
+    SpacePoint point;
+    public abstract void Draw(Matrix4 projection);
+
+    internal void set_element(SpacePoint point) => this.point = point;
+
+    /// <summary>
+    /// <see cref="SpacePoint"/> z którym ten <see cref="Element"/> jest połączony
+    /// </summary>
+    public SpacePoint Point => point;
 }

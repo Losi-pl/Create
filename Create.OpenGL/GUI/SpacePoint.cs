@@ -67,7 +67,16 @@ public sealed class SpacePoint
     /// <summary>
     /// Jak ma zostać wyrenderowany ten obiekt w <see cref="Interface"/>
     /// </summary>
-    public Element? Element { get => element; set => element = value; }
+    public Element? Element
+    {
+        get => element; 
+        set
+        {
+            element?.set_element(null!);
+            value?.set_element(this);
+            element = value;
+        }
+    }
 
     /// <summary>
     /// <see cref="GUI.Interface"/> z którym ten <see cref="SpacePoint"/> jest połączony

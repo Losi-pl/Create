@@ -57,7 +57,7 @@ public sealed class Interface
         //Methods
         void draw_models(SpacePoint point)
         {
-            point.Element?.Draw(Matrix4.CreateTranslation(new Vector3(point.GlobalPozition.ToVector())) * main, Engine.NeutralMatrix, point);
+            point.Element?.Draw(Matrix4.CreateTranslation(new Vector3(point.GlobalPozition.ToVector())) * main);
             
             foreach (var sp in point.Childs)
                 draw_models(sp);
