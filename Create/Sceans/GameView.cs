@@ -1,9 +1,10 @@
-﻿using Create.Elements;
-using Create.Elements.Bazic.Entitys;
+﻿using Create.Elements.Bazic.Entitys;
 using Create.Input;
 using Create.Net;
 using Create.OpenGL;
-using Create.Render;
+using Create.OpenGL.GUI;
+using Create.OpenGL.GUI.Elements;
+using Create.OpenGL.Textures;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using System.Drawing;
@@ -14,11 +15,26 @@ internal sealed partial class GameView : Scean
 {
     Camera camera;
     Terrain terrain;
+    Interface _interface;
 
     public GameView()
     {
         camera = new();
         terrain = new(camera);
+        _interface = new(OpenGL.Engine.Size.X, OpenGL.Engine.Size.Y);
+
+        _interface.MainElements.AddChild(new SpacePoint
+        {
+            Size = (28, 28),
+            Pozition = (0, 0),
+            Element = new ScreenPointer
+            {
+                Interface = Texture2D.Create(SixLabors.ImageSharp.Image.Load(Assets.Resources!.GetPath("create/textures/gui").GetFile("icons").GetStream())),
+                Terrain = terrain.Finisched.Textures[OpenTK.Graphics.OpenGL.FramebufferAttachment.ColorAttachment0],
+                Offset = (4, 245),
+                Size = (7, 7)
+            }
+        });
     }
 
     protected override void SceanLoad()
@@ -35,8 +51,11 @@ internal sealed partial class GameView : Scean
     {
         camera.Pozition = Client.Me.Entity!.Pozition + new Vector3(0, ((Mob)Client.Me.Entity.Entity).GetCameraHeight(Client.Me.Entity), 0);
         terrain.Draw();
+        _interface.Refrasch();
+        _interface.Canvas.Draw();
         OpenGL.Engine.FinishFrame();
     }
+
     protected override void UpdateFrame(FrameEventArgs args)
     {
         if (Keyboard.Escape.Down)
@@ -78,6 +97,7 @@ internal sealed partial class GameView : Scean
         if (args.Size == new Vector2i())
             return;
         terrain.Resize(args.Size);
+        _interface.Size = args.Size.ToTumple();
         camera.Projection = Projection;
     }
     Matrix4 Projection => Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, OpenGL.Engine.Size.X / (float)OpenGL.Engine.Size.Y, .01f, 10000f);
