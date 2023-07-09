@@ -9,13 +9,14 @@ namespace Create.OpenGL.GUI;
 public sealed class Interface
 {
     RenderLayer main_layer;
-    SpacePoint main = new();
+    SpacePoint main;
 
     public Interface(int width, int height)
     {
         main_layer = RenderLayer.Create()
             .SetSize(width, height)
             .Finisch();
+        main = new(this);
         main.Size = (width, height);
         main_layer.Color = Color.Transparent;
     }
@@ -38,7 +39,7 @@ public sealed class Interface
     /// </summary>
     public RenderLayer Canvas => main_layer;
 
-    public List<SpacePoint> MainElements => main.Children;
+    public SpacePoint.ChildrenList MainElements => main.Childs;
 
     /// <summary>
     /// Renderuj zawartość interfejsu
@@ -49,7 +50,7 @@ public sealed class Interface
         main_layer.Clear();
         main_layer.ExecuteIn(() =>
         {
-            foreach(var sp in this.main.Children)
+            foreach(var sp in this.main.Childs)
                 draw_models(sp);
         });
 
@@ -58,7 +59,7 @@ public sealed class Interface
         {
             point.Element?.Draw(Matrix4.CreateTranslation(new Vector3(point.GlobalPozition.ToVector())) * main, Engine.NeutralMatrix, point);
             
-            foreach (var sp in point.Children)
+            foreach (var sp in point.Childs)
                 draw_models(sp);
         }
     }

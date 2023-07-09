@@ -1,4 +1,6 @@
-﻿using OpenTK.Mathematics;
+﻿using Create.Virtuals;
+using OpenTK.Mathematics;
+using System.Diagnostics;
 
 namespace Create.OpenGL.GUI;
 
@@ -7,23 +9,87 @@ namespace Create.OpenGL.GUI;
 /// </summary>
 public sealed class SpacePoint
 {
-    SpacePoint parent = null!;
+    SpacePoint? parent = null;
     List<SpacePoint> childs = new List<SpacePoint>();
     Vector2 ancor1 = new(.5f, .5f), ancor2 = new(.5f, .5f);
+    Interface @interface;
     Element? element;
 
     int width, height;
     int poz_x, poz_y;
 
+    public SpacePoint() { @interface = null!; }
+
+    public SpacePoint(Interface @interface)
+    {
+        if (@interface is null) throw new ArgumentNullException(nameof(@interface));
+        
+        this.@interface = @interface;
+        try   { @interface.MainElements.AddChild(this); }
+        catch (Exception ex) { }
+    }
+
+    public SpacePoint(SpacePoint point)
+    {
+        (poz_x, poz_y) = point.GlobalPozition;
+        @interface = null!;
+        point.Childs.AddChild(this);
+    }
+
     /// <summary>
     /// Wrzystkie podrzędne elementy tego obiektu
     /// </summary>
-    public List<SpacePoint> Children => childs;
+    public ChildrenList Childs => new(this);
+
+    /// <summary>
+    /// Obiekt do kturego ten <see cref="SpacePoint"/> jest włorzony
+    /// </summary>
+    public SpacePoint? Parent
+    {
+        get => parent?.parent != null ? parent : null;
+        set
+        {
+            if (@interface is null)
+                return;
+            if(value is null)
+            {
+                parent?.Childs.RemoveChild(this);
+                @interface.MainElements.AddChild(this);
+            }
+            else
+            {
+                parent?.Childs.RemoveChild(this);
+                this.Childs.AddChild(this);
+            }    
+        }
+    }
 
     /// <summary>
     /// Jak ma zostać wyrenderowany ten obiekt w <see cref="Interface"/>
     /// </summary>
     public Element? Element { get => element; set => element = value; }
+
+    /// <summary>
+    /// <see cref="GUI.Interface"/> z którym ten <see cref="SpacePoint"/> jest połączony
+    /// </summary>
+    public Interface Interface
+    {
+        get => @interface;
+        set
+        {
+            if(value is null)
+            {
+                parent?.Childs.RemoveChild(this);
+                parent = null;
+                @interface = null!;
+            }
+            else if(value != @interface)
+            {
+                parent?.Childs.RemoveChild(this);
+                value.MainElements.AddChild(this);
+            }
+        }
+    }
 
     /// <summary>
     /// Pozycja na płutnie
@@ -37,6 +103,9 @@ public sealed class SpacePoint
         get => (poz_x, poz_y);
     }
     
+    /// <summary>
+    /// Pozycja globalna na płutnie
+    /// </summary>
     public (int x, int y) GlobalPozition
     {
         get
@@ -148,5 +217,116 @@ public sealed class SpacePoint
         HorizontalCenter = Left | Right,
         VerticalCenter = Up | Down,
         All = Up | Down | Left | Right
+    }
+
+    /// <summary>
+    /// Lista pod obiektów dla <see cref="SpacePoint"/>
+    /// </summary>
+    [DebuggerDisplay("Count = {Count}")]
+    [DebuggerTypeProxy(typeof(Proxy))]
+    public ref struct ChildrenList
+    {
+        SpacePoint point;
+
+        public ChildrenList(SpacePoint point) => this.point = point;
+
+        /// <summary>
+        /// Zwraca Kolekcje
+        /// </summary>
+        public IEnumerable<SpacePoint> GetEnumerable() => point.childs.Cast<SpacePoint>();
+
+        /// <summary>
+        /// Jest kolekcją
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerator<SpacePoint> GetEnumerator() => point.childs.GetEnumerator();
+
+        /// <summary>
+        /// Dodaj nowy pod-obiekt do listy
+        /// </summary>
+        public void AddChild(SpacePoint point)
+        {
+            (int, int)? startpoz = (point.@interface != this.point.@interface && point.@interface != null) ? point.GlobalPozition : null;
+            if (point.parent != null)
+                point.parent.Childs.RemoveChild(point);
+            point.@interface = this.point.@interface;
+            point.parent = this.point;
+            this.point.childs.Add(point);
+            if(startpoz.HasValue)
+            point.GlobalPozition = startpoz.Value;
+            i_(point, this.point.@interface);
+
+            //Methods
+            void i_(SpacePoint point, Interface i)
+            {
+                point.@interface = i;
+
+                foreach (var ch in point.childs)
+                    i_(ch, i);
+            }
+        }
+
+        /// <summary>
+        /// Dodaj nowy pod-obiekt do listy
+        /// </summary>
+        public void InsertChild(SpacePoint point, int index)
+        {
+            (int, int)? startpoz = (point.@interface != this.point.@interface && point.@interface != null) ? point.GlobalPozition : null;
+            if (point.parent != null)
+                point.parent.Childs.RemoveChild(point);
+            point.@interface = this.point.@interface;
+            point.parent = this.point;
+            this.point.childs.Insert(index, point);
+            if (startpoz.HasValue)
+                point.GlobalPozition = startpoz.Value;
+            i_(point, this.point.@interface);
+
+            //Methods
+            void i_(SpacePoint point, Interface i)
+            {
+                point.@interface = i;
+
+                foreach (var ch in point.childs)
+                    i_(ch, i);
+            }
+        }
+
+        /// <summary>
+        /// Usuwa pod-obiekt z listy
+        /// </summary>
+        public void RemoveChild(int index)
+        {
+            point.childs[index].parent = null;
+            point.childs[index].@interface = null!;
+            this.point.childs.RemoveAt(index);
+        }
+
+        /// <summary>
+        /// Usuwa pod-obiekt z listy
+        /// </summary>
+        public void RemoveChild(SpacePoint point)
+        {
+            point.parent = null;
+            point.@interface = null!;
+            this.point.childs.Remove(point);
+        }
+
+        /// <summary>
+        /// Ile pod-obiektów jest na liście
+        /// </summary>
+        public int Count => point.childs.Count;
+
+        public SpacePoint this[int index] => point.childs[index];
+
+        /// <summary>
+        /// Debuger dla <see cref="SpacePoint.ChildrenList"/>
+        /// </summary>
+        struct Proxy
+        {
+            SpacePoint point;
+            public Proxy(ChildrenList point) => this.point = point.point;
+            [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+            public SpacePoint[] elements => point.childs.ToArray();
+        }
     }
 }
