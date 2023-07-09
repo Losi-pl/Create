@@ -118,22 +118,43 @@ public sealed class SpacePoint
     {
         get
         {
-            (SpacePoint? point, (int x, int y) poz) data = (parent, Pozition);
+            int count = 0;
+            SpacePoint? point = parent;
 
-            while (data.point?.parent is not null)
-                data = (data.point.parent, (data.point.poz_x + data.poz.x, data.point.poz_y + data.poz.y));
+            while (point != null)
+                (count, point) = (++count, point.parent);
 
-            return data.poz;
+            Span<(Vector2 delt_anch, Vector2i poz, Vector2i size)> hierarchy = stackalloc (Vector2, Vector2i, Vector2i)[count];
+
+            (count, point) = (--count, parent);
+            (Vector2 a1, Vector2 a2) anc = (ancor1, ancor2);
+
+            while(point != null)
+            {
+                hierarchy[count] = ((anc.a1 + anc.a2) / 2, point.Pozition.ToVector(), point.Size.ToVector());
+                anc = (point.ancor1, point.ancor2);
+                point = point.parent;
+                count--;
+            }
+
+            Span<Vector2i> simplyf = stackalloc Vector2i[hierarchy.Length];
+            count = 0;
+            for (; count < simplyf.Length; count++)
+                simplyf[count] = hierarchy[count].poz - (hierarchy[count].size / 2) + (Vector2i)(hierarchy[count].delt_anch * hierarchy[count].size);
+
+            Vector2i sum = new();
+
+            for (count = 0; count < simplyf.Length; count++)
+                sum += simplyf[count];
+
+            return (sum + new Vector2i(poz_x, poz_y)).ToTumple();
         }
         set
         {
-            (SpacePoint? point, (int x, int y) poz) data = (parent, (0, 0));
+            var old = GlobalPozition;
 
-            while (data.point?.parent is not null)
-                data = (data.point.parent, (data.point.poz_x + data.poz.x, data.point.poz_y + data.poz.y));
-
-            poz_x = value.x - data.poz.x;
-            poz_y = value.y - data.poz.y;
+            poz_x = value.x - old.x;
+            poz_y = value.y - old.y;
         }
     }
 
