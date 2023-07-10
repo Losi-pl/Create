@@ -59,6 +59,9 @@ public sealed class Interface
         //Methods
         void draw_models(SpacePoint point)
         {
+            if (!point.Active)
+                return;
+            
             point.Element?.Draw(mod * Matrix4.CreateTranslation(new Vector3(point.GlobalPozition.ToVector())) * proj);
             
             foreach (var sp in point.Childs)

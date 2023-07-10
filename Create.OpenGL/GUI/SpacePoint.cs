@@ -13,6 +13,7 @@ public sealed class SpacePoint
     Vector2 ancor1 = new(.5f, .5f), ancor2 = new(.5f, .5f);
     Interface @interface;
     Element? element;
+    bool active = true;
 
     int width, height;
     int poz_x, poz_y;
@@ -25,7 +26,7 @@ public sealed class SpacePoint
         
         this.@interface = @interface;
         try   { @interface.MainElements.AddChild(this); }
-        catch (Exception ex) { }
+        catch { }
     }
 
     public SpacePoint(SpacePoint point)
@@ -170,6 +171,8 @@ public sealed class SpacePoint
 
         }
     }
+
+    public bool Active { get => active; set => active = value; }
 
     /// <summary>
     /// Tryb zamocowania elementu w przestrzeni
