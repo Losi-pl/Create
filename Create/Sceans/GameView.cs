@@ -102,6 +102,34 @@ internal sealed partial class GameView : Scean
             _interface.MainElements.AddChild(scrol);
         } // Item bar
 
+        { // Exp bar
+            var bar_baze = new SpacePoint
+            {
+                Size = (728, 20),
+                Pozition = (0, 110),
+                AnkerMode = SpacePoint.Anker.Down,
+                Element = new InterfaceImage
+                {
+                    Offset = (0, 89),
+                    Size = (182, 5),
+                    Texture = Assets.GetTexture("create:gui/play_screen")
+                }
+            };
+
+            bar_baze.Childs.AddChild(new SpacePoint
+            {
+                Size = (728, 20),
+                Pozition = (0, 0),
+                Element = new InterfaceImage
+                {
+                    Offset = (0, 84),
+                    Size = (182, 5),
+                    Texture = Assets.GetTexture("create:gui/play_screen")
+                }
+            });
+
+            _interface.MainElements.AddChild(bar_baze);
+        } // Exp bar
     }
 
     protected override void SceanLoad()
