@@ -37,45 +37,48 @@ internal sealed partial class GameView : Scean
             }
         }); // Crosshair
 
-        var scrol = new SpacePoint
-        {
-            Size = (728, 88),
-            Pozition = (0, 48),
-            AnkerMode = SpacePoint.Anker.Down,
-            Element = new InterfaceImage
+        { // Item bar
+            var scrol = new SpacePoint
             {
-                Offset = (0, 24),
-                Size = (182, 22),
-                Texture = Assets.GetTexture("create:gui/play_screen")
-            }
-        };
+                Size = (728, 88),
+                Pozition = (0, 48),
+                AnkerMode = SpacePoint.Anker.Down,
+                Element = new InterfaceImage
+                {
+                    Offset = (0, 24),
+                    Size = (182, 22),
+                    Texture = Assets.GetTexture("create:gui/play_screen")
+                }
+            };
 
-        foreach(var slo in new[] { 11, 31, 51, 71, 91, 111, 131, 151, 171 })
+            foreach (var slo in new[] { 11, 31, 51, 71, 91, 111, 131, 151, 171 })
+                scrol.Childs.AddChild(new()
+                {
+                    Size = (64, 64),
+                    Pozition = (slo * 4, 0),
+                    AnkerMode = SpacePoint.Anker.Left,
+                    Element = new Image
+                    {
+                        Color = Color4.LightGreen
+                    }
+                });
+
             scrol.Childs.AddChild(new()
             {
-                Size = (64, 64),
-                Pozition = (slo * 4, 0),
+                Size = (96, 96),
+                Pozition = (48, 0),
                 AnkerMode = SpacePoint.Anker.Left,
-                Element = new Image
+                Element = new InterfaceImage
                 {
-                    Color = Color4.LightGreen
+                    Offset = (0, 0),
+                    Size = (24, 24),
+                    Texture = Assets.GetTexture("create:gui/play_screen")
                 }
             });
 
-        scrol.Childs.AddChild(new()
-        {
-            Size = (96, 96),
-            Pozition = (48, 0),
-            AnkerMode = SpacePoint.Anker.Left,
-            Element = new InterfaceImage
-            {
-                Offset = (0, 0),
-                Size = (24, 24),
-                Texture = Assets.GetTexture("create:gui/play_screen")
-            }
-        });
+            _interface.MainElements.AddChild(scrol);
+        } // Item bar
 
-        _interface.MainElements.AddChild(scrol);
     }
 
     protected override void SceanLoad()
