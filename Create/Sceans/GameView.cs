@@ -63,6 +63,29 @@ internal sealed partial class GameView : Scean
                     }
                 });
 
+            var right_hand = new SpacePoint()
+            {
+                Size = (88, 88),
+                Pozition = (52, 0),
+                AnkerMode = SpacePoint.Anker.Right,
+                Element = new InterfaceImage
+                {
+                    Offset = (60, 1),
+                    Size = (22, 22),
+                    Texture = Assets.GetTexture("create:gui/play_screen")
+                }
+            };
+
+            right_hand.Childs.AddChild(new()
+            {
+                Size = (64, 64),
+                Element = new Image
+                {
+                    Color = Color4.LightGreen
+                }
+            });
+
+            scrol.Childs.AddChild(right_hand);
             scrol.Childs.AddChild(new()
             {
                 Size = (96, 96),
