@@ -1,6 +1,7 @@
 ﻿using Create.OpenGL;
 using Create.OpenGL.GUI;
 using Create.OpenGL.Textures;
+using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 
 namespace Create.Elements.Gui;
@@ -41,7 +42,7 @@ public class InterfaceImage : Element
         .ProjectionMatrixUniform("matrix")
         .DepthTest(false)
         .AlphaTest(true)
-        .Blend()
+        .Blend(BlendingFactor.One, BlendingFactor.OneMinusSrcAlpha)
         .Finish();
 
     static Mesh model = Mesh.Create(shader)
