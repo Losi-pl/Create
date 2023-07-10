@@ -122,28 +122,39 @@ public sealed partial class Mesh : IDisposable, IDrawable
         {
             if (shader.CullFace == CullFaceMode.FrontAndBack)
             {
-                if (GL.IsEnabled(EnableCap.CullFace))
-                    GL.Disable(EnableCap.CullFace);
+                GL.Disable(EnableCap.CullFace);
             }
             else
             {
-                if (!GL.IsEnabled(EnableCap.CullFace))
-                    GL.Enable(EnableCap.CullFace);
+                GL.Enable(EnableCap.CullFace);
                 GL.CullFace(shader.CullFace);
             }
         }
         void blend_system()
         {
             var blend = Shader.blendfunc;
-            Engine.SetMekanizm(EnableCap.Blend, blend.HasValue);
-            if(blend.HasValue)
+
+            if (blend.HasValue)
+                GL.Enable(EnableCap.Blend);
+            else
+                GL.Disable(EnableCap.Blend);
+
+            if (blend.HasValue)
                 GL.BlendFunc(blend.Value.s, blend.Value.d);
         }
         void simpler_tests()
         {
             var mekanizms = Shader.simple_mekanizms;
-            Engine.SetMekanizm(EnableCap.AlphaTest, mekanizms.alphatest);
-            Engine.SetMekanizm(EnableCap.DepthTest, mekanizms.depthtest);
+
+            if (mekanizms.depthtest)
+                GL.Enable(EnableCap.DepthTest);
+            else
+                GL.Disable(EnableCap.DepthTest);
+
+            if (mekanizms.alphatest)
+                GL.Enable(EnableCap.AlphaTest);
+            else
+                GL.Disable(EnableCap.AlphaTest);
         }
     }
 
