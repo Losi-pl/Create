@@ -28,14 +28,14 @@ internal sealed partial class GameView : Scean
         {
             Size = (28, 28),
             Pozition = (0, 0),
-            Element = new ScreenPointer
+            Element = new Crosshair
             {
                 Interface = Assets.GetTexture("create:gui/play_screen"),
                 Terrain = terrain.Finisched.Textures[OpenTK.Graphics.OpenGL.FramebufferAttachment.ColorAttachment0],
                 Offset = (4, 147),
                 Size = (7, 7)
             }
-        });
+        }); // Crosshair
 
         var scrol = new SpacePoint
         {

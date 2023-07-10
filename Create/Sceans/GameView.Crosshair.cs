@@ -7,7 +7,7 @@ namespace Create.Sceans;
 
 partial class GameView
 {
-    public sealed class ScreenPointer : Element
+    public sealed class Crosshair : Element
     {
         static Shader shader = Shader.Create()
             .VertexCode(@"#version 440 core
