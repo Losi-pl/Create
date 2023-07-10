@@ -57,12 +57,9 @@ public static partial class Assets
             #endif
         }
 
+        clear_textures();
         BlockAtlas.finish_attlas();
 
-        void load_package(ResourceDirectory directory)
-        {
-            textures(directory);
-        }
 
         //Methods
         void textures(ResourceDirectory directory)
@@ -84,6 +81,16 @@ public static partial class Assets
                 { throw new($"Konwertowanie tekstury {pack_name}:{name} niepowiodło się", ex); }
                 #endif
             }
+        }
+        void load_package(ResourceDirectory directory)
+        {
+            textures(directory);
+        }
+        void clear_textures()
+        {
+            foreach(var kvp in Assets.textures)
+                if(kvp.Value.TryGetTarget(out var tex))
+                    tex.Dispose();
         }
     }
 }
