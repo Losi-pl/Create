@@ -29,9 +29,9 @@ internal sealed partial class GameView : Scean
             Pozition = (0, 0),
             Element = new ScreenPointer
             {
-                Interface = Texture2D.Create(SixLabors.ImageSharp.Image.Load(Assets.Resources!.GetPath("create/textures/gui").GetFile("icons").GetStream())),
+                Interface = Assets.GetTexture("create:gui/play_screen"),
                 Terrain = terrain.Finisched.Textures[OpenTK.Graphics.OpenGL.FramebufferAttachment.ColorAttachment0],
-                Offset = (4, 245),
+                Offset = (4, 147),
                 Size = (7, 7)
             }
         });
