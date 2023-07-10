@@ -46,18 +46,20 @@ public sealed class Interface
     /// </summary>
     public void Refrasch()
     {
-        Matrix4 main = Matrix4.CreateScale(1f / main_layer.Size.Width * 2, 1f / main_layer.Size.Height * 2, 1);
+        Matrix4 proj = Matrix4.CreateScale(2f / main_layer.Size.Width, 2f / main_layer.Size.Height, 1) * Matrix4.CreateTranslation(-1, -1, 0);
+        Matrix4 mod = Matrix4.CreateTranslation(new Vector3(main_layer.Size.ToVector() / 2));
+
         main_layer.Clear();
         main_layer.ExecuteIn(() =>
         {
-            foreach(var sp in this.main.Childs)
+            foreach (var sp in this.main.Childs)
                 draw_models(sp);
         });
 
         //Methods
         void draw_models(SpacePoint point)
         {
-            point.Element?.Draw(Matrix4.CreateTranslation(new Vector3(point.GlobalPozition.ToVector())) * main);
+            point.Element?.Draw(mod * Matrix4.CreateTranslation(new Vector3(point.GlobalPozition.ToVector())) * proj);
             
             foreach (var sp in point.Childs)
                 draw_models(sp);

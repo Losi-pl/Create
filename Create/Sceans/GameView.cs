@@ -54,7 +54,7 @@ internal sealed partial class GameView : Scean
             scrol.Childs.AddChild(new()
             {
                 Size = (64, 64),
-                Pozition = (slo * 4 + 1, 0),
+                Pozition = (slo * 4, 0),
                 AnkerMode = SpacePoint.Anker.Left,
                 Element = new Image
                 {
