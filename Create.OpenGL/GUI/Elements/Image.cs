@@ -35,7 +35,8 @@ public class Image : Element
                     color_o = color;
             }")
         .ProjectionMatrixUniform("matrix")
-        .AlphaTest().Blend()
+        .AlphaTest()
+        .Blend(BlendingFactor.One, BlendingFactor.OneMinusSrcAlpha)
         .DepthTest(false)
         .Finish()
         .SetUniform("color", new Vector4(255, 255, 255, 255));
