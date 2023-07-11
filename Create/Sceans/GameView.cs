@@ -93,10 +93,33 @@ internal sealed partial class GameView : Scean
             });
 
             scrol.Childs.AddChild(right_hand);
+
+            scrol.Childs.AddChild(new()
+            {
+                Size = (4, 88),
+                Pozition = (-2, 0),
+                AnkerMode = SpacePoint.Anker.Left,
+                Element = new Image
+                {
+                    Color = new Color4(0, 0, 0, 1f)
+                }
+            });
+            scrol.Childs.AddChild(new()
+            {
+                Size = (4, 88),
+                Pozition = (2, 0),
+                AnkerMode = SpacePoint.Anker.Right,
+                Active = false,
+                Element = new Image
+                {
+                    Color = new Color4(0, 0, 0, 1f)
+                }
+            });
+
             scrol.Childs.AddChild(new()
             {
                 Size = (96, 96),
-                Pozition = (48, 0),
+                Pozition = (44, 0),
                 AnkerMode = SpacePoint.Anker.Left,
                 Element = new InterfaceImage
                 {
