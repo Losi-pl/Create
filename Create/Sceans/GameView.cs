@@ -24,6 +24,14 @@ internal sealed partial class GameView : Scean
         terrain = new(camera);
         _interface = new(OpenGL.Engine.Size.X, OpenGL.Engine.Size.Y);
 
+        var status = new SpacePoint
+        {
+            Size = (0, 0),
+            Pozition = (0, 0),
+            AnkerMode = SpacePoint.Anker.Down
+        };
+        _interface.MainElements.AddChild(status);
+
         _interface.MainElements.AddChild(new SpacePoint
         {
             Size = (28, 28),
@@ -36,7 +44,6 @@ internal sealed partial class GameView : Scean
                 Size = (7, 7)
             }
         }); // Crosshair
-
         { // Item bar
             var scrol = new SpacePoint
             {
@@ -99,9 +106,8 @@ internal sealed partial class GameView : Scean
                 }
             });
 
-            _interface.MainElements.AddChild(scrol);
+            status.Childs.AddChild(scrol);
         } // Item bar
-
         { // Exp bar
             var bar_baze = new SpacePoint
             {
@@ -128,7 +134,7 @@ internal sealed partial class GameView : Scean
                 }
             });
 
-            _interface.MainElements.AddChild(bar_baze);
+            status.Childs.AddChild(bar_baze);
         } // Exp bar
     }
 
