@@ -15,8 +15,8 @@ public sealed class SpacePoint
     Element? element;
     bool active = true;
 
-    int width, height;
-    int poz_x, poz_y;
+    float width, height;
+    float poz_x, poz_y;
 
     public SpacePoint() { @interface = null!; }
 
@@ -103,19 +103,16 @@ public sealed class SpacePoint
     /// <summary>
     /// Pozycja na płutnie
     /// </summary>
-    public (int x, int y) Pozition
+    public (float x, float y) Pozition
     {
-        set
-        {
-            (poz_x, poz_y) = value;
-        }
+        set => (poz_x, poz_y) = value;
         get => (poz_x, poz_y);
     }
     
     /// <summary>
     /// Pozycja globalna na płutnie
     /// </summary>
-    public (int x, int y) GlobalPozition
+    public (float x, float y) GlobalPozition
     {
         get
         {
@@ -125,7 +122,7 @@ public sealed class SpacePoint
             while (point != null)
                 (count, point) = (++count, point.parent);
 
-            Span<(Vector2 delt_anch, Vector2i poz, Vector2i size)> hierarchy = stackalloc (Vector2, Vector2i, Vector2i)[count];
+            Span<(Vector2 delt_anch, Vector2 poz, Vector2 size)> hierarchy = stackalloc (Vector2, Vector2, Vector2)[count];
 
             (count, point) = (--count, parent);
             (Vector2 a1, Vector2 a2) anc = (ancor1, ancor2);
@@ -138,17 +135,17 @@ public sealed class SpacePoint
                 count--;
             }
 
-            Span<Vector2i> simplyf = stackalloc Vector2i[hierarchy.Length];
+            Span<Vector2> simplyf = stackalloc Vector2[hierarchy.Length];
             count = 0;
             for (; count < simplyf.Length; count++)
-                simplyf[count] = hierarchy[count].poz - (hierarchy[count].size / 2) + (Vector2i)(hierarchy[count].delt_anch * hierarchy[count].size);
+                simplyf[count] = hierarchy[count].poz - (hierarchy[count].size / 2) + (hierarchy[count].delt_anch * hierarchy[count].size);
 
-            Vector2i sum = new();
+            Vector2 sum = new();
 
             for (count = 0; count < simplyf.Length; count++)
                 sum += simplyf[count];
 
-            return (sum + new Vector2i(poz_x, poz_y)).ToTumple();
+            return (sum + new Vector2(poz_x, poz_y)).ToTumple();
         }
         set
         {
@@ -162,7 +159,7 @@ public sealed class SpacePoint
     /// <summary>
     /// Rozmiary na płutnie
     /// </summary>
-    public (int Width, int Height) Size
+    public (float Width, float Height) Size
     {
         get => (width, height);
         set
@@ -278,7 +275,7 @@ public sealed class SpacePoint
         /// </summary>
         public void AddChild(SpacePoint point)
         {
-            (int, int)? startpoz = (point.@interface != this.point.@interface && point.@interface != null) ? point.GlobalPozition : null;
+            (float, float)? startpoz = (point.@interface != this.point.@interface && point.@interface != null) ? point.GlobalPozition : null;
             if (point.parent != null)
                 point.parent.Childs.RemoveChild(point);
             point.@interface = this.point.@interface;
@@ -303,7 +300,7 @@ public sealed class SpacePoint
         /// </summary>
         public void InsertChild(SpacePoint point, int index)
         {
-            (int, int)? startpoz = (point.@interface != this.point.@interface && point.@interface != null) ? point.GlobalPozition : null;
+            (float, float)? startpoz = (point.@interface != this.point.@interface && point.@interface != null) ? point.GlobalPozition : null;
             if (point.parent != null)
                 point.parent.Childs.RemoveChild(point);
             point.@interface = this.point.@interface;

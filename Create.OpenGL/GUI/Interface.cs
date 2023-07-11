@@ -26,7 +26,7 @@ public sealed class Interface
     /// </summary>
     public (int Width, int Height) Size
     {
-        get => main.Size;
+        get => ((int)main.Size.Width, (int)main.Size.Height);
         set
         {
             main_layer.Resize(value.ToVector());
