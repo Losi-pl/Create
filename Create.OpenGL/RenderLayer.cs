@@ -36,7 +36,7 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
             {
                 color = texture(texture_, o_uv);
             }")
-        .Blend()
+        .Blend(BlendingFactor.One, BlendingFactor.OneMinusSrcAlpha)
         .AlphaTest(true)
         .DepthTest(false)
         .Finish();
