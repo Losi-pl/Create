@@ -136,6 +136,70 @@ internal sealed partial class GameView : Scean
 
             status.Childs.AddChild(bar_baze);
         } // Exp bar
+        { // Live bar
+            status.Childs.AddChild(new SpacePoint
+            {
+                Size = (324, 36),
+                Pozition = (-202, 142),
+                AnkerMode = SpacePoint.Anker.Down,
+                Element = new StatusBar
+                {
+                    Texture = Assets.GetTexture("create:gui/play_screen"),
+                    Background = ((16, 149), (9, 9)),
+                    FullPoint = ((52, 149), (9, 9)),
+                    HalfPoint = ((61, 149), (9, 9)),
+                    Filled = 17
+                }
+            });
+        } // Live bar
+        { // Armor bar
+            status.Childs.AddChild(new SpacePoint
+            {
+                Size = (324, 36),
+                Pozition = (-202, 182),
+                AnkerMode = SpacePoint.Anker.Down,
+                Element = new StatusBar
+                {
+                    Texture = Assets.GetTexture("create:gui/play_screen"),
+                    Background = ((16, 140), (9, 9)),
+                    FullPoint = ((34, 140), (9, 9)),
+                    HalfPoint = ((25, 140), (9, 9)),
+                    Filled = 5
+                }
+            });
+        } // Armor bar
+        { // Live bar
+            status.Childs.AddChild(new SpacePoint
+            {
+                Size = (324, 36),
+                Pozition = (202, 142),
+                AnkerMode = SpacePoint.Anker.Down,
+                Element = new StatusBar
+                {
+                    Texture = Assets.GetTexture("create:gui/play_screen"),
+                    Background = ((16, 122), (9, 9)),
+                    FullPoint = ((52, 122), (9, 9)),
+                    HalfPoint = ((61, 122), (9, 9)),
+                    Filled = 17
+                }
+            });
+        } // Live bar
+        { // Armor bar
+            status.Childs.AddChild(new SpacePoint
+            {
+                Size = (324, 36),
+                Pozition = (202, 182),
+                AnkerMode = SpacePoint.Anker.Down,
+                Element = new StatusBar
+                {
+                    Texture = Assets.GetTexture("create:gui/play_screen"),
+                    Background = ((34, 131), (9, 9)),
+                    FullPoint = ((16, 131), (9, 9)),
+                    HalfPoint = ((25, 131), (9, 9)),
+                    Filled = 17
+                }
+            });
+        } // Armor bar
     }
 
     protected override void SceanLoad()
