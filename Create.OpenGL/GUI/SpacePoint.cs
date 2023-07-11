@@ -164,8 +164,30 @@ public sealed class SpacePoint
         get => (width, height);
         set
         {
+            if (Size == value)
+                return;
+
+            foreach (var point in childs)
+                move_elm(point);
+
             (width, height) = value;
 
+            void move_elm(SpacePoint point)
+            {
+                float s_l = -(this.width / 2f) + (point.ancor1.X * this.width) - (point.poz_x - (point.width / 2));
+                float s_r = -(this.width / 2f) + (point.ancor2.X * this.width) - (point.poz_x + (point.width / 2));
+                float s_d = -(this.height / 2f) + (point.ancor1.Y * this.height) - (point.poz_y - (point.height / 2));
+                float s_u = -(this.height / 2f) + (point.ancor2.Y * this.height) - (point.poz_y + (point.height / 2));
+
+                float e_l = -(value.Width / 2f) + (point.ancor1.X * value.Width) - s_l;
+                float e_r = -(value.Width / 2f) + (point.ancor2.X * value.Width) - s_r;
+                float e_d = -(value.Height / 2f) + (point.ancor1.Y * value.Height) - s_d;
+                float e_u = -(value.Height / 2f) + (point.ancor2.Y * value.Height) - s_u;
+
+                float width = -e_l + e_r;
+                float height = -e_d + e_u;
+                point.Size = (width, height);
+            }
         }
     }
 
