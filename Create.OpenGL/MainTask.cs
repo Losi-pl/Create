@@ -26,10 +26,8 @@ public static class MainTask
             for(int i = actions.Count - 1; i >= 0; --i)
             {
                 var tex = actions[0].ToString();
-                Engine.Title = $"Method => {tex}";
                 actions[0]();
                 actions.RemoveAt(0);
-                Engine.Title = $"Method finished => {tex}";
             }
         }
     }
