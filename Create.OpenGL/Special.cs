@@ -4,6 +4,7 @@ using OpenTK.Mathematics;
 using SixLabors.ImageSharp;
 using System.Collections;
 using SixLabors.ImageSharp.PixelFormats;
+using System.Diagnostics;
 
 namespace Create;
 
@@ -181,6 +182,7 @@ internal static partial class Special
     /// <summary>
     /// Zwraca element z kolekcji spełnaijący warunki <paramref name="condition"/>
     /// </summary>
+    [DebuggerHidden]
     public static T Find<T>(this IEnumerable<T> enume, Func<T, bool> condition, Exception? ifNotFound)
     {
         foreach(var element in enume)
