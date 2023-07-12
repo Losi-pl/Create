@@ -11,39 +11,8 @@ public sealed class ColoredTextureModel : ChunkModel
     List<Color4> colors = new();
     List<int> ints = new(), trangles = new();
 
-    public static Shader Shader { get; } = Shader.Create()
-        .VertexCode(@"#version 440 core
-            in int texture_index;
-            in vec4 color;
-            in vec3 poz;
-            in vec2 uv;
-
-            uniform mat4 matrix;
-
-            out vec3 uv_f;
-            out vec4 color_f;
-
-            void main()
-            {
-                uv_f = vec3(uv, texture_index);
-                color_f = color;
-                gl_Position = matrix * vec4(poz, 1.0);
-            }")
-        .FragmentCode(@"#version 440 core
-            in vec3 uv_f;
-            in vec4 color_f;
-
-            uniform sampler2DArray block_atlas;
-
-            out vec4 color;
-
-            void main()
-            {
-                color = vec4(texture(block_atlas, uv_f).rgb * color_f.rgb, 1.0);
-            }")
-        .CullFace(OpenTK.Graphics.OpenGL.CullFaceMode.Front)
-        .ProjectionMatrixUniform("matrix")
-        .Finish(s => s.SetUniform("block_atlas", Assets.BlockAtlas.Attlas));
+    public static Shader Shader { get; } = Assets.GetShader("create:terrain/singlecoloredtexture").InvokeFor(s =>
+        s.SetUniform("block_atlas", Assets.BlockAtlas.Attlas));
 
     /// <summary>
     /// Dodaje dane o sześcianie do modelu
