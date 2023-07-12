@@ -22,8 +22,8 @@ partial class Assets
 
             string group = name.Remove(name.IndexOf(':'));
             string path = name.Substring(name.IndexOf(':') + 1);
-            string file = name.Substring(name.LastIndexOf('\\') + 1);
-            path = path.Remove(path.Length - file.Length - 1);
+            string file = name.Substring(name.LastIndexOfAny(new[] { ':', '\\' }) + 1);
+            path = path.Length - file.Length - 1 < 0 ? string.Empty : path.Remove(path.Length - file.Length - 1);
 
             var stream = resources!.GetPath($"{group}/textures/{path}").GetFile(file).GetStream();
             var img = Image.Load(stream);
