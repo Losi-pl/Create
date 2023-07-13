@@ -191,6 +191,9 @@ public sealed class SpacePoint
         }
     }
 
+    /// <summary>
+    /// Czy ten element jest aktywny w fizyce interfejsu
+    /// </summary>
     public bool Active { get => active; set => active = value; }
 
     /// <summary>
