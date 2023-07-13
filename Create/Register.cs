@@ -192,6 +192,7 @@ public static class Register
             .ForEvery(e => mod.RegisterElement(e.name, e.element));
         get_all_elements<Entity>(typeof(Entitys))
             .ForEvery(e => mod.RegisterElement(e.name, e.element));
+        Assets.load_elements(mod);
     }
 
     /// <summary>

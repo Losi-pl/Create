@@ -1,6 +1,8 @@
 using Create.Elements;
+using Create.OpenGL.GUI;
 using Create.Resource;
 using Create.Space;
+using System.Xml.Linq;
 
 namespace Create;
 
@@ -67,6 +69,15 @@ public sealed class Mod
     /// <param name="entity">Klasa bytu</param>
     /// <returns></returns>
     public Mod RegisterElement(string name, Entity entity) => register_element(entity, name, Register.entitys_console);
+
+    public Mod RegisterInterfaceLoadingMethod(string name, Func<XElement ,Element> func)
+    {
+        var code_name = $"{Name}:{name}";
+        if(Assets.interfaceElementTypes.ContainsKey(name))
+            throw new ArgumentException($"This element is alredy registered");
+        Assets.interfaceElementTypes.Add(code_name, (this, func));
+        return this;
+    }
 
     /// <summary>
     /// Uniwersalna metoda dodawania elementów wo rejestru
