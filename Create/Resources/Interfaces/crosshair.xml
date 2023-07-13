@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<point>
+  <pozition v="0"/>
+  <size v="15"/>
+  <anker mode="center"/>
+  <element type="create:Crosshair">
+    <texture v="create:gui/play_screen"/>
+    <screen v="ColorAttachment0"/>
+    <pozition offset="0; 143" size="15"/>
+  </element>
+</point>

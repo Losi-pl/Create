@@ -36,18 +36,6 @@ internal sealed partial class GameView : Scean
         };
         _interface.MainElements.AddChild(status);
 
-        _interface.MainElements.AddChild(new SpacePoint
-        {
-            Size = (28, 28),
-            Pozition = (0, 0),
-            Element = new Crosshair
-            {
-                Interface = Assets.GetTexture("create:gui/play_screen"),
-                Terrain = terrain.Finisched.Textures[OpenTK.Graphics.OpenGL.FramebufferAttachment.ColorAttachment0],
-                Offset = (4, 147),
-                Size = (7, 7)
-            }
-        }); // Crosshair
         { // Item bar
             var scrol = new SpacePoint
             {
@@ -237,6 +225,8 @@ internal sealed partial class GameView : Scean
         camera.Model = Matrix4.CreateTranslation(-.5f, 0, -.5f);
         camera.RevertAxis.x = true;
         Mouse.Visible = false;
+
+        _interface.MainElements.AddChild(Assets.GetInterface("create:crosshair"));
     }
 
     protected override void RenderFrame(FrameEventArgs args)

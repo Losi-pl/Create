@@ -128,6 +128,156 @@ partial class Assets
 
     internal static void load_elements(Mod mod)
     {
+        mod.RegisterInterfaceLoadingMethod("Crosshair", e =>
+        {
+            var cr = new GameView.Crosshair();
 
+            var texture = value(e.Element("texture"));
+            if (!string.IsNullOrWhiteSpace(texture))
+                cr.Interface = GetTexture(texture);
+
+            var chan = value(e.Element("screen"))?.ToLower()
+                .Cast(c => 
+                    _framebufferAttachment.Find(a => a.name == c, new("Invalid variable structure")).Item1);
+            if (chan.HasValue)
+                cr.Terrain = ((GameView)OpenGL.Engine.Scean!)._Terrain.Finisched.Textures[chan.Value];
+
+            var tex_poz = get_tex_poz(e.Element("pozition"));
+            if(tex_poz.HasValue)
+                (cr.Offset, cr.Size) = tex_poz.Value;
+
+            return cr;
+        });
+
+        //Mothods
+        string value(XElement? element)
+        {
+            if (element is null)
+                return string.Empty;
+            var a = element.Attribute("v");
+            if (a != null)
+                return a.Value;
+            else
+                return element.Value;
+        }
+        ((int x, int y) offset, (int w, int h) size)? get_tex_poz(XElement? element)
+        {
+            if (element is null)
+                return null;
+
+            var off = element.Attribute("offset")?.Value;
+            var siz = element.Attribute("size")?.Value;
+
+            var _off = int_parse(sizes(off));
+            var _siz = int_parse(sizes(siz));
+            return (_off, _siz);
+        }
+        (string x, string y)? sizes(string? value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return null;
+            if (value.Count(c => c == ';') > 1)
+                throw new Exception("Invalid variable structure");
+            else if (value.Count(c => c == ';') == 0)
+                return (value, value);
+            else
+                return value.Split(';').Cast(v => (v[0], v[1]));
+            throw new Exception("Invalid variable structure");
+        }
+        (int x, int y) int_parse((string x, string y)? value)
+        {
+            if (!value.HasValue)
+                return (0, 0);
+            return (int.Parse(value.Value.x), int.Parse(value.Value.y));
+        }
     }
+
+
+    static readonly (FramebufferAttachment, string name)[] _framebufferAttachment = (new[] {
+        (FramebufferAttachment.Aux0, "Aux0"),
+        (FramebufferAttachment.Aux1, "Aux1"),
+        (FramebufferAttachment.Aux2, "Aux2"),
+        (FramebufferAttachment.Aux3, "Aux3"),
+        (FramebufferAttachment.BackLeft, "BackLeft"),
+        (FramebufferAttachment.BackRight, "BackRight"),
+        (FramebufferAttachment.Color, "Color"),
+        (FramebufferAttachment.ColorAttachment0, "ColorAttachment0"),
+        (FramebufferAttachment.ColorAttachment0Ext, "ColorAttachment0Ext"),
+        (FramebufferAttachment.ColorAttachment0Nv, "ColorAttachment0Nv"),
+        (FramebufferAttachment.ColorAttachment0Oes, "ColorAttachment0Oes"),
+        (FramebufferAttachment.ColorAttachment1, "ColorAttachment1"),
+        (FramebufferAttachment.ColorAttachment10, "ColorAttachment10"),
+        (FramebufferAttachment.ColorAttachment10Ext, "ColorAttachment10Ext"),
+        (FramebufferAttachment.ColorAttachment10Nv, "ColorAttachment10Nv"),
+        (FramebufferAttachment.ColorAttachment11, "ColorAttachment11"),
+        (FramebufferAttachment.ColorAttachment11Ext, "ColorAttachment11Ext"),
+        (FramebufferAttachment.ColorAttachment11Nv, "ColorAttachment11Nv"),
+        (FramebufferAttachment.ColorAttachment12, "ColorAttachment12"),
+        (FramebufferAttachment.ColorAttachment12Ext, "ColorAttachment12Ext"),
+        (FramebufferAttachment.ColorAttachment12Nv, "ColorAttachment12Nv"),
+        (FramebufferAttachment.ColorAttachment13, "ColorAttachment13"),
+        (FramebufferAttachment.ColorAttachment13Ext, "ColorAttachment13Ext"),
+        (FramebufferAttachment.ColorAttachment13Nv, "ColorAttachment13Nv"),
+        (FramebufferAttachment.ColorAttachment14, "ColorAttachment14"),
+        (FramebufferAttachment.ColorAttachment14Ext, "ColorAttachment14Ext"),
+        (FramebufferAttachment.ColorAttachment14Nv, "ColorAttachment14Nv"),
+        (FramebufferAttachment.ColorAttachment15, "ColorAttachment15"),
+        (FramebufferAttachment.ColorAttachment15Ext, "ColorAttachment15Ext"),
+        (FramebufferAttachment.ColorAttachment15Nv, "ColorAttachment15Nv"),
+        (FramebufferAttachment.ColorAttachment16, "ColorAttachment16"),
+        (FramebufferAttachment.ColorAttachment17, "ColorAttachment17"),
+        (FramebufferAttachment.ColorAttachment18, "ColorAttachment18"),
+        (FramebufferAttachment.ColorAttachment19, "ColorAttachment19"),
+        (FramebufferAttachment.ColorAttachment1Ext, "ColorAttachment1Ext"),
+        (FramebufferAttachment.ColorAttachment1Nv, "ColorAttachment1Nv"),
+        (FramebufferAttachment.ColorAttachment2, "ColorAttachment2"),
+        (FramebufferAttachment.ColorAttachment20, "ColorAttachment20"),
+        (FramebufferAttachment.ColorAttachment21, "ColorAttachment21"),
+        (FramebufferAttachment.ColorAttachment22, "ColorAttachment22"),
+        (FramebufferAttachment.ColorAttachment23, "ColorAttachment23"),
+        (FramebufferAttachment.ColorAttachment24, "ColorAttachment24"),
+        (FramebufferAttachment.ColorAttachment25, "ColorAttachment25"),
+        (FramebufferAttachment.ColorAttachment26, "ColorAttachment26"),
+        (FramebufferAttachment.ColorAttachment27, "ColorAttachment27"),
+        (FramebufferAttachment.ColorAttachment28, "ColorAttachment28"),
+        (FramebufferAttachment.ColorAttachment29, "ColorAttachment29"),
+        (FramebufferAttachment.ColorAttachment2Ext, "ColorAttachment2Ext"),
+        (FramebufferAttachment.ColorAttachment2Nv, "ColorAttachment2Nv"),
+        (FramebufferAttachment.ColorAttachment3, "ColorAttachment3"),
+        (FramebufferAttachment.ColorAttachment30, "ColorAttachment30"),
+        (FramebufferAttachment.ColorAttachment31, "ColorAttachment31"),
+        (FramebufferAttachment.ColorAttachment3Ext, "ColorAttachment3Ext"),
+        (FramebufferAttachment.ColorAttachment3Nv, "ColorAttachment3Nv"),
+        (FramebufferAttachment.ColorAttachment4, "ColorAttachment4"),
+        (FramebufferAttachment.ColorAttachment4Ext, "ColorAttachment4Ext"),
+        (FramebufferAttachment.ColorAttachment4Nv, "ColorAttachment4Nv"),
+        (FramebufferAttachment.ColorAttachment5, "ColorAttachment5"),
+        (FramebufferAttachment.ColorAttachment5Ext, "ColorAttachment5Ext"),
+        (FramebufferAttachment.ColorAttachment5Nv, "ColorAttachment5Nv"),
+        (FramebufferAttachment.ColorAttachment6, "ColorAttachment6"),
+        (FramebufferAttachment.ColorAttachment6Ext, "ColorAttachment6Ext"),
+        (FramebufferAttachment.ColorAttachment6Nv, "ColorAttachment6Nv"),
+        (FramebufferAttachment.ColorAttachment7, "ColorAttachment7"),
+        (FramebufferAttachment.ColorAttachment7Ext, "ColorAttachment7Ext"),
+        (FramebufferAttachment.ColorAttachment7Nv, "ColorAttachment7Nv"),
+        (FramebufferAttachment.ColorAttachment8, "ColorAttachment8"),
+        (FramebufferAttachment.ColorAttachment8Ext, "ColorAttachment8Ext"),
+        (FramebufferAttachment.ColorAttachment8Nv, "ColorAttachment8Nv"),
+        (FramebufferAttachment.ColorAttachment9, "ColorAttachment9"),
+        (FramebufferAttachment.ColorAttachment9Ext, "ColorAttachment9Ext"),
+        (FramebufferAttachment.ColorAttachment9Nv, "ColorAttachment9Nv"),
+        (FramebufferAttachment.Depth, "Depth"),
+        (FramebufferAttachment.DepthAttachment, "DepthAttachment"),
+        (FramebufferAttachment.DepthAttachmentExt, "DepthAttachmentExt"),
+        (FramebufferAttachment.DepthAttachmentOes, "DepthAttachmentOes"),
+        (FramebufferAttachment.DepthStencilAttachment, "DepthStencilAttachment"),
+        (FramebufferAttachment.FrontLeft, "FrontLeft"),
+        (FramebufferAttachment.FrontRight, "FrontRight"),
+        (FramebufferAttachment.MaxColorAttachments, "MaxColorAttachments"),
+        (FramebufferAttachment.MaxColorAttachmentsExt, "MaxColorAttachmentsExt"),
+        (FramebufferAttachment.MaxColorAttachmentsNv, "MaxColorAttachmentsNv"),
+        (FramebufferAttachment.Stencil, "Stencil"),
+        (FramebufferAttachment.StencilAttachment, "StencilAttachment"),
+        (FramebufferAttachment.StencilAttachmentExt, "StencilAttachmentExt"),
+    }).ConvertAll(a => (a.Item1, a.Item2.ToLower()));
 }
