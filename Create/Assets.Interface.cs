@@ -177,6 +177,37 @@ partial class Assets
 
             return i;
         });
+        mod.RegisterInterfaceLoadingMethod("StatusBar", e =>
+        {
+            var sb = new StatusBar();
+
+            var texture = value(e.Element("texture"));
+            if (!string.IsNullOrWhiteSpace(texture))
+                sb.Texture = GetTexture(texture);
+
+            var back_poz = get_tex_poz(e.Element("background"));
+            var full_poz = get_tex_poz(e.Element("full"));
+            var half_poz = get_tex_poz(e.Element("half"));
+            if (back_poz.HasValue)
+                sb.Background = back_poz.Value;
+            if (full_poz.HasValue)
+                sb.FullPoint = full_poz.Value;
+            if (half_poz.HasValue)
+                sb.HalfPoint = half_poz.Value;
+
+            var points = value(e.Element("points"));
+            if (!string.IsNullOrWhiteSpace(points))
+                sb.Points = int.TryParse(points, out var pos) ? pos : throw new Exception("Invalid variable structure");
+            else
+                sb.Points = 1;
+
+
+            var filled = value(e.Element("filled"));
+            if (!string.IsNullOrWhiteSpace(filled))
+                sb.Filled = int.TryParse(filled, out var pos) ? pos : throw new Exception("Invalid variable structure");
+
+            return sb;
+        });
 
         //Mothods
         string value(XElement? element)
