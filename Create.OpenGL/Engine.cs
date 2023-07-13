@@ -424,9 +424,9 @@ public static class Engine
         {
             if (scean != null)
                 scean.m_SceanUnload();
+            scean = value;
             if (value != null)
                 value.m_SceanLoad();
-            scean = value;
             GC.Collect();
         }
     }

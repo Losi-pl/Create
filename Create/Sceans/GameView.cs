@@ -18,6 +18,10 @@ internal sealed partial class GameView : Scean
     Terrain terrain;
     Interface _interface;
 
+    internal Camera Camera => camera;
+    internal Terrain _Terrain => terrain;
+    internal Interface Tnterface => _interface;
+
     public GameView()
     {
         camera = new();
