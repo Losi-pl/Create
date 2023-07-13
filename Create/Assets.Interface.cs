@@ -47,7 +47,6 @@ partial class Assets
             s.Element = elem(element.Element("element"));
             anker(element.Element("anker"));
 
-
             foreach (var el in element.Elements("point"))
                 s.Childs.AddChild(point(el));
             return s;
@@ -170,39 +169,9 @@ partial class Assets
             if (!string.IsNullOrWhiteSpace(texture))
                 i.Texture = GetTexture(texture);
 
-            var color_v = value(e.Element("color"));
-
-            if (!string.IsNullOrEmpty(color_v))
-            {
-                Color4 color;
-
-                var w = _colors.FirstOrDefault(c => c.name == color_v);
-                if (!string.IsNullOrEmpty(w.name))
-                    color = w.color;
-                else
-                {
-                    if (color_v.Length == 6)
-                    {
-                        var r = (byte)Convert.ToInt32(color_v[0..1], 16);
-                        var g = (byte)Convert.ToInt32(color_v[2..3], 16);
-                        var b = (byte)Convert.ToInt32(color_v[4..5], 16);
-                        color = new(r, g, b, 255);
-                    }
-                    else if (color_v.Length == 8)
-                    {
-
-                        var r = (byte)Convert.ToInt32(color_v[0..1], 16);
-                        var g = (byte)Convert.ToInt32(color_v[2..3], 16);
-                        var b = (byte)Convert.ToInt32(color_v[4..5], 16);
-                        var a = (byte)Convert.ToInt32(color_v[6..7], 16);
-                        color = new(r, g, b, a);
-                    }
-                    else
-                        throw new("Invalid variable structure");
-                }
-
-                i.Color = color;
-            }
+            var color = load_color(e.Element("color"));
+            if(color.HasValue)
+                i.Color = color.Value;
 
             return i;
         });
@@ -247,6 +216,38 @@ partial class Assets
             if (!value.HasValue)
                 return (0, 0);
             return (int.Parse(value.Value.x), int.Parse(value.Value.y));
+        }
+        Color4? load_color(XElement? element)
+        {
+            if(element is null)
+                return null;
+            var color_v = value(element);
+            Color4 color;
+            var w = _colors.FirstOrDefault(c => c.name == color_v);
+            if (!string.IsNullOrEmpty(w.name))
+                color = w.color;
+            else
+            {
+                if (color_v.Length == 6)
+                {
+                    var r = (byte)Convert.ToInt32(color_v[0..1], 16);
+                    var g = (byte)Convert.ToInt32(color_v[2..3], 16);
+                    var b = (byte)Convert.ToInt32(color_v[4..5], 16);
+                    color = new(r, g, b, 255);
+                }
+                else if (color_v.Length == 8)
+                {
+
+                    var r = (byte)Convert.ToInt32(color_v[0..1], 16);
+                    var g = (byte)Convert.ToInt32(color_v[2..3], 16);
+                    var b = (byte)Convert.ToInt32(color_v[4..5], 16);
+                    var a = (byte)Convert.ToInt32(color_v[6..7], 16);
+                    color = new(r, g, b, a);
+                }
+                else
+                    throw new("Invalid variable structure");
+            }
+            return color;
         }
     }
 
