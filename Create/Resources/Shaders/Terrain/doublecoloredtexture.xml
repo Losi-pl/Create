@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<shader>
+  <properties>
+    <matrix>matrix</matrix>
+  </properties>
+  <depth status="true"/>
+  <cullface mode="front"/>
+  <version number="440" core="true"/>
+  <blend/>
+  <vertex>
+    in int texture_top;
+    in int texture_bottom;
+    in vec4 tex_color;
+    in vec3 poz;
+    in vec2 uv;
+
+    uniform mat4 matrix;
+
+    out vec2 uv_f;
+    out vec2 tex_f;
+    out vec4 color_f;
+
+    void main()
+    {
+      uv_f = uv;
+      tex_f = vec2(texture_bottom, texture_top);
+      color_f = tex_color;
+      gl_Position = matrix * vec4(poz, 1.0);
+    }
+  </vertex>
+  <fragment>
+    in vec2 uv_f;
+    in vec2 tex_f;
+    in vec4 color_f;
+
+    uniform sampler2DArray block_atlas;
+
+    out vec4 color;
+
+    void main()
+    {
+      vec4 color_bot = texture(block_atlas, vec3(uv_f, tex_f.x));
+      vec4 color_top = texture(block_atlas, vec3(uv_f, tex_f.y)) * vec4(color_f.rgb, 1.0);
+      vec3 color_mix = mix(color_bot.rgb, color_top.rgb, color_top.a);
+      color = vec4(color_mix, 1.0);
+    }
+  </fragment>
+</shader>

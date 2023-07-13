@@ -14,27 +14,8 @@ public abstract class Mob : Entity
         entity.Data.Set("move_delta", new Vector3());
     }
 
-    static Shader tmp_shader { get; } = Shader.Create()
-        .VertexCode(@"#version 440 core
-            in vec3 poz;
-
-            uniform mat4 matrix;
-
-            void main()
-            {
-                gl_Position = matrix * vec4(poz, 1.0);
-            }")
-        .FragmentCode(@"#version 440 core
-            uniform vec4 color;
-
-            out vec4 color_o;
-
-            void main()
-            {
-                color_o = color;
-            }")
-        .ProjectionMatrixUniform("matrix")
-        .Finish(s => s.SetUniform("color", new Vector4(61 / 255f, 172 / 255f, 27 / 255f, 1)));
+    static Shader tmp_shader { get; } = Assets.GetShader("create:bazicmob").InvokeFor(s =>
+        s.SetUniform("color", new Vector4(61 / 255f, 172 / 255f, 27 / 255f, 1)));
 
     /// <summary>
     /// Podaje wymiary moba

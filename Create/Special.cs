@@ -105,4 +105,17 @@ internal static partial class Special
         var poi = (MathF.Abs(v1.X - v2.X), MathF.Abs(v1.Z - v2.Z));
         return MathF.Sqrt((poi.Item1 * poi.Item1) + (poi.Item2 * poi.Item2));
     }
+
+    /// <summary>
+    /// Wywołuje metode <paramref name="action"/> dla elementu
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="element"></param>
+    /// <param name="action"></param>
+    /// <returns></returns>
+    public static T InvokeFor<T>(this T element, Action<T> action)
+    {
+        action(element);
+        return element;
+    }
 }
