@@ -70,6 +70,13 @@ public sealed class Mod
     /// <returns></returns>
     public Mod RegisterElement(string name, Entity entity) => register_element(entity, name, Register.entitys_console);
 
+    /// <summary>
+    /// Dodawanie interpretera który konwertuje element zapisany w zasobach w kawałek interfejsu
+    /// </summary>
+    /// <param name="name">Nazwa interpretera</param>
+    /// <param name="func">Metoda interpretacji</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
     public Mod RegisterInterfaceLoadingMethod(string name, Func<XElement ,Element> func)
     {
         var code_name = $"{Name}:{name}";
