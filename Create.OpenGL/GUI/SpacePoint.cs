@@ -14,6 +14,7 @@ public sealed class SpacePoint
     Interface? @interface;
     Element? element;
     bool active = true;
+    string name = string.Empty;
 
     float width, height;
     float poz_x, poz_y;
@@ -36,6 +37,11 @@ public sealed class SpacePoint
         point.Childs.AddChild(this);
     }
 
+    /// <summary>
+    /// Nazwa logiczna urzywana w identyfikowaniu tego elementu
+    /// </summary>
+    public string Name { get => name; set => name = value; }
+    
     /// <summary>
     /// Wrzystkie podrzędne elementy tego obiektu
     /// </summary>

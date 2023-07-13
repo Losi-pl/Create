@@ -42,12 +42,14 @@ partial class Assets
             var poz = float_parse(sizes(value(element.Element("pozition"))));
             var siz = float_parse(sizes(value(element.Element("size"))));
             var act = bool.TryParse(value(element.Element("active")) ?? string.Empty, out var v) ? v : true;
+            var nam = (element.Attribute("name")?.Value) ?? string.Empty;
 
             s.Pozition = (poz.x * 4, poz.y * 4);
             s.Size = (siz.x * 4, siz.y * 4);
             s.Element = elem(element.Element("element"));
-            s.Active = act;
             anker(element.Element("anker"));
+            s.Active = act;
+            s.Name = nam;
 
             foreach (var el in element.Elements("point"))
                 s.Childs.AddChild(point(el));
