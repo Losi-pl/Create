@@ -148,6 +148,64 @@ partial class Assets
 
             return cr;
         });
+        mod.RegisterInterfaceLoadingMethod("InterfaceImage", e =>
+        {
+            var ii = new InterfaceImage();
+
+            var texture = value(e.Element("texture"));
+            if (!string.IsNullOrWhiteSpace(texture))
+                ii.Texture = GetTexture(texture);
+
+            var tex_poz = get_tex_poz(e.Element("pozition"));
+            if (tex_poz.HasValue)
+                (ii.Offset, ii.Size) = tex_poz.Value;
+
+            return ii;
+        });
+        mod.RegisterInterfaceLoadingMethod("Image", e =>
+        {
+            var i = new Create.OpenGL.GUI.Elements.Image();
+
+            var texture = value(e.Element("texture"));
+            if (!string.IsNullOrWhiteSpace(texture))
+                i.Texture = GetTexture(texture);
+
+            var color_v = value(e.Element("color"));
+
+            if (!string.IsNullOrEmpty(color_v))
+            {
+                Color4 color;
+
+                var w = _colors.FirstOrDefault(c => c.name == color_v);
+                if (!string.IsNullOrEmpty(w.name))
+                    color = w.color;
+                else
+                {
+                    if (color_v.Length == 6)
+                    {
+                        var r = (byte)Convert.ToInt32(color_v[0..1], 16);
+                        var g = (byte)Convert.ToInt32(color_v[2..3], 16);
+                        var b = (byte)Convert.ToInt32(color_v[4..5], 16);
+                        color = new(r, g, b, 255);
+                    }
+                    else if (color_v.Length == 8)
+                    {
+
+                        var r = (byte)Convert.ToInt32(color_v[0..1], 16);
+                        var g = (byte)Convert.ToInt32(color_v[2..3], 16);
+                        var b = (byte)Convert.ToInt32(color_v[4..5], 16);
+                        var a = (byte)Convert.ToInt32(color_v[6..7], 16);
+                        color = new(r, g, b, a);
+                    }
+                    else
+                        throw new("Invalid variable structure");
+                }
+
+                i.Color = color;
+            }
+
+            return i;
+        });
 
         //Mothods
         string value(XElement? element)
