@@ -165,7 +165,7 @@ partial class Assets
         });
         mod.RegisterInterfaceLoadingMethod("Image", e =>
         {
-            var i = new Create.OpenGL.GUI.Elements.Image();
+            var i = new OpenGL.GUI.Elements.Image();
 
             var texture = value(e.Element("texture"));
             if (!string.IsNullOrWhiteSpace(texture))
@@ -207,6 +207,14 @@ partial class Assets
                 sb.Filled = int.TryParse(filled, out var pos) ? pos : throw new Exception("Invalid variable structure");
 
             return sb;
+        });
+        mod.RegisterInterfaceLoadingMethod("Slot", e =>
+        {
+            var item = new OpenGL.GUI.Elements.Image();
+
+            item.Color = Color4.LightGreen;
+
+            return item;
         });
 
         //Mothods

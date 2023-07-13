@@ -3,96 +3,80 @@
   <pozition v="0; 12"/>
   <anker mode="down"/>
   <size v="182; 22"/>
-  
   <element type="create:InterfaceImage">
     <texture v="create:gui/play_screen"/>
     <pozition offset="0; 24" size="182; 22"/>
   </element>
 
-  <point name="xp bar">
-    <pozition v="0; 4.5"/>
-    <anker mode="up"/>
-    <size v="182; 5"/>
-    <element type="create:InterfaceImage">
-      <texture v="create:gui/play_screen"/>
-      <pozition offset="0; 89" size="182; 5"/>
-    </element>
-
-    <point>
-      <pozition v="0"/>
-      <size v="182; 5"/>
-      <element type="create:InterfaceImage">
-        <texture v="create:gui/play_screen"/>
-        <pozition offset="0; 84" size="182; 5"/>
-      </element>
-    </point>
+  <point>
+      <pozition v="11; 0"/>
+      <anker mode="left"/>
+      <size v="16"/>
+      <element type="create:Slot" id="0"></element>
+  </point>
+  <point>
+      <pozition v="31; 0"/>
+      <anker mode="left"/>
+      <size v="16"/>
+      <element type="create:Slot" id="1"></element>
+  </point>
+  <point>
+      <pozition v="51; 0"/>
+      <anker mode="left"/>
+      <size v="16"/>
+      <element type="create:Slot" id="2"></element>
+  </point>
+  <point>
+      <pozition v="71; 0"/>
+      <anker mode="left"/>
+      <size v="16"/>
+      <element type="create:Slot" id="3"></element>
+  </point>
+  <point>
+      <pozition v="91; 0"/>
+      <anker mode="left"/>
+      <size v="16"/>
+      <element type="create:Slot" id="4"></element>
+  </point>
+  <point>
+      <pozition v="111; 0"/>
+      <anker mode="left"/>
+      <size v="16"/>
+      <element type="create:Slot" id="5"></element>
+  </point>
+  <point>
+      <pozition v="131; 0"/>
+      <anker mode="left"/>
+      <size v="16"/>
+      <element type="create:Slot" id="6"></element>
+  </point>
+  <point>
+      <pozition v="151; 0"/>
+      <anker mode="left"/>
+      <size v="16"/>
+      <element type="create:Slot" id="7"></element>
+  </point>
+  <point>
+      <pozition v="171; 0"/>
+      <anker mode="left"/>
+      <size v="16"/>
+      <element type="create:Slot" id="8"></element>
   </point>
 
   <point name="Right hand">
     <pozition v="14; 0"/>
     <anker mode="right"/>
-    <active v="false"/>
+    <active v="true"/>
     <size v="22"/>
     <element type="create:InterfaceImage">
       <texture v="create:gui/play_screen"/>
       <pozition offset="60; 1" size="22"/>
     </element>
-  </point>
 
-  <point name="Live">
-    <pozition v="40.5; 12.5"/>
-    <anker mode="leftup"/>
-    <size v="81; 9"/>
-    <element type="create:StatusBar">
-      <texture v="create:gui/play_screen"/>
-      <points v="10"/>
-      <filled v="15"/>
-      <background offset="16; 149" size="9"/>
-      <full offset="52; 149" size="9"/>
-      <half offset="61; 149" size="9"/>
-    </element>
-  </point>
-
-  <point name="Food">
-    <pozition v="-40.5; 12.5"/>
-    <anker mode="rightup"/>
-    <size v="81; 9"/>
-    <element type="create:StatusBar">
-      <texture v="create:gui/play_screen"/>
-      <points v="10"/>
-      <filled v="17"/>
-      <background offset="16; 122" size="9"/>
-      <full offset="52; 122" size="9"/>
-      <half offset="61; 122" size="9"/>
-    </element>
-  </point>
-
-  <point name="Armor">
-    <pozition v="40.5; 22.5"/>
-    <anker mode="leftup"/>
-    <size v="81; 9"/>
-    <element type="create:StatusBar">
-      <texture v="create:gui/play_screen"/>
-      <points v="10"/>
-      <filled v="5"/>
-      <background offset="16; 140" size="9"/>
-      <full offset="34; 140" size="9"/>
-      <half offset="25; 140" size="9"/>
-    </element>
-  </point>
-
-  <point name="Air">
-    <pozition v="-40.5; 22.5"/>
-    <anker mode="rightup"/>
-    <size v="81; 9"/>
-    <element type="create:StatusBar">
-      <texture v="create:gui/play_screen"/>
-      <points v="10"/>
-      <filled v="11"/>
-      <background offset="34; 131" size="9"/>
-      <full offset="16; 131" size="9"/>
-      <half offset="25; 131" size="9"/>
-    </element>
+    <point>
+      <size v="16"/>
+      <element type="create:Slot" id="9"></element>
+    </point>
   </point>
 
   <point name="Left">
@@ -119,6 +103,78 @@
     <element type="create:InterfaceImage">
       <texture v="create:gui/play_screen"/>
       <pozition size="24"/>
+    </element>
+  </point>
+  
+  <point name="xp bar">
+    <pozition v="0; 4.5"/>
+    <anker mode="up"/>
+    <size v="182; 5"/>
+    <element type="create:InterfaceImage">
+      <texture v="create:gui/play_screen"/>
+      <pozition offset="0; 89" size="182; 5"/>
+    </element>
+
+    <point>
+      <pozition v="0"/>
+      <size v="182; 5"/>
+      <element type="create:InterfaceImage">
+        <texture v="create:gui/play_screen"/>
+        <pozition offset="0; 84" size="182; 5"/>
+      </element>
+    </point>
+  </point>
+
+  <point name="Live">
+    <pozition v="40.5; 12.5"/>
+    <anker mode="leftup"/>
+    <size v="81; 9"/>
+    <element type="create:StatusBar">
+      <texture v="create:gui/play_screen"/>
+      <points v="10"/>
+      <filled v="15"/>
+      <background offset="16; 149" size="9"/>
+      <full offset="52; 149" size="9"/>
+      <half offset="61; 149" size="9"/>
+    </element>
+  </point>
+  <point name="Food">
+    <pozition v="-40.5; 12.5"/>
+    <anker mode="rightup"/>
+    <size v="81; 9"/>
+    <element type="create:StatusBar">
+      <texture v="create:gui/play_screen"/>
+      <points v="10"/>
+      <filled v="17"/>
+      <background offset="16; 122" size="9"/>
+      <full offset="52; 122" size="9"/>
+      <half offset="61; 122" size="9"/>
+    </element>
+  </point>
+  <point name="Armor">
+    <pozition v="40.5; 22.5"/>
+    <anker mode="leftup"/>
+    <size v="81; 9"/>
+    <element type="create:StatusBar">
+      <texture v="create:gui/play_screen"/>
+      <points v="10"/>
+      <filled v="5"/>
+      <background offset="16; 140" size="9"/>
+      <full offset="34; 140" size="9"/>
+      <half offset="25; 140" size="9"/>
+    </element>
+  </point>
+  <point name="Air">
+    <pozition v="-40.5; 22.5"/>
+    <anker mode="rightup"/>
+    <size v="81; 9"/>
+    <element type="create:StatusBar">
+      <texture v="create:gui/play_screen"/>
+      <points v="10"/>
+      <filled v="11"/>
+      <background offset="34; 131" size="9"/>
+      <full offset="16; 131" size="9"/>
+      <half offset="25; 131" size="9"/>
     </element>
   </point>
 </point>
