@@ -102,7 +102,7 @@ public sealed class PathDirectory
     /// <summary>
     /// Parametry i zawartość pliku
     /// </summary>
-    class file
+    class @file
     {
         #pragma warning disable CS8618
         public string name;
