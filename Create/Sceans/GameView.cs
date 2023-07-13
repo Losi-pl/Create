@@ -40,6 +40,19 @@ internal sealed partial class GameView : Scean
 
         _interface.MainElements.AddChild(Assets.GetInterface("create:crosshair"));
         _interface.MainElements.AddChild(Assets.GetInterface("create:statusbars"));
+
+        var user_interface = new SpacePoint
+        {
+            Size = (OpenGL.Engine.Size.X + 1, OpenGL.Engine.Size.Y + 1),
+            Pozition = (0, 0),
+            AnkerMode = SpacePoint.Anker.All,
+            Element = new Image
+            {
+                Color = new Color4(0, 0, 0, .8f)
+            }
+        };
+        _interface.MainElements.AddChild(user_interface);
+        user_interface.Childs.AddChild(Assets.GetInterface("create:inventory"));
     }
 
     protected override void RenderFrame(FrameEventArgs args)
