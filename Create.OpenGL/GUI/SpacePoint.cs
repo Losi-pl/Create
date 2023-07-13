@@ -11,20 +11,20 @@ public sealed class SpacePoint
     SpacePoint? parent = null;
     List<SpacePoint> childs = new List<SpacePoint>();
     Vector2 ancor1 = new(.5f, .5f), ancor2 = new(.5f, .5f);
-    Interface @interface;
+    Interface? @interface;
     Element? element;
     bool active = true;
 
     float width, height;
     float poz_x, poz_y;
 
-    public SpacePoint() { @interface = null!; }
+    public SpacePoint() { }
 
     [DebuggerNonUserCode]
     public SpacePoint(Interface @interface)
     {
         if (@interface is null) throw new ArgumentNullException(nameof(@interface));
-        (poz_x, poz_y) = (0, 0); @interface = null!;
+        (poz_x, poz_y) = (0, 0);
         try { @interface.MainElements.AddChild(this); }
         catch (NullReferenceException) { this.@interface = @interface; }
     }
@@ -81,7 +81,7 @@ public sealed class SpacePoint
     /// <summary>
     /// <see cref="GUI.Interface"/> z którym ten <see cref="SpacePoint"/> jest połączony
     /// </summary>
-    public Interface Interface
+    public Interface? Interface
     {
         get => @interface;
         set
