@@ -1,6 +1,7 @@
 ﻿using Create.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common.Input;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace Create.Input;
 
@@ -13,6 +14,7 @@ public static class Mouse
     static (Vector2 delata, Vector2 tmp, bool clear) mouse;
     static MouseCursor cursor = Engine.window.Cursor;
     static MouseCursor no_cur = new(0, 0, 1, 1, new byte[] { 0, 0, 0, 0 });
+    static bool last_left, last_right, last_scrol, current_left, current_right, current_scrol;
 
     /// <summary>
     /// Czy kursoj jest zablokowany w centrum okna
@@ -94,6 +96,10 @@ public static class Mouse
                 mouse.delata = (mouse.clear ? new() : delata);
                 mouse.clear = false;
             }
+
+        (current_left, last_left) = (Engine.window.MouseState[MouseButton.Left], current_left);
+        (current_right, last_right) = (Engine.window.MouseState[MouseButton.Right], current_right);
+        (current_scrol, last_scrol) = (Engine.window.MouseState[MouseButton.Middle], current_scrol);
     }
 
     /// <summary>
@@ -109,4 +115,20 @@ public static class Mouse
     /// Pozycja kursora na ekranie zsględem centrum okna
     /// </summary>
     public static (int x, int y) Pozition => Engine.window.MousePosition.ToTumple().Cast(v => ((int)-((Engine.Size.X / 2f) - v.X), (int)((Engine.Size.Y / 2f) - v.Y)));
+
+    public static (bool Up, bool Down, bool Status) Left => (
+        last_left == true && current_left == false,
+        last_left == false && current_left == true,
+        current_left);
+
+    public static (bool Up, bool Down, bool Status) Right => (
+        last_right == true && current_right == false,
+        last_right == false && current_right == true,
+        current_right);
+
+    public static (bool Up, bool Down, bool Status, float Delta) Scroll => (
+        last_scrol == true && current_scrol == false,
+        last_scrol == false && current_scrol == true,
+        current_scrol,
+        Engine.window.MouseState.ScrollDelta.X + Engine.window.MouseState.ScrollDelta.Y);
 }
