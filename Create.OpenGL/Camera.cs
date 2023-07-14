@@ -60,7 +60,8 @@ public sealed class Camera
         }
     }
 
-    /// <summary><inheritdoc cref="RevertAxis"/>
+    /// <summary>
+    /// Odwrócenie odwrucenie pozycji elementów w podanych osiach
     /// </summary>
     public class CameraAxis
     {
