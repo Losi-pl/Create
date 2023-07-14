@@ -104,4 +104,9 @@ public static class Mouse
         if (!Engine.window.IsFocused)
             mouse.delata = new();
     }
+
+    /// <summary>
+    /// Pozycja kursora na ekranie zsględem centrum okna
+    /// </summary>
+    public static (int x, int y) Pozition => Engine.window.MousePosition.ToTumple().Cast(v => ((int)-((Engine.Size.X / 2f) - v.X), (int)((Engine.Size.Y / 2f) - v.Y)));
 }
