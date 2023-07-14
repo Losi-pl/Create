@@ -79,9 +79,17 @@ public sealed class SpacePoint
         get => element; 
         set
         {
+            if(value?.Point is not null)
+            {
+                value.Unbind(value.Point);
+                value.Point.element = null;
+                value?.set_element(null!);
+            }
+            element?.Unbind(this);
             element?.set_element(null!);
             value?.set_element(this);
             element = value;
+            element?.Bind(this);
         }
     }
 

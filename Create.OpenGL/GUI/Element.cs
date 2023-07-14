@@ -12,6 +12,9 @@ public abstract class Element
 
     internal void set_element(SpacePoint point) => this.point = point;
 
+    protected internal virtual void Bind(SpacePoint point) { }
+    protected internal virtual void Unbind(SpacePoint point) { }
+
     /// <summary>
     /// <see cref="SpacePoint"/> z którym ten <see cref="Element"/> jest połączony
     /// </summary>
