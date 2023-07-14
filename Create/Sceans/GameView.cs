@@ -28,6 +28,8 @@ internal sealed partial class GameView : Scean
         terrain = new(camera);
         _interface = new(OpenGL.Engine.Size.X, OpenGL.Engine.Size.Y);
         _interface.CursorGet += () => Mouse.Pozition;
+        _interface.MouseLeft += () => Mouse.Lock ? (false, false, false) : Mouse.Left;
+        _interface.MouseRight += () => Mouse.Lock ? (false, false, false) : Mouse.Right;
     }
 
     protected override void SceanLoad()

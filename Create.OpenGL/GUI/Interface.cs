@@ -11,6 +11,8 @@ public sealed class Interface
     RenderLayer main_layer;
     SpacePoint main;
     public event Func<(int x, int y)>? CursorGet;
+    public event Func<(bool up, bool down, bool status)>? MouseLeft;
+    public event Func<(bool up, bool down, bool status)>? MouseRight;
 
     public Interface(int width, int height)
     {
@@ -73,5 +75,7 @@ public sealed class Interface
     public void Phizic()
     {
         var cursor = (CursorGet ?? (() => (0, 0))).Invoke();
+        var mouseleft = (MouseLeft ?? (() => (false, false, false))).Invoke();
+        var mouseright = (MouseRight ?? (() => (false, false, false))).Invoke();
     }
 }
