@@ -73,11 +73,10 @@ internal sealed partial class GameView : Scean
             Mouse.Lock = !Mouse.Lock;
         }
 
-        if (!Mouse.Lock)
-            return;
+        if (Mouse.Lock)
+            camera_rotation();
 
         terrain.ChunkUpdate(args.Time);
-        camera_rotation();
         
         void camera_rotation()
         {
