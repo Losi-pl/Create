@@ -6,6 +6,7 @@ namespace Create.OpenGL.GUI;
 /// <summary>
 /// Lokalizacja obiektu na ekranie
 /// </summary>
+[DebuggerDisplay("""{(string.IsNullOrEmpty(name) ? "" : $"Name: \"{name}\", "), nq}Pozition: {Pozition}""")]
 public sealed class SpacePoint
 {
     SpacePoint? parent = null;
