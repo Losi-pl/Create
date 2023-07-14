@@ -181,6 +181,7 @@ public sealed class ChunkConstructor : ModelConstructor
             {
                 Vector3 point = new Vector3(Chunk.QUARD_SIZE * pozition.X, Chunk.QUARD_SIZE * i, Chunk.QUARD_SIZE * pozition.Z) + 
                     (new Vector3(Chunk.QUARD_SIZE, Chunk.QUARD_SIZE, Chunk.QUARD_SIZE) / 2);
+                point *= new Vector3(1, 1, -1);
 
                 if(MathC.InView(model * projection, (point.ToTumple(), (Chunk.QUARD_SIZE, Chunk.QUARD_SIZE, Chunk.QUARD_SIZE))))
                 {
