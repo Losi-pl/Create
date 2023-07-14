@@ -10,6 +10,7 @@ public sealed class Interface
 {
     RenderLayer main_layer;
     SpacePoint main;
+    public event Func<(int x, int y)>? CursorGet;
 
     public Interface(int width, int height)
     {
@@ -67,5 +68,10 @@ public sealed class Interface
             foreach (var sp in point.Childs)
                 draw_models(sp);
         }
+    }
+
+    public void Phizic()
+    {
+        var cursor = (CursorGet ?? (() => (0, 0))).Invoke();
     }
 }

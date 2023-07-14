@@ -27,6 +27,7 @@ internal sealed partial class GameView : Scean
         camera = new();
         terrain = new(camera);
         _interface = new(OpenGL.Engine.Size.X, OpenGL.Engine.Size.Y);
+        _interface.CursorGet += () => Mouse.Pozition;
     }
 
     protected override void SceanLoad()
@@ -75,6 +76,8 @@ internal sealed partial class GameView : Scean
 
         if (Mouse.Lock)
             camera_rotation();
+
+        _interface.Phizic();
 
         terrain.ChunkUpdate(args.Time);
         
