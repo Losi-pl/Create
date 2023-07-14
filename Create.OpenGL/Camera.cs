@@ -44,7 +44,24 @@ public sealed class Camera
     /// </summary>
     public Matrix4 Model { get => model; set => model = value; }
 
-    /// <summary><inheritdoc cref="RevertAxis"/>
+    /// <summary>
+    /// Połączone ze sobą wrzystkie dane w jeden <see cref="Matrix4"/> do przekrztałcenia geometri modelu
+    /// </summary>
+    public Matrix4 CombinedMatrix
+    {
+        get
+        {
+            var reve = new Vector3(RevertAxis.x ? -1 : 1, RevertAxis.y ? -1 : 1, RevertAxis.z ? -1 : 1);
+            Matrix4 sca = Matrix4.CreateScale(reve);
+            Matrix4 poz = Matrix4.CreateTranslation(-Pozition * reve);
+            Matrix4 rot = Matrix4.CreateRotationY(MathF.PI) * (Rotation != new Vector3() ? Matrix4.CreateFromQuaternion(RotationQuaternion) : Engine.NeutralMatrix);
+            Matrix4 cam = Projection;
+            return sca * poz * rot * cam;
+        }
+    }
+
+    /// <summary>
+    /// Odwrócenie odwrucenie pozycji elementów w podanych osiach
     /// </summary>
     public class CameraAxis
     {
