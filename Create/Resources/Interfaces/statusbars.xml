@@ -3,6 +3,108 @@
   <pozition v="0; 12"/>
   <anker mode="down"/>
   <size v="182; 22"/>
+  <events>
+    <change name="0">
+      <point name="Selector">
+        <pozition v="11; 0"/>
+      </point>
+      <point name="Left">
+        <active v="true"/>
+      </point>
+      <point name="Right">
+        <active v="false"/>
+      </point>
+    </change>
+    <change name="1">
+      <point name="Selector">
+        <pozition v="31; 0"/>
+      </point>
+      <point name="Left">
+        <active v="false"/>
+      </point>
+      <point name="Right">
+        <active v="false"/>
+      </point>
+    </change>
+    <change name="2">
+      <point name="Selector">
+        <pozition v="51; 0"/>
+      </point>
+      <point name="Left">
+        <active v="false"/>
+      </point>
+      <point name="Right">
+        <active v="false"/>
+      </point>
+    </change>
+    <change name="3">
+      <point name="Selector">
+        <pozition v="71; 0"/>
+      </point>
+      <point name="Left">
+        <active v="false"/>
+      </point>
+      <point name="Right">
+        <active v="false"/>
+      </point>
+    </change>
+    <change name="4">
+      <point name="Selector">
+        <pozition v="91; 0"/>
+      </point>
+      <point name="Left">
+        <active v="false"/>
+      </point>
+      <point name="Right">
+        <active v="false"/>
+      </point>
+    </change>
+    <change name="5">
+      <point name="Selector">
+        <pozition v="111; 0"/>
+      </point>
+      <point name="Left">
+        <active v="false"/>
+      </point>
+      <point name="Right">
+        <active v="false"/>
+      </point>
+    </change>
+    <change name="6">
+      <point name="Selector">
+        <pozition v="131; 0"/>
+      </point>
+      <point name="Left">
+        <active v="false"/>
+      </point>
+      <point name="Right">
+        <active v="false"/>
+      </point>
+    </change>
+    <change name="7">
+      <point name="Selector">
+        <pozition v="151; 0"/>
+      </point>
+      <point name="Left">
+        <active v="false"/>
+      </point>
+      <point name="Right">
+        <active v="false"/>
+      </point>
+    </change>
+    <change name="8">
+      <point name="Selector">
+        <pozition v="171; 0"/>
+      </point>
+      <point name="Left">
+        <active v="false"/>
+      </point>
+      <point name="Right">
+        <active v="true"/>
+      </point>
+    </change>
+  </events>
+  
   <element type="create:InterfaceImage">
     <texture v="create:gui/play_screen"/>
     <pozition offset="0; 24" size="182; 22"/>

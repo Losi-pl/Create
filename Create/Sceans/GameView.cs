@@ -17,6 +17,7 @@ internal sealed partial class GameView : Scean
     Camera camera;
     Terrain terrain;
     Interface _interface;
+    int slot_ind;
 
     internal Camera Camera => camera;
     internal Terrain _Terrain => terrain;
@@ -80,6 +81,15 @@ internal sealed partial class GameView : Scean
             camera_rotation();
 
         _interface.Phizic();
+        if(Mouse.Scroll.Delta != 0)
+        {
+            slot_ind -= Mouse.Scroll.Delta;
+            if(slot_ind < 0)
+                slot_ind = 8;
+            if (slot_ind > 8)
+                slot_ind = 0;
+            _interface.MainElements.Find("create:statusbars")?.RunEvent(slot_ind.ToString());
+        }
 
         terrain.ChunkUpdate(args.Time);
         
