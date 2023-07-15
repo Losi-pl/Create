@@ -43,6 +43,7 @@ partial class Assets
             var siz = float_parse(sizes(value(element.Element("size"))));
             var act = bool.TryParse(value(element.Element("active")) ?? string.Empty, out var v) ? v : true;
             var nam = (element.Attribute("name")?.Value) ?? string.Empty;
+            var evn = element.Element("events");
 
             s.Pozition = (poz.x * 4, poz.y * 4);
             s.Size = (siz.x * 4, siz.y * 4);
@@ -51,6 +52,8 @@ partial class Assets
             s.Active = act;
             s.Name = nam;
 
+            if (evn is not null)
+                load_events(s, evn);
             foreach (var el in element.Elements("point"))
                 s.Childs.AddChild(point(el));
             return s;
@@ -126,6 +129,72 @@ partial class Assets
 
             float result = float.Parse(value, NumberStyles.Any, ci);
             return result;
+        }
+
+        void load_events(SpacePoint point, XElement events)
+        {
+            foreach(var evnt in events.Elements())
+            {
+                var name = evnt.Attribute("name")?.Value;
+                if (string.IsNullOrWhiteSpace(name))
+                    continue;
+                
+                switch (evnt.Name.LocalName)
+                {
+                    case "change":
+                        point.AddEvent(name, change_event, evnt); break;
+                    default:
+                        continue;
+                }
+            }
+
+            void change_event(SpacePoint point, object sender)
+            {
+                point_upt(point, (XElement)sender);
+                void point_upt(SpacePoint P, XElement element)
+                {
+                    var val = element.Element("pozition");
+                    if(val is not null)
+                    {
+                        P.Pozition = float_parse(sizes(value(val)));
+                        P.Pozition = (P.Pozition.x * 4, P.Pozition.y * 4);
+                    }
+                    val = element.Element("size");
+                    if (val is not null)
+                    {
+                        P.Size = float_parse(sizes(value(val)));
+                        P.Size = (P.Size.Width * 4, P.Size.Height * 4);
+                    }
+                    val = element.Element("active");
+                    if (val is not null)
+                        P.Active = bool.TryParse(value(val) ?? string.Empty, out var v) ? v : true;
+                    val = element.Element("anker");
+                    if ( val is not null)
+                    {
+                        var atr = val.Attribute("mode")?.Value.ToLower();
+                        if (atr is not null)
+                            P.AnkerMode = _ankerModes.Find(a => a.name == atr, new("Invalid variable structure")).Item1;
+                    }
+
+                    foreach (var p in element.Elements("point"))
+                    {
+                        var name = p.Attribute("name")?.Value;
+                        if (string.IsNullOrWhiteSpace(name))
+                        {
+                            var index = p.Attribute("index")?.Value;
+                            if (string.IsNullOrWhiteSpace(index))
+                                continue;
+                            var point = P.Childs[int.Parse(index)];
+                            point_upt(point, p);
+                        }
+                        else
+                        {
+                            var point = P.Childs.Find(name);
+                            point_upt(point, p);
+                        }
+                    }
+                }
+            }
         }
     }
 
