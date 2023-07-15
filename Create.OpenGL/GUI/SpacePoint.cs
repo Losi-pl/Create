@@ -408,6 +408,29 @@ public sealed class SpacePoint
             this.point.childs.Remove(point);
         }
 
+        public SpacePoint? Find(string name, bool recursive = false)
+        {
+            if (recursive)
+                return find(point);
+            else
+                return point.childs.FirstOrDefault(x => x.name == name);
+
+            SpacePoint? find(SpacePoint source)
+            {
+                var p = source.childs.FirstOrDefault(x => x.name == name);
+                if (p is not null)
+                    return p;
+
+                foreach(var ch in source.childs)
+                {
+                    p = find(ch);
+                    if (p is not null) return p;
+                }
+
+                return null;
+            }
+        }
+        
         /// <summary>
         /// Ile pod-obiektów jest na liście
         /// </summary>
