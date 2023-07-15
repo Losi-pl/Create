@@ -126,9 +126,9 @@ public static class Mouse
         last_right == false && current_right == true,
         current_right);
 
-    public static (bool Up, bool Down, bool Status, float Delta) Scroll => (
+    public static (bool Up, bool Down, bool Status, int Delta) Scroll => (
         last_scrol == true && current_scrol == false,
         last_scrol == false && current_scrol == true,
         current_scrol,
-        Engine.window.MouseState.ScrollDelta.X + Engine.window.MouseState.ScrollDelta.Y);
+        (int)(Engine.window.MouseState.ScrollDelta.X + Engine.window.MouseState.ScrollDelta.Y));
 }
