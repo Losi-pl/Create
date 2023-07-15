@@ -12,6 +12,7 @@ public sealed class SpacePoint
     SpacePoint? parent = null;
     List<SpacePoint> childs = new List<SpacePoint>();
     Vector2 ancor1 = new(.5f, .5f), ancor2 = new(.5f, .5f);
+    Dictionary<string, (Action<SpacePoint, object> @event, object sender)> events = new();
     Interface? @interface;
     Element? element;
     bool active = true;
@@ -265,6 +266,33 @@ public sealed class SpacePoint
     {
         get => (ancor1, ancor2);
         set => (ancor1, ancor2) = value;
+    }
+
+    public void AddEvent(string name, Action<SpacePoint, object> action, object sender)
+    {
+        if (action == null)
+            throw new ArgumentNullException(nameof(action));
+        if (name == null)
+            throw new ArgumentNullException(nameof(name));
+        if (events.TryGetValue(name, out _))
+            throw new ArgumentException($"Event witch name \"{name}\" alredy exists");
+        events.Add(name, (action, sender));
+    }
+
+    public bool RemoveEvent(string name)
+    {
+        if (name == null)
+            throw new ArgumentNullException(nameof(name));
+        return events.Remove(name);
+    }
+
+    public bool RunEvent(string name)
+    {
+        if (name == null)
+            throw new ArgumentNullException(nameof(name));
+        if (events.TryGetValue(name, out var e))
+        { e.@event(this, e.sender); return true; }
+        return false;
     }
 
     /// <summary>
