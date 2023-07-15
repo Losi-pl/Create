@@ -18,8 +18,9 @@ partial class Assets
     public static SpacePoint GetInterface(string path)
     {
         var xml = load(path);
-
-        return point(xml.Root!);
+        var poin = point(xml.Root!);
+        poin.Name = path.Replace('/', '\\');
+        return poin;
 
         XDocument load(string name)
         {
