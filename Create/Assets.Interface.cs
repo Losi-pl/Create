@@ -6,6 +6,7 @@ using OpenTK.Mathematics;
 using System.Globalization;
 using System.Reflection;
 using System.Xml.Linq;
+using static Create.Static;
 
 namespace Create;
 
@@ -63,7 +64,7 @@ partial class Assets
                     return;
                 var atr = ank.Attribute("mode")?.Value.ToLower();
                 if (atr is not null)
-                    s!.AnkerMode = Static.ankerModes.Find(a => a.name == atr, new("Invalid variable structure")).Item1;
+                    s!.AnkerMode = ankerModes.Find(a => a.name == atr, new("Invalid variable structure")).Item1;
             }
             Element? elem(XElement? element)
             {
@@ -78,58 +79,6 @@ partial class Assets
                 return converter.Item2(element);
             }
         }
-        string value(XElement? element)
-        {
-            if(element is null)
-                return string.Empty;
-            var a = element.Attribute("v");
-            if (a != null)
-                return a.Value;
-            else
-                return element.Value;
-        }
-        (string x, string y)? sizes(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-                return null;
-            if (value.Count(c => c == ';') > 1)
-                throw new Exception("Invalid variable structure");
-            else if (value.Count(c => c == ';') == 0)
-                return (value, value);
-            else
-                return value.Split(';').Cast(v => (v[0], v[1]));
-            throw new Exception("Invalid variable structure");
-        }
-        (int x, int y) int_parse((string x, string y)? value)
-        {
-            if (!value.HasValue)
-                return (0, 0);
-            return (int.Parse(value.Value.x), int.Parse(value.Value.y));
-        }
-        (float x, float y) float_parse((string x, string y)? value)
-        {
-            if (!value.HasValue)
-                return (0, 0);
-            return (ParseFloat(value.Value.x), ParseFloat(value.Value.y));
-        }
-        float ParseFloat(string value)
-        {
-            CultureInfo ci = (CultureInfo)CultureInfo.CurrentCulture.Clone();
-            ci.NumberFormat.CurrencyDecimalSeparator = ".";
-
-            if (value[0] == '.')
-            {
-                value = "0" + value;
-            }
-            else if (value[0] == '-' && value[1] == '.')
-            {
-                value = "-0" + value.Substring(1);
-            }
-
-            float result = float.Parse(value, NumberStyles.Any, ci);
-            return result;
-        }
-
         void load_events(SpacePoint point, XElement events)
         {
             foreach(var evnt in events.Elements())
@@ -209,7 +158,7 @@ partial class Assets
 
             var chan = value(e.Element("screen"))?.ToLower()
                 .Cast(c => 
-                    Static.framebufferAttachment.Find(a => a.name == c, new("Invalid variable structure")).Item1);
+                    framebufferAttachment.Find(a => a.name == c, new("Invalid variable structure")).Item1);
             if (chan.HasValue)
                 cr.Terrain = ((GameView)OpenGL.Engine.Scean!)._Terrain.Finisched.Textures[chan.Value];
 
@@ -334,7 +283,7 @@ partial class Assets
                 return null;
             var color_v = value(element);
             Color4 color;
-            var w = Static.colors.FirstOrDefault(c => c.name == color_v);
+            var w = colors.FirstOrDefault(c => c.name == color_v);
             if (!string.IsNullOrEmpty(w.name))
                 color = w.color;
             else
@@ -365,6 +314,58 @@ partial class Assets
 
 file class Static
 {
+    public static string value(XElement? element)
+    {
+        if (element is null)
+            return string.Empty;
+        var a = element.Attribute("v");
+        if (a != null)
+            return a.Value;
+        else
+            return element.Value;
+    }
+    public static (string x, string y)? sizes(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return null;
+        if (value.Count(c => c == ';') > 1)
+            throw new Exception("Invalid variable structure");
+        else if (value.Count(c => c == ';') == 0)
+            return (value, value);
+        else
+            return value.Split(';').Cast(v => (v[0], v[1]));
+        throw new Exception("Invalid variable structure");
+    }
+    public static (int x, int y) int_parse((string x, string y)? value)
+    {
+        if (!value.HasValue)
+            return (0, 0);
+        return (int.Parse(value.Value.x), int.Parse(value.Value.y));
+    }
+    public static (float x, float y) float_parse((string x, string y)? value)
+    {
+        if (!value.HasValue)
+            return (0, 0);
+        return (ParseFloat(value.Value.x), ParseFloat(value.Value.y));
+    }
+    public static float ParseFloat(string value)
+    {
+        CultureInfo ci = (CultureInfo)CultureInfo.CurrentCulture.Clone();
+        ci.NumberFormat.CurrencyDecimalSeparator = ".";
+
+        if (value[0] == '.')
+        {
+            value = "0" + value;
+        }
+        else if (value[0] == '-' && value[1] == '.')
+        {
+            value = "-0" + value.Substring(1);
+        }
+
+        float result = float.Parse(value, NumberStyles.Any, ci);
+        return result;
+    }
+
     public static readonly (SpacePoint.Anker, string name)[] ankerModes = Enum.GetValues<SpacePoint.Anker>().ConvertAll(a => (a, a.ToString().ToLower()));
     public static readonly (Color4 color, string name)[] colors = typeof(Color4).GetProperties(BindingFlags.Static | BindingFlags.Public).ConvertAll(c => ((Color4)c.GetValue(null)!, c.Name.ToLower()));
     public static readonly (FramebufferAttachment, string name)[] framebufferAttachment = (new[] {
