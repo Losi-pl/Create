@@ -17,9 +17,16 @@ public sealed class SpacePoint
     Element? element;
     bool active = true;
     string name = string.Empty;
+    public event Action<SpacePoint>? OnClick;
+    public event Action<SpacePoint>? OnEnter;
+    public event Action<SpacePoint>? OnExit;
 
     float width, height;
     float poz_x, poz_y;
+
+    internal Action<SpacePoint>? _onClick => OnClick;
+    internal Action<SpacePoint>? _onEnter => OnEnter;
+    internal Action<SpacePoint>? _onExit => OnExit;
 
     public SpacePoint() { }
 
