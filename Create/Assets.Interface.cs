@@ -265,7 +265,7 @@ partial class Assets
     }
 }
 
-file class Static
+file static class Static
 {
     public static string value(XElement? element)
     {
@@ -408,6 +408,7 @@ file class Static
         (FramebufferAttachment.StencilAttachment, "StencilAttachment"),
         (FramebufferAttachment.StencilAttachmentExt, "StencilAttachmentExt"),
     }).ConvertAll(a => (a.Item1, a.Item2.ToLower()));
+
 }
 
 file class ChangeEvent
