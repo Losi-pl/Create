@@ -490,5 +490,5 @@ file class ChangeEvent
         }
     }
 
-    public override string ToString() => $"{(identyfy?.Match(n => "name: ", i => "index: ") ?? "unidentyfied")}{identyfy?.Match(n => $"\"{n}\"", i => i.ToString())}";
+    public override string ToString() => $"{(identyfy?.Match(n => $"name: \"{n}\"", i => $"index: {i}") ?? "unidentyfied")}";
 }
