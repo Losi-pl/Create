@@ -6,6 +6,7 @@ using OpenTK.Mathematics;
 using System.Globalization;
 using System.Reflection;
 using System.Xml.Linq;
+using OneOf;
 using static Create.Static;
 
 namespace Create;
@@ -90,57 +91,9 @@ partial class Assets
                 switch (evnt.Name.LocalName)
                 {
                     case "change":
-                        point.AddEvent(name, change_event, evnt); break;
+                        point.AddEvent(name, ChangeEvent.Event, ChangeEvent.Parse(evnt)); break;
                     default:
                         continue;
-                }
-            }
-
-            void change_event(SpacePoint point, object sender)
-            {
-                point_upt(point, (XElement)sender);
-                void point_upt(SpacePoint P, XElement element)
-                {
-                    var val = element.Element("pozition");
-                    if(val is not null)
-                    {
-                        P.Pozition = float_parse(sizes(value(val)));
-                        P.Pozition = (P.Pozition.x * 4, P.Pozition.y * 4);
-                    }
-                    val = element.Element("size");
-                    if (val is not null)
-                    {
-                        P.Size = float_parse(sizes(value(val)));
-                        P.Size = (P.Size.Width * 4, P.Size.Height * 4);
-                    }
-                    val = element.Element("active");
-                    if (val is not null)
-                        P.Active = bool.TryParse(value(val) ?? string.Empty, out var v) ? v : true;
-                    val = element.Element("anker");
-                    if ( val is not null)
-                    {
-                        var atr = val.Attribute("mode")?.Value.ToLower();
-                        if (atr is not null)
-                            P.AnkerMode = Static.ankerModes.Find(a => a.name == atr, new("Invalid variable structure")).Item1;
-                    }
-
-                    foreach (var p in element.Elements("point"))
-                    {
-                        var name = p.Attribute("name")?.Value;
-                        if (string.IsNullOrWhiteSpace(name))
-                        {
-                            var index = p.Attribute("index")?.Value;
-                            if (string.IsNullOrWhiteSpace(index))
-                                continue;
-                            var point = P.Childs[int.Parse(index)];
-                            point_upt(point, p);
-                        }
-                        else
-                        {
-                            var point = P.Childs.Find(name);
-                            point_upt(point, p);
-                        }
-                    }
                 }
             }
         }
@@ -455,4 +408,84 @@ file class Static
         (FramebufferAttachment.StencilAttachment, "StencilAttachment"),
         (FramebufferAttachment.StencilAttachmentExt, "StencilAttachmentExt"),
     }).ConvertAll(a => (a.Item1, a.Item2.ToLower()));
+}
+
+file class ChangeEvent
+{
+    ChangeEvent[] subElements = Array.Empty<ChangeEvent>();
+    (float x, float y)? pozition, size;
+    OneOf<string, int>? identyfy;
+    OneOf<SpacePoint.Anker, (Vector2 a1, Vector2 a2)>? anker;
+    bool? active;
+
+    public static ChangeEvent Parse(XElement element) => Parse(element, true);
+    static ChangeEvent Parse(XElement element, bool main)
+    {
+        var c = new ChangeEvent();
+        var val = element.Element("pozition");
+        if (val is not null)
+        {
+            c.pozition = float_parse(sizes(value(val)));
+            c.pozition = (c.pozition.Value.x * 4, c.pozition.Value.y * 4);
+        }
+        val = element.Element("size");
+        if (val is not null)
+        {
+            c.size = float_parse(sizes(value(val)));
+            c.size = (c.size.Value.x * 4, c.size.Value.y * 4);
+        }
+        val = element.Element("active");
+        if (val is not null)
+            c.active = bool.TryParse(value(val) ?? string.Empty, out var v) ? v : null;
+        val = element.Element("anker");
+        if (val is not null)
+        {
+            var atr = val.Attribute("mode")?.Value.ToLower();
+            if (atr is not null)
+                c.anker = ankerModes.Find(a => a.name == atr, new("Invalid variable structure")).Item1;
+        }
+
+        c.subElements = element.Elements("point").ConvertAll(c => Parse(c, false)).ToArray();
+
+        if (!main)
+        {
+            var name = element.Attribute("name")?.Value;
+            var index = element.Attribute("index")?.Value;
+            if (index is not null)
+                c.identyfy = int.TryParse(index, out var i) ? i : (name is null ? null : name)!;
+            else if (name is not null)
+                c.identyfy = name!;
+        }
+        return c;
+    }
+    public static void Event(SpacePoint point, object sender)
+    {
+        var @event = sender as ChangeEvent;
+        if (@event is null)
+            return;
+
+        if (@event.active.HasValue)
+            point.Active = @event.active.Value;
+
+        if (@event.pozition.HasValue)
+            point.Pozition = @event.pozition.Value;
+
+        if (@event.size.HasValue)
+            point.Size = @event.size.Value;
+
+        if (@event.anker.HasValue)
+            @event.anker.Value.Switch(
+                a => point.AnkerMode = a,
+                p => point.AnkerPoints = p);
+
+        foreach (var p in @event.subElements)
+        {
+            var poi = p.identyfy?.Match(
+                n => point.Childs.Find(n, true),
+                i => new Range(0, point.Childs.Count).Contains(i) ? point.Childs[i] : null);
+            if (poi is null)
+                continue;
+            Event(poi, p);
+        }
+    }
 }
