@@ -12,8 +12,6 @@ namespace Create;
 partial class Assets
 {
     internal static Dictionary<string, (Mod mod, Func<XElement, Element>)> interfaceElementTypes = new();
-    static readonly (SpacePoint.Anker, string name)[] _ankerModes = Enum.GetValues<SpacePoint.Anker>().ConvertAll(a => (a, a.ToString().ToLower()));
-    static readonly (Color4 color, string name)[] _colors = typeof(Color4).GetProperties(BindingFlags.Static | BindingFlags.Public).ConvertAll(c => ((Color4)c.GetValue(null)!, c.Name.ToLower()));
 
     public static SpacePoint GetInterface(string path)
     {
@@ -65,7 +63,7 @@ partial class Assets
                     return;
                 var atr = ank.Attribute("mode")?.Value.ToLower();
                 if (atr is not null)
-                    s!.AnkerMode = _ankerModes.Find(a => a.name == atr, new("Invalid variable structure")).Item1;
+                    s!.AnkerMode = Static.ankerModes.Find(a => a.name == atr, new("Invalid variable structure")).Item1;
             }
             Element? elem(XElement? element)
             {
@@ -174,7 +172,7 @@ partial class Assets
                     {
                         var atr = val.Attribute("mode")?.Value.ToLower();
                         if (atr is not null)
-                            P.AnkerMode = _ankerModes.Find(a => a.name == atr, new("Invalid variable structure")).Item1;
+                            P.AnkerMode = Static.ankerModes.Find(a => a.name == atr, new("Invalid variable structure")).Item1;
                     }
 
                     foreach (var p in element.Elements("point"))
@@ -211,7 +209,7 @@ partial class Assets
 
             var chan = value(e.Element("screen"))?.ToLower()
                 .Cast(c => 
-                    _framebufferAttachment.Find(a => a.name == c, new("Invalid variable structure")).Item1);
+                    Static.framebufferAttachment.Find(a => a.name == c, new("Invalid variable structure")).Item1);
             if (chan.HasValue)
                 cr.Terrain = ((GameView)OpenGL.Engine.Scean!)._Terrain.Finisched.Textures[chan.Value];
 
@@ -336,7 +334,7 @@ partial class Assets
                 return null;
             var color_v = value(element);
             Color4 color;
-            var w = _colors.FirstOrDefault(c => c.name == color_v);
+            var w = Static.colors.FirstOrDefault(c => c.name == color_v);
             if (!string.IsNullOrEmpty(w.name))
                 color = w.color;
             else
@@ -363,9 +361,13 @@ partial class Assets
             return color;
         }
     }
+}
 
-
-    static readonly (FramebufferAttachment, string name)[] _framebufferAttachment = (new[] {
+file class Static
+{
+    public static readonly (SpacePoint.Anker, string name)[] ankerModes = Enum.GetValues<SpacePoint.Anker>().ConvertAll(a => (a, a.ToString().ToLower()));
+    public static readonly (Color4 color, string name)[] colors = typeof(Color4).GetProperties(BindingFlags.Static | BindingFlags.Public).ConvertAll(c => ((Color4)c.GetValue(null)!, c.Name.ToLower()));
+    public static readonly (FramebufferAttachment, string name)[] framebufferAttachment = (new[] {
         (FramebufferAttachment.Aux0, "Aux0"),
         (FramebufferAttachment.Aux1, "Aux1"),
         (FramebufferAttachment.Aux2, "Aux2"),
