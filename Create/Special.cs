@@ -118,4 +118,25 @@ internal static partial class Special
         if (range.End.Value < value) return false;
         return true;
     }
+
+    /// <summary>
+    /// Pobiera element z <paramref name="enume"/> o numerze <paramref name="index"/>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="enume"></param>
+    /// <param name="index"></param>
+    /// <returns></returns>
+    public static T Index<T>(this IEnumerable<T> enume, int index)
+    {
+        if (index < 0)
+            throw new ArgumentOutOfRangeException(nameof(index), "Index must be grater than 0");
+
+        foreach(var e in enume)
+        {
+            if (index == 0)
+                return e;
+            index--;
+        }
+        return default!;
+    }
 }
