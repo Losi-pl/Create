@@ -13,7 +13,7 @@ namespace Create;
 
 partial class Assets
 {
-    internal static Dictionary<string, (Mod mod, Func<XElement, Element>)> interfaceElementTypes = new();
+    internal static Dictionary<string, (Mod mod, Func<XElement, Element> parse, Action<Element, object>? changeEvent, Func<XElement, object>? changeEventParameter)> interfaceElementTypes = new();
 
     public static SpacePoint GetInterface(string path)
     {
@@ -77,7 +77,7 @@ partial class Assets
                     return null;
                 if (!interfaceElementTypes.TryGetValue(attr, out var converter))
                     return null;
-                return converter.Item2(element);
+                return converter.parse(element);
             }
         }
         void load_events(SpacePoint point, XElement events)

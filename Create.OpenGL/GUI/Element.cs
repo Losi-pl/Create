@@ -1,4 +1,6 @@
 ﻿using OpenTK.Mathematics;
+using System.Runtime.Versioning;
+using System.Xml.Linq;
 
 namespace Create.OpenGL.GUI;
 
@@ -19,4 +21,13 @@ public abstract class Element
     /// <see cref="SpacePoint"/> z którym ten <see cref="Element"/> jest połączony
     /// </summary>
     public SpacePoint Point => point;
+
+}
+
+[RequiresPreviewFeatures]
+public interface IElementLoading<T>
+{
+    internal static abstract T Parse(XElement element);
+    internal static abstract void ChangeEvent(T point, object sender);
+    internal static abstract object ChangeEventParameter(XElement element);
 }
