@@ -171,7 +171,7 @@ public class StatusBar : Element
 
     public ((int x, int y) offset, (int Width, int Height) size)? HalfPoint
     {
-        get => half_offs.HasValue ? ((half_offs.Value.X, half_offs.Value.Y), (half_size.Value.X, half_size.Value.Y)) : null;
+        get => half_offs.HasValue ? ((half_offs.Value.X, half_offs.Value.Y), (half_size!.Value.X, half_size.Value.Y)) : null;
         set
         {
             if (value.HasValue)
@@ -202,6 +202,6 @@ public class StatusBar : Element
         shader.SetUniform("filled", filled);
         shader.SetUniform("text", texture);
 
-        model.Draw(Matrix4.CreateScale(Point.Size.Width, Point.Size.Height, 1) * projection);
+        model.Draw(Matrix4.CreateScale(Point!.Size.Width, Point.Size.Height, 1) * projection);
     }
 }

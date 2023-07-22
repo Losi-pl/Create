@@ -68,6 +68,6 @@ public class Image : Element
             shader.SetUniform("tex", texture);
         shader.SetUniform("use_tex", texture != null);
         shader.SetUniform("color", new Vector4(color.R, color.G, color.B, color.A));
-        mesh.Draw(Matrix4.CreateScale(Point.Size.Width, Point.Size.Height, 1) * projection);
+        mesh.Draw(Matrix4.CreateScale(Point!.Size.Width, Point.Size.Height, 1) * projection);
     }
 }

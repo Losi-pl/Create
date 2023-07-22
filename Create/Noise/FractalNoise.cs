@@ -62,6 +62,10 @@ public class FractalNoise
         Lacunarity = 2.0f;
         Gain = 0.5f;
 
+        Frequencies = Array.Empty<float>();
+        Noises = Array.Empty<INoise>();
+        Amplitudes = Array.Empty<float>();
+
         UpdateTable(new INoise[] { noise });
     }
 
@@ -74,6 +78,10 @@ public class FractalNoise
         Offset = Vector3.Zero;
         Lacunarity = 2.0f;
         Gain = 0.5f;
+        
+        Frequencies = Array.Empty<float>();
+        Noises = Array.Empty<INoise>();
+        Amplitudes = Array.Empty<float>();
 
         UpdateTable(noises);
     }

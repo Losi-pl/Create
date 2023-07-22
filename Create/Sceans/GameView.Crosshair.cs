@@ -90,7 +90,7 @@ partial class GameView
             shader.SetUniform("pointer", _interface);
             shader.SetUniform("color_range", col_range);
             shader.SetUniform("pointer_poz", new Matrix3x2(_interface.Size.ToVector(), offset, size));
-            model.Draw(Matrix4.CreateScale(Point.Size.Width, Point.Size.Height, 1) * projection);
+            model.Draw(Matrix4.CreateScale(Point!.Size.Width, Point.Size.Height, 1) * projection);
         }
     }
 }

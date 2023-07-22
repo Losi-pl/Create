@@ -75,6 +75,6 @@ public class InterfaceImage : Element
     {
         shader.SetUniform("test", texture);
         shader.SetUniform("pointer_poz", new Matrix3x2(texture.Size.ToVector(), offset, size));
-        model.Draw(Matrix4.CreateScale(Point.Size.Width, Point.Size.Height, 1) * projection);
+        model.Draw(Matrix4.CreateScale(Point!.Size.Width, Point.Size.Height, 1) * projection);
     }
 }

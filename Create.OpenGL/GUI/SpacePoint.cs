@@ -361,7 +361,7 @@ public sealed class SpacePoint
             i_(point, this.point.@interface);
 
             //Methods
-            void i_(SpacePoint point, Interface i)
+            void i_(SpacePoint point, Interface? i)
             {
                 point.@interface = i;
 
@@ -386,7 +386,7 @@ public sealed class SpacePoint
             i_(point, this.point.@interface);
 
             //Methods
-            void i_(SpacePoint point, Interface i)
+            void i_(SpacePoint point, Interface? i)
             {
                 point.@interface = i;
 

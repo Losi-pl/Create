@@ -146,7 +146,7 @@ file static class Static
         else
             return element.Value;
     }
-    public static (string x, string y)? sizes(string value)
+    public static (string x, string y)? sizes(string? value)
     {
         if (string.IsNullOrEmpty(value))
             return null;

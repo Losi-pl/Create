@@ -13,7 +13,7 @@ public sealed class Interface
     public event Func<(int x, int y)>? CursorGet;
     public event Func<(bool up, bool down, bool status)>? MouseLeft;
     public event Func<(bool up, bool down, bool status)>? MouseRight;
-    SpacePoint last_hovered_over;
+    SpacePoint? last_hovered_over;
 
     public Interface(int width, int height)
     {
