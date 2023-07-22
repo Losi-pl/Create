@@ -415,7 +415,7 @@ file class ChangeEvent
 {
     ChangeEvent[] subElements = Array.Empty<ChangeEvent>();
     (float x, float y)? pozition, size;
-    OneOf<string, int>? identyfy;
+    OneOf<(string name, bool recorsive), int>? identyfy;
     OneOf<SpacePoint.Anker, (Vector2 a1, Vector2 a2)>? anker;
     bool? active;
 
@@ -445,19 +445,23 @@ file class ChangeEvent
             if (atr is not null)
                 c.anker = ankerModes.Find(a => a.name == atr, new("Invalid variable structure")).Item1;
         }
-
         c.subElements = element.Elements("point").ConvertAll(c => Parse(c, false)).ToArray();
 
         if (!main)
-        {
-            var name = element.Attribute("name")?.Value;
-            var index = element.Attribute("index")?.Value;
-            if (index is not null)
-                c.identyfy = int.TryParse(index, out var i) ? i : (name is null ? null : name)!;
-            else if (name is not null)
-                c.identyfy = name!;
-        }
+            c.identyfy = ident(element);
         return c;
+
+        OneOf<(string name, bool recorsive), int>? ident(XElement elm)
+        {
+            var name = elm.Attribute("name")?.Value;
+            var index = elm.Attribute("index")?.Value;
+            var recurs = element.Attribute("recorsive")?.Value.Cast(r => bool.TryParse(r, out var rec) ? rec : true) ?? true;
+            if (index is not null)
+                return int.TryParse(index, out var i) ? i : (name is null ? null : (name, recurs));
+            else if (name is not null)
+                return (name, recurs);
+            return null;
+        }
     }
     public static void Event(SpacePoint point, object sender)
     {
@@ -482,7 +486,7 @@ file class ChangeEvent
         foreach (var p in @event.subElements)
         {
             var poi = p.identyfy?.Match(
-                n => point.Childs.Find(n, true),
+                n => point.Childs.Find(n.name, n.recorsive),
                 i => new Range(0, point.Childs.Count).Contains(i) ? point.Childs[i] : null);
             if (poi is null)
                 continue;
