@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Xml.Linq;
 using OneOf;
 using static Create.Static;
+using Create.OpenGL.Textures;
 using System;
 
 namespace Create;
@@ -102,85 +103,26 @@ partial class Assets
 
     internal static void load_elements(Mod mod)
     {
-        mod.RegisterInterfaceLoadingMethod("Crosshair", e =>
-        {
-            var cr = new GameView.Crosshair();
+        mod.RegisterInterfaceLoadingMethod("Crosshair", 
+            ChangeEventCrosshair.Parse,
+            ChangeEventCrosshair.ChangeEvent,
+            ChangeEventCrosshair.ParamParse);
 
-            var texture = value(e.Element("texture"));
-            if (!string.IsNullOrWhiteSpace(texture))
-                cr.Interface = GetTexture(texture);
+        mod.RegisterInterfaceLoadingMethod("InterfaceImage",
+            ChangeEventInterfaceImage.Parse,
+            ChangeEventInterfaceImage.ChangeEvent,
+            ChangeEventInterfaceImage.ParamParse);
 
-            var chan = value(e.Element("screen"))?.ToLower()
-                .Cast(c => 
-                    framebufferAttachment.Find(a => a.name == c, new("Invalid variable structure")).Item1);
-            if (chan.HasValue)
-                cr.Terrain = ((GameView)OpenGL.Engine.Scean!)._Terrain.Finisched.Textures[chan.Value];
+        mod.RegisterInterfaceLoadingMethod("Image",
+            ChangeEventImage.Parse,
+            ChangeEventImage.ChangeEvent,
+            ChangeEventImage.ParamParse);
 
-            var tex_poz = get_tex_poz(e.Element("pozition"));
-            if(tex_poz.HasValue)
-                (cr.Offset, cr.Size) = tex_poz.Value;
+        mod.RegisterInterfaceLoadingMethod("StatusBar",
+            ChangeEventStatusBar.Parse,
+            ChangeEventStatusBar.ChangeEvent,
+            ChangeEventStatusBar.ParamParse);
 
-            return cr;
-        });
-        mod.RegisterInterfaceLoadingMethod("InterfaceImage", e =>
-        {
-            var ii = new InterfaceImage();
-
-            var texture = value(e.Element("texture"));
-            if (!string.IsNullOrWhiteSpace(texture))
-                ii.Texture = GetTexture(texture);
-
-            var tex_poz = get_tex_poz(e.Element("pozition"));
-            if (tex_poz.HasValue)
-                (ii.Offset, ii.Size) = tex_poz.Value;
-
-            return ii;
-        });
-        mod.RegisterInterfaceLoadingMethod("Image", e =>
-        {
-            var i = new OpenGL.GUI.Elements.Image();
-
-            var texture = value(e.Element("texture"));
-            if (!string.IsNullOrWhiteSpace(texture))
-                i.Texture = GetTexture(texture);
-
-            var color = load_color(e.Element("color"));
-            if(color.HasValue)
-                i.Color = color.Value;
-
-            return i;
-        });
-        mod.RegisterInterfaceLoadingMethod("StatusBar", e =>
-        {
-            var sb = new StatusBar();
-
-            var texture = value(e.Element("texture"));
-            if (!string.IsNullOrWhiteSpace(texture))
-                sb.Texture = GetTexture(texture);
-
-            var back_poz = get_tex_poz(e.Element("background"));
-            var full_poz = get_tex_poz(e.Element("full"));
-            var half_poz = get_tex_poz(e.Element("half"));
-            if (back_poz.HasValue)
-                sb.Background = back_poz.Value;
-            if (full_poz.HasValue)
-                sb.FullPoint = full_poz.Value;
-            if (half_poz.HasValue)
-                sb.HalfPoint = half_poz.Value;
-
-            var points = value(e.Element("points"));
-            if (!string.IsNullOrWhiteSpace(points))
-                sb.Points = int.TryParse(points, out var pos) ? pos : throw new Exception("Invalid variable structure");
-            else
-                sb.Points = 1;
-
-
-            var filled = value(e.Element("filled"));
-            if (!string.IsNullOrWhiteSpace(filled))
-                sb.Filled = int.TryParse(filled, out var pos) ? pos : throw new Exception("Invalid variable structure");
-
-            return sb;
-        });
         mod.RegisterInterfaceLoadingMethod("Slot", e =>
         {
             var item = new OpenGL.GUI.Elements.Image();
@@ -522,4 +464,239 @@ file class ChangeEvent
     }
 
     public override string ToString() => $"{(identyfy?.Match(n => $"name: \"{n}\"", i => $"index: {i}") ?? "unidentyfied")}";
+}
+
+file class ChangeEventCrosshair
+{
+    string? texture;
+    FramebufferAttachment? chanel;
+    ((int x, int y) poz, (int w, int h) siz)? offset;
+
+    public static Element Parse(XElement e)
+    {
+        var cr = new GameView.Crosshair();
+
+        var texture = value(e.Element("texture"));
+        if (!string.IsNullOrWhiteSpace(texture))
+            cr.Interface = Assets.GetTexture(texture);
+
+        var chan = value(e.Element("screen"))?.ToLower()
+            .Cast(c =>
+                framebufferAttachment.Find(a => a.name == c, new("Invalid variable structure")).Item1);
+        if (chan.HasValue)
+            cr.Terrain = ((GameView)OpenGL.Engine.Scean!)._Terrain.Finisched.Textures[chan.Value];
+
+        var tex_poz = get_tex_poz(e.Element("pozition"));
+        if (tex_poz.HasValue)
+            (cr.Offset, cr.Size) = tex_poz.Value;
+
+        return cr;
+    }
+    public static object ParamParse(XElement element)
+    {
+        var o = new ChangeEventCrosshair();
+
+        var texture = value(element.Element("texture"));
+        if (!string.IsNullOrWhiteSpace(texture))
+            o.texture = texture;
+
+        var chan = value(element.Element("screen"))?.ToLower().Cast(c =>
+            framebufferAttachment.Find(a => a.name == c, new("Invalid variable structure")).Item1);
+        if (chan.HasValue)
+            o.chanel = chan.Value;
+
+        var tex_poz = get_tex_poz(element.Element("pozition"));
+        if (tex_poz.HasValue)
+            o.offset = tex_poz.Value;
+
+        return o;
+    }
+    public static void ChangeEvent(Element element, object value)
+    {
+        var elem = (GameView.Crosshair)element;
+        var @params = (ChangeEventCrosshair)value;
+
+        if (@params.texture is not null)
+            elem.Interface = Assets.GetTexture(@params.texture);
+
+        if (@params.chanel.HasValue)
+            elem.Terrain = ((GameView)OpenGL.Engine.Scean!)._Terrain.Finisched.Textures[@params.chanel.Value];
+
+        if (@params.offset.HasValue)
+            (elem.Offset, elem.Size) = @params.offset.Value;
+    }
+}
+file class ChangeEventInterfaceImage
+{
+    string? texture;
+    ((int x, int y) poz, (int w, int h) siz)? offset;
+
+    public static Element Parse(XElement e)
+    {
+        var ii = new InterfaceImage();
+
+        var texture = value(e.Element("texture"));
+        if (!string.IsNullOrWhiteSpace(texture))
+            ii.Texture = Assets.GetTexture(texture);
+
+        var tex_poz = get_tex_poz(e.Element("pozition"));
+        if (tex_poz.HasValue)
+            (ii.Offset, ii.Size) = tex_poz.Value;
+
+        return ii;
+    }
+    public static object ParamParse(XElement e)
+    {
+        var p = new ChangeEventInterfaceImage();
+
+        var texture = value(e.Element("texture"));
+        if (!string.IsNullOrWhiteSpace(texture))
+            p.texture = texture;
+
+        var tex_poz = get_tex_poz(e.Element("pozition"));
+        if (tex_poz.HasValue)
+            p.offset = tex_poz.Value;
+
+        return p;
+    }
+    public static void ChangeEvent(Element element, object value)
+    {
+        var elem = (InterfaceImage)element;
+        var @params = (ChangeEventInterfaceImage)value;
+
+        if (@params.texture is not null)
+            elem.Texture = Assets.GetTexture(@params.texture);
+
+        if (@params.offset.HasValue)
+            (elem.Offset, elem.Size) = @params.offset.Value;
+    }
+}
+file class ChangeEventImage
+{
+    Color4? color;
+    string? texture;
+    
+    public static Element Parse(XElement e)
+    {
+        var i = new OpenGL.GUI.Elements.Image();
+
+        var texture = value(e.Element("texture"));
+        if (!string.IsNullOrWhiteSpace(texture))
+            i.Texture = Assets.GetTexture(texture);
+
+        var color = load_color(e.Element("color"));
+        if (color.HasValue)
+            i.Color = color.Value;
+
+        return i;
+    }
+    public static object ParamParse(XElement e)
+    {
+        var p = new ChangeEventImage();
+
+        var texture = value(e.Element("texture"));
+        if (!string.IsNullOrWhiteSpace(texture))
+            p.texture = texture;
+
+        var color = load_color(e.Element("color"));
+        if (color.HasValue)
+            p.color = color.Value;
+
+        return p;
+    }
+    public static void ChangeEvent(Element element, object value)
+    {
+        var elem = (OpenGL.GUI.Elements.Image)element;
+        var @params = (ChangeEventImage)value;
+
+        if(@params.texture is not null)
+            elem.Texture = Assets.GetTexture(@params.texture);
+
+        if (@params.color.HasValue)
+            elem.Color = @params.color.Value;
+    }
+}
+file class ChangeEventStatusBar
+{
+    string? testure;
+    ((int x, int y) poz, (int w, int h) siz)? back;
+    ((int x, int y) poz, (int w, int h) siz)? full;
+    ((int x, int y) poz, (int w, int h) siz)? half;
+    int? points, filled;
+
+    public static Element Parse(XElement e)
+    {
+        var sb = new StatusBar();
+
+        var texture = value(e.Element("texture"));
+        if (!string.IsNullOrWhiteSpace(texture))
+            sb.Texture = Assets.GetTexture(texture);
+
+        var back_poz = get_tex_poz(e.Element("background"));
+        var full_poz = get_tex_poz(e.Element("full"));
+        var half_poz = get_tex_poz(e.Element("half"));
+        if (back_poz.HasValue)
+            sb.Background = back_poz.Value;
+        if (full_poz.HasValue)
+            sb.FullPoint = full_poz.Value;
+        if (half_poz.HasValue)
+            sb.HalfPoint = half_poz.Value;
+
+        var points = value(e.Element("points"));
+        if (!string.IsNullOrWhiteSpace(points))
+            sb.Points = int.TryParse(points, out var pos) ? pos : throw new Exception("Invalid variable structure");
+        else
+            sb.Points = 1;
+
+        var filled = value(e.Element("filled"));
+        if (!string.IsNullOrWhiteSpace(filled))
+            sb.Filled = int.TryParse(filled, out var pos) ? pos : throw new Exception("Invalid variable structure");
+
+        return sb;
+    }
+    public static object ParamParse(XElement e)
+    {
+        var p = new ChangeEventStatusBar();
+
+        var texture = value(e.Element("texture"));
+        if (!string.IsNullOrWhiteSpace(texture))
+            p.testure = texture;
+
+        p.back = get_tex_poz(e.Element("background"));
+        p.full = get_tex_poz(e.Element("full"));
+        p.half = get_tex_poz(e.Element("half"));
+
+        var points = value(e.Element("points"));
+        if (!string.IsNullOrWhiteSpace(points))
+            p.points = int.TryParse(points, out var pos) ? pos : null;
+
+        var filled = value(e.Element("filled"));
+        if (!string.IsNullOrWhiteSpace(filled))
+            p.filled = int.TryParse(filled, out var pos) ? pos : null;
+
+        return p;
+    }
+    public static void ChangeEvent(Element element, object value)
+    {
+        var elem = (StatusBar)element;
+        var @params = (ChangeEventStatusBar)value;
+
+        if(@params.testure is not null)
+            elem.Texture = Assets.GetTexture(@params.testure);
+
+        if (@params.back.HasValue)
+            elem.Background = @params.back.Value;
+
+        if (@params.full.HasValue)
+            elem.FullPoint = @params.full.Value;
+
+        if (@params.half.HasValue)
+            elem.HalfPoint = @params.half.Value;
+
+        if (@params.points.HasValue)
+            elem.Points = @params.points.Value;
+
+        if (@params.filled.HasValue)
+            elem.Filled = @params.filled.Value;
+    }
 }
