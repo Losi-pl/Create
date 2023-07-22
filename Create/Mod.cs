@@ -137,9 +137,11 @@ public sealed class Mod
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
 
         var code_name = $"{Name}:{name}";
-        if (Register.userinterfaces.ContainsKey(code_name))
-            throw new ArgumentException($"This interface is alredy registered");
-        Register.userinterfaces.Add(code_name, o => T.LoadInterface(o));
+        if (Register.userinterfaces.ContainsKey(k => k.name == code_name))
+            throw new ArgumentException($"Interface {{{code_name}}} is alredy registered");
+        if (Register.userinterfaces.ContainsKey(k => k.type == typeof(T)))
+            throw new ArgumentException($"Interface type {{{typeof(T)}}} is alredy registered");
+        Register.userinterfaces.Add((code_name, typeof(T)), o => T.LoadInterface(o));
         return this;
     }
 
