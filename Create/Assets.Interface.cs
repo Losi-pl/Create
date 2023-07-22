@@ -188,80 +188,6 @@ partial class Assets
 
             return item;
         });
-
-        //Mothods
-        string value(XElement? element)
-        {
-            if (element is null)
-                return string.Empty;
-            var a = element.Attribute("v");
-            if (a != null)
-                return a.Value;
-            else
-                return element.Value;
-        }
-        ((int x, int y) offset, (int w, int h) size)? get_tex_poz(XElement? element)
-        {
-            if (element is null)
-                return null;
-
-            var off = element.Attribute("offset")?.Value;
-            var siz = element.Attribute("size")?.Value;
-
-            var _off = int_parse(sizes(off));
-            var _siz = int_parse(sizes(siz));
-            return (_off, _siz);
-        }
-        (string x, string y)? sizes(string? value)
-        {
-            if (string.IsNullOrEmpty(value))
-                return null;
-            if (value.Count(c => c == ';') > 1)
-                throw new Exception("Invalid variable structure");
-            else if (value.Count(c => c == ';') == 0)
-                return (value, value);
-            else
-                return value.Split(';').Cast(v => (v[0], v[1]));
-            throw new Exception("Invalid variable structure");
-        }
-        (int x, int y) int_parse((string x, string y)? value)
-        {
-            if (!value.HasValue)
-                return (0, 0);
-            return (int.Parse(value.Value.x), int.Parse(value.Value.y));
-        }
-        Color4? load_color(XElement? element)
-        {
-            if(element is null)
-                return null;
-            var color_v = value(element);
-            Color4 color;
-            var w = colors.FirstOrDefault(c => c.name == color_v);
-            if (!string.IsNullOrEmpty(w.name))
-                color = w.color;
-            else
-            {
-                if (color_v.Length == 6)
-                {
-                    var r = (byte)Convert.ToInt32(color_v[0..1], 16);
-                    var g = (byte)Convert.ToInt32(color_v[2..3], 16);
-                    var b = (byte)Convert.ToInt32(color_v[4..5], 16);
-                    color = new(r, g, b, 255);
-                }
-                else if (color_v.Length == 8)
-                {
-
-                    var r = (byte)Convert.ToInt32(color_v[0..1], 16);
-                    var g = (byte)Convert.ToInt32(color_v[2..3], 16);
-                    var b = (byte)Convert.ToInt32(color_v[4..5], 16);
-                    var a = (byte)Convert.ToInt32(color_v[6..7], 16);
-                    color = new(r, g, b, a);
-                }
-                else
-                    throw new("Invalid variable structure");
-            }
-            return color;
-        }
     }
 }
 
@@ -317,6 +243,50 @@ file static class Static
 
         float result = float.Parse(value, NumberStyles.Any, ci);
         return result;
+    }
+    public static ((int x, int y) offset, (int w, int h) size)? get_tex_poz(XElement? element)
+    {
+        if (element is null)
+            return null;
+
+        var off = element.Attribute("offset")?.Value;
+        var siz = element.Attribute("size")?.Value;
+
+        var _off = int_parse(sizes(off));
+        var _siz = int_parse(sizes(siz));
+        return (_off, _siz);
+    }
+    public static Color4? load_color(XElement? element)
+    {
+        if (element is null)
+            return null;
+        var color_v = value(element);
+        Color4 color;
+        var w = colors.FirstOrDefault(c => c.name == color_v);
+        if (!string.IsNullOrEmpty(w.name))
+            color = w.color;
+        else
+        {
+            if (color_v.Length == 6)
+            {
+                var r = (byte)Convert.ToInt32(color_v[0..1], 16);
+                var g = (byte)Convert.ToInt32(color_v[2..3], 16);
+                var b = (byte)Convert.ToInt32(color_v[4..5], 16);
+                color = new(r, g, b, 255);
+            }
+            else if (color_v.Length == 8)
+            {
+
+                var r = (byte)Convert.ToInt32(color_v[0..1], 16);
+                var g = (byte)Convert.ToInt32(color_v[2..3], 16);
+                var b = (byte)Convert.ToInt32(color_v[4..5], 16);
+                var a = (byte)Convert.ToInt32(color_v[6..7], 16);
+                color = new(r, g, b, a);
+            }
+            else
+                throw new("Invalid variable structure");
+        }
+        return color;
     }
 
     public static readonly (SpacePoint.Anker, string name)[] ankerModes = Enum.GetValues<SpacePoint.Anker>().ConvertAll(a => (a, a.ToString().ToLower()));
