@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Xml.Linq;
 using OneOf;
 using static Create.Static;
+using System;
 
 namespace Create;
 
@@ -388,6 +389,7 @@ file class ChangeEvent
     OneOf<(string name, bool recorsive), int>? identyfy;
     OneOf<SpacePoint.Anker, (Vector2 a1, Vector2 a2)>? anker;
     bool? active;
+    (object obj, string name)? element;
 
     public static ChangeEvent Parse(XElement element) => Parse(element, true);
     static ChangeEvent Parse(XElement element, bool main)
@@ -416,7 +418,59 @@ file class ChangeEvent
                 c.anker = ankerModes.Find(a => a.name == atr, new("Invalid variable structure")).Item1;
         }
         c.subElements = element.Elements("point").ConvertAll(c => Parse(c, false)).ToArray();
+        val = element.Element("element");
+        if (val is not null)
+        {
+            var ch_ev = element;
+            List<OneOf<(string name, bool recorsive), int>?> pozs = new();
+            while (ch_ev!.Name != "change")
+            {
+                pozs.Add(ident(ch_ev));
+                ch_ev = ch_ev.Parent!;
+            }
+            ch_ev = ch_ev?.Parent!.Parent!;
+            pozs.Reverse();
 
+            foreach (var p in pozs)
+            {
+                ch_ev = p.HasValue ? p?.Match(n =>
+                {
+                    return fin(ch_ev);
+
+                    XElement fin(XElement ele)
+                    {
+                        var poss = ele.Elements("point").Find(e => e.Attribute("name")?.Value == n.name, null);
+                        if (poss is not null)
+                            return poss;
+                        foreach(var c in ele.Elements("point"))
+                        {
+                            poss = fin(c);
+                            if (poss is not null)
+                                return poss;
+                        }
+                        return null!;
+                    }
+                },  i => ch_ev.Elements("point").Index(i)) : 
+                    ch_ev.Elements("point").FirstOrDefault();
+                if (ch_ev is null)
+                    break;
+            }
+            if (ch_ev is not null)
+                ch_ev = ch_ev.Element("element");
+            if (ch_ev is not null)
+            {
+                var type = ch_ev.Attribute("type")?.Value;
+                if (Assets.interfaceElementTypes.TryGetValue(type!, out var pars))
+                {
+                    var parser = pars.changeEventParameter;
+                    if (parser != null)
+                    {
+                        var param = parser.Invoke(val);
+                        c.element = (param!, type!);
+                    }
+                }
+            }
+        }
         if (!main)
             c.identyfy = ident(element);
         return c;
@@ -452,6 +506,9 @@ file class ChangeEvent
             @event.anker.Value.Switch(
                 a => point.AnkerMode = a,
                 p => point.AnkerPoints = p);
+
+        if(@event.element.HasValue)
+            Assets.interfaceElementTypes[@event.element.Value.name].changeEvent?.Invoke(point.Element!, @event.element.Value.obj);
 
         foreach (var p in @event.subElements)
         {
