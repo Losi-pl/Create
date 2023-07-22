@@ -131,6 +131,18 @@ public sealed class Mod
         return this;
     }
 
+    [RequiresPreviewFeatures]
+    public Mod RegisterInterface<T>(string name) where T : UserInterface, IUserInterface<T>
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
+
+        var code_name = $"{Name}:{name}";
+        if (Register.userinterfaces.ContainsKey(code_name))
+            throw new ArgumentException($"This interface is alredy registered");
+        Register.userinterfaces.Add(code_name, o => T.LoadInterface(o));
+        return this;
+    }
+
     /// <summary>
     /// Uniwersalna metoda dodawania elementów wo rejestru
     /// </summary>

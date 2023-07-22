@@ -50,6 +50,7 @@ internal sealed partial class GameView : Scean
             Size = (OpenGL.Engine.Size.X + 1, OpenGL.Engine.Size.Y + 1),
             Pozition = (0, 0),
             Active = false,
+            Name = "Active Interface",
             AnkerMode = SpacePoint.Anker.All,
             Element = new Image
             {

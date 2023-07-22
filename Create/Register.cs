@@ -8,6 +8,7 @@ using SixLabors.ImageSharp;
 using Create.Resource;
 using System.Collections;
 using System.Diagnostics;
+using Create.Sceans;
 
 namespace Create;
 
@@ -24,6 +25,22 @@ public static class Register
     public static readonly ElementRegister<Block> Blocks = blocks_console.Register;
     public static readonly ElementRegister<Dimention> Dimentions = dimentions_console.Register;
     public static readonly ElementRegister<Entity> Entitys = entitys_console.Register;
+
+    internal static readonly Dictionary<string, Func<object, (UserInterface status, OpenGL.GUI.SpacePoint point)>> userinterfaces = new();
+
+    public static UserInterface CreateUserInterface(string name, object? sender = null)
+    {
+        if (!userinterfaces.TryGetValue(name, out var func))
+            throw new ArgumentException("Interface shemat not found", nameof(name));
+
+        var gam = OpenGL.Engine.Scean as GameView;
+        if (gam is null)
+            throw new Exception("Game is not active");
+        var rez = func.Invoke(sender);
+
+        gam.Interface.MainElements.Find("Active Interface", false)?.Childs.AddChild(rez.point);
+        return rez.status;
+    }
 
     /// <summary>
     /// Załadowanie podstawowego pakietu zasobów
@@ -193,6 +210,7 @@ public static class Register
         get_all_elements<Entity>(typeof(Entitys))
             .ForEvery(e => mod.RegisterElement(e.name, e.element));
         Assets.load_elements(mod);
+        UserInterface.LoadInterfaces(mod);
     }
 
     /// <summary>
