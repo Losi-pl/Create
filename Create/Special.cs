@@ -1,6 +1,7 @@
 using Create.OpenGL;
 using Create.Render;
 using Create.Space;
+using System.Runtime.InteropServices;
 
 namespace Create;
 
@@ -186,5 +187,21 @@ internal static partial class Special
             if (condition(e.Key))
                 return true;
         return false;
+    }
+
+    /// <summary>
+    /// <inheritdoc cref="List{T}.IndexOf(T)"/>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="list"></param>
+    /// <param name="condition">Warunki oczekiwanego elementu</param>
+    /// <returns></returns>
+    public static int IndexOf<T>(this List<T> list, Func<T, bool> condition)
+    {
+        Span<T> span = CollectionsMarshal.AsSpan(list);
+        for(int i = 0; i < span.Length; i++)
+            if (condition(span[i]))
+                return i;
+        return -1;
     }
 }
