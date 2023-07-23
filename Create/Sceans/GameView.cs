@@ -1,5 +1,6 @@
 ﻿using Create.Elements;
 using Create.Elements.Bazic.Entitys;
+using Create.Elements.Bazic.Interfaces;
 using Create.Elements.Gui;
 using Create.Input;
 using Create.Net;
@@ -98,6 +99,17 @@ internal sealed partial class GameView : Scean
             {
                 _interface.MainElements.Find("Active Interface")!.Active = true;
                 inventory = true;
+            }
+        }
+
+        if (Keyboard.E.Down)
+        {
+            inventory = !inventory;
+            _interface.MainElements.Find("Active Interface")!.Active = inventory;
+            if (inventory)
+            {
+                var @int = Client.GetUserInterface<CreativeInventory>() ?? Client.CreateUserInterface<CreativeInventory>();
+                @int.Tab = CreativeInventory.OpenTab.InventoryTab;
             }
         }
 
