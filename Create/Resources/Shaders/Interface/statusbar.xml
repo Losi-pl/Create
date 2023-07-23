@@ -1,0 +1,134 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<shader>
+  <properties>
+    <matrix>matrix</matrix>
+  </properties>
+  <depth status="false"/>
+  <alpha status="true"/>
+  <blend sfactor="One" dfactor="OneMinusSrcAlpha"/>
+  <version number="440" core="true"/>
+  <vertex>
+    in vec2 poz;
+
+    uniform mat4 matrix;
+
+    out vec2 uv;
+
+    void main()
+    {
+      uv = poz;
+      gl_Position = matrix * vec4(poz - vec2(.5, .5), 0.0, 1.0);
+    }
+  </vertex>
+  <fragment>
+    in vec2 uv;
+
+    uniform sampler2D text;
+    uniform ivec2 texture_size;
+    uniform mat2x2 background_poz;
+    uniform mat4x2 points_poz;
+    uniform int filled;
+    uniform int points;
+    uniform int offset;
+    uniform bool half_points;
+
+    out vec4 color_o;
+
+    int width()
+    {
+      return int(background_poz[1].x) + ((int(background_poz[1].x) + offset) * (points - 1));
+    }
+    int sec_start(int poi)
+    {
+      return (offset + int(background_poz[1].x)) * poi;
+    }
+    ivec2 pix_point(ivec2 siz)
+    {
+      return ivec2(int(uv.x * siz.x), int(uv.y * siz.y));
+    }
+    int point_index(ivec2 pix)
+    {
+      if(pix.x &lt; background_poz[1].x)
+        return 0;
+
+      return int((pix.x - background_poz[1].x) / (background_poz[1].x + offset)) + 1;
+    }
+    vec4 full_icon(int index, vec2 in_uv)
+    {
+      vec2 back_uv = (background_poz[0] / texture_size) + ((background_poz[1] / vec2(texture_size)) * in_uv);
+      vec2 full_uv = (points_poz[2] / texture_size) + ((points_poz[3] / texture_size) * in_uv);
+
+      if(filled > index)
+      {
+        vec4 b = texture(text, full_uv);
+        if(b.w == 0)
+          return texture(text, back_uv);
+        else
+          return b;
+      }
+      else
+        return texture(text, back_uv);
+    }
+    vec4 half_icon(int index, vec2 in_uv)
+    {
+      vec2 back_uv = (background_poz[0] / texture_size) + ((background_poz[1] / vec2(texture_size)) * in_uv);
+      vec2 full_uv = (points_poz[2] / texture_size) + ((points_poz[3] / texture_size) * in_uv);
+      vec2 half_uv = (points_poz[0] / texture_size) + ((points_poz[1] / texture_size) * in_uv);
+
+      bool m = false;
+      if(filled % 2 == 0)
+        m = filled / 2 > index;
+      else
+        m = filled / 2 + 1 > index;
+
+      if(m)
+      {
+        vec4 b;
+
+        if (filled / 2 == index)
+          b = texture(text, half_uv);
+        else
+          b = texture(text, full_uv);
+
+        if(b.w == 0)
+          return texture(text, back_uv);
+        else
+          return b;
+      }
+      else
+        return texture(text, back_uv);
+    }
+
+    void main()
+    {
+      int w = width();
+      ivec2 pix_poz = pix_point(ivec2(w, background_poz[1].y));
+      int index = point_index(pix_poz);
+      vec2 in_uv = vec2(((w * uv.x) - sec_start(index)) / background_poz[1].x, uv.y);
+
+      if(in_uv.x &lt; 0 || in_uv.x > 1 || in_uv.y &lt; 0 || in_uv.y > 1)
+        discard;
+
+      if(half_points)
+        color_o = half_icon(index, in_uv);
+      else
+        color_o = full_icon(index, in_uv);
+
+      if(offset &lt; 0 &#38;&#38; index &lt; points - 1)
+      {
+        in_uv = vec2(((w * uv.x) - sec_start(index + 1)) / background_poz[1].x, uv.y);
+        if(in_uv.x >= 0)
+        {
+          vec4 n_color;
+          if(half_points)
+            n_color = half_icon(index + 1, in_uv);
+          else
+            n_color = full_icon(index + 1, in_uv);
+
+          if(n_color.a != 0)
+            color_o = n_color;
+        }
+      }
+    }
+  </fragment>
+</shader>
