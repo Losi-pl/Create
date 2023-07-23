@@ -29,34 +29,6 @@ public static class Register
 
     internal static readonly Dictionary<(string name, Type type), Func<object?, (UserInterface status, OpenGL.GUI.SpacePoint point)>> userinterfaces = new();
 
-    public static UserInterface CreateUserInterface(string name, object? sender = null)
-    {
-        if (!userinterfaces.TryGetValue(k => k.name == name, out var func))
-            throw new ArgumentException("Interface shemat not found", nameof(name));
-
-        var gam = OpenGL.Engine.Scean as GameView;
-        if (gam is null)
-            throw new Exception("Game isn't active");
-        var rez = func.Invoke(sender);
-
-        gam.Interface.MainElements.Find("Active Interface", false)?.Childs.AddChild(rez.point);
-        return rez.status;
-    }
-
-    public static T CreateUserInterface<T>(object? sender = null) where T : UserInterface, IUserInterface<T>
-    {
-        if (!userinterfaces.TryGetValue(k => k.type == typeof(T), out var func))
-            throw new ArgumentException("Interface shemat with that type doesn't exist");
-
-        var gam = OpenGL.Engine.Scean as GameView;
-        if (gam is null)
-            throw new Exception("Game isn't active");
-        var rez = func.Invoke(sender);
-
-        gam.Interface.MainElements.Find("Active Interface", false)?.Childs.AddChild(rez.point);
-        return (T)rez.status;
-    }
-
     /// <summary>
     /// Załadowanie podstawowego pakietu zasobów
     /// </summary>
