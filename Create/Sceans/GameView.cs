@@ -1,5 +1,5 @@
-﻿using Create.Elements.Bazic.Entitys;
 ﻿using Create.Elements;
+using Create.Elements.Bazic.Entitys;
 using Create.Elements.Gui;
 using Create.Input;
 using Create.Net;
@@ -83,6 +83,23 @@ internal sealed partial class GameView : Scean
 
         if (Mouse.Lock)
             camera_rotation();
+
+        if (Keyboard.Escape.Down)
+        {
+            if(inventory)
+            {
+                _interface.MainElements.Find("Active Interface")!.Active = false;
+                inventory = false;
+                var inte = Client.GetUserInterfaces().FirstOrDefault();
+                if (inte is not null)
+                    Client.RemoveUserInterface(inte);
+            }
+            else
+            {
+                _interface.MainElements.Find("Active Interface")!.Active = true;
+                inventory = true;
+            }
+        }
 
         _interface.Phizic();
         if(Mouse.Scroll.Delta != 0)
