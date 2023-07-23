@@ -86,9 +86,9 @@ namespace Create.OpenGL
                     return;
                 var atr = var.Attribute("status");
                 if (atr == null)
-                    con.AlphaTest();
+                    con.DepthTest();
                 else if (bool.TryParse(atr.Value, out var t))
-                    con.AlphaTest(t);
+                    con.DepthTest(t);
                 else
                     throw new Exception($"Invalid value {{{atr.Value}}} in <depth/>");
             }

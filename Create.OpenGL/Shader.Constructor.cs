@@ -117,7 +117,12 @@ partial class Shader
             alphatest = active;
             return this;
         }
-        
+
+        /// <summary>
+        /// Czy <see cref="Shader"/> wspiera głębokość obrazu
+        /// </summary>
+        public Constructor DepthTest() => DepthTest(true);
+
         /// <summary>
         /// Czy <see cref="Shader"/> wspiera głębokość obrazu
         /// </summary>
