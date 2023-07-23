@@ -148,15 +148,28 @@ internal static partial class Special
     /// <param name="condition">Test czy klucz spełnia warunki</param>
     /// <param name="value"></param>
     /// <returns></returns>
-    public static bool TryGetValue<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Func<TKey, bool> condition, out TValue value) where TKey : notnull
+    public static bool TryGetValue<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Func<TKey, bool> condition, out TValue value) 
+        where TKey : notnull => TryGetValue(dictionary, condition, out value, out _);
+
+    /// <summary>
+    /// <inheritdoc cref="Dictionary{TKey, TValue}.TryGetValue(TKey, out TValue)"/>
+    /// </summary>
+    /// <typeparam name="TKey"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
+    /// <param name="condition">Test czy klucz spełnia warunki</param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public static bool TryGetValue<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Func<TKey, bool> condition, out TValue value, out TKey key) where TKey : notnull
     {
         foreach(var e in dictionary)
             if(condition(e.Key))
             {
-                value= e.Value;
+                value = e.Value;
+                key = e.Key;
                 return true;
             }
         value = default!;
+        key = default!;
         return false;
     }
 
