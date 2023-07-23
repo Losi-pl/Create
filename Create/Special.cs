@@ -204,4 +204,17 @@ internal static partial class Special
                 return i;
         return -1;
     }
+  
+    /// <summary>
+    /// Wywołuje metode <paramref name="action"/> dla elementu
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="element"></param>
+    /// <param name="action"></param>
+    /// <returns></returns>
+    public static T InvokeFor<T>(this T element, Action<T> action)
+    {
+        action(element);
+        return element;
+    }
 }

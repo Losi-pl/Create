@@ -86,6 +86,7 @@ public static class Register
         #endif
 
         load_icon();
+        load_main_shaders();
 
         return resources;
 
@@ -95,6 +96,17 @@ public static class Register
             var icon_file = resources.GetPath("assets/create/textures/create").GetFile("icon");
             var icon = Image.Load(icon_file.GetStream());
             OpenGL.Engine.SetIcon(icon);
+        }
+        void load_main_shaders()
+        {
+            var renderLayer = load_shader("assets/create/shaders/bazic", "renderlayer");
+            MainTask.Run(() => RenderLayer.set_shader(renderLayer));
+
+            Shader load_shader(string path, string file)
+            {
+                var stream = resources!.GetPath(path).GetFile(file).GetStream();
+                return MainTask.Run(() => Shader.Load(stream));
+            }
         }
     }
 
@@ -205,7 +217,7 @@ public static class Register
     /// </summary>
     static void bazic_setup()
     {
-
+        MainTask.Run(() => RenderLayer.set_shader(Assets.GetShader("create:bazic/renderlayer")));
     }
 
     /// <summary>

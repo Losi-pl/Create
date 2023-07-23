@@ -14,42 +14,12 @@ namespace Create.OpenGL;
 [DebuggerTypeProxy(typeof(Proxy))]
 public sealed partial class RenderLayer : IDisposable, IDrawable
 {
-    #region internal static
-    internal static Shader default_shader { get; } = Shader.Create()
-        .VertexCode(@"#version 440 core
+    #region rendering
+    static Shader shader = null!;
+    static Mesh mesh = null!;
 
-            in vec2 uv;
-            out vec2 o_uv;
-
-            void main()
-            {
-                o_uv = uv;
-                gl_Position = vec4((uv.x - 0.5) * 2, (uv.y - 0.5) * 2, 0, 1);
-            }")
-        .FragmentCode(@"#version 440 core
-
-            uniform sampler2D texture_;
-            in vec2 o_uv;
-            out vec4 color;
-
-            void main()
-            {
-                color = texture(texture_, o_uv);
-            }")
-        .Blend()
-        .AlphaTest(true)
-        .DepthTest(false)
-        .Finish();
-    internal static Mesh default_mesh { get; } = Mesh.Create(default_shader)
-        .SetVertex("uv", new Vector2[] 
-            {
-                new (0,1),
-                new (1,1),
-                new (0,0),
-                new (1,0)
-            })
-        .SetTrangles(new[] { 0, 1, 2, 1, 2, 3 })
-        .Finish();
+    internal static Shader default_shader => shader;
+    internal static Mesh default_mesh => mesh;
     #endregion
 
     #region variable
@@ -62,6 +32,28 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
     Color4 color = new(0, 0, 0, 0);
     bool disposed;
     Camera? camera;
+    #endregion
+
+    #region internal static
+    internal static void set_shader(Shader shader)
+    {
+        if(RenderLayer.shader != null)
+        {
+            mesh.Dispose();
+            RenderLayer.shader.Dispose();
+        }
+        
+        RenderLayer.shader = shader;
+        mesh = Mesh.Create(shader)
+        .SetVertex("uv", new Vector2[] {
+            new (0,1),
+            new (1,1),
+            new (0,0),
+            new (1,0)
+        })
+        .SetTrangles(new[] { 0, 1, 2, 1, 2, 3 })
+        .Finish();
+    }
     #endregion
 
     #region get only
@@ -249,7 +241,7 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
     public void UpdateContent()
     {
         Bind();
-        Matrix4 projection = projection_matrix();
+        Matrix4 projection = camera != null ? camera.CombinedMatrix : Engine.NeutralMatrix;
         Matrix4 model = model_matrix();
         GL.ClearColor(color);
         GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
@@ -258,19 +250,6 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
         Unbind();
 
         //Methods
-        Matrix4 projection_matrix()
-        {
-            if (camera != null)
-            {
-                var reve = new Vector3(camera.RevertAxis.x ? -1 : 1, camera.RevertAxis.y ? -1 : 1, camera.RevertAxis.z ? -1 : 1);
-                Matrix4 sca = Matrix4.CreateScale(reve);
-                Matrix4 poz = Matrix4.CreateTranslation(-camera.Pozition * reve);
-                Matrix4 rot = Matrix4.CreateRotationY(MathF.PI) * (camera.Rotation != new Vector3() ? Matrix4.CreateFromQuaternion(camera.RotationQuaternion) : Engine.NeutralMatrix);
-                Matrix4 cam = camera.Projection;
-                return sca * poz * rot * cam;
-            }
-            return Engine.NeutralMatrix;
-        }
         Matrix4 model_matrix() => camera != null ? camera.Model : Engine.NeutralMatrix;
     }
     
@@ -286,6 +265,8 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
         }
         else
         {
+            if (default_shader is null)
+                return;
             default_shader.set_texture(0, textures![0].texture);
             default_mesh.Draw(proj, mat);
         }

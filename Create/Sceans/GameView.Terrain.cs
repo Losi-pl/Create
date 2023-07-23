@@ -21,11 +21,13 @@ partial class GameView
         List<ChunkPoz> chunks_to_rem = new();
         List<ChunkPoz> chunks_to_ren = new();
         RenderLayer binded_world_layer, nontransparent_blocks;
+        Camera camera;
         object task_lock = new();
         (Task task, float query, float last) new_chunks = (null!, 2, 0);
 
         public Terrain(Camera camera)
         {
+            this.camera = camera;
             binded_world_layer = RenderLayer.Create().Finisch();
             nontransparent_blocks = RenderLayer.Create().Camera(camera).Finisch();
             nontransparent_blocks.Meshes.AddRange(Client.Me.Entity!.Dimention!.AllEntities.ConvertAll(e => e.Model));
