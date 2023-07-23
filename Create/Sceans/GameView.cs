@@ -57,7 +57,7 @@ internal sealed partial class GameView : Scean
             AnkerMode = SpacePoint.Anker.All,
             Element = new Image
             {
-                Color = new Color4(0, 0, 0, .8f)
+                Color = new Color4(0, 0, 0, .75f)
             }
         };
         _interface.MainElements.AddChild(user_interface);
