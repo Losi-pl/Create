@@ -300,7 +300,7 @@ public sealed partial class Shader : IDisposable
             return;
         disposed = true;
         GC.SuppressFinalize(this);
-        OpenGL.disposing.add(new disposing() { handle = handle });
+        OpenGL.Disposing.add(new Disposing() { handle = handle });
         attributInfos = null!;
         uniformInfos = null!;
         textures = null!;
@@ -312,7 +312,7 @@ public sealed partial class Shader : IDisposable
     /// <summary>
     /// Odpowiedzialny za niszczenie <see cref="Shader"/>a
     /// </summary>
-    struct disposing : OpenGL.disposing.gl_element
+    struct Disposing : OpenGL.Disposing.gl_element
     {
         public int handle;
 

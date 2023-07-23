@@ -197,9 +197,9 @@ public struct VirtualDictionaty<TKey, TValue> : IDictionary<TKey, TValue>
             }
         }
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-        public object? array => dir != null ? new ReadOnlyDictionaryView<TKey, TValue>(dir).GetViewList() : new except() { Exception = ex! };
+        public object? array => dir != null ? new ReadOnlyDictionaryView<TKey, TValue>(dir).GetViewList() : new Except() { Exception = ex! };
 
-        struct except
+        struct Except
         {
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
             Exception ex;

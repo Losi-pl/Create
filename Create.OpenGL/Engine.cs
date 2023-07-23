@@ -347,7 +347,7 @@ public static class Engine
         Scean?.m_UpdateFrame(args);
         OnUpdateFrame?.Invoke(args);
         Input.Mouse.clear_data();
-        disposing.execute();
+        Disposing.execute();
         Input.Keyboard.clear();
     }
     #endregion

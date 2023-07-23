@@ -15,15 +15,15 @@ partial class Mesh
             this.mesh = mesh;
         }
 
-        public handles Handles => new handles(mesh);
+        public _handles Handles => new _handles(mesh);
         public int TranglesCount => mesh.trangles_count / 3;
 
         public string status() => mesh.disposed ? "Disposed" : $"Handles: {mesh.handlers}";
 
         [DebuggerDisplay("")]
-        public class handles
+        public class _handles
         {
-            public handles(Mesh mesh)
+            public _handles(Mesh mesh)
             {
                 VertexBuffer = mesh.handlers.vertex_buffer;
                 IndexBuffer = mesh.handlers.index_buffer;

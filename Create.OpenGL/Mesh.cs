@@ -181,7 +181,7 @@ public sealed partial class Mesh : IDisposable, IDrawable
             return;
         disposed = true;
         GC.SuppressFinalize(this);
-        OpenGL.disposing.add(new disposing() { 
+        OpenGL.Disposing.add(new Disposing() { 
             va = handlers.vertex_array, 
             ib = handlers.index_buffer, 
             vb = handlers.vertex_buffer });
@@ -191,7 +191,7 @@ public sealed partial class Mesh : IDisposable, IDrawable
     /// <summary>
     /// Niszczenie modelu gdy nie jest już potrzebny
     /// </summary>
-    struct disposing : OpenGL.disposing.gl_element
+    struct Disposing : OpenGL.Disposing.gl_element
     {
         public int va, ib, vb;
 
