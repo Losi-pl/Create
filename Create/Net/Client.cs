@@ -43,6 +43,7 @@ public static class Client
         var rez = func.Invoke(sender);
 
         gam.Interface.MainElements.Find("Active Interface", false)?.Childs.AddChild(rez.point);
+        gam.UserInterfaces.Add((name, rez.status));
         return rez.status;
     }
 
@@ -67,6 +68,60 @@ public static class Client
         var rez = func.Invoke(sender);
 
         gam.Interface.MainElements.Find("Active Interface", false)?.Childs.AddChild(rez.point);
+        gam.UserInterfaces.Add((key.name, rez.status));
         return (T)rez.status;
     }
+
+    /// <summary>
+    /// Pobiera wrzystkie interfejsy otwarte dla lokalnego użytkownika o nazwie <paramref name="name"/>
+    /// </summary>
+    /// <param name="name">Nazwa interfejsu</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="Exception"></exception>
+    public static IEnumerable<UserInterface> GetUserInterfaces(string name)
+    {
+        if (local_player is null)
+            throw new("Player is not loadet");
+        if (!Register.userinterfaces.ContainsKey(k => k.name == name))
+            throw new ArgumentException("Interface shemat with that type doesn't exist");
+        var gam = OpenGL.Engine.Scean as GameView;
+        if (gam is null)
+            throw new Exception("Game isn't active");
+        return gam.UserInterfaces.Where(i => i.name == name).ConvertAll(i => i.user);
+    }
+
+    /// <summary>
+    /// Pobiera wrzystkie interfejsy otwarte dla lokalnego użytkownika o typie <typeparamref name="T"/>
+    /// </summary>
+    /// <typeparam name="T">Typ interfejsu</typeparam>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="Exception"></exception>
+    public static IEnumerable<T> GetUserInterfaces<T>() where T : UserInterface, IUserInterface<T>
+    {
+        if (local_player is null)
+            throw new("Player is not loadet");
+        if (!Register.userinterfaces.TryGetValue(k => k.type == typeof(T), out _, out var key))
+            throw new ArgumentException("Interface shemat with that type doesn't exist");
+        var gam = OpenGL.Engine.Scean as GameView;
+        if (gam is null)
+            throw new Exception("Game isn't active");
+        return gam.UserInterfaces.Where(i => i.name == key.name).ConvertAll(i => (T)i.user);
+    }
+
+    /// <summary>
+    /// Pobiera pierwszy z rzędu interfjs dla lokalnego urzytkownika dla lokalnego użytkownika o nazwie <paramref name="name"/>
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    public static UserInterface? GetUserInterface(string name) => GetUserInterfaces(name).FirstOrDefault();
+
+    /// <summary>
+    /// Pobiera pierwszy z rzędu interfjs dla lokalnego urzytkownika dla lokalnego użytkownika o typie <typeparamref name="T"/>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static T? GetUserInterface<T>() where T : UserInterface, IUserInterface<T> => 
+        GetUserInterfaces<T>().FirstOrDefault();
 }

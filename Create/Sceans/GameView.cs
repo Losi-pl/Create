@@ -1,4 +1,5 @@
 ﻿using Create.Elements.Bazic.Entitys;
+﻿using Create.Elements;
 using Create.Elements.Gui;
 using Create.Input;
 using Create.Net;
@@ -18,10 +19,12 @@ internal sealed partial class GameView : Scean
     Terrain terrain;
     Interface _interface;
     int slot_ind;
+    List<(string name, UserInterface user)> userInterfaces = new();
 
     internal Camera Camera => camera;
     internal Terrain _Terrain => terrain;
     internal Interface Interface => _interface;
+    internal List<(string name, UserInterface user)> UserInterfaces => userInterfaces;
 
     public GameView()
     {
