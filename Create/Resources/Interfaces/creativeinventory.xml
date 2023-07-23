@@ -5,6 +5,26 @@
     <texture v="create:gui/interface/creative_inventory"/>
     <pozition offset="0; 136" size="195; 136"/>
   </element>
+  <events>
+    <change name="standardTab">
+      <element><pozition offset="0; 136" size="195; 136"/></element>
+      <point name="Creative"><active v="true"/></point>
+      <point name="Inventory"><active v="false"/></point>
+      <point name="Scroll"><active v="true"/></point>
+    </change>
+    <change name="searchTab">
+      <element><pozition offset="195; 0" size="195; 136"/></element>
+      <point name="Creative"><active v="true"/></point>
+      <point name="Inventory"><active v="false"/></point>
+      <point name="Scroll"><active v="true"/></point>
+    </change>
+    <change name="inventoryTab">
+      <element><pozition offset="0; 0" size="195; 136"/></element>
+      <point name="Creative"><active v="false"/></point>
+      <point name="Inventory"><active v="true"/></point>
+      <point name="Scroll"><active v="false"/></point>
+    </change>
+  </events>
 
   <point name="Slots bar">
     <pozition v="1; 16"/>
@@ -502,14 +522,25 @@
 
   <point name="Upper tabs">
     <anker mode="leftup"/>
-    <point>
+    <point name="tab1">
       <pozition v="14; 12"/>
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="195; 208" size="28; 32"/>
         <texture v="create:gui/interface/creative_inventory"/>
       </element>
-
+      <events>
+        <change name="enable">
+          <element>
+            <pozition offset="195; 208" size="28; 32"/>
+          </element>
+        </change>
+        <change name="disable">
+          <element>
+            <pozition offset="195; 240" size="28; 32"/>
+          </element>
+        </change>
+      </events>
       <point>
         <pozition v="14; -17"/>
         <anker mode="leftup"/>
@@ -517,14 +548,25 @@
         <element type="create:Slot" id="0"></element>
       </point>
     </point>
-    <point>
+    <point name="tab2">
       <pozition v="42; 12"/>
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="223; 240" size="28; 32"/>
         <texture v="create:gui/interface/creative_inventory"/>
       </element>
-
+      <events>
+        <change name="enable">
+          <element>
+            <pozition offset="223; 208" size="28; 32"/>
+          </element>
+        </change>
+        <change name="disable">
+          <element>
+            <pozition offset="223; 240" size="28; 32"/>
+          </element>
+        </change>
+      </events>
       <point>
         <pozition v="14; -17"/>
         <anker mode="leftup"/>
@@ -532,14 +574,25 @@
         <element type="create:Slot" id="1"></element>
       </point>
     </point>
-    <point>
+    <point name="tab3">
       <pozition v="70; 12"/>
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="223; 240" size="28; 32"/>
         <texture v="create:gui/interface/creative_inventory"/>
       </element>
-
+      <events>
+        <change name="enable">
+          <element>
+            <pozition offset="223; 208" size="28; 32"/>
+          </element>
+        </change>
+        <change name="disable">
+          <element>
+            <pozition offset="223; 240" size="28; 32"/>
+          </element>
+        </change>
+      </events>
       <point>
         <pozition v="14; -17"/>
         <anker mode="leftup"/>
@@ -547,14 +600,25 @@
         <element type="create:Slot" id="2"></element>
       </point>
     </point>
-    <point>
+    <point name="tab4">
       <pozition v="98; 12"/>
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="223; 240" size="28; 32"/>
         <texture v="create:gui/interface/creative_inventory"/>
       </element>
-
+      <events>
+        <change name="enable">
+          <element>
+            <pozition offset="223; 208" size="28; 32"/>
+          </element>
+        </change>
+        <change name="disable">
+          <element>
+            <pozition offset="223; 240" size="28; 32"/>
+          </element>
+        </change>
+      </events>
       <point>
         <pozition v="14; -17"/>
         <anker mode="leftup"/>
@@ -562,14 +626,25 @@
         <element type="create:Slot" id="3"></element>
       </point>
     </point>
-    <point>
+    <point name="tab5">
       <pozition v="126; 12"/>
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="223; 240" size="28; 32"/>
         <texture v="create:gui/interface/creative_inventory"/>
       </element>
-
+      <events>
+        <change name="enable">
+          <element>
+            <pozition offset="223; 208" size="28; 32"/>
+          </element>
+        </change>
+        <change name="disable">
+          <element>
+            <pozition offset="223; 240" size="28; 32"/>
+          </element>
+        </change>
+      </events>
       <point>
         <pozition v="14; -17"/>
         <anker mode="leftup"/>
@@ -577,14 +652,25 @@
         <element type="create:Slot" id="4"></element>
       </point>
     </point>
-    <point>
+    <point name="tabSearch">
       <pozition v="181; 12"/>
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="251; 240" size="28; 32"/>
         <texture v="create:gui/interface/creative_inventory"/>
       </element>
-
+      <events>
+        <change name="enable">
+          <element>
+            <pozition offset="251; 208" size="28; 32"/>
+          </element>
+        </change>
+        <change name="disable">
+          <element>
+            <pozition offset="251; 240" size="28; 32"/>
+          </element>
+        </change>
+      </events>
       <point>
         <pozition v="14; -17"/>
         <anker mode="leftup"/>
@@ -595,14 +681,25 @@
   </point>
   <point name="Lowwer tabs">
     <anker mode="leftdown"/>
-    <point>
+    <point name="tab6">
       <pozition v="14; -12"/>
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="195; 176" size="28; 32"/>
         <texture v="create:gui/interface/creative_inventory"/>
       </element>
-
+      <events>
+        <change name="enable">
+          <element>
+            <pozition offset="195; 176" size="28; 32"/>
+          </element>
+        </change>
+        <change name="disable">
+          <element>
+            <pozition offset="195; 144" size="28; 32"/>
+          </element>
+        </change>
+      </events>
       <point>
         <pozition v="14; 17"/>
         <anker mode="leftdown"/>
@@ -610,14 +707,25 @@
         <element type="create:Slot" id="6"></element>
       </point>
     </point>
-    <point>
+    <point name="tab7">
       <pozition v="42; -12"/>
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="223; 144" size="28; 32"/>
         <texture v="create:gui/interface/creative_inventory"/>
       </element>
-
+      <events>
+        <change name="enable">
+          <element>
+            <pozition offset="223; 176" size="28; 32"/>
+          </element>
+        </change>
+        <change name="disable">
+          <element>
+            <pozition offset="223; 144" size="28; 32"/>
+          </element>
+        </change>
+      </events>
       <point>
         <pozition v="14; 17"/>
         <anker mode="leftdown"/>
@@ -625,14 +733,25 @@
         <element type="create:Slot" id="7"></element>
       </point>
     </point>
-    <point>
+    <point name="tab8">
       <pozition v="70; -12"/>
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="223; 144" size="28; 32"/>
         <texture v="create:gui/interface/creative_inventory"/>
       </element>
-
+      <events>
+        <change name="enable">
+          <element>
+            <pozition offset="223; 176" size="28; 32"/>
+          </element>
+        </change>
+        <change name="disable">
+          <element>
+            <pozition offset="223; 144" size="28; 32"/>
+          </element>
+        </change>
+      </events>
       <point>
         <pozition v="14; 17"/>
         <anker mode="leftdown"/>
@@ -640,14 +759,25 @@
         <element type="create:Slot" id="8"></element>
       </point>
     </point>
-    <point>
+    <point name="tab9">
       <pozition v="98; -12"/>
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="223; 144" size="28; 32"/>
         <texture v="create:gui/interface/creative_inventory"/>
       </element>
-
+      <events>
+        <change name="enable">
+          <element>
+            <pozition offset="223; 176" size="28; 32"/>
+          </element>
+        </change>
+        <change name="disable">
+          <element>
+            <pozition offset="223; 144" size="28; 32"/>
+          </element>
+        </change>
+      </events>
       <point>
         <pozition v="14; 17"/>
         <anker mode="leftdown"/>
@@ -655,14 +785,25 @@
         <element type="create:Slot" id="9"></element>
       </point>
     </point>
-    <point>
+    <point name="tab10">
       <pozition v="126; -12"/>
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="223; 144" size="28; 32"/>
         <texture v="create:gui/interface/creative_inventory"/>
       </element>
-
+      <events>
+        <change name="enable">
+          <element>
+            <pozition offset="223; 176" size="28; 32"/>
+          </element>
+        </change>
+        <change name="disable">
+          <element>
+            <pozition offset="223; 144" size="28; 32"/>
+          </element>
+        </change>
+      </events>
       <point>
         <pozition v="14; 17"/>
         <anker mode="leftdown"/>
@@ -670,14 +811,25 @@
         <element type="create:Slot" id="10"></element>
       </point>
     </point>
-    <point>
+    <point name="tabInventory">
       <pozition v="181; -12"/>
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="251; 144" size="28; 32"/>
         <texture v="create:gui/interface/creative_inventory"/>
       </element>
-
+      <events>
+        <change name="enable">
+          <element>
+            <pozition offset="251; 176" size="28; 32"/>
+          </element>
+        </change>
+        <change name="disable">
+          <element>
+            <pozition offset="251; 144" size="28; 32"/>
+          </element>
+        </change>
+      </events>
       <point>
         <pozition v="14; 17"/>
         <anker mode="leftdown"/>

@@ -1,0 +1,175 @@
+﻿using Create.OpenGL.GUI;
+using System.Runtime.Versioning;
+
+namespace Create.Elements.Bazic.Interfaces;
+
+internal class CreativeInventory : UserInterface, IUserInterface<CreativeInventory>
+{
+    readonly static OpenTab[] tabTypes = Enum.GetValues<OpenTab>();
+    (bool active, SpacePoint? point) tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tabInventory, tabKompas;
+    #nullable disable
+    SpacePoint root;
+    #nullable restore
+
+    static (CreativeInventory status, SpacePoint point) IUserInterface<CreativeInventory>.LoadInterface(object? aditionalParameters)
+    {
+        var ci = new CreativeInventory();
+        ci.root = Assets.GetInterface("create:creativeinventory");
+
+        var points = (new[] {
+            ("tab1", OpenTab.Tab1),
+            ("tab2", OpenTab.Tab2),
+            ("tab3", OpenTab.Tab3),
+            ("tab4", OpenTab.Tab4),
+            ("tab5", OpenTab.Tab5),
+            ("tab6", OpenTab.Tab6),
+            ("tab7", OpenTab.Tab7),
+            ("tab8", OpenTab.Tab8),
+            ("tab9", OpenTab.Tab9),
+            ("tab10", OpenTab.Tab10),
+            ("tabSearch", OpenTab.SearchTab),
+            ("tabInventory", OpenTab.InventoryTab)})
+            .ConvertAll(n =>
+            {
+                var point = ci.root.Childs.Find(n.Item1, true);
+                point!.OnClick += p => ci.TabOpenClose(p, n.Item2);
+                return point;
+            });
+
+        ci.tab1 = (false, points[0]);
+        ci.tab2 = (true, points[1]);
+        ci.tab3 = (true, points[2]);
+        ci.tab4 = (true, points[3]);
+        ci.tab5 = (true, points[4]);
+        ci.tab6 = (true, points[5]);
+        ci.tab7 = (true, points[6]);
+        ci.tab8 = (true, points[7]);
+        ci.tab9 = (true, points[8]);
+        ci.tab10 = (true, points[9]);
+        ci.tabKompas = (true, points[10]);
+        ci.tabInventory = (true, points[11]);
+
+        ci.Tab1 = true;
+        ci.Tab2 = false;
+        ci.Tab3 = false;
+        ci.Tab4 = false;
+        ci.Tab5 = false;
+        ci.Tab6 = false;
+        ci.Tab7 = false;
+        ci.Tab8 = false;
+        ci.Tab9 = false;
+        ci.Tab10 = false;
+        ci.TabKompas = false;
+        ci.TabInventory = false;
+
+        return (ci, ci.root);
+    }
+
+    private void TabOpenClose(SpacePoint obj, OpenTab tab) => Tab = tab;
+
+    public OpenTab Tab
+    {
+        get => GetOpenTabs();
+        set
+        {
+            if (!tabTypes.Contains(value))
+                throw new ArgumentException("Values overlap", (string)null!);
+            var t = Tab;
+            if (t == value)
+                return;
+            SetOpenTabs(value);
+            root.RunEvent(value switch
+            {
+                OpenTab.InventoryTab => "inventoryTab",
+                OpenTab.SearchTab => "searchTab",
+                _ => "standardTab"
+            });
+        }
+    }
+
+    bool Tab1 { get => tab1.active; set => chane_mode(value, ref tab1); }
+    bool Tab2 { get => tab2.active; set => chane_mode(value, ref tab2); }
+    bool Tab3 { get => tab3.active; set => chane_mode(value, ref tab3); }
+    bool Tab4 { get => tab4.active; set => chane_mode(value, ref tab4); }
+    bool Tab5 { get => tab5.active; set => chane_mode(value, ref tab5); }
+    bool Tab6 { get => tab6.active; set => chane_mode(value, ref tab6); }
+    bool Tab7 { get => tab7.active; set => chane_mode(value, ref tab7); }
+    bool Tab8 { get => tab8.active; set => chane_mode(value, ref tab8); }
+    bool Tab9 { get => tab9.active; set => chane_mode(value, ref tab9); }
+    bool Tab10 { get => tab10.active; set => chane_mode(value, ref tab10); }
+    bool TabKompas { get => tabKompas.active; set => chane_mode(value, ref tabKompas); }
+    bool TabInventory { get => tabInventory.active; set => chane_mode(value, ref tabInventory); }
+    void chane_mode(bool value, ref (bool active, SpacePoint? point) data)
+    {
+        if (data.point is null)
+            return;
+        if (data.active == value)
+            return;
+        data.active = value;
+        data.point.RunEvent(value ? "enable" : "disable");
+    }
+
+    public OpenTab GetOpenTabs()
+    {
+        var s = OpenTab.None;
+
+        if (Tab1)
+            s |= OpenTab.Tab1;
+        if (Tab2)
+            s |= OpenTab.Tab2;
+        if (Tab3)
+            s |= OpenTab.Tab3;
+        if (Tab4)
+            s |= OpenTab.Tab4;
+        if (Tab5)
+            s |= OpenTab.Tab5;
+        if (Tab6)
+            s |= OpenTab.Tab6;
+        if (Tab7)
+            s |= OpenTab.Tab7;
+        if (Tab8)
+            s |= OpenTab.Tab8;
+        if (Tab9)
+            s |= OpenTab.Tab9;
+        if (Tab10)
+            s |= OpenTab.Tab10;
+        if (TabKompas)
+            s |= OpenTab.SearchTab;
+        if (TabInventory)
+            s |= OpenTab.InventoryTab;
+        return s;
+    }
+    public void SetOpenTabs(OpenTab tab)
+    {
+        Tab1 = tab.HasFlag(OpenTab.Tab1);
+        Tab2 = tab.HasFlag(OpenTab.Tab2);
+        Tab3 = tab.HasFlag(OpenTab.Tab3);
+        Tab4 = tab.HasFlag(OpenTab.Tab4);
+        Tab5 = tab.HasFlag(OpenTab.Tab5);
+        Tab6 = tab.HasFlag(OpenTab.Tab6);
+        Tab7 = tab.HasFlag(OpenTab.Tab7);
+        Tab8 = tab.HasFlag(OpenTab.Tab8);
+        Tab9 = tab.HasFlag(OpenTab.Tab9);
+        Tab10 = tab.HasFlag(OpenTab.Tab10);
+        TabKompas = tab.HasFlag(OpenTab.SearchTab);
+        TabInventory = tab.HasFlag(OpenTab.InventoryTab);
+    }
+
+    [Flags]
+    public enum OpenTab
+    {
+        None = 0,
+        Tab1 = 1,
+        Tab2 = 2,
+        Tab3 = 4,
+        Tab4 = 8,
+        Tab5 = 16,
+        Tab6 = 32,
+        Tab7 = 64,
+        Tab8 = 128,
+        Tab9 = 256,
+        Tab10 = 512,
+        InventoryTab = 1024,
+        SearchTab = 2048
+    }
+}
