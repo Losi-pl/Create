@@ -43,7 +43,7 @@ public static class Client
         var rez = func.Invoke(sender);
 
         gam.Interface.MainElements.Find("Active Interface", false)?.Childs.AddChild(rez.point);
-        gam.UserInterfaces.Add((name, rez.status));
+        gam.UserInterfaces.Add((name, rez.status, rez.point));
         return rez.status;
     }
 
@@ -68,7 +68,7 @@ public static class Client
         var rez = func.Invoke(sender);
 
         gam.Interface.MainElements.Find("Active Interface", false)?.Childs.AddChild(rez.point);
-        gam.UserInterfaces.Add((key.name, rez.status));
+        gam.UserInterfaces.Add((key.name, rez.status, rez.point));
         return (T)rez.status;
     }
 
@@ -124,4 +124,18 @@ public static class Client
     /// <returns></returns>
     public static T? GetUserInterface<T>() where T : UserInterface, IUserInterface<T> => 
         GetUserInterfaces<T>().FirstOrDefault();
+
+    public static bool RemoveUserInterface(UserInterface userInterface)
+    {
+        if (local_player is null)
+            throw new("Player is not loadet");
+        var gam = OpenGL.Engine.Scean as GameView;
+        if (gam is null)
+            throw new Exception("Game isn't active");
+        var ind = gam.UserInterfaces.IndexOf(ui => ui.user == userInterface);
+        if (ind == -1)
+            return false;
+        gam.UserInterfaces.RemoveAt(ind);
+        return true;
+    }
 }

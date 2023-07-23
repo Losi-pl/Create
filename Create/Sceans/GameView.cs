@@ -19,12 +19,12 @@ internal sealed partial class GameView : Scean
     Terrain terrain;
     Interface _interface;
     int slot_ind;
-    List<(string name, UserInterface user)> userInterfaces = new();
+    List<(string name, UserInterface user, SpacePoint point)> userInterfaces = new();
 
     internal Camera Camera => camera;
     internal Terrain _Terrain => terrain;
     internal Interface Interface => _interface;
-    internal List<(string name, UserInterface user)> UserInterfaces => userInterfaces;
+    internal List<(string name, UserInterface user, SpacePoint point)> UserInterfaces => userInterfaces;
 
     public GameView()
     {
