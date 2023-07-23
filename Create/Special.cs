@@ -1,6 +1,7 @@
 using Create.OpenGL;
 using Create.Render;
 using Create.Space;
+using System.Runtime.InteropServices;
 
 namespace Create;
 
@@ -106,6 +107,104 @@ internal static partial class Special
         return MathF.Sqrt((poi.Item1 * poi.Item1) + (poi.Item2 * poi.Item2));
     }
 
+    /// <summary>
+    /// Sprawdza czy wartość <paramref name="value"/> jest w przedziale
+    /// </summary>
+    /// <param name="range"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public static bool Contains(this Range range, int value)
+    {
+        if(range.Start.Value > value) return false;
+        if (range.End.Value < value) return false;
+        return true;
+    }
+
+    /// <summary>
+    /// Pobiera element z <paramref name="enume"/> o numerze <paramref name="index"/>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="enume"></param>
+    /// <param name="index"></param>
+    /// <returns></returns>
+    public static T Index<T>(this IEnumerable<T> enume, int index)
+    {
+        if (index < 0)
+            throw new ArgumentOutOfRangeException(nameof(index), "Index must be grater than 0");
+
+        foreach(var e in enume)
+        {
+            if (index == 0)
+                return e;
+            index--;
+        }
+        return default!;
+    }
+
+    /// <summary>
+    /// <inheritdoc cref="Dictionary{TKey, TValue}.TryGetValue(TKey, out TValue)"/>
+    /// </summary>
+    /// <typeparam name="TKey"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
+    /// <param name="condition">Test czy klucz spełnia warunki</param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public static bool TryGetValue<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Func<TKey, bool> condition, out TValue value) 
+        where TKey : notnull => TryGetValue(dictionary, condition, out value, out _);
+
+    /// <summary>
+    /// <inheritdoc cref="Dictionary{TKey, TValue}.TryGetValue(TKey, out TValue)"/>
+    /// </summary>
+    /// <typeparam name="TKey"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
+    /// <param name="condition">Test czy klucz spełnia warunki</param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public static bool TryGetValue<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Func<TKey, bool> condition, out TValue value, out TKey key) where TKey : notnull
+    {
+        foreach(var e in dictionary)
+            if(condition(e.Key))
+            {
+                value = e.Value;
+                key = e.Key;
+                return true;
+            }
+        value = default!;
+        key = default!;
+        return false;
+    }
+
+    /// <summary>
+    /// <inheritdoc cref="Dictionary{TKey, TValue}.ContainsKey(TKey)"/>
+    /// </summary>
+    /// <typeparam name="TKey"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
+    /// <param name="condition">Test czy klucz spełnia warunki</param>
+    /// <returns></returns>
+    public static bool ContainsKey<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Func<TKey, bool> condition) where TKey: notnull
+    {
+        foreach (var e in dictionary)
+            if (condition(e.Key))
+                return true;
+        return false;
+    }
+
+    /// <summary>
+    /// <inheritdoc cref="List{T}.IndexOf(T)"/>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="list"></param>
+    /// <param name="condition">Warunki oczekiwanego elementu</param>
+    /// <returns></returns>
+    public static int IndexOf<T>(this List<T> list, Func<T, bool> condition)
+    {
+        Span<T> span = CollectionsMarshal.AsSpan(list);
+        for(int i = 0; i < span.Length; i++)
+            if (condition(span[i]))
+                return i;
+        return -1;
+    }
+  
     /// <summary>
     /// Wywołuje metode <paramref name="action"/> dla elementu
     /// </summary>

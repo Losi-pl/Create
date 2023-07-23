@@ -1,6 +1,9 @@
 using Create.Elements;
+using Create.OpenGL.GUI;
 using Create.Resource;
 using Create.Space;
+using System.Runtime.Versioning;
+using System.Xml.Linq;
 
 namespace Create;
 
@@ -67,6 +70,78 @@ public sealed class Mod
     /// <param name="entity">Klasa bytu</param>
     /// <returns></returns>
     public Mod RegisterElement(string name, Entity entity) => register_element(entity, name, Register.entitys_console);
+
+    /// <summary>
+    /// Dodawanie interpretera który konwertuje element zapisany w zasobach w kawałek interfejsu
+    /// </summary>
+    /// <param name="name">Nazwa interpretera</param>
+    /// <param name="parse">Metoda interpretacji</param>
+    /// <param name="changeEvent">Metoda urzywana gdy w modelu jest zapisana operacja zmiany parametrów</param>
+    /// <param name="changeEventParameter">Operacja urzywana do konwertowania danych dla <paramref name="changeEvent"/> aby oszczędzać dane</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public Mod RegisterInterfaceLoadingMethod(string name, Func<XElement ,Element> parse, Action<Element, object> changeEvent, Func<XElement, object> changeEventParameter)
+    {
+        if(parse is null) throw new ArgumentNullException(nameof(parse));
+        if(changeEvent is null) throw new ArgumentNullException(nameof(changeEvent));
+        if(changeEventParameter is null) throw new ArgumentNullException(nameof(changeEventParameter));
+        if(string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
+
+        var code_name = $"{Name}:{name}";
+        if(Assets.interfaceElementTypes.ContainsKey(code_name))
+            throw new ArgumentException($"This element is alredy registered");
+        Assets.interfaceElementTypes.Add(code_name, (this, parse, changeEvent, changeEventParameter));
+        return this;
+    }
+
+    /// <summary>
+    /// Dodawanie interpretera który konwertuje element zapisany w zasobach w kawałek interfejsu
+    /// </summary>
+    /// <param name="name">Nazwa interpretera</param>
+    /// <param name="parse">Metoda interpretacji</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public Mod RegisterInterfaceLoadingMethod(string name, Func<XElement, Element> parse)
+    {
+        if (parse is null) throw new ArgumentNullException(nameof(parse));
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
+
+        var code_name = $"{Name}:{name}";
+        if (Assets.interfaceElementTypes.ContainsKey(code_name))
+            throw new ArgumentException($"This element is alredy registered");
+        Assets.interfaceElementTypes.Add(code_name, (this, parse, null, null));
+        return this;
+    }
+
+    /// <summary>
+    /// Dodawanie interpretera który konwertuje element zapisany w zasobach w kawałek interfejsu
+    /// </summary>
+    /// <param name="name">Nazwa interpretera</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public Mod RegisterInterfaceLoadingMethod<T>(string name) where T : Element, IElementLoading<T>
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
+
+        var code_name = $"{Name}:{name}";
+        if (Assets.interfaceElementTypes.ContainsKey(code_name))
+            throw new ArgumentException($"This element is alredy registered");
+        Assets.interfaceElementTypes.Add(code_name, (this, T.Parse, (e, o) => T.ChangeEvent((T)e, o), T.ChangeEventParameter));
+        return this;
+    }
+
+    public Mod RegisterInterface<T>(string name) where T : UserInterface, IUserInterface<T>
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
+
+        var code_name = $"{Name}:{name}";
+        if (Register.userinterfaces.ContainsKey(k => k.name == code_name))
+            throw new ArgumentException($"Interface {{{code_name}}} is alredy registered");
+        if (Register.userinterfaces.ContainsKey(k => k.type == typeof(T)))
+            throw new ArgumentException($"Interface type {{{typeof(T)}}} is alredy registered");
+        Register.userinterfaces.Add((code_name, typeof(T)), o => T.LoadInterface(o));
+        return this;
+    }
 
     /// <summary>
     /// Uniwersalna metoda dodawania elementów wo rejestru

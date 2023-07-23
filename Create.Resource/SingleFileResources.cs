@@ -77,7 +77,7 @@ public class SingleFileResources : Resources
                 paths.AddFile(file.path, file.pozition);
             return new SingleFileResources(stream, paths);
             //Methods
-            IEnumerable<(string path, (long offsetm, long lenght) pozition)> gen_paths(directory directory, string root_path)
+            IEnumerable<(string path, (long offsetm, long lenght) pozition)> gen_paths(Directory directory, string root_path)
             {
                 var files = directory.files.Cast(f => (string.IsNullOrEmpty(root_path) ? f.name : $"{root_path}{f.name}", (data_offset + f.offset, f.lengh)));
                 return new[]
@@ -86,11 +86,11 @@ public class SingleFileResources : Resources
                     directory.directories.Cast(d => gen_paths(d, $"{root_path}{d.name}/")).MargEnumerables()
                 }.MargEnumerables();
             }
-            directory read_directory()
+            Directory read_directory()
             {
                 string name = read_name();
                 var files = read_all_files_data();
-                var directories = new directory[read_uint()];
+                var directories = new Directory[read_uint()];
                 for (int i = 0; i < directories.Length; i++)
                     directories[i] = read_directory();
                 return new() { name = name, files = files, directories = directories };
@@ -133,11 +133,11 @@ public class SingleFileResources : Resources
         /// <summary>
         /// Pozycje plików w fliku źrudłowym
         /// </summary>
-        class directory
+        class Directory
         {
             public string name = null!;
             public (string name, long offset, long lengh)[] files = null!;
-            public directory[] directories = null!;
+            public Directory[] directories = null!;
         }
     }
 }

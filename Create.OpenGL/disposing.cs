@@ -3,7 +3,7 @@
 /// <summary>
 /// Mechanizm do usuwania z pamięci kartu graficznej danych które nie są już używane
 /// </summary>
-internal static class disposing
+internal static class Disposing
 {
     static List<gl_element> to_dispose = new();
     static object task_lock = new();

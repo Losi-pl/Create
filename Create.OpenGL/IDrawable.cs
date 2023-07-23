@@ -7,6 +7,11 @@ namespace Create.OpenGL;
 /// </summary>
 public interface IDrawable
 {
+    /// <summary>
+    /// Renderowanie modelu na obecnie aktywnym płutnie
+    /// </summary>
+    /// <param name="projection">Modyfikacja projekcji jak pozycja kamery i orjentacja</param>
+    /// <param name="model">Modyfikacja geometri modelu przed jego zmianą w przestrzeni</param>
     public void Draw(Matrix4 projection, Matrix4 model);
 
     /// <summary>
@@ -28,8 +33,17 @@ public interface IDrawable
 /// </summary>
 public static class Drawable
 {
+    /// <summary>
+    /// <inheritdoc cref="IDrawable.Draw(Matrix4, Matrix4)"/>
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="projectionMatrix">Modyfikacja projekcji jak pozycja kamery i orjentacja</param>
     public static void Draw(this IDrawable model, Matrix4 projectionMatrix) =>
         model.Draw(projectionMatrix, Engine.NeutralMatrix);
+
+    /// <summary>
+    /// <inheritdoc cref="IDrawable.Draw(Matrix4, Matrix4)"/>
+    /// </summary>
     public static void Draw(this IDrawable model) =>
         model.Draw(Engine.NeutralMatrix, Engine.NeutralMatrix);
 }

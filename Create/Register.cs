@@ -8,6 +8,8 @@ using SixLabors.ImageSharp;
 using Create.Resource;
 using System.Collections;
 using System.Diagnostics;
+using Create.Sceans;
+using System.Runtime.Versioning;
 
 namespace Create;
 
@@ -24,6 +26,8 @@ public static class Register
     public static readonly ElementRegister<Block> Blocks = blocks_console.Register;
     public static readonly ElementRegister<Dimention> Dimentions = dimentions_console.Register;
     public static readonly ElementRegister<Entity> Entitys = entitys_console.Register;
+
+    internal static readonly Dictionary<(string name, Type type), Func<object?, (UserInterface status, OpenGL.GUI.SpacePoint point)>> userinterfaces = new();
 
     /// <summary>
     /// Załadowanie podstawowego pakietu zasobów
@@ -204,6 +208,8 @@ public static class Register
             .ForEvery(e => mod.RegisterElement(e.name, e.element));
         get_all_elements<Entity>(typeof(Entitys))
             .ForEvery(e => mod.RegisterElement(e.name, e.element));
+        Assets.load_elements(mod);
+        UserInterface.LoadInterfaces(mod);
     }
 
     /// <summary>

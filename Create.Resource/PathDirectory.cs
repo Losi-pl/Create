@@ -5,8 +5,8 @@
 /// </summary>
 public sealed class PathDirectory
 {
-    directory main = new();
-    Dictionary<string, directory> all_registered = new();
+    Directory main = new();
+    Dictionary<string, Directory> all_registered = new();
 
     public PathDirectory() => all_registered.Add(string.Empty, main);
 
@@ -19,7 +19,7 @@ public sealed class PathDirectory
     public void AddFile(string path, object? file)
     {
         var path_data = validate_path(path);
-        directory dir;
+        Directory dir;
         if(!all_registered.TryGetValue(path_data.path, out dir!))
         {
             dir = main;
@@ -28,7 +28,7 @@ public sealed class PathDirectory
                 var new_dir = dir.folders.Find(f => f.name == path_data.segments[i]);
                 if (new_dir == null)
                 {
-                    directory new_d = new();
+                    Directory new_d = new();
                     new_d.name = path_data.segments[i];
                     dir.folders.Add(new_d);
                     dir = new_d;
@@ -80,7 +80,7 @@ public sealed class PathDirectory
     /// <summary>
     /// <inheritdoc cref="get_main_directory"/>
     /// </summary>
-    ResourceDirectory get_directory(directory dir)
+    ResourceDirectory get_directory(Directory dir)
     {
         var files = dir.files.Cast(f => new ResourceFile(f.name, f.sender)).ToArray();
         var folders = dir.folders.Cast(f => get_directory(f)).ToArray();
@@ -90,19 +90,19 @@ public sealed class PathDirectory
     /// <summary>
     /// Parametry i zawartość pod folderu
     /// </summary>
-    class directory
+    class Directory
     {
         #pragma warning disable CS8618
         public string name;
         #pragma warning restore CS8618
-        public List<directory> folders = new();
+        public List<Directory> folders = new();
         public List<file> files = new();
     }
 
     /// <summary>
     /// Parametry i zawartość pliku
     /// </summary>
-    class file
+    class @file
     {
         #pragma warning disable CS8618
         public string name;

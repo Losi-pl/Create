@@ -1,0 +1,702 @@
+﻿using Create.Elements.Gui;
+using Create.OpenGL.GUI;
+using Create.Sceans;
+using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
+using System.Globalization;
+using System.Reflection;
+using System.Xml.Linq;
+using OneOf;
+using static Create.Static;
+using Create.OpenGL.Textures;
+using System;
+
+namespace Create;
+
+partial class Assets
+{
+    internal static Dictionary<string, (Mod mod, Func<XElement, Element> parse, Action<Element, object>? changeEvent, Func<XElement, object>? changeEventParameter)> interfaceElementTypes = new();
+
+    public static SpacePoint GetInterface(string path)
+    {
+        var xml = load(path);
+        var poin = point(xml.Root!);
+        poin.Name = path.Replace('/', '\\');
+        return poin;
+
+        XDocument load(string name)
+        {
+            if (name.Count(c => c == ':') != 1 || name.Any(c => c is '<' or '>' or '\"' or '|' or '?' or '*'))
+                throw new Exception($"Name {{{name}}} is invalid");
+
+            name = name.Replace("/", "\\");
+            string group = name.Remove(name.IndexOf(':'));
+            string path = name.Substring(name.IndexOf(':') + 1);
+            string file = name.Substring(name.LastIndexOfAny(new[] { ':', '\\' }) + 1);
+            path = path.Length - file.Length - 1 < 0 ? string.Empty : path.Remove(path.Length - file.Length - 1);
+
+            var stream = resources!.GetPath($"{group}/interfaces/{path}").GetFile(file).GetStream();
+            return XDocument.Load(stream);
+        }
+        SpacePoint point(XElement element)
+        {
+            var s = new SpacePoint();
+
+            var poz = float_parse(sizes(value(element.Element("pozition"))));
+            var siz = float_parse(sizes(value(element.Element("size"))));
+            var act = bool.TryParse(value(element.Element("active")) ?? string.Empty, out var v) ? v : true;
+            var nam = (element.Attribute("name")?.Value) ?? string.Empty;
+            var evn = element.Element("events");
+
+            s.Pozition = (poz.x * 4, poz.y * 4);
+            s.Size = (siz.x * 4, siz.y * 4);
+            s.Element = elem(element.Element("element"));
+            anker(element.Element("anker"));
+            s.Active = act;
+            s.Name = nam;
+
+            if (evn is not null)
+                load_events(s, evn);
+            foreach (var el in element.Elements("point"))
+                s.Childs.AddChild(point(el));
+            return s;
+
+            void anker(XElement? ank)
+            {
+                if (ank is null)
+                    return;
+                var atr = ank.Attribute("mode")?.Value.ToLower();
+                if (atr is not null)
+                    s!.AnkerMode = ankerModes.Find(a => a.name == atr, new("Invalid variable structure")).Item1;
+            }
+            Element? elem(XElement? element)
+            {
+                if (element is null)
+                    return null;
+
+                var attr = element.Attribute("type")?.Value;
+                if (string.IsNullOrEmpty(attr))
+                    return null;
+                if (!interfaceElementTypes.TryGetValue(attr, out var converter))
+                    return null;
+                return converter.parse(element);
+            }
+        }
+        void load_events(SpacePoint point, XElement events)
+        {
+            foreach(var evnt in events.Elements())
+            {
+                var name = evnt.Attribute("name")?.Value;
+                if (string.IsNullOrWhiteSpace(name))
+                    continue;
+                
+                switch (evnt.Name.LocalName)
+                {
+                    case "change":
+                        point.AddEvent(name, ChangeEvent.Event, ChangeEvent.Parse(evnt)); break;
+                    default:
+                        continue;
+                }
+            }
+        }
+    }
+
+    internal static void load_elements(Mod mod)
+    {
+        mod.RegisterInterfaceLoadingMethod("Crosshair", 
+            ChangeEventCrosshair.Parse,
+            ChangeEventCrosshair.ChangeEvent,
+            ChangeEventCrosshair.ParamParse);
+
+        mod.RegisterInterfaceLoadingMethod("InterfaceImage",
+            ChangeEventInterfaceImage.Parse,
+            ChangeEventInterfaceImage.ChangeEvent,
+            ChangeEventInterfaceImage.ParamParse);
+
+        mod.RegisterInterfaceLoadingMethod("Image",
+            ChangeEventImage.Parse,
+            ChangeEventImage.ChangeEvent,
+            ChangeEventImage.ParamParse);
+
+        mod.RegisterInterfaceLoadingMethod("StatusBar",
+            ChangeEventStatusBar.Parse,
+            ChangeEventStatusBar.ChangeEvent,
+            ChangeEventStatusBar.ParamParse);
+
+        mod.RegisterInterfaceLoadingMethod("Slot", e =>
+        {
+            var item = new OpenGL.GUI.Elements.Image();
+
+            item.Color = Color4.LightGreen;
+
+            return item;
+        });
+    }
+}
+
+file static class Static
+{
+    public static string value(XElement? element)
+    {
+        if (element is null)
+            return string.Empty;
+        var a = element.Attribute("v");
+        if (a != null)
+            return a.Value;
+        else
+            return element.Value;
+    }
+    public static (string x, string y)? sizes(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return null;
+        if (value.Count(c => c == ';') > 1)
+            throw new Exception("Invalid variable structure");
+        else if (value.Count(c => c == ';') == 0)
+            return (value, value);
+        else
+            return value.Split(';').Cast(v => (v[0], v[1]));
+        throw new Exception("Invalid variable structure");
+    }
+    public static (int x, int y) int_parse((string x, string y)? value)
+    {
+        if (!value.HasValue)
+            return (0, 0);
+        return (int.Parse(value.Value.x), int.Parse(value.Value.y));
+    }
+    public static (float x, float y) float_parse((string x, string y)? value)
+    {
+        if (!value.HasValue)
+            return (0, 0);
+        return (ParseFloat(value.Value.x), ParseFloat(value.Value.y));
+    }
+    public static float ParseFloat(string value)
+    {
+        CultureInfo ci = (CultureInfo)CultureInfo.CurrentCulture.Clone();
+        ci.NumberFormat.CurrencyDecimalSeparator = ".";
+
+        if (value[0] == '.')
+        {
+            value = "0" + value;
+        }
+        else if (value[0] == '-' && value[1] == '.')
+        {
+            value = "-0" + value.Substring(1);
+        }
+
+        float result = float.Parse(value, NumberStyles.Any, ci);
+        return result;
+    }
+    public static ((int x, int y) offset, (int w, int h) size)? get_tex_poz(XElement? element)
+    {
+        if (element is null)
+            return null;
+
+        var off = element.Attribute("offset")?.Value;
+        var siz = element.Attribute("size")?.Value;
+
+        var _off = int_parse(sizes(off));
+        var _siz = int_parse(sizes(siz));
+        return (_off, _siz);
+    }
+    public static Color4? load_color(XElement? element)
+    {
+        if (element is null)
+            return null;
+        var color_v = value(element);
+        Color4 color;
+        var w = colors.FirstOrDefault(c => c.name == color_v);
+        if (!string.IsNullOrEmpty(w.name))
+            color = w.color;
+        else
+        {
+            if (color_v.Length == 6)
+            {
+                var r = (byte)Convert.ToInt32(color_v[0..1], 16);
+                var g = (byte)Convert.ToInt32(color_v[2..3], 16);
+                var b = (byte)Convert.ToInt32(color_v[4..5], 16);
+                color = new(r, g, b, 255);
+            }
+            else if (color_v.Length == 8)
+            {
+
+                var r = (byte)Convert.ToInt32(color_v[0..1], 16);
+                var g = (byte)Convert.ToInt32(color_v[2..3], 16);
+                var b = (byte)Convert.ToInt32(color_v[4..5], 16);
+                var a = (byte)Convert.ToInt32(color_v[6..7], 16);
+                color = new(r, g, b, a);
+            }
+            else
+                throw new("Invalid variable structure");
+        }
+        return color;
+    }
+
+    public static readonly (SpacePoint.Anker, string name)[] ankerModes = Enum.GetValues<SpacePoint.Anker>().ConvertAll(a => (a, a.ToString().ToLower()));
+    public static readonly (Color4 color, string name)[] colors = typeof(Color4).GetProperties(BindingFlags.Static | BindingFlags.Public).ConvertAll(c => ((Color4)c.GetValue(null)!, c.Name.ToLower()));
+    public static readonly (FramebufferAttachment, string name)[] framebufferAttachment = (new[] {
+        (FramebufferAttachment.Aux0, "Aux0"),
+        (FramebufferAttachment.Aux1, "Aux1"),
+        (FramebufferAttachment.Aux2, "Aux2"),
+        (FramebufferAttachment.Aux3, "Aux3"),
+        (FramebufferAttachment.BackLeft, "BackLeft"),
+        (FramebufferAttachment.BackRight, "BackRight"),
+        (FramebufferAttachment.Color, "Color"),
+        (FramebufferAttachment.ColorAttachment0, "ColorAttachment0"),
+        (FramebufferAttachment.ColorAttachment0Ext, "ColorAttachment0Ext"),
+        (FramebufferAttachment.ColorAttachment0Nv, "ColorAttachment0Nv"),
+        (FramebufferAttachment.ColorAttachment0Oes, "ColorAttachment0Oes"),
+        (FramebufferAttachment.ColorAttachment1, "ColorAttachment1"),
+        (FramebufferAttachment.ColorAttachment10, "ColorAttachment10"),
+        (FramebufferAttachment.ColorAttachment10Ext, "ColorAttachment10Ext"),
+        (FramebufferAttachment.ColorAttachment10Nv, "ColorAttachment10Nv"),
+        (FramebufferAttachment.ColorAttachment11, "ColorAttachment11"),
+        (FramebufferAttachment.ColorAttachment11Ext, "ColorAttachment11Ext"),
+        (FramebufferAttachment.ColorAttachment11Nv, "ColorAttachment11Nv"),
+        (FramebufferAttachment.ColorAttachment12, "ColorAttachment12"),
+        (FramebufferAttachment.ColorAttachment12Ext, "ColorAttachment12Ext"),
+        (FramebufferAttachment.ColorAttachment12Nv, "ColorAttachment12Nv"),
+        (FramebufferAttachment.ColorAttachment13, "ColorAttachment13"),
+        (FramebufferAttachment.ColorAttachment13Ext, "ColorAttachment13Ext"),
+        (FramebufferAttachment.ColorAttachment13Nv, "ColorAttachment13Nv"),
+        (FramebufferAttachment.ColorAttachment14, "ColorAttachment14"),
+        (FramebufferAttachment.ColorAttachment14Ext, "ColorAttachment14Ext"),
+        (FramebufferAttachment.ColorAttachment14Nv, "ColorAttachment14Nv"),
+        (FramebufferAttachment.ColorAttachment15, "ColorAttachment15"),
+        (FramebufferAttachment.ColorAttachment15Ext, "ColorAttachment15Ext"),
+        (FramebufferAttachment.ColorAttachment15Nv, "ColorAttachment15Nv"),
+        (FramebufferAttachment.ColorAttachment16, "ColorAttachment16"),
+        (FramebufferAttachment.ColorAttachment17, "ColorAttachment17"),
+        (FramebufferAttachment.ColorAttachment18, "ColorAttachment18"),
+        (FramebufferAttachment.ColorAttachment19, "ColorAttachment19"),
+        (FramebufferAttachment.ColorAttachment1Ext, "ColorAttachment1Ext"),
+        (FramebufferAttachment.ColorAttachment1Nv, "ColorAttachment1Nv"),
+        (FramebufferAttachment.ColorAttachment2, "ColorAttachment2"),
+        (FramebufferAttachment.ColorAttachment20, "ColorAttachment20"),
+        (FramebufferAttachment.ColorAttachment21, "ColorAttachment21"),
+        (FramebufferAttachment.ColorAttachment22, "ColorAttachment22"),
+        (FramebufferAttachment.ColorAttachment23, "ColorAttachment23"),
+        (FramebufferAttachment.ColorAttachment24, "ColorAttachment24"),
+        (FramebufferAttachment.ColorAttachment25, "ColorAttachment25"),
+        (FramebufferAttachment.ColorAttachment26, "ColorAttachment26"),
+        (FramebufferAttachment.ColorAttachment27, "ColorAttachment27"),
+        (FramebufferAttachment.ColorAttachment28, "ColorAttachment28"),
+        (FramebufferAttachment.ColorAttachment29, "ColorAttachment29"),
+        (FramebufferAttachment.ColorAttachment2Ext, "ColorAttachment2Ext"),
+        (FramebufferAttachment.ColorAttachment2Nv, "ColorAttachment2Nv"),
+        (FramebufferAttachment.ColorAttachment3, "ColorAttachment3"),
+        (FramebufferAttachment.ColorAttachment30, "ColorAttachment30"),
+        (FramebufferAttachment.ColorAttachment31, "ColorAttachment31"),
+        (FramebufferAttachment.ColorAttachment3Ext, "ColorAttachment3Ext"),
+        (FramebufferAttachment.ColorAttachment3Nv, "ColorAttachment3Nv"),
+        (FramebufferAttachment.ColorAttachment4, "ColorAttachment4"),
+        (FramebufferAttachment.ColorAttachment4Ext, "ColorAttachment4Ext"),
+        (FramebufferAttachment.ColorAttachment4Nv, "ColorAttachment4Nv"),
+        (FramebufferAttachment.ColorAttachment5, "ColorAttachment5"),
+        (FramebufferAttachment.ColorAttachment5Ext, "ColorAttachment5Ext"),
+        (FramebufferAttachment.ColorAttachment5Nv, "ColorAttachment5Nv"),
+        (FramebufferAttachment.ColorAttachment6, "ColorAttachment6"),
+        (FramebufferAttachment.ColorAttachment6Ext, "ColorAttachment6Ext"),
+        (FramebufferAttachment.ColorAttachment6Nv, "ColorAttachment6Nv"),
+        (FramebufferAttachment.ColorAttachment7, "ColorAttachment7"),
+        (FramebufferAttachment.ColorAttachment7Ext, "ColorAttachment7Ext"),
+        (FramebufferAttachment.ColorAttachment7Nv, "ColorAttachment7Nv"),
+        (FramebufferAttachment.ColorAttachment8, "ColorAttachment8"),
+        (FramebufferAttachment.ColorAttachment8Ext, "ColorAttachment8Ext"),
+        (FramebufferAttachment.ColorAttachment8Nv, "ColorAttachment8Nv"),
+        (FramebufferAttachment.ColorAttachment9, "ColorAttachment9"),
+        (FramebufferAttachment.ColorAttachment9Ext, "ColorAttachment9Ext"),
+        (FramebufferAttachment.ColorAttachment9Nv, "ColorAttachment9Nv"),
+        (FramebufferAttachment.Depth, "Depth"),
+        (FramebufferAttachment.DepthAttachment, "DepthAttachment"),
+        (FramebufferAttachment.DepthAttachmentExt, "DepthAttachmentExt"),
+        (FramebufferAttachment.DepthAttachmentOes, "DepthAttachmentOes"),
+        (FramebufferAttachment.DepthStencilAttachment, "DepthStencilAttachment"),
+        (FramebufferAttachment.FrontLeft, "FrontLeft"),
+        (FramebufferAttachment.FrontRight, "FrontRight"),
+        (FramebufferAttachment.MaxColorAttachments, "MaxColorAttachments"),
+        (FramebufferAttachment.MaxColorAttachmentsExt, "MaxColorAttachmentsExt"),
+        (FramebufferAttachment.MaxColorAttachmentsNv, "MaxColorAttachmentsNv"),
+        (FramebufferAttachment.Stencil, "Stencil"),
+        (FramebufferAttachment.StencilAttachment, "StencilAttachment"),
+        (FramebufferAttachment.StencilAttachmentExt, "StencilAttachmentExt"),
+    }).ConvertAll(a => (a.Item1, a.Item2.ToLower()));
+
+}
+
+file class ChangeEvent
+{
+    ChangeEvent[] subElements = Array.Empty<ChangeEvent>();
+    (float x, float y)? pozition, size;
+    OneOf<(string name, bool recorsive), int>? identyfy;
+    OneOf<SpacePoint.Anker, (Vector2 a1, Vector2 a2)>? anker;
+    bool? active;
+    (object obj, string name)? element;
+
+    public static ChangeEvent Parse(XElement element) => Parse(element, true);
+    static ChangeEvent Parse(XElement element, bool main)
+    {
+        var c = new ChangeEvent();
+        var val = element.Element("pozition");
+        if (val is not null)
+        {
+            c.pozition = float_parse(sizes(value(val)));
+            c.pozition = (c.pozition.Value.x * 4, c.pozition.Value.y * 4);
+        }
+        val = element.Element("size");
+        if (val is not null)
+        {
+            c.size = float_parse(sizes(value(val)));
+            c.size = (c.size.Value.x * 4, c.size.Value.y * 4);
+        }
+        val = element.Element("active");
+        if (val is not null)
+            c.active = bool.TryParse(value(val) ?? string.Empty, out var v) ? v : null;
+        val = element.Element("anker");
+        if (val is not null)
+        {
+            var atr = val.Attribute("mode")?.Value.ToLower();
+            if (atr is not null)
+                c.anker = ankerModes.Find(a => a.name == atr, new("Invalid variable structure")).Item1;
+        }
+        c.subElements = element.Elements("point").ConvertAll(c => Parse(c, false)).ToArray();
+        val = element.Element("element");
+        if (val is not null)
+        {
+            var ch_ev = element;
+            List<OneOf<(string name, bool recorsive), int>?> pozs = new();
+            while (ch_ev!.Name != "change")
+            {
+                pozs.Add(ident(ch_ev));
+                ch_ev = ch_ev.Parent!;
+            }
+            ch_ev = ch_ev?.Parent!.Parent!;
+            pozs.Reverse();
+
+            foreach (var p in pozs)
+            {
+                ch_ev = p.HasValue ? p?.Match(n =>
+                {
+                    return fin(ch_ev);
+
+                    XElement fin(XElement ele)
+                    {
+                        var poss = ele.Elements("point").Find(e => e.Attribute("name")?.Value == n.name, null);
+                        if (poss is not null)
+                            return poss;
+                        foreach(var c in ele.Elements("point"))
+                        {
+                            poss = fin(c);
+                            if (poss is not null)
+                                return poss;
+                        }
+                        return null!;
+                    }
+                },  i => ch_ev.Elements("point").Index(i)) : 
+                    ch_ev.Elements("point").FirstOrDefault();
+                if (ch_ev is null)
+                    break;
+            }
+            if (ch_ev is not null)
+                ch_ev = ch_ev.Element("element");
+            if (ch_ev is not null)
+            {
+                var type = ch_ev.Attribute("type")?.Value;
+                if (Assets.interfaceElementTypes.TryGetValue(type!, out var pars))
+                {
+                    var parser = pars.changeEventParameter;
+                    if (parser != null)
+                    {
+                        var param = parser.Invoke(val);
+                        c.element = (param!, type!);
+                    }
+                }
+            }
+        }
+        if (!main)
+            c.identyfy = ident(element);
+        return c;
+
+        OneOf<(string name, bool recorsive), int>? ident(XElement elm)
+        {
+            var name = elm.Attribute("name")?.Value;
+            var index = elm.Attribute("index")?.Value;
+            var recurs = element.Attribute("recorsive")?.Value.Cast(r => bool.TryParse(r, out var rec) ? rec : true) ?? true;
+            if (index is not null)
+                return int.TryParse(index, out var i) ? i : (name is null ? null : (name, recurs));
+            else if (name is not null)
+                return (name, recurs);
+            return null;
+        }
+    }
+    public static void Event(SpacePoint point, object sender)
+    {
+        var @event = sender as ChangeEvent;
+        if (@event is null)
+            return;
+
+        if (@event.active.HasValue)
+            point.Active = @event.active.Value;
+
+        if (@event.pozition.HasValue)
+            point.Pozition = @event.pozition.Value;
+
+        if (@event.size.HasValue)
+            point.Size = @event.size.Value;
+
+        if (@event.anker.HasValue)
+            @event.anker.Value.Switch(
+                a => point.AnkerMode = a,
+                p => point.AnkerPoints = p);
+
+        if(@event.element.HasValue)
+            Assets.interfaceElementTypes[@event.element.Value.name].changeEvent?.Invoke(point.Element!, @event.element.Value.obj);
+
+        foreach (var p in @event.subElements)
+        {
+            var poi = p.identyfy?.Match(
+                n => point.Childs.Find(n.name, n.recorsive),
+                i => new Range(0, point.Childs.Count).Contains(i) ? point.Childs[i] : null);
+            if (poi is null)
+                continue;
+            Event(poi, p);
+        }
+    }
+
+    public override string ToString() => $"{(identyfy?.Match(n => $"name: \"{n}\"", i => $"index: {i}") ?? "unidentyfied")}";
+}
+
+file class ChangeEventCrosshair
+{
+    string? texture;
+    FramebufferAttachment? chanel;
+    ((int x, int y) poz, (int w, int h) siz)? offset;
+
+    public static Element Parse(XElement e)
+    {
+        var cr = new GameView.Crosshair();
+
+        var texture = value(e.Element("texture"));
+        if (!string.IsNullOrWhiteSpace(texture))
+            cr.Interface = Assets.GetTexture(texture);
+
+        var chan = value(e.Element("screen"))?.ToLower()
+            .Cast(c =>
+                framebufferAttachment.Find(a => a.name == c, new("Invalid variable structure")).Item1);
+        if (chan.HasValue)
+            cr.Terrain = ((GameView)OpenGL.Engine.Scean!)._Terrain.Finisched.Textures[chan.Value];
+
+        var tex_poz = get_tex_poz(e.Element("pozition"));
+        if (tex_poz.HasValue)
+            (cr.Offset, cr.Size) = tex_poz.Value;
+
+        return cr;
+    }
+    public static object ParamParse(XElement element)
+    {
+        var o = new ChangeEventCrosshair();
+
+        var texture = value(element.Element("texture"));
+        if (!string.IsNullOrWhiteSpace(texture))
+            o.texture = texture;
+
+        var chan = value(element.Element("screen"))?.ToLower().Cast(c =>
+            framebufferAttachment.Find(a => a.name == c, new("Invalid variable structure")).Item1);
+        if (chan.HasValue)
+            o.chanel = chan.Value;
+
+        var tex_poz = get_tex_poz(element.Element("pozition"));
+        if (tex_poz.HasValue)
+            o.offset = tex_poz.Value;
+
+        return o;
+    }
+    public static void ChangeEvent(Element element, object value)
+    {
+        var elem = (GameView.Crosshair)element;
+        var @params = (ChangeEventCrosshair)value;
+
+        if (@params.texture is not null)
+            elem.Interface = Assets.GetTexture(@params.texture);
+
+        if (@params.chanel.HasValue)
+            elem.Terrain = ((GameView)OpenGL.Engine.Scean!)._Terrain.Finisched.Textures[@params.chanel.Value];
+
+        if (@params.offset.HasValue)
+            (elem.Offset, elem.Size) = @params.offset.Value;
+    }
+}
+file class ChangeEventInterfaceImage
+{
+    string? texture;
+    ((int x, int y) poz, (int w, int h) siz)? offset;
+
+    public static Element Parse(XElement e)
+    {
+        var ii = new InterfaceImage();
+
+        var texture = value(e.Element("texture"));
+        if (!string.IsNullOrWhiteSpace(texture))
+            ii.Texture = Assets.GetTexture(texture);
+
+        var tex_poz = get_tex_poz(e.Element("pozition"));
+        if (tex_poz.HasValue)
+            (ii.Offset, ii.Size) = tex_poz.Value;
+
+        return ii;
+    }
+    public static object ParamParse(XElement e)
+    {
+        var p = new ChangeEventInterfaceImage();
+
+        var texture = value(e.Element("texture"));
+        if (!string.IsNullOrWhiteSpace(texture))
+            p.texture = texture;
+
+        var tex_poz = get_tex_poz(e.Element("pozition"));
+        if (tex_poz.HasValue)
+            p.offset = tex_poz.Value;
+
+        return p;
+    }
+    public static void ChangeEvent(Element element, object value)
+    {
+        var elem = (InterfaceImage)element;
+        var @params = (ChangeEventInterfaceImage)value;
+
+        if (@params.texture is not null)
+            elem.Texture = Assets.GetTexture(@params.texture);
+
+        if (@params.offset.HasValue)
+            (elem.Offset, elem.Size) = @params.offset.Value;
+    }
+}
+file class ChangeEventImage
+{
+    Color4? color;
+    string? texture;
+    
+    public static Element Parse(XElement e)
+    {
+        var i = new OpenGL.GUI.Elements.Image();
+
+        var texture = value(e.Element("texture"));
+        if (!string.IsNullOrWhiteSpace(texture))
+            i.Texture = Assets.GetTexture(texture);
+
+        var color = load_color(e.Element("color"));
+        if (color.HasValue)
+            i.Color = color.Value;
+
+        return i;
+    }
+    public static object ParamParse(XElement e)
+    {
+        var p = new ChangeEventImage();
+
+        var texture = value(e.Element("texture"));
+        if (!string.IsNullOrWhiteSpace(texture))
+            p.texture = texture;
+
+        var color = load_color(e.Element("color"));
+        if (color.HasValue)
+            p.color = color.Value;
+
+        return p;
+    }
+    public static void ChangeEvent(Element element, object value)
+    {
+        var elem = (OpenGL.GUI.Elements.Image)element;
+        var @params = (ChangeEventImage)value;
+
+        if(@params.texture is not null)
+            elem.Texture = Assets.GetTexture(@params.texture);
+
+        if (@params.color.HasValue)
+            elem.Color = @params.color.Value;
+    }
+}
+file class ChangeEventStatusBar
+{
+    string? testure;
+    ((int x, int y) poz, (int w, int h) siz)? back;
+    ((int x, int y) poz, (int w, int h) siz)? full;
+    ((int x, int y) poz, (int w, int h) siz)? half;
+    int? points, filled;
+
+    public static Element Parse(XElement e)
+    {
+        var sb = new StatusBar();
+
+        var texture = value(e.Element("texture"));
+        if (!string.IsNullOrWhiteSpace(texture))
+            sb.Texture = Assets.GetTexture(texture);
+
+        var back_poz = get_tex_poz(e.Element("background"));
+        var full_poz = get_tex_poz(e.Element("full"));
+        var half_poz = get_tex_poz(e.Element("half"));
+        if (back_poz.HasValue)
+            sb.Background = back_poz.Value;
+        if (full_poz.HasValue)
+            sb.FullPoint = full_poz.Value;
+        if (half_poz.HasValue)
+            sb.HalfPoint = half_poz.Value;
+
+        var points = value(e.Element("points"));
+        if (!string.IsNullOrWhiteSpace(points))
+            sb.Points = int.TryParse(points, out var pos) ? pos : throw new Exception("Invalid variable structure");
+        else
+            sb.Points = 1;
+
+        var filled = value(e.Element("filled"));
+        if (!string.IsNullOrWhiteSpace(filled))
+            sb.Filled = int.TryParse(filled, out var pos) ? pos : throw new Exception("Invalid variable structure");
+
+        return sb;
+    }
+    public static object ParamParse(XElement e)
+    {
+        var p = new ChangeEventStatusBar();
+
+        var texture = value(e.Element("texture"));
+        if (!string.IsNullOrWhiteSpace(texture))
+            p.testure = texture;
+
+        p.back = get_tex_poz(e.Element("background"));
+        p.full = get_tex_poz(e.Element("full"));
+        p.half = get_tex_poz(e.Element("half"));
+
+        var points = value(e.Element("points"));
+        if (!string.IsNullOrWhiteSpace(points))
+            p.points = int.TryParse(points, out var pos) ? pos : null;
+
+        var filled = value(e.Element("filled"));
+        if (!string.IsNullOrWhiteSpace(filled))
+            p.filled = int.TryParse(filled, out var pos) ? pos : null;
+
+        return p;
+    }
+    public static void ChangeEvent(Element element, object value)
+    {
+        var elem = (StatusBar)element;
+        var @params = (ChangeEventStatusBar)value;
+
+        if(@params.testure is not null)
+            elem.Texture = Assets.GetTexture(@params.testure);
+
+        if (@params.back.HasValue)
+            elem.Background = @params.back.Value;
+
+        if (@params.full.HasValue)
+            elem.FullPoint = @params.full.Value;
+
+        if (@params.half.HasValue)
+            elem.HalfPoint = @params.half.Value;
+
+        if (@params.points.HasValue)
+            elem.Points = @params.points.Value;
+
+        if (@params.filled.HasValue)
+            elem.Filled = @params.filled.Value;
+    }
+}

@@ -347,7 +347,7 @@ public static class Engine
         Scean?.m_UpdateFrame(args);
         OnUpdateFrame?.Invoke(args);
         Input.Mouse.clear_data();
-        disposing.execute();
+        Disposing.execute();
         Input.Keyboard.clear();
     }
     #endregion
@@ -424,9 +424,9 @@ public static class Engine
         {
             if (scean != null)
                 scean.m_SceanUnload();
+            scean = value;
             if (value != null)
                 value.m_SceanLoad();
-            scean = value;
             GC.Collect();
         }
     }

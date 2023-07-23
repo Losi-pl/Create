@@ -46,17 +46,17 @@ partial class Shader
             {
                 AlphaTest = new() { active = shader.simple_mekanizms.alphatest };
                 DepthTest = new() { active = shader.simple_mekanizms.depthtest };
-                CullFace = shader.cull_face != CullFaceMode.FrontAndBack ? shader.cull_face : new system() { active = false };
-                Blend = shader.blend.HasValue ? shader.blend : new system() { active = false };
+                CullFace = shader.cull_face != CullFaceMode.FrontAndBack ? shader.cull_face : new System() { active = false };
+                Blend = shader.blend.HasValue ? shader.blend : new System() { active = false };
             }
 
-            public readonly system AlphaTest;
-            public readonly system DepthTest;
+            public readonly System AlphaTest;
+            public readonly System DepthTest;
             public readonly object CullFace;
             public readonly object Blend;
         }
         [DebuggerDisplay("{(active ? \"Enabled\" : \"Disabled\"),nq}")]
-        public struct system
+        public struct System
         {
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
             public bool active;

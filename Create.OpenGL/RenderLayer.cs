@@ -303,7 +303,7 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
             else
                 handles = new int[0];
         }
-        OpenGL.disposing.add(new disposing() {
+        OpenGL.Disposing.add(new Disposing() {
             textures = handles,
             handel = (this.handles.frame_buffer, this.handles.render_buffer) });
         textures = null!;
@@ -315,7 +315,7 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
     /// <summary>
     /// Niszczenie tego płutna i jego kanałów
     /// </summary>
-    struct disposing : OpenGL.disposing.gl_element
+    struct Disposing : OpenGL.Disposing.gl_element
     {
         public (int frame, int render) handel;
         public int[] textures;

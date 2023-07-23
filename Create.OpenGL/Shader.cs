@@ -108,128 +108,152 @@ public sealed partial class Shader : IDisposable
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
     public Shader SetUniform(string name, int value) => set_parametr(name, ActiveUniformType.Int, u => GL.Uniform1(u.Handle, value));
 
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
     public Shader SetUniform(string name, Vector2i value) => set_parametr(name, ActiveUniformType.IntVec2, u => GL.Uniform2(u.Handle, value), ActiveUniformType.UnsignedIntVec2);
 
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
     public Shader SetUniform(string name, Vector3i value) => set_parametr(name, ActiveUniformType.IntVec3, u => GL.Uniform3(u.Handle, value), ActiveUniformType.UnsignedIntVec3);
 
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
     public Shader SetUniform(string name, Vector4i value) => set_parametr(name, ActiveUniformType.IntVec4, u => GL.Uniform4(u.Handle, value), ActiveUniformType.UnsignedIntVec4);
 
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
     public Shader SetUniform(string name, bool value) => set_parametr(name, ActiveUniformType.Bool, u => GL.Uniform1(u.Handle, value ? 1 : 0));
 
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
     public Shader SetUniform(string name, Vector2b value) => set_parametr(name, ActiveUniformType.BoolVec2, u => GL.Uniform2(u.Handle, value.X ? 1 : 0, value.Y ? 1 : 0));
 
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
     public Shader SetUniform(string name, Vector3b value) => set_parametr(name, ActiveUniformType.BoolVec2, u => GL.Uniform3(u.Handle, value.X ? 1 : 0, value.Y ? 1 : 0, value.Z ? 1 : 0));
 
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
     public Shader SetUniform(string name, Vector4b value) => set_parametr(name, ActiveUniformType.BoolVec2, u => GL.Uniform4(u.Handle, value.X ? 1 : 0, value.Y ? 1 : 0, value.Z ? 1 : 0, value.W ? 1 : 0));
 
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
-
+    [DebuggerHidden]
     public Shader SetUniform(string name, float value) => set_parametr(name, ActiveUniformType.Float, u => GL.Uniform1(u.Handle, value));
 
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
     public Shader SetUniform(string name, Vector2 value) => set_parametr(name, ActiveUniformType.FloatVec2, u => GL.Uniform2(u.Handle, value));
 
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
     public Shader SetUniform(string name, Vector3 value) => set_parametr(name, ActiveUniformType.FloatVec3, u => GL.Uniform3(u.Handle, value));
 
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
     public Shader SetUniform(string name, Vector4 value) => set_parametr(name, ActiveUniformType.FloatVec4, u => GL.Uniform4(u.Handle, value));
 
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
 
     public Shader SetUniform(string name, Matrix2 value) => set_parametr(name, ActiveUniformType.FloatMat2, u => GL.UniformMatrix2(u.Handle, false, ref value));
 
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
     public Shader SetUniform(string name, Matrix2x3 value) => set_parametr(name, ActiveUniformType.FloatMat2x3, u => GL.UniformMatrix2x3(u.Handle, false, ref value));
 
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
     public Shader SetUniform(string name, Matrix2x4 value) => set_parametr(name, ActiveUniformType.FloatMat2x4, u => GL.UniformMatrix2x4(u.Handle, false, ref value));
 
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
     public Shader SetUniform(string name, Matrix3x2 value) => set_parametr(name, ActiveUniformType.FloatMat3x2, u => GL.UniformMatrix3x2(u.Handle, false, ref value));
 
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
     public Shader SetUniform(string name, Matrix3 value) => set_parametr(name, ActiveUniformType.FloatMat3, u => GL.UniformMatrix3(u.Handle, false, ref value));
 
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
     public Shader SetUniform(string name, Matrix3x4 value) => set_parametr(name, ActiveUniformType.FloatMat3x4, u => GL.UniformMatrix3x4(u.Handle, false, ref value));
 
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
     public Shader SetUniform(string name, Matrix4x2 value) => set_parametr(name, ActiveUniformType.FloatMat4x2, u => GL.UniformMatrix4x2(u.Handle, false, ref value));
 
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
     public Shader SetUniform(string name, Matrix4x3 value) => set_parametr(name, ActiveUniformType.FloatMat4x3, u => GL.UniformMatrix4x3(u.Handle, false, ref value));
 
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
     public Shader SetUniform(string name, Matrix4 value) => set_parametr(name, ActiveUniformType.FloatMat4, u => GL.UniformMatrix4(u.Handle, false, ref value));
 
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
     public Shader SetUniform(string name, Texture2D texture) => set_parametr_test(name, ActiveUniformType.Sampler2D, t => textures[t.TextureNumer!.Value] = texture, ActiveUniformType.UnsignedIntSampler2D);
 
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
     public Shader SetUniform(string name, Texture2DArray texture) => set_parametr_test(name, ActiveUniformType.Sampler2DArray, t => textures[t.TextureNumer!.Value] = texture, ActiveUniformType.UnsignedIntSampler2DArray);
 
     /// <summary>
     /// Ustawienie statycznej wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
     public Shader SetUniform(string name, RenderTexture texture) => set_parametr_test(name, ActiveUniformType.Sampler2D, t => textures[t.TextureNumer!.Value] = texture, ActiveUniformType.UnsignedIntSampler2D);
 
     /// <summary>
     /// Podstawa do zmieniania statycznych wartości w <see cref="Shader"/>ze
     /// </summary>
+    [DebuggerHidden]
     Shader set_parametr(string name, ActiveUniformType type, Action<UniformInfo> func, ActiveUniformType? secondary_type = null)
     {
         var var_ = uniformInfos.FindAndWhere(u => u.Name == name);
@@ -252,6 +276,7 @@ public sealed partial class Shader : IDisposable
     /// <summary>
     /// Podstawa do zmieniania statycznych wartości w <see cref="Shader"/> kąkretnie Tekstur
     /// </summary>
+    [DebuggerHidden]
     Shader set_parametr_test(string name, ActiveUniformType type, Action<UniformInfo> func, ActiveUniformType? secondary_type = null)
     {
         var var_ = uniformInfos.FindAndWhere(u => u.Name == name);
@@ -275,7 +300,7 @@ public sealed partial class Shader : IDisposable
             return;
         disposed = true;
         GC.SuppressFinalize(this);
-        OpenGL.disposing.add(new disposing() { handle = handle });
+        OpenGL.Disposing.add(new Disposing() { handle = handle });
         attributInfos = null!;
         uniformInfos = null!;
         textures = null!;
@@ -287,7 +312,7 @@ public sealed partial class Shader : IDisposable
     /// <summary>
     /// Odpowiedzialny za niszczenie <see cref="Shader"/>a
     /// </summary>
-    struct disposing : OpenGL.disposing.gl_element
+    struct Disposing : OpenGL.Disposing.gl_element
     {
         public int handle;
 

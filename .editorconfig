@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# CA2252: Ten interfejs API wymaga zgody na funkcje w wersji zapoznawczej
+dotnet_diagnostic.CA2252.severity = silent

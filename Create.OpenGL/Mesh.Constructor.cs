@@ -282,5 +282,17 @@ partial class Mesh
                 return handle;
             }
         }
+
+        /// <summary>
+        ///  Łączy wrzystkie dane w cały model i wykonuje na min akcje <paramref name="action"/>
+        /// </summary>
+        /// <param name="action">Akcja do wykonania na gotowym modelu</param>
+        /// <returns></returns>
+        public Mesh Finish(Action<Mesh> action)
+        {
+            var m = Finish();
+            action(m);
+            return m;
+        }
     }
 }
