@@ -28,6 +28,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="OneOf" Version="3.0.255" />
     <PackageReference Include="OneOf.SourceGenerator" Version="3.0.255" />
   </ItemGroup>

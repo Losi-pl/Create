@@ -43,7 +43,6 @@ public static class Register
         return rez.status;
     }
 
-    [RequiresPreviewFeatures]
     public static T CreateUserInterface<T>(object? sender = null) where T : UserInterface, IUserInterface<T>
     {
         if (!userinterfaces.TryGetValue(k => k.type == typeof(T), out var func))
@@ -226,10 +225,7 @@ public static class Register
         get_all_elements<Entity>(typeof(Entitys))
             .ForEvery(e => mod.RegisterElement(e.name, e.element));
         Assets.load_elements(mod);
-        
-        #pragma warning disable CA2252
         UserInterface.LoadInterfaces(mod);
-        #pragma warning restore CA2252
     }
 
     /// <summary>

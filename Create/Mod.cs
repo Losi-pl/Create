@@ -119,7 +119,6 @@ public sealed class Mod
     /// <param name="name">Nazwa interpretera</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    [RequiresPreviewFeatures]
     public Mod RegisterInterfaceLoadingMethod<T>(string name) where T : Element, IElementLoading<T>
     {
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
@@ -131,7 +130,6 @@ public sealed class Mod
         return this;
     }
 
-    [RequiresPreviewFeatures]
     public Mod RegisterInterface<T>(string name) where T : UserInterface, IUserInterface<T>
     {
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
