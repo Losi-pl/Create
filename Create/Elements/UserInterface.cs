@@ -16,6 +16,6 @@ public abstract class UserInterface
 
     internal static void LoadInterfaces(Mod mod)
     {
-        mod.RegisterInterface<CreativeInventory>("creativeinventory");
+        
     }
 }
