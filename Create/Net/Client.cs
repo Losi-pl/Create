@@ -132,10 +132,11 @@ public static class Client
         var gam = OpenGL.Engine.Scean as GameView;
         if (gam is null)
             throw new Exception("Game isn't active");
-        var ind = gam.UserInterfaces.IndexOf(ui => ui.user == userInterface);
-        if (ind == -1)
+        var user = gam.UserInterfaces.FindAndWhere(ui => ui.user == userInterface);
+        if (!user.HasValue)
             return false;
-        gam.UserInterfaces.RemoveAt(ind);
+        gam.UserInterfaces.RemoveAt(user.Value.index);
+        gam.Interface.MainElements.Find("Active Interface", false)?.Childs.RemoveChild(user.Value.element.point);
         return true;
     }
 }
