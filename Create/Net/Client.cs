@@ -139,4 +139,14 @@ public static class Client
         gam.Interface.MainElements.Find("Active Interface", false)?.Childs.RemoveChild(user.Value.element.point);
         return true;
     }
+
+    public static IEnumerable<UserInterface> GetUserInterfaces()
+    {
+        if (local_player is null)
+            throw new("Player is not loadet");
+        var gam = OpenGL.Engine.Scean as GameView;
+        if (gam is null)
+            throw new Exception("Game isn't active");
+        return gam.UserInterfaces.ConvertAll(ui => ui.user);
+    }
 }
