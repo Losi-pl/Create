@@ -22,7 +22,7 @@ public sealed class Interface
             .Finisch();
         main = new(this);
         main.Size = (width, height);
-        main_layer.Color = Color.Transparent;
+        main_layer.Color = new Color();
     }
 
     /// <summary>
