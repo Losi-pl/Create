@@ -61,7 +61,6 @@ internal sealed partial class GameView : Scean
             }
         };
         _interface.MainElements.AddChild(user_interface);
-        user_interface.Childs.AddChild(Assets.GetInterface("create:inventory"));
     }
 
     protected override void RenderFrame(FrameEventArgs args)
@@ -75,10 +74,11 @@ internal sealed partial class GameView : Scean
 
     protected override void UpdateFrame(FrameEventArgs args)
     {
-        if (Keyboard.Escape.Down)
+        bool inventory = Client.Me.Entity!.Data.Get("inventory_open") as bool? ?? false; ;
+        if(Mouse.Visible != inventory)
         {
-            Mouse.Visible = Mouse.Lock;
-            Mouse.Lock = !Mouse.Lock;
+            Mouse.Visible = inventory;
+            Mouse.Lock = !Mouse.Visible;
         }
 
         if (Mouse.Lock)
@@ -96,6 +96,7 @@ internal sealed partial class GameView : Scean
         }
 
         terrain.ChunkUpdate(args.Time);
+        Client.Me.Entity!.Data.Set("inventory_open", inventory);
         
         void camera_rotation()
         {
