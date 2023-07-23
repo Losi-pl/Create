@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<shader>
+  <properties>
+    <matrix>matrix</matrix>
+  </properties>
+  <depth status="false"/>
+  <alpha status="true"/>
+  <blend sfactor="One" dfactor="OneMinusSrcAlpha"/>
+  <version number="440" core="true"/>
+  <vertex>
+    in vec2 poz;
+
+    uniform mat4 matrix;
+
+    out vec2 uv;
+
+    void main()
+    {
+      uv = poz;
+      gl_Position = matrix * vec4(poz - vec2(.5, .5), 0.0, 1.0);
+    }
+  </vertex>
+  <fragment>
+    in vec2 uv;
+
+    uniform mat3x2 pointer_poz;
+    uniform sampler2D test;
+
+    out vec4 color_o;
+
+    void main()
+    {
+      vec2 uv_poz = (pointer_poz[1] / pointer_poz[0]) + ((pointer_poz[2] / pointer_poz[0]) * uv);
+      vec4 vis = texture(test, uv_poz);
+
+      if(vis == 0)
+        discard;
+
+      color_o = vis;
+    }
+  </fragment>
+</shader>

@@ -100,7 +100,9 @@ public static class Register
         void load_main_shaders()
         {
             var renderLayer = load_shader("assets/create/shaders/bazic", "renderlayer");
+            var imageElement = load_shader("assets/create/shaders/interface", "image");
             MainTask.Run(() => RenderLayer.set_shader(renderLayer));
+            MainTask.Run(() => OpenGL.GUI.Elements.Image.set_shader(imageElement));
 
             Shader load_shader(string path, string file)
             {
@@ -218,6 +220,7 @@ public static class Register
     static void bazic_setup()
     {
         MainTask.Run(() => RenderLayer.set_shader(Assets.GetShader("create:bazic/renderlayer")));
+        MainTask.Run(() => OpenGL.GUI.Elements.Image.set_shader(Assets.GetShader("create:interface/image")));
     }
 
     /// <summary>

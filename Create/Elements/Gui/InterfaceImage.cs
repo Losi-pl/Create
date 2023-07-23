@@ -8,43 +8,7 @@ namespace Create.Elements.Gui;
 
 public class InterfaceImage : Element
 {
-    static Shader shader = Shader.Create()
-        .VertexCode(@"#version 440 core
-            in vec2 poz;
- 
-            uniform mat4 matrix;
-
-            out vec2 uv;
-
-            void main()
-            {
-                uv = poz;
-                gl_Position = matrix * vec4(poz - vec2(.5, .5), 0.0, 1.0);
-            }")
-        .FragmentCode(@"#version 440 core
-            in vec2 uv;
-
-            uniform mat3x2 pointer_poz;
-            uniform sampler2D test;
-
-            out vec4 color_o;
-
-            void main()
-            {
-                vec2 uv_poz = (pointer_poz[1] / pointer_poz[0]) + ((pointer_poz[2] / pointer_poz[0]) * uv);
-                vec4 vis = texture(test, uv_poz);
-
-                if(vis == 0)
-                    discard;
-
-                color_o = vis;
-            }")
-        .ProjectionMatrixUniform("matrix")
-        .DepthTest(false)
-        .AlphaTest(true)
-        .Blend(BlendingFactor.One, BlendingFactor.OneMinusSrcAlpha)
-        .Finish();
-
+    static Shader shader = Assets.GetShader("create:interface/interfaceimage");
     static Mesh model = Mesh.Create(shader)
         .SetVertex("poz", new Vector2[]
         {
