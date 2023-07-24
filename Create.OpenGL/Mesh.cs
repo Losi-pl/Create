@@ -81,23 +81,21 @@ public sealed partial class Mesh : IDisposable, IDrawable
 
         GL.UseProgram(shader.Handle);
 
-        Matrix4 world_matrix;
-        {
-            Matrix4 mat = Matrix4.CreateTranslation(Position) *
-            ((Rotation != new Vector3()) ?
-                Matrix4.CreateFromQuaternion(new(Rotation)) :
-                Engine.NeutralMatrix);
-
-            world_matrix = model * mat * projection;
-        }
-
         cull_face();
         simpler_tests();
         blend_system();
         bind_textures();
 
         if (shader.DefaultMatrixSystem.HasValue)
+        {
+            Matrix4 world_matrix;
+            Matrix4 mat = Matrix4.CreateTranslation(Position) *
+            ((Rotation != new Vector3()) ?
+                Matrix4.CreateFromQuaternion(new(Rotation)) :
+                Engine.NeutralMatrix);
+            world_matrix = model * mat * projection;
             GL.UniformMatrix4(shader.DefaultMatrixSystem.Value.handle, false, ref world_matrix);
+        }
         if (shader.PozitionVariable.HasValue)
         {
             Vector3 vec = position;
