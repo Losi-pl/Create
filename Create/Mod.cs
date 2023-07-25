@@ -72,6 +72,14 @@ public sealed class Mod
     public Mod RegisterElement(string name, Entity entity) => register_element(entity, name, Register.entitys_console);
 
     /// <summary>
+    /// Metoda dodawanie <paramref name="item"/> do rejestru
+    /// </summary>
+    /// <param name="name">Nazwa itemu</param>
+    /// <param name="item">Klasa itemu</param>
+    /// <returns></returns>
+    public Mod RegisterElement(string name, Item item) => register_element(item, name, Register.items_console);
+
+    /// <summary>
     /// Dodawanie interpretera który konwertuje element zapisany w zasobach w kawałek interfejsu
     /// </summary>
     /// <param name="name">Nazwa interpretera</param>

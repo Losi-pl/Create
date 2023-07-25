@@ -22,10 +22,12 @@ public static class Register
     internal static readonly ElementRegister<Block>.Console blocks_console = new();
     internal static readonly ElementRegister<Dimention>.Console dimentions_console = new();
     internal static readonly ElementRegister<Entity>.Console entitys_console = new();
+    internal static readonly ElementRegister<Item>.Console items_console = new();
 
     public static readonly ElementRegister<Block> Blocks = blocks_console.Register;
     public static readonly ElementRegister<Dimention> Dimentions = dimentions_console.Register;
     public static readonly ElementRegister<Entity> Entitys = entitys_console.Register;
+    public static readonly ElementRegister<Item> Items = items_console.Register;
 
     internal static readonly Dictionary<(string name, Type type), Func<object?, (UserInterface status, OpenGL.GUI.SpacePoint point)>> userinterfaces = new();
 
@@ -209,6 +211,8 @@ public static class Register
         get_all_elements<Dimention>(typeof(Dimentions))
             .ForEvery(e => mod.RegisterElement(e.name, e.element));
         get_all_elements<Entity>(typeof(Entitys))
+            .ForEvery(e => mod.RegisterElement(e.name, e.element));
+        get_all_elements<Item>(typeof(Items))
             .ForEvery(e => mod.RegisterElement(e.name, e.element));
         Assets.load_elements(mod);
         UserInterface.LoadInterfaces(mod);
