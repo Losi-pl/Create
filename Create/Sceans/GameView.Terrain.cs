@@ -36,6 +36,9 @@ partial class GameView
             new_chunks.last = new_chunks.query;
         }
 
+        public void AddModel(IDrawable drawable) => nontransparent_blocks.Meshes.Add(drawable);
+        public bool RemoveModel(IDrawable drawable) => nontransparent_blocks.Meshes.Remove(drawable);
+
         /// <summary>
         /// Kolor nieba
         /// </summary>
