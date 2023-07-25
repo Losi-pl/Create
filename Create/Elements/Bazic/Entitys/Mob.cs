@@ -647,15 +647,46 @@ public abstract class Mob : Entity
     }
 
     /// <summary>
-    /// Gdzie trafia promień
+    /// Gdzie trafia promień interakcji
     /// </summary>
-    /// <param name="entity"></param>
-    /// <param name="distance"></param>
+    /// <param name="world">Świat w którym będzie interakcja będzie sprawdzana</param>
+    /// <param name="start">Pozycja wyjściowa dla interakcji</param>
+    /// <param name="lootRotation">Orjentacja promienia dla interakcji</param>
+    /// <param name="distance">Odległość na której interakcja będzie sprawdzana</param>
     /// <returns></returns>
     public static ((int x, int y, int z) pozition, int hitBoxNumer, Block.BlockSide side)? ImLookingAt(World world, Vector3 start, Vector2 lootRotation, float distance)
     {
+        var ray = MathC.CreateRay(start, lootRotation, distance);
         foreach(var bl_poz in MathC.CollidBlocks(start, lootRotation, distance))
-            world.SetBlock(bl_poz, new(Elements.Blocks.STONE));
+        {
+            var block = world.GetBlock(bl_poz);
+            var colliders = block.Block.GetInteractionCollision(new() { block = block, pozition = bl_poz.ToTumple(), world = world });
+            ((int index, Block.BlockSide side) collider, float distance)? collizion = null;
+            int i = -1;
+            foreach(var c in colliders)
+            {
+                var l_poz = bl_poz + c.pozition.ToVector();
+                var coll = ray.CastBox(l_poz, c.size.ToVector());
+                i++;
+                if (coll.HasValue)
+                {
+                    var wyn = coll.Value.Enter ?? coll.Value.Exit ?? new();
+                    var dis = wyn.Point.Distance(start);
+                    if(!collizion.HasValue)
+                    {
+                        collizion = ((i, wyn.Side), dis);
+                        continue;
+                    }
+                    if(collizion?.distance > dis)
+                    {
+                        collizion = ((i, wyn.Side), dis);
+                        continue;
+                    }
+                }
+            }
+            if(collizion.HasValue)
+                return (bl_poz.ToTumple(), collizion.Value.collider.index, collizion.Value.collider.side);
+        }
 
         return null;
     }
