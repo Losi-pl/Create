@@ -29,6 +29,7 @@ public sealed partial class Mesh : IDisposable, IDrawable
 
     (int vertex_buffer, int index_buffer, int vertex_array) handlers = new();
     int trangles_count;
+    MechDrawingMode mode;
 
     Vector3 position;
     Vector3 rotation;
@@ -69,9 +70,14 @@ public sealed partial class Mesh : IDisposable, IDrawable
     public (int VertexBuffer, int IndexBuffer, int VertexArray) Handle => handlers;
 
     /// <summary>
-    /// Liczba trujkątów z których model jest złorzony
+    /// Liczba trójkątów z których model jest złorzony
     /// </summary>
-    public int TranglesCount => trangles_count / 3;
+    public int TrianglesCount => mode == MechDrawingMode.Triangle ? trangles_count / 3 : throw new("Mesh mode isn't set on triangles");
+
+    /// <summary>
+    /// Liczba linji z których model jest złorzony
+    /// </summary>
+    public int LinesCount => mode == MechDrawingMode.Line ? trangles_count / 2 : throw new("Mesh mode isn't set on lines");
 
     public void Draw(Matrix4 projection, Matrix4 model)
     {
@@ -109,7 +115,12 @@ public sealed partial class Mesh : IDisposable, IDrawable
 
         GL.BindVertexArray(handlers.vertex_array);
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, handlers.index_buffer);
-        GL.DrawElements(PrimitiveType.Triangles, trangles_count, DrawElementsType.UnsignedInt, 0);
+        GL.DrawElements(mode switch
+        {
+            MechDrawingMode.Triangle => PrimitiveType.Triangles,
+            MechDrawingMode.Line => PrimitiveType.Lines,
+            _ => PrimitiveType.Triangles,
+        }, trangles_count, DrawElementsType.UnsignedInt, 0);
 
         GL.BindVertexArray(0);
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
@@ -202,4 +213,10 @@ public sealed partial class Mesh : IDisposable, IDrawable
             GL.DeleteBuffer(vb);
         }
     }
+}
+
+public enum MechDrawingMode
+{
+    Triangle,
+    Line
 }
