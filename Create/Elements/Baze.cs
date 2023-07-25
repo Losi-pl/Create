@@ -63,7 +63,7 @@ public abstract class Baze
     /// <summary>
     /// Wywoływana gdy element został zarejestrowany
     /// </summary>
-    public virtual void OnRegistered() { }
+    public virtual void OnRegistered(Mod mod) { }
 
     /// <summary>
     /// Ustawia podstawowe informacje elementu jak nazwa albo mod pochodzenia
@@ -76,7 +76,7 @@ public abstract class Baze
         this.mod = mod;
 
         var b = this;
-        b.OnRegistered();
+        b.OnRegistered(mod);
 
         registered = true;
     }

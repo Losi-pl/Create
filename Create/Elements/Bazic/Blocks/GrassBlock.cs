@@ -4,7 +4,7 @@ namespace Create.Elements.Bazic.Blocks;
 
 internal sealed class GrassBlock : GrassBase
 {
-    public override void OnRegistered()
+    public override void OnRegistered(Mod mod)
     {
         this.SetTextures(
             Assets.BlockAtlas.Handles["create:dirt"],
