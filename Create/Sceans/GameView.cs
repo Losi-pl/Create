@@ -1,4 +1,5 @@
-﻿using Create.Elements;
+﻿using Create.Conteiner;
+using Create.Elements;
 using Create.Elements.Bazic.Entitys;
 using Create.Elements.Bazic.Interfaces;
 using Create.Elements.Gui;
@@ -21,7 +22,8 @@ internal sealed partial class GameView : Scean
     Interface _interface;
     int slot_ind;
     List<(string name, UserInterface user, SpacePoint point)> userInterfaces = new();
-
+    static Shader shader = Assets.GetShader("create:selector");
+    
     internal Camera Camera => camera;
     internal Terrain _Terrain => terrain;
     internal Interface Interface => _interface;
@@ -75,8 +77,11 @@ internal sealed partial class GameView : Scean
 
     protected override void UpdateFrame(FrameEventArgs args)
     {
-        bool inventory = Client.Me.Entity!.Data.Get("inventory_open") as bool? ?? false; ;
-        if(Mouse.Visible != inventory)
+        bool inventory = Client.Me.Entity!.Data.Get("inventory_open") as bool? ?? false;
+        var interaction = Mob.ImLookingAt(Client.Me.Entity!, 6);
+        UpdateInteractionPointer(interaction);
+
+        if (Mouse.Visible != inventory)
         {
             Mouse.Visible = inventory;
             Mouse.Lock = !Mouse.Visible;
@@ -158,4 +163,87 @@ internal sealed partial class GameView : Scean
         camera.Projection = Projection;
     }
     Matrix4 Projection => Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, OpenGL.Engine.Size.X / (float)OpenGL.Engine.Size.Y, .01f, 10000f);
+
+    (Mesh model, ((float x, float y, float z) start, (float x, float y, float z) end)[] values, (PlacedBlock block, (int x, int y, int z) poz) block)? current;
+    void UpdateInteractionPointer(((int x, int y, int z) pozition, int hitBoxNumer, Block.BlockSide side)? collizion)
+    {
+        if (!current.HasValue && !collizion.HasValue)
+            return;
+        if(current.HasValue && !collizion.HasValue)
+        {
+            terrain.RemoveModel(current.Value.model);
+            current.Value.model.Dispose();
+            current = null;
+        }
+        else if (!current.HasValue && collizion.HasValue)
+        {
+            var world = Client.Me.Entity?.Dimention?.World;
+            if (world is null)
+                return;
+            var b = world.GetBlock(collizion.Value.pozition);
+            var int_mod = b.Block.GetInteractionModel(new() { block = b, pozition = collizion.Value.pozition, world = world });
+            var mesh = generateSelectionModel(int_mod);
+            mesh.Position = collizion.Value.pozition.ToVector().ToVector3();
+            current = (mesh, int_mod.ToArray(), (b, collizion.Value.pozition));
+            terrain.AddModel(mesh);
+        }
+        else
+        {
+            var world = Client.Me.Entity?.Dimention?.World;
+            if (world is null)
+                return;
+            var b = world.GetBlock(collizion!.Value.pozition);
+            var block_com = current!.Value.block.block == b;
+            var poz_com = current.Value.block.poz == collizion!.Value.pozition;
+            if(!block_com || !poz_com)
+            {
+                var int_mod = b.Block.GetInteractionModel(new() { block = b, pozition = collizion.Value.pozition, world = world });
+                var int_mod_com = compare(current!.Value.values, int_mod);
+                if (!int_mod_com)
+                {
+                    var new_model = generateSelectionModel(int_mod);
+                    current.Value.model.Dispose();
+                    current = (new_model, current.Value.values, (b, collizion.Value.pozition));
+                    new_model.Position = collizion.Value.pozition.ToVector().ToVector3();
+                }
+                else
+                {
+                    if(!poz_com)
+                    {
+                        current = (current.Value.model, current.Value.values, (b, collizion.Value.pozition));
+                        current.Value.model.Position = collizion.Value.pozition.ToVector().ToVector3();
+                    }
+                }
+            }
+        }
+
+        bool compare(((float x, float y, float z) start, (float x, float y, float z) end)[] array, 
+         IEnumerable<((float x, float y, float z) start, (float x, float y, float z) end)> enumerable)
+        {
+            if (array == null || enumerable == null)
+                return false;
+            var arr_ = ((IEnumerable<((float x, float y, float z) start, (float x, float y, float z) end)>)array).GetEnumerator();
+            var enu_ = enumerable.GetEnumerator();
+            bool p1, p2;
+            for ((p1, p2) = (enu_.MoveNext(), arr_.MoveNext()); p1 && p2; (p1, p2) = (enu_.MoveNext(), arr_.MoveNext()))
+            {
+                if (arr_.Current != enu_.Current)
+                    return false;
+            }
+            return (!p1) && (!p2);
+        }
+        Mesh generateSelectionModel(IEnumerable<((float x, float y, float z) start, (float x, float y, float z) end)> rawModel)
+        {
+            var cre = Mesh.Create(shader)
+                .DrawingMode(MechDrawingMode.Line)
+                .LineThickness(2);
+            var points = rawModel.Deconstruct().ConvertAll(v => ((v.ToVector() - new Vector3(.5f)) * 1.003f + new Vector3(.5f))).ToArray();
+            var index = (new Range(0, points.Length - 1)).GetEnumerable().ToArray();
+
+            cre.SetVertex("poz", points);
+            cre.SetTrangles(index);
+            return cre.Finish();
+        }
+    }
+
 }
