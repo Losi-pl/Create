@@ -118,6 +118,28 @@ internal sealed partial class GameView : Scean
             }
         }
 
+        if(Mouse.Left.Down)
+            if(interaction.HasValue)
+                Client.Me.Entity.Dimention?.World.SetBlock(interaction.Value.pozition, new PlacedBlock(Blocks.AIR));
+        
+        if(Mouse.Right.Down)
+        {
+            if(interaction.HasValue)
+            {
+                var point = interaction!.Value.pozition.ToVector() + interaction!.Value.side switch
+                {
+                    Block.BlockSide.Top => new(0, 1, 0),
+                    Block.BlockSide.Bottom => new(0, -1, 0),
+                    Block.BlockSide.North => new(0, 0, 1),
+                    Block.BlockSide.South => new(0, 0, -1),
+                    Block.BlockSide.West => new(-1, 0, 0),
+                    Block.BlockSide.East => new(1, 0, 0),
+                    _ => new Vector3i(0)
+                };
+                Client.Me.Entity.Dimention?.World.SetBlock(point, new PlacedBlock(Blocks.STONE));
+            }
+        }
+
         _interface.Phizic();
         if(Mouse.Scroll.Delta != 0)
         {
