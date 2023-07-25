@@ -94,12 +94,11 @@ public sealed partial class Mesh : IDisposable, IDrawable
 
         if (shader.DefaultMatrixSystem.HasValue)
         {
-            Matrix4 world_matrix;
             Matrix4 mat = Matrix4.CreateTranslation(Position) *
             ((Rotation != new Vector3()) ?
                 Matrix4.CreateFromQuaternion(new(Rotation)) :
                 Engine.NeutralMatrix);
-            world_matrix = model * mat * projection;
+            Matrix4 world_matrix = model * mat * projection;
             GL.UniformMatrix4(shader.DefaultMatrixSystem.Value.handle, false, ref world_matrix);
         }
         if (shader.PozitionVariable.HasValue)
