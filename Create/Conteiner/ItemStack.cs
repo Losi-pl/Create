@@ -114,4 +114,32 @@ public struct ItemStack
     public byte Type => edition;
     public string Meta => meta;
     public uint Count => count;
+
+    public PlacedBlock AsPlacedBlock()
+    {
+        if (item != Items.BLOCK_ITEM)
+            throw new Exception("Item doesn't contain block");
+
+        var meta = this.meta;
+        var bl_id = meta.AsSpan();
+        {
+            var i = meta.IndexOf(';');
+            if (i != -1)
+                bl_id = bl_id[0..i];
+        }
+        var nMeta = meta.IndexOf(';').Cast(c => c == -1 || c == meta.Length - 1 ? string.Empty : meta.Substring(c + 1, meta.Length - c - 1));
+        Block block = null!;
+        foreach (var b in Register.Blocks)
+        {
+            if (b.CodeName.AsSpan().Equals(bl_id, StringComparison.Ordinal))
+            {
+                block = b;
+                break;
+            }
+        }
+        if (block == null)
+            throw new Exception("Block not recognized");
+
+        return new(block, edition, nMeta);
+    }
 }

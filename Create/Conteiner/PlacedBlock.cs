@@ -72,4 +72,11 @@ public readonly struct PlacedBlock
     public static bool operator ==(PlacedBlock a, PlacedBlock b) =>
         (a.block == b.block) && (a.meta == b.meta) && (a.editor == b.editor);
     public static bool operator !=(PlacedBlock a, PlacedBlock b) => !(a == b);
+
+    public ItemStack AsItemStack(uint itemCount = 1)
+    {
+        if (itemCount < 1)
+            throw new ArgumentException("ItemStack can't be empty");
+        return new(itemCount, block, editor, meta);
+    }
 }
