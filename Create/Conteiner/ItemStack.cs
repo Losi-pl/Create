@@ -47,6 +47,42 @@ public struct ItemStack
     public ItemStack(Item item) : this(1, item) { }
     public ItemStack(Item item, byte type) : this(1, item, type) { }
     public ItemStack(Item item, byte type, string meta) : this(1, item, type, meta) { }
+
+    public ItemStack(uint count, Block block)
+    {
+        if (count <= 0)
+            throw new Exception("ItemStack can't be empty");
+        test_block(nameof(block), block);
+        this.count = count;
+        meta = block.CodeName;
+        edition = 0;
+        item = Items.BLOCK_ITEM;
+    }
+    public ItemStack(uint count, Block block, byte type)
+    {
+        if (count <= 0)
+            throw new Exception("ItemStack can't be empty");
+        test_block(nameof(block), block);
+        this.count = count;
+        meta = block.CodeName;
+        edition = type;
+        item = Items.BLOCK_ITEM;
+    }
+    public ItemStack(uint count, Block block, byte type, string meta)
+    {
+        if (count <= 0)
+            throw new Exception("ItemStack can't be empty");
+        test_block(nameof(block), block);
+        this.count = count;
+        this.meta = string.IsNullOrEmpty(meta) ? block.CodeName : $"{block.CodeName};{meta}";
+        edition = type;
+        item = Items.BLOCK_ITEM;
+    }
+
+    public ItemStack(Block block) : this(1, block) { }
+    public ItemStack(Block block, byte type) : this(1, block, type) { }
+    public ItemStack(Block block, byte type, string meta) : this(1, block, type, meta) { }
+
     /// <summary>
     /// Test czy Typ itemu jest zarejestrowany w rejestrze
     /// </summary>
@@ -57,6 +93,21 @@ public struct ItemStack
             throw new ArgumentNullException(paramName);
         if (!item.IsRegistered)
             throw new Exception($"Item {item.CodeName} is not registered");
+    }
+
+    /// <summary>
+    /// Test czy Typ bloku jest zarejestrowany w rejestrze
+    /// </summary>
+    /// <param name="paramName"></param>
+    /// <param name="block">Typ bloku</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="Exception"></exception>
+    static void test_block(string paramName, Block block)
+    {
+        if (block == null)
+            throw new ArgumentNullException(paramName);
+        if (!block.IsRegistered)
+            throw new Exception($"Block {block.CodeName} is not registered");
     }
 
     public Item Item => item;
