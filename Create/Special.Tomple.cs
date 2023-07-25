@@ -3,7 +3,7 @@
 partial class Special
 {
     #region Deconstruct
-    public static IEnumerable<T> Deconstruct<T>(this (T, T)[] values)
+    public static IEnumerable<T> Deconstruct<T>(this IEnumerable<(T, T)> values)
     {
         foreach (var value in values)
         {
@@ -11,7 +11,7 @@ partial class Special
             yield return value.Item2;
         }
     }
-    public static IEnumerable<T> Deconstruct<T>(this (T, T, T)[] values)
+    public static IEnumerable<T> Deconstruct<T>(this IEnumerable<(T, T, T)> values)
     {
         foreach (var value in values)
         {
@@ -20,7 +20,7 @@ partial class Special
             yield return value.Item3;
         }
     }
-    public static IEnumerable<T> Deconstruct<T>(this (T, T, T, T)[] values)
+    public static IEnumerable<T> Deconstruct<T>(this IEnumerable<(T, T, T, T)> values)
     {
         foreach (var value in values)
         {
@@ -30,7 +30,7 @@ partial class Special
             yield return value.Item4;
         }
     }
-    public static IEnumerable<T> Deconstruct<T>(this (T, T, T, T, T)[] values)
+    public static IEnumerable<T> Deconstruct<T>(this IEnumerable<(T, T, T, T, T)> values)
     {
         foreach (var value in values)
         {
@@ -41,7 +41,7 @@ partial class Special
             yield return value.Item5;
         }
     }
-    public static IEnumerable<T> Deconstruct<T>(this (T, T, T, T, T, T)[] values)
+    public static IEnumerable<T> Deconstruct<T>(this IEnumerable<(T, T, T, T, T, T)> values)
     {
         foreach (var value in values)
         {
@@ -53,7 +53,7 @@ partial class Special
             yield return value.Item6;
         }
     }
-    public static IEnumerable<T> Deconstruct<T>(this (T, T, T, T, T, T, T)[] values)
+    public static IEnumerable<T> Deconstruct<T>(this IEnumerable<(T, T, T, T, T, T, T)> values)
     {
         foreach (var value in values)
         {
@@ -66,7 +66,7 @@ partial class Special
             yield return value.Item7;
         }
     }
-    public static IEnumerable<T> Deconstruct<T>(this (T, T, T, T, T, T, T, T)[] values)
+    public static IEnumerable<T> Deconstruct<T>(this IEnumerable<(T, T, T, T, T, T, T, T)> values)
     {
         foreach (var value in values)
         {
@@ -80,7 +80,7 @@ partial class Special
             yield return value.Item8;
         }
     }
-    public static IEnumerable<T> Deconstruct<T>(this (T, T, T, T, T, T, T, T, T)[] values)
+    public static IEnumerable<T> Deconstruct<T>(this IEnumerable<(T, T, T, T, T, T, T, T, T)> values)
     {
         foreach (var value in values)
         {
@@ -95,7 +95,7 @@ partial class Special
             yield return value.Item9;
         }
     }
-    public static IEnumerable<T> Deconstruct<T>(this (T, T, T, T, T, T, T, T, T, T)[] values)
+    public static IEnumerable<T> Deconstruct<T>(this IEnumerable<(T, T, T, T, T, T, T, T, T, T)> values)
     {
         foreach (var value in values)
         {
