@@ -28,7 +28,7 @@ public sealed partial class Mesh : IDisposable, IDrawable
     Shader shader;
 
     (int vertex_buffer, int index_buffer, int vertex_array) handlers = new();
-    int trangles_count;
+    int trangles_count, line_thicknes;
     MechDrawingMode mode;
 
     Vector3 position;
@@ -113,6 +113,7 @@ public sealed partial class Mesh : IDisposable, IDrawable
             GL.Uniform3(shader.RotationVariable.Value.handle, ref vec);
         }
 
+        GL.LineWidth(line_thicknes);
         GL.BindVertexArray(handlers.vertex_array);
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, handlers.index_buffer);
         GL.DrawElements(mode switch

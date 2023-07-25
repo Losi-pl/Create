@@ -15,6 +15,7 @@ partial class Mesh
         MechDrawingMode mode = MechDrawingMode.Triangle;
         int[]? trangles;
         object[] attributes;
+        int line_thicknes = 1;
 
         public Constructor(Shader shader)
         {
@@ -215,6 +216,12 @@ partial class Mesh
             return this;
         }
 
+        public Constructor LineThickness(int thicknes)
+        {
+            line_thicknes = thicknes;
+            return this;
+        }
+
         /// <summary>
         /// Łączy wrzystkie dane w cały model
         /// </summary>
@@ -251,6 +258,7 @@ partial class Mesh
             var buffer = map_vertices(lenght.Value);
             Mesh mesh = new(shader);
             mesh.mode = mode;
+            mesh.line_thicknes = line_thicknes;
             int vertex_buff = vertex_buffer((int)lenght, buffer);
             int index_buff = index_byffer(trangles);
             int vertex_bin = vertex_bind(vertex_buff);
