@@ -1,15 +1,7 @@
-using Create.Conteiner;
-using Create.OpenGL.Textures;
-using Create.Render;
-using Create.Render.ModelCreators.Model;
-using Create.Render.ModelCreators.Side;
-using Create.Space;
-using OpenTK.Mathematics;
-
 namespace Create.Elements;
 
 /// <summary>
-/// Baza do budowy bloków
+/// Baza do budowy itemów
 /// </summary>
 public abstract class Item : Baze
 {
