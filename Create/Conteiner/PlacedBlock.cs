@@ -68,4 +68,8 @@ public readonly struct PlacedBlock
         if (!block.IsRegistered)
             throw new Exception($"Block {block.CodeName} is not registered");
     }
+
+    public static bool operator ==(PlacedBlock a, PlacedBlock b) =>
+        (a.block == b.block) && (a.meta == b.meta) && (a.editor == b.editor);
+    public static bool operator !=(PlacedBlock a, PlacedBlock b) => !(a == b);
 }

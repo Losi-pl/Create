@@ -12,10 +12,10 @@ partial class Mesh
     public class Constructor
     {
         Shader shader;
-
+        MechDrawingMode mode = MechDrawingMode.Triangle;
         int[]? trangles;
         object[] attributes;
-
+        int line_thicknes = 1;
 
         public Constructor(Shader shader)
         {
@@ -206,15 +206,37 @@ partial class Mesh
         }
 
         /// <summary>
+        /// Mode in witch model will be drawn
+        /// </summary>
+        /// <param name="mode"></param>
+        /// <returns></returns>
+        public Constructor DrawingMode(MechDrawingMode mode)
+        {
+            this.mode = mode;
+            return this;
+        }
+
+        public Constructor LineThickness(int thicknes)
+        {
+            line_thicknes = thicknes;
+            return this;
+        }
+
+        /// <summary>
         /// Łączy wrzystkie dane w cały model
         /// </summary>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         public Mesh Finish()
         {
-            Mesh mesh = new(shader);
             if (trangles == null)
                 throw new Exception("No trangles specified");
+            if (mode == MechDrawingMode.Triangle)
+                if (trangles.Length % 3 != 0)
+                    throw new Exception("Not every set of triangles is fully set");
+            if (mode == MechDrawingMode.Line)
+                if (trangles.Length % 2 != 0)
+                    throw new Exception("Not every set of lines is fully set");
             foreach (var att in attributes)
                 if (att is not Array)
                     throw new Exception("Not every attrybute was specyfied");
@@ -234,7 +256,9 @@ partial class Mesh
                 throw new Exception("Trangle out of range");
             lenght = lenght ?? 0;
             var buffer = map_vertices(lenght.Value);
-            mesh.shader = shader;
+            Mesh mesh = new(shader);
+            mesh.mode = mode;
+            mesh.line_thicknes = line_thicknes;
             int vertex_buff = vertex_buffer((int)lenght, buffer);
             int index_buff = index_byffer(trangles);
             int vertex_bin = vertex_bind(vertex_buff);

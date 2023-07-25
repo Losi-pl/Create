@@ -275,12 +275,17 @@ internal static partial class Special
     /// <summary>
     /// Konwertuje przediał wartości w kolekcje numerów
     /// </summary>
-    public static foreach_range GetEnumerator(this Range range) => new(range);
-    
+    public static IEnumerator<int> GetEnumerator(this Range range) => new foreach_range(range);
+
     /// <summary>
     /// <inheritdoc cref="GetEnumerator(Range)"/>
     /// </summary>
-    public ref struct foreach_range
+    public static IEnumerable<int> GetEnumerable(this Range range) => new foreach_range(range);
+
+    /// <summary>
+    /// <inheritdoc cref="GetEnumerator(Range)"/>
+    /// </summary>
+    public struct foreach_range : IEnumerator<int>, IEnumerable<int>
     {
         int index, end;
         public foreach_range(Range range)
@@ -292,13 +297,17 @@ internal static partial class Special
                 throw new NotSupportedException();
             end = range.End.Value;
         }
-
         public bool MoveNext()
         {
             index++;
             return index <= end;
         }
+        public IEnumerator<int> GetEnumerator() => this;
+        IEnumerator IEnumerable.GetEnumerator() => this;
+        public void Reset() { }
+        public void Dispose() { }
         public int Current => index;
+        object IEnumerator.Current => Current;
     }
     
     /// <summary>

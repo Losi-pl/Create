@@ -204,12 +204,9 @@ public abstract class Block : Baze
     /// </summary>
     /// <param name="set">Parametry bloku</param>
     /// <returns></returns>
-    public virtual BlockCollider[] GetPhisicCollision(StandardBlockSet set)
+    public virtual IEnumerable<BlockCollider> GetPhisicCollision(StandardBlockSet set)
     {
-        return new BlockCollider[]
-        {
-            new() { pozition = (.5f, .5f, .5f), size = (1, 1, 1) }
-        };
+        yield return new() { pozition = (.5f, .5f, .5f), size = (1, 1, 1) };
     }
 
     /// <summary>
@@ -217,12 +214,27 @@ public abstract class Block : Baze
     /// </summary>
     /// <param name="set">Parametry bloku</param>
     /// <returns></returns>
-    public virtual BlockCollider[] GetInteractionCollision(StandardBlockSet set)
+    public virtual IEnumerable<BlockCollider> GetInteractionCollision(StandardBlockSet set)
     {
-        return new BlockCollider[]
-        {
-            new() { pozition = (.5f, .5f, .5f), size = (1, 1, 1) }
-        };
+        yield return new() { pozition = (.5f, .5f, .5f), size = (1, 1, 1) };
+    }
+
+    public virtual IEnumerable<((float x, float y, float z) start, (float x, float y, float z) end)> GetInteractionModel(StandardBlockSet set)
+    {
+        yield return ((0, 0, 0), (1, 0, 0));
+        yield return ((0, 0, 1), (1, 0, 1));
+        yield return ((1, 0, 1), (1, 0, 0));
+        yield return ((0, 0, 1), (0, 0, 0));
+
+        yield return ((0, 1, 0), (1, 1, 0));
+        yield return ((0, 1, 1), (1, 1, 1));
+        yield return ((1, 1, 1), (1, 1, 0));
+        yield return ((0, 1, 1), (0, 1, 0));
+
+        yield return ((0, 0, 0), (0, 1, 0));
+        yield return ((0, 0, 1), (0, 1, 1));
+        yield return ((1, 0, 0), (1, 1, 0));
+        yield return ((1, 0, 1), (1, 1, 1));
     }
 
     [Flags]

@@ -248,17 +248,14 @@ public abstract class Mob : Entity
                 for (int x = entity_plane.x.min; x < entity_plane.x.max + 1; x++)
                     for (int z = entity_plane.z.min; z < entity_plane.z.max + 1; z++)
                     {
-                        Block.BlockCollider[] colliders;
+                        IEnumerable<Block.BlockCollider> colliders = world.GetBlock(x, y, z).Cast(b =>
+                            b.Block.GetPhisicCollision(new() { pozition = (x, y, z), block = b, world = world }));
+                        foreach(var c in colliders)
                         {
-                            var block = world.GetBlock(x, y, z);
-                            colliders = block.Block.GetPhisicCollision(new() { pozition = (x, y, z), block = block, world = world });
-                        }
-                        for (int i = 0; i < colliders.Length; i++)
-                        {
-                            var dist = (MathF.Abs(entity_pozition.X - (x + colliders[i].pozition.x)), MathF.Abs(entity_pozition.Z - (z + colliders[i].pozition.z)));
-                            if (dist.Item1 < (colliders[i].size.x / 2) + (entity_size.width / 2) && dist.Item2 < (colliders[i].size.z / 2) + (entity_size.width / 2))
+                            var dist = (MathF.Abs(entity_pozition.X - (x + c.pozition.x)), MathF.Abs(entity_pozition.Z - (z + c.pozition.z)));
+                            if (dist.Item1 < (c.size.x / 2) + (entity_size.width / 2) && dist.Item2 < (c.size.z / 2) + (entity_size.width / 2))
                             {
-                                var wys = y + colliders[i].pozition.y + (colliders[i].size.y / 2);
+                                var wys = y + c.pozition.y + (c.size.y / 2);
                                 if (entity_pozition.Y >= wys)
                                 {
                                     if (!max_poz_y.HasValue)
@@ -297,17 +294,14 @@ public abstract class Mob : Entity
                 for (int x = entity_plane.x.min; x < entity_plane.x.max + 1; x++)
                     for (int z = entity_plane.z.min; z < entity_plane.z.max + 1; z++)
                     {
-                        Block.BlockCollider[] colliders;
+                        IEnumerable<Block.BlockCollider> colliders = world.GetBlock(x, y, z).Cast(b =>
+                            b.Block.GetPhisicCollision(new() { pozition = (x, y, z), block = b, world = world }));
+                        foreach (var c in colliders)
                         {
-                            var block = world.GetBlock(x, y, z);
-                            colliders = block.Block.GetPhisicCollision(new() { pozition = (x, y, z), block = block, world = world });
-                        }
-                        for (int i = 0; i < colliders.Length; i++)
-                        {
-                            var dist = (MathF.Abs(entity_pozition.X - (x + colliders[i].pozition.x)), MathF.Abs(entity_pozition.Z - (z + colliders[i].pozition.z)));
-                            if (dist.Item1 < (colliders[i].size.x / 2) + (entity_size.width / 2) && dist.Item2 < (colliders[i].size.z / 2) + (entity_size.width / 2))
+                            var dist = (MathF.Abs(entity_pozition.X - (x + c.pozition.x)), MathF.Abs(entity_pozition.Z - (z + c.pozition.z)));
+                            if (dist.Item1 < (c.size.x / 2) + (entity_size.width / 2) && dist.Item2 < (c.size.z / 2) + (entity_size.width / 2))
                             {
-                                var wys = y + colliders[i].pozition.y - (colliders[i].size.y / 2);
+                                var wys = y + c.pozition.y - (c.size.y / 2);
                                 if (entity_top <= wys)
                                 {
                                     if (!min_poz_y.HasValue)
@@ -377,17 +371,14 @@ public abstract class Mob : Entity
                 for (int z = entity_plane.z.min; z < entity_plane.z.max + 1; z++)
                     for (int y = entity_plane.y.min; y < entity_plane.y.max + 1; y++)
                     {
-                        Block.BlockCollider[] colliders;
+                        IEnumerable<Block.BlockCollider> colliders = world.GetBlock(x, y, z).Cast(b =>
+                            b.Block.GetPhisicCollision(new() { pozition = (x, y, z), block = b, world = world }));
+                        foreach (var c in colliders)
                         {
-                            var block = world.GetBlock(x, y, z);
-                            colliders = block.Block.GetPhisicCollision(new() { pozition = (x, y, z), block = block, world = world });
-                        }
-                        for (int i = 0; i < colliders.Length; i++)
-                        {
-                            var dist = (MathF.Abs(entity_center.Z - (z + colliders[i].pozition.z)), MathF.Abs(entity_center.Y - (y + colliders[i].pozition.y)));
-                            if (dist.Item1 < (colliders[i].size.z / 2) + (entity_size.width / 2) && dist.Item2 < (colliders[i].size.y / 2) + (entity_size.height / 2))
+                            var dist = (MathF.Abs(entity_center.Z - (z + c.pozition.z)), MathF.Abs(entity_center.Y - (y + c.pozition.y)));
+                            if (dist.Item1 < (c.size.z / 2) + (entity_size.width / 2) && dist.Item2 < (c.size.y / 2) + (entity_size.height / 2))
                             {
-                                var poz = x + colliders[i].pozition.x + (colliders[i].size.x / 2);
+                                var poz = x + c.pozition.x + (c.size.x / 2);
                                 if (poz <= entity_side)
                                 {
                                     if (!min.HasValue)
@@ -428,17 +419,14 @@ public abstract class Mob : Entity
                 for (int z = entity_plane.z.min; z < entity_plane.z.max + 1; z++)
                     for (int y = entity_plane.y.min; y < entity_plane.y.max + 1; y++)
                     {
-                        Block.BlockCollider[] colliders;
+                        IEnumerable<Block.BlockCollider> colliders = world.GetBlock(x, y, z).Cast(b =>
+                            b.Block.GetPhisicCollision(new() { pozition = (x, y, z), block = b, world = world }));
+                        foreach (var c in colliders)
                         {
-                            var block = world.GetBlock(x, y, z);
-                            colliders = block.Block.GetPhisicCollision(new() { pozition = (x, y, z), block = block, world = world });
-                        }
-                        for (int i = 0; i < colliders.Length; i++)
-                        {
-                            var dist = (MathF.Abs(entity_center.Z - (z + colliders[i].pozition.z)), MathF.Abs(entity_center.Y - (y + colliders[i].pozition.y)));
-                            if (dist.Item1 < (colliders[i].size.z / 2) + (entity_size.width / 2) && dist.Item2 < (colliders[i].size.y / 2) + (entity_size.height / 2))
+                            var dist = (MathF.Abs(entity_center.Z - (z + c.pozition.z)), MathF.Abs(entity_center.Y - (y + c.pozition.y)));
+                            if (dist.Item1 < (c.size.z / 2) + (entity_size.width / 2) && dist.Item2 < (c.size.y / 2) + (entity_size.height / 2))
                             {
-                                var poz = x + colliders[i].pozition.x - (colliders[i].size.x / 2);
+                                var poz = x + c.pozition.x - (c.size.x / 2);
                                 if (poz >= entity_side)
                                 {
                                     if (!max.HasValue)
@@ -507,17 +495,14 @@ public abstract class Mob : Entity
                 for (int x = entity_plane.x.min; x < entity_plane.x.max + 1; x++)
                     for (int y = entity_plane.y.min; y < entity_plane.y.max + 1; y++)
                     {
-                        Block.BlockCollider[] colliders;
+                        IEnumerable<Block.BlockCollider> colliders = world.GetBlock(x, y, z).Cast(b =>
+                            b.Block.GetPhisicCollision(new() { pozition = (x, y, z), block = b, world = world }));
+                        foreach (var c in colliders)
                         {
-                            var block = world.GetBlock(x, y, z);
-                            colliders = block.Block.GetPhisicCollision(new() { pozition = (x, y, z), block = block, world = world });
-                        }
-                        for (int i = 0; i < colliders.Length; i++)
-                        {
-                            var dist = (MathF.Abs(entity_center.X - (x + colliders[i].pozition.x)), MathF.Abs(entity_center.Y - (y + colliders[i].pozition.y)));
-                            if (dist.Item1 < (colliders[i].size.x / 2) + (entity_size.width / 2) && dist.Item2 < (colliders[i].size.y / 2) + (entity_size.height / 2))
+                            var dist = (MathF.Abs(entity_center.X - (x + c.pozition.x)), MathF.Abs(entity_center.Y - (y + c.pozition.y)));
+                            if (dist.Item1 < (c.size.x / 2) + (entity_size.width / 2) && dist.Item2 < (c.size.y / 2) + (entity_size.height / 2))
                             {
-                                var poz = z + colliders[i].pozition.z + (colliders[i].size.z / 2);
+                                var poz = z + c.pozition.z + (c.size.z / 2);
                                 if (poz <= entity_side)
                                 {
                                     if (!min.HasValue)
@@ -558,17 +543,14 @@ public abstract class Mob : Entity
                 for (int x = entity_plane.x.min; x < entity_plane.x.max + 1; x++)
                     for (int y = entity_plane.y.min; y < entity_plane.y.max + 1; y++)
                     {
-                        Block.BlockCollider[] colliders;
+                        IEnumerable<Block.BlockCollider> colliders = world.GetBlock(x, y, z).Cast(b =>
+                            b.Block.GetPhisicCollision(new() { pozition = (x, y, z), block = b, world = world }));
+                        foreach (var c in colliders)
                         {
-                            var block = world.GetBlock(x, y, z);
-                            colliders = block.Block.GetPhisicCollision(new() { pozition = (x, y, z), block = block, world = world });
-                        }
-                        for (int i = 0; i < colliders.Length; i++)
-                        {
-                            var dist = (MathF.Abs(entity_center.X - (x + colliders[i].pozition.x)), MathF.Abs(entity_center.Y - (y + colliders[i].pozition.y)));
-                            if (dist.Item1 < (colliders[i].size.x / 2) + (entity_size.width / 2) && dist.Item2 < (colliders[i].size.y / 2) + (entity_size.height / 2))
+                            var dist = (MathF.Abs(entity_center.X - (x + c.pozition.x)), MathF.Abs(entity_center.Y - (y + c.pozition.y)));
+                            if (dist.Item1 < (c.size.x / 2) + (entity_size.width / 2) && dist.Item2 < (c.size.y / 2) + (entity_size.height / 2))
                             {
-                                var poz = z + colliders[i].pozition.z - (colliders[i].size.z / 2);
+                                var poz = z + c.pozition.z - (c.size.z / 2);
                                 if (poz >= entity_side)
                                 {
                                     if (!max.HasValue)
@@ -624,17 +606,14 @@ public abstract class Mob : Entity
             for (int x = entity_plane.x.min; x < entity_plane.x.max + 1; x++)
                 for (int z = entity_plane.z.min; z < entity_plane.z.max + 1; z++)
                 {
-                    Block.BlockCollider[] colliders;
+                    IEnumerable<Block.BlockCollider> colliders = world.GetBlock(x, y, z).Cast(b =>
+                            b.Block.GetPhisicCollision(new() { pozition = (x, y, z), block = b, world = world }));
+                    foreach (var c in colliders)
                     {
-                        var block = world.GetBlock(x, y, z);
-                        colliders = block.Block.GetPhisicCollision(new() { pozition = (x, y, z), block = block, world = world });
-                    }
-                    for (int i = 0; i < colliders.Length; i++)
-                    {
-                        var dist = (MathF.Abs(entity_pozition.X - (x + colliders[i].pozition.x)), MathF.Abs(entity_pozition.Z - (z + colliders[i].pozition.z)));
-                        if (dist.Item1 < (colliders[i].size.x / 2) + (entity_size.width / 2) && dist.Item2 < (colliders[i].size.z / 2) + (entity_size.width / 2))
+                        var dist = (MathF.Abs(entity_pozition.X - (x + c.pozition.x)), MathF.Abs(entity_pozition.Z - (z + c.pozition.z)));
+                        if (dist.Item1 < (c.size.x / 2) + (entity_size.width / 2) && dist.Item2 < (c.size.z / 2) + (entity_size.width / 2))
                         {
-                            var wys = y + colliders[i].pozition.y + (colliders[i].size.y / 2);
+                            var wys = y + c.pozition.y + (c.size.y / 2);
                             if (wys == entity_pozition.Y)
                                 return true;
                         }
@@ -668,15 +647,46 @@ public abstract class Mob : Entity
     }
 
     /// <summary>
-    /// Gdzie trafia promień
+    /// Gdzie trafia promień interakcji
     /// </summary>
-    /// <param name="entity"></param>
-    /// <param name="distance"></param>
+    /// <param name="world">Świat w którym będzie interakcja będzie sprawdzana</param>
+    /// <param name="start">Pozycja wyjściowa dla interakcji</param>
+    /// <param name="lootRotation">Orjentacja promienia dla interakcji</param>
+    /// <param name="distance">Odległość na której interakcja będzie sprawdzana</param>
     /// <returns></returns>
     public static ((int x, int y, int z) pozition, int hitBoxNumer, Block.BlockSide side)? ImLookingAt(World world, Vector3 start, Vector2 lootRotation, float distance)
     {
+        var ray = MathC.CreateRay(start, lootRotation, distance);
         foreach(var bl_poz in MathC.CollidBlocks(start, lootRotation, distance))
-            world.SetBlock(bl_poz, new(Elements.Blocks.STONE));
+        {
+            var block = world.GetBlock(bl_poz);
+            var colliders = block.Block.GetInteractionCollision(new() { block = block, pozition = bl_poz.ToTumple(), world = world });
+            ((int index, Block.BlockSide side) collider, float distance)? collizion = null;
+            int i = -1;
+            foreach(var c in colliders)
+            {
+                var l_poz = bl_poz + c.pozition.ToVector();
+                var coll = ray.CastBox(l_poz, c.size.ToVector());
+                i++;
+                if (coll.HasValue)
+                {
+                    var wyn = coll.Value.Enter ?? coll.Value.Exit ?? new();
+                    var dis = wyn.Point.Distance(start);
+                    if(!collizion.HasValue)
+                    {
+                        collizion = ((i, wyn.Side), dis);
+                        continue;
+                    }
+                    if(collizion?.distance > dis)
+                    {
+                        collizion = ((i, wyn.Side), dis);
+                        continue;
+                    }
+                }
+            }
+            if(collizion.HasValue)
+                return (bl_poz.ToTumple(), collizion.Value.collider.index, collizion.Value.collider.side);
+        }
 
         return null;
     }

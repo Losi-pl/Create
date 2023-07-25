@@ -28,7 +28,8 @@ public sealed partial class Mesh : IDisposable, IDrawable
     Shader shader;
 
     (int vertex_buffer, int index_buffer, int vertex_array) handlers = new();
-    int trangles_count;
+    int trangles_count, line_thicknes;
+    MechDrawingMode mode;
 
     Vector3 position;
     Vector3 rotation;
@@ -69,9 +70,14 @@ public sealed partial class Mesh : IDisposable, IDrawable
     public (int VertexBuffer, int IndexBuffer, int VertexArray) Handle => handlers;
 
     /// <summary>
-    /// Liczba trujkątów z których model jest złorzony
+    /// Liczba trójkątów z których model jest złorzony
     /// </summary>
-    public int TranglesCount => trangles_count / 3;
+    public int TrianglesCount => mode == MechDrawingMode.Triangle ? trangles_count / 3 : throw new("Mesh mode isn't set on triangles");
+
+    /// <summary>
+    /// Liczba linji z których model jest złorzony
+    /// </summary>
+    public int LinesCount => mode == MechDrawingMode.Line ? trangles_count / 2 : throw new("Mesh mode isn't set on lines");
 
     public void Draw(Matrix4 projection, Matrix4 model)
     {
@@ -81,23 +87,20 @@ public sealed partial class Mesh : IDisposable, IDrawable
 
         GL.UseProgram(shader.Handle);
 
-        Matrix4 world_matrix;
-        {
-            Matrix4 mat = Matrix4.CreateTranslation(Position) *
-            ((Rotation != new Vector3()) ?
-                Matrix4.CreateFromQuaternion(new(Rotation)) :
-                Engine.NeutralMatrix);
-
-            world_matrix = model * mat * projection;
-        }
-
         cull_face();
         simpler_tests();
         blend_system();
         bind_textures();
 
         if (shader.DefaultMatrixSystem.HasValue)
+        {
+            Matrix4 mat = Matrix4.CreateTranslation(Position) *
+            ((Rotation != new Vector3()) ?
+                Matrix4.CreateFromQuaternion(new(Rotation)) :
+                Engine.NeutralMatrix);
+            Matrix4 world_matrix = model * mat * projection;
             GL.UniformMatrix4(shader.DefaultMatrixSystem.Value.handle, false, ref world_matrix);
+        }
         if (shader.PozitionVariable.HasValue)
         {
             Vector3 vec = position;
@@ -109,9 +112,15 @@ public sealed partial class Mesh : IDisposable, IDrawable
             GL.Uniform3(shader.RotationVariable.Value.handle, ref vec);
         }
 
+        GL.LineWidth(line_thicknes);
         GL.BindVertexArray(handlers.vertex_array);
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, handlers.index_buffer);
-        GL.DrawElements(PrimitiveType.Triangles, trangles_count, DrawElementsType.UnsignedInt, 0);
+        GL.DrawElements(mode switch
+        {
+            MechDrawingMode.Triangle => PrimitiveType.Triangles,
+            MechDrawingMode.Line => PrimitiveType.Lines,
+            _ => PrimitiveType.Triangles,
+        }, trangles_count, DrawElementsType.UnsignedInt, 0);
 
         GL.BindVertexArray(0);
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
@@ -204,4 +213,10 @@ public sealed partial class Mesh : IDisposable, IDrawable
             GL.DeleteBuffer(vb);
         }
     }
+}
+
+public enum MechDrawingMode
+{
+    Triangle,
+    Line
 }
