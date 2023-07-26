@@ -123,14 +123,10 @@ partial class Assets
             ChangeEventStatusBar.ChangeEvent,
             ChangeEventStatusBar.ParamParse);
 
-        mod.RegisterInterfaceLoadingMethod("Slot", e =>
-        {
-            var item = new OpenGL.GUI.Elements.Image();
-
-            item.Color = Color4.LightGreen;
-
-            return item;
-        });
+        mod.RegisterInterfaceLoadingMethod("Slot",
+            ChangeEventItemSlot.Parse,
+            ChangeEventItemSlot.ChangeEvent,
+            ChangeEventItemSlot.ParamParse);
     }
 }
 
@@ -698,5 +694,23 @@ file class ChangeEventStatusBar
 
         if (@params.filled.HasValue)
             elem.Filled = @params.filled.Value;
+    }
+}
+
+file class ChangeEventItemSlot
+{
+    public static Element Parse(XElement e)
+    {
+        var @is = new ItemSlot(int.TryParse(e.Attribute("id")?.Value, out var id) ? id : null);
+        return @is;
+    }
+    public static object ParamParse(XElement e)
+    {
+        return new ChangeEventItemSlot();
+    }
+    public static void ChangeEvent(Element element, object value)
+    {
+        var elem = (ItemSlot)element;
+        var @params = (ChangeEventItemSlot)value;
     }
 }

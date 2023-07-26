@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<shader>
+  <properties>
+    <matrix>matrix</matrix>
+  </properties>
+  <depth status="false"/>
+  <alpha status="true"/>
+  <blend sfactor="One" dfactor="OneMinusSrcAlpha"/>
+  <version number="440" core="true"/>
+  <vertex>
+    in vec2 poz;
+    uniform mat4 matrix;
+    out vec2 uv;
+    void main()
+    {
+      uv = poz;
+      gl_Position = matrix * vec4(poz - vec2(.5, .5), 0.0, 1.0);
+    }
+  </vertex>
+  <fragment>
+    in vec2 uv;
+    out vec4 color_o;
+    uniform sampler2D text;
+    void main()
+    {
+      color_o = texture(text, uv);
+    }
+  </fragment>
+</shader>
