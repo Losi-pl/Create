@@ -118,11 +118,11 @@ internal sealed partial class GameView : Scean
             }
         }
 
-        if(Mouse.Left.Down)
+        if(Mouse.Left.Down && !inventory)
             if(interaction.HasValue)
                 Client.Me.Entity.Dimention?.World.SetBlock(interaction.Value.pozition, new PlacedBlock(Blocks.AIR));
         
-        if(Mouse.Right.Down)
+        if(Mouse.Right.Down && !inventory)
         {
             if(interaction.HasValue)
             {
