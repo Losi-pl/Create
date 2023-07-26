@@ -17,29 +17,17 @@ partial class ModelConstructor
     /// <param name="chunk">Pozycja chunka</param>
     /// <param name="quard">Numer sześcianu od dołu do wygenerowania</param>
     /// <returns></returns>
-    public static Dictionary<Type, Mesh> ChunkModel(DimentionSpace dimention, ChunkPoz chunk, int quard)
+    public static WorldModel ChunkModel(DimentionSpace dimention, ChunkPoz chunk, int quard)
     {
         var chunk_s = dimention.get_chunk(chunk);
         World world = new DimentionSpace.DimentionWorldFaster(dimention, chunk);
-        ModelConstructor constructor = new();
-        int Y = quard * Chunk.QUARD_SIZE;
-        for (int x = 0; x < Chunk.QUARD_SIZE; x++)
-            for (int z = 0; z < Chunk.QUARD_SIZE; z++)
-                for (int y = 0; y < Chunk.QUARD_SIZE; y++)
-                {
-                    var poz = ((chunk.X * Chunk.QUARD_SIZE) + x, Y + y, (chunk.Z * Chunk.QUARD_SIZE) + z);
-                    var bl = world.GetBlock(poz);
-                    bl.Block.GenerateModel(new()
-                    {
-                        pozition = poz,
-                        block = bl,
-                        world = world
-                    }, constructor);
-                }
-        Dictionary<Type, Mesh> quard_m = new();
-        foreach (var elem in constructor.ModelMekanizm)
-            quard_m.Add(elem.Key, elem.Value.FinischModel());
-        return quard_m;
+        (int s, int e) xRange = (chunk.X * Chunk.QUARD_SIZE, ((chunk.X + 1) * Chunk.QUARD_SIZE) - 1);
+        (int s, int e) zRange = (chunk.Z * Chunk.QUARD_SIZE, ((chunk.Z + 1) * Chunk.QUARD_SIZE) - 1);
+        (int s, int e) yRange = (quard * Chunk.QUARD_SIZE, ((quard + 1) * Chunk.QUARD_SIZE) - 1);
+        if (chunk_s?.quards_content[quard] == 0)
+            return new(new());
+        else
+            return WorldModel(world, xRange, yRange, zRange);
     }
 
     /// <summary>
@@ -51,36 +39,19 @@ partial class ModelConstructor
     public static FinischedChunkModel ChunkModel(DimentionSpace dimention, ChunkPoz chunk)
     {
         var need_r = dimention.get_chunk(chunk)?.quards_content;
-        ModelConstructor mc = new();
         if (need_r == null)
-            return new(new Dictionary<Type, Mesh>[Chunk.QUARD_STACK], chunk);
+            return new(new WorldModel[Chunk.QUARD_STACK], chunk);
         World w = new DimentionSpace.DimentionWorldFaster(dimention, chunk);
-        Dictionary<Type, Mesh>[] models  = new Dictionary<Type, Mesh>[Chunk.QUARD_STACK];
+        WorldModel[] models = new WorldModel[Chunk.QUARD_STACK];
+        (int s, int e) xRange = ((chunk.X * Chunk.QUARD_SIZE), ((chunk.X + 1) * Chunk.QUARD_SIZE) - 1);
+        (int s, int e) zRange = ((chunk.Z * Chunk.QUARD_SIZE), ((chunk.Z + 1) * Chunk.QUARD_SIZE) - 1);
         for (int q = 0; q < Chunk.QUARD_STACK; q++)
         {
+            (int s, int e) yRange = (q * Chunk.QUARD_SIZE, ((q + 1) * Chunk.QUARD_SIZE) - 1);
             if (need_r![q] == 0)
-            {
-                models[q] = new();
-                continue;
-            }
-            int Y = q * Chunk.QUARD_SIZE;
-            for (int x = 0; x < Chunk.QUARD_SIZE; x++)
-                for (int z = 0; z < Chunk.QUARD_SIZE; z++)
-                    for (int y = 0; y < Chunk.QUARD_SIZE; y++)
-                    {
-                        var poz = ((chunk.X * Chunk.QUARD_SIZE) + x, Y + y, (chunk.Z * Chunk.QUARD_SIZE) + z);
-                        var bl = w.GetBlock(poz);
-                        bl.Block.GenerateModel(new()
-                        {
-                            pozition = poz,
-                            block = bl,
-                            world = w
-                        }, mc);
-                    }
-            Dictionary<Type, Mesh> quard = new();
-            foreach (var elem in mc.ModelMekanizm)
-                quard.Add(elem.Key, elem.Value.FinischModel());
-            models[q] = quard;
+                models[q] = new(new Dictionary<Type, Mesh>());
+            else
+                models[q] = WorldModel(w, xRange, yRange, zRange);
         }
         return new(models, chunk);
     }
@@ -91,9 +62,9 @@ partial class ModelConstructor
 /// </summary>
 public class FinischedChunkModel : IDrawable, IDisposable
 {
-    Dictionary<Type, Mesh>[] models = new Dictionary<Type, Mesh>[Chunk.QUARD_STACK];
+    WorldModel[] models;
     ChunkPoz pozition;
-    internal FinischedChunkModel(Dictionary<Type, Mesh>[] models, ChunkPoz pozition)
+    internal FinischedChunkModel(WorldModel[] models, ChunkPoz pozition)
     {
         this.models = models;
         this.pozition = pozition;
@@ -104,34 +75,23 @@ public class FinischedChunkModel : IDrawable, IDisposable
     /// </summary>
     public ChunkPoz Pozition => pozition;
 
-    /// <summary>
-    /// Części gotowego modelu całego chunka
-    /// <para>This element is very unoptimized and it is recommended to use it as rarely as possible</para>
-    /// </summary>
-    public VirtualList<VirtualDictionaty<Type, Mesh>> ModelParts => VirtualList.Create<VirtualDictionaty<Type, Mesh>>()
-        .CountMethod(() => models.Length)
-        .EnumerableMethod(() => ((IEnumerable<Dictionary<Type, Mesh>>)models).ConvertAll(d => VirtualDictionaty.Create(d).Finsh()))
-        .IsContainMethod(d => false)
-        .GetMethod(i => VirtualDictionaty.Create(models[i]).Finsh())
-        .Finish();
+    public VirtualList<WorldModel> ModelParts => VirtualList.Create(models).Finish();
 
     /// <summary>
     /// Ustawia cześcian modelu w chunku
     /// </summary>
     /// <param name="model">Części modelu sześcianu</param>
     /// <param name="poz">Gdzie ten element się znajduje</param>
-    internal void set_new_quard(Dictionary<Type, Mesh> model, int poz)
+    internal void set_new_quard(WorldModel model, int poz)
     {
-        foreach (var mod in models[poz].Values)
-            mod.Dispose();
+        models[poz]?.Dispose();
         models[poz] = model;
     }
 
     public void Dispose()
     {
-        for (int i = 0; i < models.Length; i++)
-            foreach (var mod in models[i].Values)
-                mod.Dispose();
+        foreach (var m in models)
+            m?.Dispose();
     }
 
     /// <summary>
@@ -148,10 +108,7 @@ public class FinischedChunkModel : IDrawable, IDisposable
             point *= new Vector3(1, 1, -1);
 
             if (MathC.InView(model * projection, (point.ToTumple(), (Chunk.QUARD_SIZE, Chunk.QUARD_SIZE, Chunk.QUARD_SIZE))))
-            {
-                foreach (var mod in models[i].Values)
-                    mod.Draw(projection, model);
-            }
+                models[i]?.Draw(projection, model);
         }
     }
 }

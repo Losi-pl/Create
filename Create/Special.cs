@@ -84,18 +84,6 @@ internal static partial class Special
         (T)constructor.ModelMekanizm[typeof(T)];
     
     /// <summary>
-    /// Wyciąga wrzystkie elementy modelu terenu z konstruktora
-    /// </summary>
-    /// <param name="model">Konstruktor terenu</param>
-    /// <returns></returns>
-    public static IEnumerable<Mesh> AllModelParts(this FinischedChunkModel model)
-    {
-        foreach (var quard in model.ModelParts)
-            foreach (var mesh in quard)
-                yield return mesh.Value;
-    }
-    
-    /// <summary>
     /// Odległość między dwoma Chunkami
     /// </summary>
     /// <param name="v1"></param>
