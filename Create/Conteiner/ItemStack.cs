@@ -1,4 +1,5 @@
 ﻿using Create.Elements;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Create.Conteiner;
 
@@ -114,6 +115,13 @@ public struct ItemStack
     public byte Type => edition;
     public string Meta => meta;
     public uint Count => count;
+
+    public static bool operator ==(ItemStack a, ItemStack b) =>
+        (a.count == b.count) && (a.item == b.item) && (a.meta == b.meta) && (a.edition == b.edition);
+    public static bool operator !=(ItemStack a, ItemStack b) => !(a == b);
+
+    public override bool Equals([NotNullWhen(true)] object? obj) => base.Equals(obj);
+    public override int GetHashCode() => base.GetHashCode();
 
     public PlacedBlock AsPlacedBlock()
     {
