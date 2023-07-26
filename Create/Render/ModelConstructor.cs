@@ -5,7 +5,7 @@ namespace Create.Render;
 /// <summary>
 /// Mechanizm grupujące podrzędne mechanizm budowania modelu terenu
 /// </summary>
-public abstract class ModelConstructor
+public sealed partial class ModelConstructor
 {
     Dictionary<Type, ChunkModel> models;
 
@@ -15,11 +15,6 @@ public abstract class ModelConstructor
     /// Oddzielne mechanizmy do generowania modelu terenu
     /// </summary>
     public VirtualDictionaty<Type, ChunkModel> ModelMekanizm => model_mekanizm;
-
-    /// <summary>
-    /// Biblioteka z wrzystkimi urzytymi mechanizmami generowania terenu
-    /// </summary>
-    protected Dictionary<Type, ChunkModel> Models => models;
 
     public ModelConstructor()
     {

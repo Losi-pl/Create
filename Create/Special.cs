@@ -88,7 +88,7 @@ internal static partial class Special
     /// </summary>
     /// <param name="model">Konstruktor terenu</param>
     /// <returns></returns>
-    public static IEnumerable<Mesh> AllModelParts(this ChunkConstructor.FinischedChunkModel model)
+    public static IEnumerable<Mesh> AllModelParts(this FinischedChunkModel model)
     {
         foreach (var quard in model.ModelParts)
             foreach (var mesh in quard)
