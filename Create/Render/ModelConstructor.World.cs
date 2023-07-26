@@ -38,11 +38,11 @@ partial class ModelConstructor
 public sealed class WorldModel : IDrawable, IDisposable
 {
     Dictionary<Type, Mesh> meshes;
-    
+
     internal WorldModel(Dictionary<Type, Mesh> meshes) => this.meshes = meshes;
     public void Draw(Matrix4 projection, Matrix4 model)
     {
-        foreach(var kvp in meshes)
+        foreach (var kvp in meshes)
             kvp.Value?.Draw(projection, model);
     }
 

@@ -43,8 +43,8 @@ partial class ModelConstructor
             return new(new WorldModel[Chunk.QUARD_STACK], chunk);
         World w = new DimentionSpace.DimentionWorldFaster(dimention, chunk);
         WorldModel[] models = new WorldModel[Chunk.QUARD_STACK];
-        (int s, int e) xRange = ((chunk.X * Chunk.QUARD_SIZE), ((chunk.X + 1) * Chunk.QUARD_SIZE) - 1);
-        (int s, int e) zRange = ((chunk.Z * Chunk.QUARD_SIZE), ((chunk.Z + 1) * Chunk.QUARD_SIZE) - 1);
+        (int s, int e) xRange = (chunk.X * Chunk.QUARD_SIZE, ((chunk.X + 1) * Chunk.QUARD_SIZE) - 1);
+        (int s, int e) zRange = (chunk.Z * Chunk.QUARD_SIZE, ((chunk.Z + 1) * Chunk.QUARD_SIZE) - 1);
         for (int q = 0; q < Chunk.QUARD_STACK; q++)
         {
             (int s, int e) yRange = (q * Chunk.QUARD_SIZE, ((q + 1) * Chunk.QUARD_SIZE) - 1);
