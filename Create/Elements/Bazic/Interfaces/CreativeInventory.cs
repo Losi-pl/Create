@@ -1,12 +1,12 @@
 ﻿using Create.OpenGL.GUI;
-using System.Runtime.Versioning;
+using Create.Elements.Gui;
 
 namespace Create.Elements.Bazic.Interfaces;
 
 internal class CreativeInventory : UserInterface, IUserInterface<CreativeInventory>
 {
     readonly static OpenTab[] tabTypes = Enum.GetValues<OpenTab>();
-    (bool active, SpacePoint? point) tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tabInventory, tabKompas;
+    (bool active, SpacePoint? point, ItemSlot? slot) tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tabInventory, tabKompas;
     #nullable disable
     SpacePoint root;
     #nullable restore
@@ -33,34 +33,31 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
             {
                 var point = ci.root.Childs.Find(n.Item1, true);
                 point!.OnClick += p => ci.TabOpenClose(p, n.Item2);
-                return point;
+                var slot = ItemSlot.GetAllSlots(point).FirstOrDefault();
+                return (point, slot);
             });
 
-        ci.tab1 = (false, points[0]);
-        ci.tab2 = (true, points[1]);
-        ci.tab3 = (true, points[2]);
-        ci.tab4 = (true, points[3]);
-        ci.tab5 = (true, points[4]);
-        ci.tab6 = (true, points[5]);
-        ci.tab7 = (true, points[6]);
-        ci.tab8 = (true, points[7]);
-        ci.tab9 = (true, points[8]);
-        ci.tab10 = (true, points[9]);
-        ci.tabKompas = (true, points[10]);
-        ci.tabInventory = (true, points[11]);
+        ci.tab1 = (false, points[0].point, points[0].slot);
+        ci.tab2 = (true, points[1].point, points[1].slot);
+        ci.tab3 = (true, points[2].point, points[2].slot);
+        ci.tab4 = (true, points[3].point, points[3].slot);
+        ci.tab5 = (true, points[4].point, points[4].slot);
+        ci.tab6 = (true, points[5].point, points[5].slot);
+        ci.tab7 = (true, points[6].point, points[6].slot);
+        ci.tab8 = (true, points[7].point, points[7].slot);
+        ci.tab9 = (true, points[8].point, points[8].slot);
+        ci.tab10 = (true, points[9].point, points[9].slot);
+        ci.tabKompas = (true, points[10].point, points[10].slot);
+        ci.tabInventory = (true, points[11].point, points[11].slot);
+        ci.SetOpenTabs(OpenTab.Tab1);
 
-        ci.Tab1 = true;
-        ci.Tab2 = false;
-        ci.Tab3 = false;
-        ci.Tab4 = false;
-        ci.Tab5 = false;
-        ci.Tab6 = false;
-        ci.Tab7 = false;
-        ci.Tab8 = false;
-        ci.Tab9 = false;
-        ci.Tab10 = false;
-        ci.TabKompas = false;
-        ci.TabInventory = false;
+        for (int i = 0; i < points.Length; i++)
+            points[i].slot!.ItemStack = new((i % 3) switch
+            {
+                0 => Elements.Blocks.STONE,
+                1 => Elements.Blocks.DIRT,
+                _ => Elements.Blocks.GRASS_BLOCK
+            });
 
         return (ci, ci.root);
     }
@@ -99,7 +96,7 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
     bool Tab10 { get => tab10.active; set => chane_mode(value, ref tab10); }
     bool TabKompas { get => tabKompas.active; set => chane_mode(value, ref tabKompas); }
     bool TabInventory { get => tabInventory.active; set => chane_mode(value, ref tabInventory); }
-    void chane_mode(bool value, ref (bool active, SpacePoint? point) data)
+    void chane_mode(bool value, ref (bool active, SpacePoint? point, ItemSlot? slot) data)
     {
         if (data.point is null)
             return;
