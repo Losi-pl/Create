@@ -9,10 +9,10 @@ namespace Create.OpenGL.GUI;
 /// </summary>
 public abstract class Element
 {
-    SpacePoint? point;
+    WeakReference<SpacePoint>? point;
     public abstract void Draw(Matrix4 projection);
 
-    internal void set_element(SpacePoint point) => this.point = point;
+    internal void set_element(SpacePoint? point) => this.point = (point is null ? null : new(point));
 
     protected internal virtual void Bind(SpacePoint point) { }
     protected internal virtual void Unbind(SpacePoint point) { }
@@ -20,7 +20,7 @@ public abstract class Element
     /// <summary>
     /// <see cref="SpacePoint"/> z którym ten <see cref="Element"/> jest połączony, jeżeli jest pusty nie jest połączony z niczym
     /// </summary>
-    public SpacePoint? Point => point;
+    public SpacePoint? Point => (point?.TryGetTarget(out var p) ?? false) ? p : null;
 
 }
 
