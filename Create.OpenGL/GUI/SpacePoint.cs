@@ -138,8 +138,15 @@ public sealed class SpacePoint
     /// </summary>
     public (float x, float y) Pozition
     {
-        set => (poz_x, poz_y) = value;
         get => (poz_x, poz_y);
+        set
+        {
+            var old = (poz_x, poz_y);
+            if (old == value)
+                return;
+            (poz_x, poz_y) = value;
+            element?.OnPozitionChanget(old, value);
+        }
     }
     
     /// <summary>
@@ -183,9 +190,7 @@ public sealed class SpacePoint
         set
         {
             var old = GlobalPozition;
-
-            poz_x = value.x - old.x;
-            poz_y = value.y - old.y;
+            Pozition = (value.x - old.x, value.y - old.y);
         }
     }
 
@@ -197,13 +202,15 @@ public sealed class SpacePoint
         get => (width, height);
         set
         {
-            if (Size == value)
+            var old = Size;
+            if (old == value)
                 return;
 
             foreach (var point in childs)
                 move_elm(point);
 
             (width, height) = value;
+            element?.OnSizeChanget(old, value);
 
             void move_elm(SpacePoint point)
             {

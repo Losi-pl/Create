@@ -16,6 +16,8 @@ public abstract class Element
 
     protected internal virtual void Bind(SpacePoint point) { }
     protected internal virtual void Unbind(SpacePoint point) { }
+    protected internal virtual void OnSizeChanget((float Width, float Height) old, (float Width, float Height) @new) { }
+    protected internal virtual void OnPozitionChanget((float Width, float Height) old, (float Width, float Height) @new) { }
 
     /// <summary>
     /// <see cref="SpacePoint"/> z którym ten <see cref="Element"/> jest połączony, jeżeli jest pusty nie jest połączony z niczym
