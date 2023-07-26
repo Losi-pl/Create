@@ -51,6 +51,11 @@ public sealed class SpacePoint
         point.Childs.AddChild(this);
     }
 
+    ~SpacePoint()
+    {
+        element?.Unbind(this);
+    }
+
     /// <summary>
     /// Nazwa logiczna urzywana w identyfikowaniu tego elementu
     /// </summary>
