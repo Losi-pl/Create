@@ -1,4 +1,4 @@
-﻿namespace Create.Elements.Bazic;
+﻿namespace Create.Elements.Bazic.Items;
 
 public sealed class BlockItem : Item
 {
