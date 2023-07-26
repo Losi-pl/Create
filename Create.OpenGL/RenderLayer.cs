@@ -3,6 +3,7 @@ using Create.Virtuals;
 using OpenTK.Mathematics;
 using System.Diagnostics;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using static Create.OpenGL.RenderLayer.Constructor;
 
 namespace Create.OpenGL;
@@ -217,22 +218,41 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
     /// <summary>
     /// Aktywuje to płutno jako obecnie aktywne
     /// </summary>
-    void Bind() => GL.BindFramebuffer(FramebufferTarget.Framebuffer, handles.frame_buffer);
+    void Bind(out ((int x, int y, int w, int h) viewport, int framebuffer) last)
+    {
+        Span<int> viewport = stackalloc int[4];
+        int last_buffer = 0;
+        unsafe
+        {
+            fixed (int* bp = &viewport.GetPinnableReference())
+                GL.GetInteger(GetPName.Viewport, bp);
+            GL.GetInteger(GetPName.FramebufferBinding, out last_buffer);
+        }
+
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, handles.frame_buffer);
+        GL.Viewport(0, 0, Size.Width, Size.Height);
+
+        last = ((viewport[0], viewport[1], viewport[2], viewport[3]), last_buffer);
+    }
     
     /// <summary>
     /// Przełącza obecnie używane płutno na domyślne
     /// </summary>
-    void Unbind() => GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+    void Unbind(((int x, int y, int w, int h) viewport, int framebuffer) prewies)
+    {
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, prewies.framebuffer);
+        GL.Viewport(prewies.viewport.x, prewies.viewport.y, prewies.viewport.w, prewies.viewport.h);
+    }
     
     /// <summary>
     /// Wyczyść to płutno
     /// </summary>
     public void Clear()
     {
-        Bind();
+        Bind(out var l);
         GL.ClearColor(color);
         GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
-        Unbind();
+        Unbind(l);
     }
     
     /// <summary>
@@ -240,14 +260,14 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
     /// </summary>
     public void UpdateContent()
     {
-        Bind();
+        Bind(out var l);
         Matrix4 projection = camera != null ? camera.CombinedMatrix : Engine.NeutralMatrix;
         Matrix4 model = model_matrix();
         GL.ClearColor(color);
         GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
         foreach (var mesh in Meshes)
             mesh.Draw(projection, model);
-        Unbind();
+        Unbind(l);
 
         //Methods
         Matrix4 model_matrix() => camera != null ? camera.Model : Engine.NeutralMatrix;
@@ -278,9 +298,9 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
     /// <param name="action"></param>
     public void ExecuteIn(Action action)
     {
-        Bind();
+        Bind(out var l);
         action();
-        Unbind();
+        Unbind(l);
     }
     #endregion
 
