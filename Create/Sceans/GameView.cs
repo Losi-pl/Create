@@ -141,7 +141,7 @@ internal sealed partial class GameView : Scean
         }
 
         _interface.Phizic();
-        if(Mouse.Scroll.Delta != 0)
+        if(Mouse.Scroll.Delta != 0 && !inventory)
         {
             slot_ind -= Mouse.Scroll.Delta;
             if(slot_ind < 0)
