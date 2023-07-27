@@ -17,14 +17,14 @@ public sealed class SpacePoint
     Element? element;
     bool active = true, interactable = true;
     string name = string.Empty;
-    public event Action<SpacePoint>? OnClick;
+    public event Action<SpacePoint, ClickEventButton>? OnClick;
     public event Action<SpacePoint>? OnEnter;
     public event Action<SpacePoint>? OnExit;
 
     float width, height;
     float poz_x, poz_y;
 
-    internal Action<SpacePoint>? _onClick => OnClick;
+    internal Action<SpacePoint, ClickEventButton>? _onClick => OnClick;
     internal Action<SpacePoint>? _onEnter => OnEnter;
     internal Action<SpacePoint>? _onExit => OnExit;
     private SpacePoint? parent
@@ -476,4 +476,12 @@ public sealed class SpacePoint
             public SpacePoint[] elements => point.childs.ToArray();
         }
     }
+}
+
+public enum ClickEventButton
+{
+    Unknown,
+    Left,
+    Right,
+    Scroll,
 }
