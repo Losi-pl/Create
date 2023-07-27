@@ -10,6 +10,9 @@ using OneOf;
 using static Create.Static;
 using Create.OpenGL.Textures;
 using System;
+using Create.Conteiner;
+using OneOf.Types;
+using static OneOf.Types.TrueFalseOrNull;
 
 namespace Create;
 
@@ -226,6 +229,18 @@ file static class Static
                 throw new("Invalid variable structure");
         }
         return color;
+    }
+    public static ItemStack? load_stack(XElement? element)
+    {
+        if (element is null)
+            return null;
+        var item = element.Attribute("item")?.Value?.Cast(n => Register.Items.ByName[n]);
+        var block = element.Attribute("block")?.Value?.Cast(n => Register.Blocks.ByName[n]);
+        var count = uint.TryParse(element.Attribute("count")?.Value, out var i) ? i : 1;
+        var type = byte.TryParse(element.Attribute("type")?.Value, out var b) ? b : (byte)0;
+        var meta = element.Attribute("meta")?.Value;
+
+        return item is not null ? new(count, item, type, meta ?? string.Empty) : (block is not null ? new(count, block, type, meta ?? string.Empty) : null);
     }
 
     public static readonly (SpacePoint.Anker, string name)[] ankerModes = Enum.GetValues<SpacePoint.Anker>().ConvertAll(a => (a, a.ToString().ToLower()));
@@ -699,18 +714,43 @@ file class ChangeEventStatusBar
 
 file class ChangeEventItemSlot
 {
+    bool? enable;
+    OneOf<ItemStack?, Null> stack;
+
     public static Element Parse(XElement e)
     {
         var @is = new ItemSlot(int.TryParse(e.Attribute("id")?.Value, out var id) ? id : null);
+
+        var val = e.Element("enable")?.Value;
+        if(val is not null)
+            @is.Enable = bool.TryParse(val, out var b) ? b : true;
+
+        @is.ItemStack = load_stack(e.Element("itemstack"));
+
         return @is;
     }
     public static object ParamParse(XElement e)
     {
-        return new ChangeEventItemSlot();
+        var @is = new ChangeEventItemSlot();
+
+        var val = e.Element("enable")?.Value;
+        if (val is not null)
+            @is.enable = bool.TryParse(val, out var b) ? b : null;
+
+        var xVal = e.Element("itemstack");
+        @is.stack = xVal is null ? new Null() : load_stack(xVal);
+
+        return @is;
     }
     public static void ChangeEvent(Element element, object value)
     {
         var elem = (ItemSlot)element;
         var @params = (ChangeEventItemSlot)value;
+
+        if (@params.enable.HasValue)
+            elem.Enable = @params.enable.Value;
+
+        if (@params.stack.IsT0)
+            elem.ItemStack = @params.stack.AsT0;
     }
 }
