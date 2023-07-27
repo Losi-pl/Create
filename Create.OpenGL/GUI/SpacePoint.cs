@@ -189,7 +189,7 @@ public sealed class SpacePoint
         }
         set
         {
-            var old = GlobalPozition;
+            var old = Parent?.GlobalPozition ?? new();
             Pozition = (value.x - old.x, value.y - old.y);
         }
     }
@@ -307,14 +307,12 @@ public sealed class SpacePoint
             throw new ArgumentException($"Event witch name \"{name}\" alredy exists");
         events.Add(name, (action, sender));
     }
-
     public bool RemoveEvent(string name)
     {
         if (name == null)
             throw new ArgumentNullException(nameof(name));
         return events.Remove(name);
     }
-
     public bool RunEvent(string name)
     {
         if (name == null)
