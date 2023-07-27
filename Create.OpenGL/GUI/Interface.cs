@@ -123,7 +123,7 @@ public sealed class Interface
                 (main.Size.ToVector() / -2) + (main.Size.ToVector() * ((space.AnkerPoints.point1 + space.AnkerPoints.point2) / 2)) + space.Pozition.ToVector();
             l_poz = parent + l_poz;
 
-            foreach(var sp in space.Childs.GetEnumerable().Reverse())
+            foreach(var sp in space.Childs.GetEnumerable().Reverse().Where(p => p.Interactable))
             {
                 var v = pointingAt(sp, l_poz);
                 if (v is not null)

@@ -15,7 +15,7 @@ public sealed class SpacePoint
     Dictionary<string, (Action<SpacePoint, object> @event, object sender)> events = new();
     Interface? @interface;
     Element? element;
-    bool active = true;
+    bool active = true, interactable = true;
     string name = string.Empty;
     public event Action<SpacePoint>? OnClick;
     public event Action<SpacePoint>? OnEnter;
@@ -235,6 +235,11 @@ public sealed class SpacePoint
     /// Czy ten element jest aktywny w fizyce interfejsu
     /// </summary>
     public bool Active { get => active; set => active = value; }
+
+    /// <summary>
+    /// Czy ten obiekt i jego podrzędne biorą udzał w fizyce <see cref="OnEnter"/>, <see cref="OnExit"/>, <see cref="OnClick"/>
+    /// </summary>
+    public bool Interactable { get => interactable; set => interactable = value; }
 
     /// <summary>
     /// Tryb zamocowania elementu w przestrzeni
