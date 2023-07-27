@@ -11,9 +11,10 @@ public sealed class ItemSlot : Element
     
     ItemStack? itemStack;
     Item.ItemModel? itemModel;
-    bool enable;
+    bool enable = true, hoverd;
     int? id;
-    static Shader shader = Assets.GetShader("create:interface/itemslot");
+    static Shader shader = Assets.GetShader("create:interface/itemslot")
+        .SetUniform("hoverd_color", (Vector4)new Color4(1f, 1f, 1f, .4f));
 
     static Mesh mesh = Mesh.Create(shader)
         .SetTrangles(new[] { 0, 3, 1, 2, 3, 0 })
@@ -27,7 +28,25 @@ public sealed class ItemSlot : Element
 
     public ItemSlot(int? id) => this.id = id;
     public int? ID => id;
-    public bool Enable { get => enable; set => enable = value; }
+    public bool Enable { get => enable; 
+        set
+        {
+            enable = value;
+            if(Point != null)
+            {
+                if (value)
+                {
+                    Point.OnEnter += OnEnter;
+                    Point.OnExit += OnExit;
+                }
+                else
+                {
+                    Point.OnEnter -= OnEnter;
+                    Point.OnExit -= OnExit;
+                }
+            }
+        }
+    }
     public ItemStack? ItemStack
     {
         get => itemStack;
@@ -46,15 +65,34 @@ public sealed class ItemSlot : Element
         }
     }
 
+    void OnEnter(SpacePoint point)
+    {
+        hoverd = true;
+    }
+    void OnExit(SpacePoint point)
+    {
+        hoverd = false;
+    }
+
     protected internal override void Bind(SpacePoint point)
     {
         var size = ((int)point.Size.Width, (int)point.Size.Height);
         add_canvas(size);
+        if(Enable)
+        {
+            point.OnEnter += OnEnter;
+            point.OnExit += OnExit;
+        }
     }
     protected internal override void Unbind(SpacePoint point)
     {
         var size = ((int)point.Size.Width, (int)point.Size.Height);
         sub_canvas(size);
+        if (Enable)
+        {
+            point.OnEnter -= OnEnter;
+            point.OnExit -= OnExit;
+        }
     }
     protected internal override void OnSizeChanget((float Width, float Height) old, (float Width, float Height) @new)
     {
@@ -92,15 +130,25 @@ public sealed class ItemSlot : Element
 
     public override void Draw(Matrix4 projection)
     {
-        if (!itemModel.HasValue)
-            return;
-        var render_layer = renderLayers.TryGetValue(((int)Point!.Size.Width, (int)Point!.Size.Height), out var rl) ? rl.layer : null;
-        if (render_layer is null)
-            return;
-        render_layer.Clear();
-        render_layer.ExecuteIn(itemModel.Value.model.Draw);
-        shader.SetUniform("text", render_layer.Textures[OpenTK.Graphics.OpenGL.FramebufferAttachment.ColorAttachment0]);
-        mesh.Draw(Matrix4.CreateScale(Point!.Size.Width, Point.Size.Height, 1) * projection);
+        if (itemModel.HasValue)
+        {
+            var render_layer = renderLayers.TryGetValue(((int)Point!.Size.Width, (int)Point!.Size.Height), out var rl) ? rl.layer : null;
+            if (render_layer is null)
+                return;
+            render_layer.Clear();
+            render_layer.ExecuteIn(itemModel.Value.model.Draw);
+            shader.SetUniform("text", render_layer.Textures[OpenTK.Graphics.OpenGL.FramebufferAttachment.ColorAttachment0]);
+            shader.SetUniform("contains", true);
+            shader.SetUniform("hoverd", hoverd);
+            mesh.Draw(Matrix4.CreateScale(Point!.Size.Width, Point.Size.Height, 1) * projection);
+        }
+        else
+        {
+            if (!hoverd)
+                return;
+            shader.SetUniform("contains", false);
+            mesh.Draw(Matrix4.CreateScale(Point!.Size.Width, Point.Size.Height, 1) * projection);
+        }
     }
 
     public static IEnumerable<ItemSlot> GetAllSlots(SpacePoint point)
