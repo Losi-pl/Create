@@ -83,6 +83,11 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
         return (ci, ci.root);
     }
 
+    public override void Update(double time)
+    {
+        inventory.UpdateSlotsContent();
+    }
+
     private void TabOpenClose(SpacePoint obj, OpenTab tab, ClickEventButton args) => Tab = tab;
 
     public OpenTab Tab

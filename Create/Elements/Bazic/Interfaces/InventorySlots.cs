@@ -51,7 +51,6 @@ public sealed class InventorySlots
             tools[id.id] = transferredItem;
             transferredItem = tmp;
             toolBar = tools;
-            UpdateSlotsContent();
         }
     }
 
