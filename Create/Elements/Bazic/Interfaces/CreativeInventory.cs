@@ -32,7 +32,7 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
             .ConvertAll(n =>
             {
                 var point = ci.root.Childs.Find(n.Item1, true);
-                point!.OnClick += p => ci.TabOpenClose(p, n.Item2);
+                point!.OnClick += (p, a) => ci.TabOpenClose(p, n.Item2, a);
                 var slot = ItemSlot.GetAllSlots(point).FirstOrDefault();
                 return (point, slot);
             });
@@ -65,7 +65,7 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
         return (ci, ci.root);
     }
 
-    private void TabOpenClose(SpacePoint obj, OpenTab tab) => Tab = tab;
+    private void TabOpenClose(SpacePoint obj, OpenTab tab, ClickEventButton args) => Tab = tab;
 
     public OpenTab Tab
     {

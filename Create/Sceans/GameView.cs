@@ -37,6 +37,7 @@ internal sealed partial class GameView : Scean
         _interface.CursorGet += () => Mouse.Pozition;
         _interface.MouseLeft += () => Mouse.Lock ? (false, false, false) : Mouse.Left;
         _interface.MouseRight += () => Mouse.Lock ? (false, false, false) : Mouse.Right;
+        _interface.MouseScroll += () => Mouse.Lock ? (false, false, false, 0) : Mouse.Scroll;
     }
 
     protected override void SceanLoad()
