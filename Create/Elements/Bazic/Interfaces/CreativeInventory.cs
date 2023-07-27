@@ -78,7 +78,7 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
         ci.inventory.GetTransferredItem += () => ci.player.Entity?.Data.Get("transferred_item") as ItemStack?;
         ci.inventory.SetTransferredItem += i  => ci.player.Entity?.Data.Set("transferred_item", i);
 
-        ci.inventory.UpdateVisible();
+        ci.inventory.UpdateSlotsContent();
 
         return (ci, ci.root);
     }

@@ -51,11 +51,11 @@ public sealed class InventorySlots
             tools[id.id] = transferredItem;
             transferredItem = tmp;
             toolBar = tools;
-            UpdateVisible();
+            UpdateSlotsContent();
         }
     }
 
-    public void UpdateVisible()
+    public void UpdateSlotsContent()
     {
         var tool = toolBar;
 
