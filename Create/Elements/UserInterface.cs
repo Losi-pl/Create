@@ -12,7 +12,7 @@ public interface IUserInterface<T> where T : UserInterface
 
 public abstract class UserInterface
 {
-    public virtual void Update(decimal time) { }
+    public virtual void Update(double time) { }
 
     internal static void LoadInterfaces(Mod mod)
     {

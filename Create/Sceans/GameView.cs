@@ -152,6 +152,9 @@ internal sealed partial class GameView : Scean
         }
 
         _interface.Phizic();
+        foreach (var i in userInterfaces)
+            i.user.Update(args.Time);
+
         if (inventory)
         {
             var trans_slot = _interface.MainElements.Find("Transferred Item")?.Element as ItemSlot;
