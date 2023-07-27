@@ -59,6 +59,9 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
                 _ => Elements.Blocks.GRASS_BLOCK
             });
 
+        for (int i = 0; i < points.Length; i++)
+            points[i].slot!.Enable = false;
+
         return (ci, ci.root);
     }
 
