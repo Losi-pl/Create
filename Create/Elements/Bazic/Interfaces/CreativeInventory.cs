@@ -1,5 +1,7 @@
 ﻿using Create.OpenGL.GUI;
 using Create.Elements.Gui;
+using Create.Conteiner.Items;
+using Create.Conteiner;
 
 namespace Create.Elements.Bazic.Interfaces;
 
@@ -10,6 +12,7 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
     #nullable disable
     SpacePoint root;
     Net.Player player;
+    InventorySlots inventory;
     #nullable restore
 
     static (CreativeInventory status, SpacePoint point) IUserInterface<CreativeInventory>.LoadInterface(object? aditionalParameters)
@@ -63,6 +66,19 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
 
         for (int i = 0; i < points.Length; i++)
             points[i].slot!.Enable = false;
+
+        ci.inventory = new(
+            ItemSlot.GetAllSlots(ci.root.Childs.Find("Slots bar", true) ?? new())
+                .ConvertAll(s => (s, s.ID ?? 0)), 
+            Enumerable.Empty<(ItemSlot, int)>());
+
+        ci.inventory.GetToolBar += () => ci.player.Entity?.Data.Get("tool_slots") as ToolsBar? ?? new();
+        ci.inventory.SetToolBar += t  => ci.player.Entity?.Data.Set("tool_slots", t);
+
+        ci.inventory.GetTransferredItem += () => ci.player.Entity?.Data.Get("transferred_item") as ItemStack?;
+        ci.inventory.SetTransferredItem += i  => ci.player.Entity?.Data.Set("transferred_item", i);
+
+        ci.inventory.UpdateVisible();
 
         return (ci, ci.root);
     }

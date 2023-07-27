@@ -1,4 +1,5 @@
 ﻿using Create.Conteiner;
+using Create.Conteiner.Items;
 using Create.Elements;
 using Create.Elements.Bazic.Entitys;
 using Create.Elements.Bazic.Interfaces;
@@ -65,6 +66,15 @@ internal sealed partial class GameView : Scean
             }
         };
         _interface.MainElements.AddChild(user_interface);
+        _interface.MainElements.AddChild(new()
+        {
+            Active = false,
+            Pozition = (0, 0),
+            Interactable = false,
+            Size = (16 * 4, 16 * 4),
+            Name = "Transferred Item",
+            Element = new ItemSlot() { Enable = false }
+        });
     }
 
     protected override void RenderFrame(FrameEventArgs args)
@@ -142,7 +152,25 @@ internal sealed partial class GameView : Scean
         }
 
         _interface.Phizic();
-        if(Mouse.Scroll.Delta != 0 && !inventory)
+        if (inventory)
+        {
+            var trans_slot = _interface.MainElements.Find("Transferred Item")?.Element as ItemSlot;
+            var item = Client.Me.Entity!.Data.Get("transferred_item") as ItemStack?;
+            if (trans_slot != null)
+            {
+                trans_slot.Point!.Active = true;
+                trans_slot.Point!.GlobalPozition = Mouse.Pozition;
+                trans_slot.ItemStack = item;
+            }
+        }
+        else
+        {
+            var trans_slot = _interface.MainElements.Find("Transferred Item")?.Element as ItemSlot;
+            if (trans_slot != null)
+                trans_slot.Point!.Active = false;
+        }
+
+        if (Mouse.Scroll.Delta != 0 && !inventory)
         {
             slot_ind -= Mouse.Scroll.Delta;
             if(slot_ind < 0)
