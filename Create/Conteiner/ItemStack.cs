@@ -57,7 +57,7 @@ public struct ItemStack
         this.count = count;
         meta = block.CodeName;
         edition = 0;
-        item = Items.BLOCK_ITEM;
+        item = Elements.Items.BLOCK_ITEM;
     }
     public ItemStack(uint count, Block block, byte type)
     {
@@ -67,7 +67,7 @@ public struct ItemStack
         this.count = count;
         meta = block.CodeName;
         edition = type;
-        item = Items.BLOCK_ITEM;
+        item = Elements.Items.BLOCK_ITEM;
     }
     public ItemStack(uint count, Block block, byte type, string meta)
     {
@@ -77,7 +77,7 @@ public struct ItemStack
         this.count = count;
         this.meta = string.IsNullOrEmpty(meta) ? block.CodeName : $"{block.CodeName};{meta}";
         edition = type;
-        item = Items.BLOCK_ITEM;
+        item = Elements.Items.BLOCK_ITEM;
     }
 
     public ItemStack(Block block) : this(1, block) { }
@@ -125,7 +125,7 @@ public struct ItemStack
 
     public PlacedBlock AsPlacedBlock()
     {
-        if (item != Items.BLOCK_ITEM)
+        if (item != Elements.Items.BLOCK_ITEM)
             throw new Exception("Item doesn't contain block");
 
         var meta = this.meta;
