@@ -26,7 +26,7 @@ public sealed class ItemSlot : Element
             new(1, 1)
         }).Finish();
 
-    public ItemSlot(int? id) => this.id = id;
+    public ItemSlot(int? id = null) => this.id = id;
     public int? ID => id;
     public bool Enable { get => enable; 
         set
