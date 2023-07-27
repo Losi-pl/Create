@@ -9,12 +9,14 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
     (bool active, SpacePoint? point, ItemSlot? slot) tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tabInventory, tabKompas;
     #nullable disable
     SpacePoint root;
+    Net.Player player;
     #nullable restore
 
     static (CreativeInventory status, SpacePoint point) IUserInterface<CreativeInventory>.LoadInterface(object? aditionalParameters)
     {
         var ci = new CreativeInventory();
         ci.root = Assets.GetInterface("create:creativeinventory");
+        ci.player = aditionalParameters as Net.Player ?? throw new InvalidCastException("Aditional parameter must by Net.Player type");
 
         var points = (new[] {
             ("tab1", OpenTab.Tab1),

@@ -114,7 +114,7 @@ internal sealed partial class GameView : Scean
             _interface.MainElements.Find("Active Interface")!.Active = inventory;
             if (inventory)
             {
-                var @int = Client.GetUserInterface<CreativeInventory>() ?? Client.CreateUserInterface<CreativeInventory>();
+                var @int = Client.GetUserInterface<CreativeInventory>() ?? Client.CreateUserInterface<CreativeInventory>(Client.Me);
                 @int.Tab = CreativeInventory.OpenTab.InventoryTab;
             }
         }
