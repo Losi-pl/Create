@@ -53,7 +53,7 @@ public readonly struct PlacedBlock
     /// <summary>
     /// Dodatkowe parametry bloku
     /// </summary>
-    public string Meta => meta ?? String.Empty;
+    public string Meta => meta ?? string.Empty;
 
     /// <summary>
     /// Test czy Typ bloku jest zarejestrowany w rejestrze
@@ -75,7 +75,8 @@ public readonly struct PlacedBlock
     public static bool operator !=(PlacedBlock a, PlacedBlock b) => !(a == b);
 
     public override int GetHashCode() => base.GetHashCode();
-    public override bool Equals([NotNullWhen(true)] object? obj) => base.Equals(obj);
+    public override bool Equals([NotNullWhen(true)] object? obj) => 
+        obj is PlacedBlock pb ? pb == this : false;
 
     public ItemStack AsItemStack(uint itemCount = 1)
     {

@@ -120,8 +120,9 @@ public struct ItemStack
         (a.count == b.count) && (a.item == b.item) && (a.meta == b.meta) && (a.edition == b.edition);
     public static bool operator !=(ItemStack a, ItemStack b) => !(a == b);
 
-    public override bool Equals([NotNullWhen(true)] object? obj) => base.Equals(obj);
     public override int GetHashCode() => base.GetHashCode();
+    public override bool Equals([NotNullWhen(true)] object? obj) => 
+        obj is ItemStack @is ? this == @is : false;
 
     public PlacedBlock AsPlacedBlock()
     {
