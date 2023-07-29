@@ -3,7 +3,7 @@ using Create.Elements.Gui;
 using Create.Conteiner.Items;
 using Create.Conteiner;
 
-namespace Create.Elements.Bazic.Interfaces;
+namespace Create.Elements.Interfaces;
 
 internal class CreativeInventory : UserInterface, IUserInterface<CreativeInventory>
 {

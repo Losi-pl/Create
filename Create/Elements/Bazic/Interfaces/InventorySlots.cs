@@ -3,7 +3,7 @@ using Create.Conteiner.Items;
 using Create.Elements.Gui;
 using Create.OpenGL.GUI;
 
-namespace Create.Elements.Bazic.Interfaces;
+namespace Create.Elements.Interfaces;
 
 public sealed class InventorySlots
 {
