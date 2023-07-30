@@ -9,7 +9,7 @@ namespace Create.OpenGL.GUI;
 [DebuggerDisplay("""{(string.IsNullOrEmpty(name) ? string.Empty : $"Name: \"{name}\", "), nq}Pozition: (x:{Pozition.x}, y:{Pozition.y})""")]
 public sealed class SpacePoint
 {
-    WeakReference<SpacePoint>? parentReference = null;
+    WeakReference<SpacePoint> parentReference = new(null!);
     List<SpacePoint> childs = new List<SpacePoint>();
     Vector2 ancor1 = new(.5f, .5f), ancor2 = new(.5f, .5f);
     Dictionary<string, (Action<SpacePoint, object> @event, object sender)> events = new();
@@ -29,8 +29,8 @@ public sealed class SpacePoint
     internal Action<SpacePoint>? _onExit => OnExit;
     private SpacePoint? parent
     {
-        get => (parentReference?.TryGetTarget(out var p) ?? false) ? p : null;
-        set => parentReference = (parent != value ? (value is not null ? new(value) : null) : parentReference);
+        get => parentReference.TryGetTarget(out var p) ? p : null;
+        set => parentReference.SetTarget(value!);
     }
 
     public SpacePoint() { }
