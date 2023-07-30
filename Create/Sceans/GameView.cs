@@ -107,14 +107,14 @@ internal sealed partial class GameView : Scean
             {
                 _interface.MainElements.Find("Active Interface")!.Active = false;
                 inventory = false;
-                var inte = Client.GetUserInterfaces().FirstOrDefault();
-                if (inte is not null)
-                    Client.RemoveUserInterface(inte);
             }
             else
             {
                 _interface.MainElements.Find("Active Interface")!.Active = true;
                 inventory = true;
+                var inte = Client.GetUserInterfaces().FirstOrDefault();
+                if (inte is not null)
+                    Client.RemoveUserInterface(inte);
             }
         }
 
