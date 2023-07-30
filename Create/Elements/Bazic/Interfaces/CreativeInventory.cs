@@ -69,14 +69,19 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
 
         ci.inventory = new(
             ItemSlot.GetAllSlots(ci.root.Childs.Find("Slots bar", true) ?? new())
-                .ConvertAll(s => (s, s.ID ?? 0)), 
-            Enumerable.Empty<(ItemSlot, int)>());
+                .Select(s => (s, s.ID ?? 0)),
+            ItemSlot.GetAllSlots(ci.root.Childs.Find("Inventory", true) ?? new())
+                .Select(s => (s, s.ID ?? 0))
+                .Where(s => s.Item2 < 27));
 
         ci.inventory.GetToolBar += () => ci.player.Entity?.Data.Get("tool_slots") as ToolsBar? ?? new();
         ci.inventory.SetToolBar += t  => ci.player.Entity?.Data.Set("tool_slots", t);
 
         ci.inventory.GetTransferredItem += () => ci.player.Entity?.Data.Get("transferred_item") as ItemStack?;
         ci.inventory.SetTransferredItem += i  => ci.player.Entity?.Data.Set("transferred_item", i);
+
+        ci.inventory.GetPlayerInventory += () => ci.player.Entity?.Data.Get("inventory") as PlayerInventory? ?? new();
+        ci.inventory.SetPlayerInventory += t => ci.player.Entity?.Data.Set("inventory", t);
 
         ci.inventory.UpdateSlotsContent();
 

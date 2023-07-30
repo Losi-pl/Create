@@ -13,7 +13,11 @@ public sealed class InventorySlots
     public event Func<ItemStack?>? GetTransferredItem;
     public event Action<ItemStack?>? SetTransferredItem;
 
+    public event Func<PlayerInventory>? GetPlayerInventory;
+    public event Action<PlayerInventory>? SetPlayerInventory;
+
     ToolsBar toolBar { get => GetToolBar?.Invoke() ?? new(); set => SetToolBar?.Invoke(value); }
+    PlayerInventory playerInventory { get => GetPlayerInventory?.Invoke() ?? new(); set => SetPlayerInventory?.Invoke(value); }
     ItemStack? transferredItem { get => GetTransferredItem?.Invoke(); set => SetTransferredItem?.Invoke(value); }
 
     (ItemSlot slot, int id)[] toolBarArray, inventorySlotsArray;
@@ -42,7 +46,11 @@ public sealed class InventorySlots
 
         if (id.main)
         {
-            
+            var inv = playerInventory;
+            var tmp = inv.GetItem(id.id);
+            inv.SetItem(id.id, transferredItem);
+            playerInventory = inv;
+            transferredItem = tmp;
         }
         else
         {
@@ -57,8 +65,12 @@ public sealed class InventorySlots
     public void UpdateSlotsContent()
     {
         var tool = toolBar;
+        var inv = playerInventory;
 
         foreach (var s in toolBarArray)
             s.slot.ItemStack = tool[s.id];
+
+        foreach (var s in inventorySlotsArray)
+            s.slot.ItemStack = inv.GetItem(s.id);
     }
 }
