@@ -153,7 +153,7 @@ internal sealed partial class GameView : Scean
 
         _interface.Phizic();
         foreach (var i in userInterfaces)
-            i.user.Update(args.Time);
+            i.user.Update(new() { time = args.Time, activeInventory = inventory });
 
         if (inventory)
         {

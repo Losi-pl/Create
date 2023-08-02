@@ -88,7 +88,7 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
         return (ci, ci.root);
     }
 
-    public override void Update(double time)
+    public override void Update(UpdateArgs args)
     {
         inventory.UpdateSlotsContent();
     }

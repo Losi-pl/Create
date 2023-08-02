@@ -12,10 +12,16 @@ public interface IUserInterface<T> where T : UserInterface
 
 public abstract class UserInterface
 {
-    public virtual void Update(double time) { }
+    public virtual void Update(UpdateArgs args) { }
 
     internal static void LoadInterfaces(Mod mod)
     {
         mod.RegisterInterface<CreativeInventory>("creativeinventory");
+    }
+
+    public struct UpdateArgs
+    {
+        public double time;
+        public bool activeInventory;
     }
 }
