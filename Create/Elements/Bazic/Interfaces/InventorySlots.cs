@@ -50,15 +50,14 @@ public sealed class InventorySlots
         {
             case ClickEventButton.Left:
                 var sItem = get_item();
-                if (sItem.HasValue && transfered.HasValue && 
-                   (sItem?.Item == transfered?.Item) &&
-                   (sItem?.Type == transfered?.Type) &&
-                   (sItem?.Meta == transfered?.Meta))
+                if (sItem.HasValue && transfered.HasValue && (sItem == transfered))
                 {
+                    var maxStack = sItem.Value.Item.MaxStackCount(sItem.Value);
+
                     var sum = sItem!.Value.Count + transfered!.Value.Count;
                     uint ci, ct;
-                    if (sum > 64)
-                        (ci, ct) = (64, sum - 64);
+                    if (sum > maxStack)
+                        (ci, ct) = (maxStack, sum - maxStack);
                     else
                         (ci, ct) = (sum, 0);
                     set_item(new(ci, sItem.Value.Item, sItem.Value.Type, sItem.Value.Meta));
@@ -70,7 +69,6 @@ public sealed class InventorySlots
                     set_item(transfered);
                     transfered = tmp;
                 }
-                
                 break;
             case ClickEventButton.Scroll:
                 sItem = get_item();
@@ -78,7 +76,8 @@ public sealed class InventorySlots
                     return;
                 if (!sItem.HasValue)
                     return;
-                sItem = new(64, sItem!.Value.Item, sItem.Value.Type, sItem.Value.Meta);
+                sItem = new(sItem.Value.Item.MaxStackCount(sItem.Value), 
+                    sItem!.Value.Item, sItem.Value.Type, sItem.Value.Meta);
                 transfered = sItem;
                 break;
             case ClickEventButton.Right:
@@ -97,11 +96,9 @@ public sealed class InventorySlots
                 }
                 else if (sItem.HasValue && transfered.HasValue)
                 {
-                    if (!((sItem?.Item == transfered?.Item) &&
-                          (sItem?.Type == transfered?.Type) &&
-                          (sItem?.Meta == transfered?.Meta)))
+                    if (sItem != transfered)
                         return;
-                    if (sItem?.Count >= 64)
+                    if (sItem?.Count >= sItem?.Item.MaxStackCount(sItem.Value))
                         return;
 
                     transfered = transfered!.Value.Count == 1 ? null :
