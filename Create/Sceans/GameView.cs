@@ -21,7 +21,6 @@ internal sealed partial class GameView : Scean
     Camera camera;
     Terrain terrain;
     Interface _interface;
-    int slot_ind;
     List<(string name, UserInterface user, SpacePoint point)> userInterfaces = new();
     static Shader shader = Assets.GetShader("create:selector");
     
@@ -50,9 +49,6 @@ internal sealed partial class GameView : Scean
         camera.RevertAxis.x = true;
         Mouse.Visible = false;
 
-        _interface.MainElements.AddChild(Assets.GetInterface("create:crosshair"));
-        _interface.MainElements.AddChild(Assets.GetInterface("create:statusbars"));
-
         _interface.MainElements.AddChild(new SpacePoint
         {
             Size = OpenGL.Engine.Size.ToTumple(),
@@ -61,7 +57,7 @@ internal sealed partial class GameView : Scean
             Name = "Passive Interface",
             AnkerMode = SpacePoint.Anker.All,
         });
-        var user_interface = new SpacePoint
+        _interface.MainElements.AddChild(new SpacePoint
         {
             Size = (OpenGL.Engine.Size.X + 1, OpenGL.Engine.Size.Y + 1),
             Pozition = (0, 0),
@@ -72,8 +68,7 @@ internal sealed partial class GameView : Scean
             {
                 Color = new Color4(0, 0, 0, .75f)
             }
-        };
-        _interface.MainElements.AddChild(user_interface);
+        });
         _interface.MainElements.AddChild(new()
         {
             Active = false,
@@ -178,16 +173,6 @@ internal sealed partial class GameView : Scean
             var trans_slot = _interface.MainElements.Find("Transferred Item")?.Element as ItemSlot;
             if (trans_slot != null)
                 trans_slot.Point!.Active = false;
-        }
-
-        if (Mouse.Scroll.Delta != 0 && !inventory)
-        {
-            slot_ind -= Mouse.Scroll.Delta;
-            if(slot_ind < 0)
-                slot_ind = 8;
-            if (slot_ind > 8)
-                slot_ind = 0;
-            _interface.MainElements.Find("create:statusbars")?.RunEvent(slot_ind.ToString());
         }
 
         terrain.ChunkUpdate(args.Time);

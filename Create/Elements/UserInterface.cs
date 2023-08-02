@@ -18,6 +18,7 @@ public abstract class UserInterface
     internal static void LoadInterfaces(Mod mod)
     {
         mod.RegisterInterface<CreativeInventory>("creativeinventory");
+        mod.RegisterInterface<InformationBars>("informationbars");
     }
 
     public bool IsPassive => GetType().GetCustomAttribute<PassiveInterface>() is not null;
