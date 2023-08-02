@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<shader>
+  <properties>
+    <matrix>matrix</matrix>
+  </properties>
+  <depth status="false"/>
+  <alpha status="true"/>
+  <blend sfactor="One" dfactor="OneMinusSrcAlpha"/>
+  <version number="440" core="true"/>
+  <vertex>
+    in vec2 poz;
+    in vec2 uv;
+    in vec2 s_size;
+    in vec2 s_offset;
+    uniform vec2 tex_size;
+    uniform float static_heigth;
+    uniform mat4 matrix;
+    out vec2 o_uv;
+    void main()
+    {
+      vec2 com_poz = poz + ((s_size * uv) / vec2(static_heigth, static_heigth));
+      o_uv = (s_offset / tex_size) + ((s_size * uv) / tex_size);
+      gl_Position = matrix * vec4(com_poz, 0, 1);
+    }
+  </vertex>
+  <fragment>
+    in vec2 o_uv;
+    uniform sampler2D tex;
+    uniform vec4 color;
+    out vec4 col;
+    void main()
+    {
+      float a = texture(tex, o_uv).a;
+      col = color * a;
+    }
+  </fragment>
+</shader>
