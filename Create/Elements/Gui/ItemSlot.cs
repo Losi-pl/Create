@@ -57,7 +57,7 @@ public sealed class ItemSlot : Element
         get => itemStack;
         set
         {
-            if (value == itemStack)
+            if (value == itemStack && value?.Count == itemStack?.Count)
                 return;
             if(itemModel.HasValue)
             {
