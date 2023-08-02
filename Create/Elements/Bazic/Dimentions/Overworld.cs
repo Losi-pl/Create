@@ -3,7 +3,7 @@ using Create.Space;
 
 namespace Create.Elements.Bazic.Dimentions;
 
-public sealed class Overworld : Dimention
+internal sealed class Overworld : Dimention
 {
     ValueNoise noise = new((new Random()).Next(0, int.MaxValue), 10);
 
