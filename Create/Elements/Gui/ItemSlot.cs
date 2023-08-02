@@ -1,6 +1,7 @@
 ﻿using Create.Conteiner;
 using Create.OpenGL;
 using Create.OpenGL.GUI;
+using Create.Render;
 using OpenTK.Mathematics;
 
 namespace Create.Elements.Gui;
@@ -11,7 +12,11 @@ public sealed class ItemSlot : Element
     
     ItemStack? itemStack;
     Item.ItemModel? itemModel;
-    bool enable = true, hoverd;
+    SimpleTextMesh text = new() { 
+        HorizontalDirection = Render.Text.HorizontalDirection.Left, 
+        VerticalDirection = Render.Text.VerticalDirection.Up, 
+        Size = 8 * 4};
+    bool enable = true, hoverd, status;
     int? id;
     static Shader shader = Assets.GetShader("create:interface/itemslot")
         .SetUniform("hoverd_color", (Vector4)new Color4(1f, 1f, 1f, .4f));
@@ -62,7 +67,13 @@ public sealed class ItemSlot : Element
             }
             itemStack = value;
             itemModel = itemStack?.Item.GetItemModel(itemStack.Value, Net.Client.Me);
+            text.Text = (itemStack?.Count > 1 ? itemStack?.Count.ToString() : text.Text) ?? text.Text;
         }
+    }
+    public bool DisplayStatus
+    {
+        get => status;
+        set => status = value;
     }
 
     void OnEnter(SpacePoint point)
@@ -141,6 +152,13 @@ public sealed class ItemSlot : Element
             shader.SetUniform("contains", true);
             shader.SetUniform("hoverd", hoverd);
             mesh.Draw(Matrix4.CreateScale(Point!.Size.Width, Point.Size.Height, 1) * projection);
+            if(itemStack?.Count > 1)
+            {
+                text.Color = new(62, 62, 62, 255);
+                text.Draw(Matrix4.CreateTranslation((Point.Size.Width / 2) + 4, (-Point.Size.Height / 2) - 4, 0) * projection);
+                text.Color = Color4.White;
+                text.Draw(Matrix4.CreateTranslation(Point.Size.Width / 2, -Point.Size.Height / 2, 0) * projection);
+            }
         }
         else
         {
