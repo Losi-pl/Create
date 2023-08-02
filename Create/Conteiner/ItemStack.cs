@@ -117,7 +117,7 @@ public struct ItemStack
     public uint Count => count;
 
     public static bool operator ==(ItemStack a, ItemStack b) =>
-        (a.count == b.count) && (a.item == b.item) && (a.meta == b.meta) && (a.edition == b.edition);
+        (a.item == b.item) ? a.Item.IsStackEqual(a, b) : false;
     public static bool operator !=(ItemStack a, ItemStack b) => !(a == b);
 
     public override int GetHashCode() => base.GetHashCode();

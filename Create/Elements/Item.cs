@@ -14,6 +14,9 @@ public abstract class Item : Baze
 
     public virtual ItemModel GetItemModel(ItemStack itemStack, Net.Player player) => new();
 
+    public virtual bool IsStackEqual(ItemStack itemStack1, ItemStack itemStack2) =>
+        (itemStack1.Item == itemStack2.Item) && (itemStack1.Type == itemStack2.Type) && (itemStack1.Meta == itemStack2.Meta);
+
     public struct ItemModel
     {
         public IDrawable model;
