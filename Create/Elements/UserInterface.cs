@@ -1,5 +1,6 @@
 ﻿using Create.Elements.Interfaces;
 using Create.OpenGL.GUI;
+using System.Reflection;
 using System.Runtime.Versioning;
 
 namespace Create.Elements;
@@ -18,6 +19,8 @@ public abstract class UserInterface
     {
         mod.RegisterInterface<CreativeInventory>("creativeinventory");
     }
+
+    public bool IsPassive => GetType().GetCustomAttribute<PassiveInterface>() is not null;
 
     public struct UpdateArgs
     {

@@ -1,6 +1,7 @@
 ﻿using Create.Conteiner;
 using Create.Elements;
 using Create.Sceans;
+using System.Reflection;
 
 namespace Create.Net;
 
@@ -42,7 +43,8 @@ public static class Client
             throw new Exception("Game isn't active");
         var rez = func.Invoke(sender);
 
-        gam.Interface.MainElements.Find("Active Interface", false)?.Childs.AddChild(rez.point);
+        gam.Interface.MainElements.Find(rez.status.GetType().GetCustomAttribute<PassiveInterface>() is not null ?
+            "Passive Interface" : "Active Interface", false)?.Childs.AddChild(rez.point);
         gam.UserInterfaces.Add((name, rez.status, rez.point));
         return rez.status;
     }
@@ -67,7 +69,8 @@ public static class Client
             throw new Exception("Game isn't active");
         var rez = func.Invoke(sender);
 
-        gam.Interface.MainElements.Find("Active Interface", false)?.Childs.AddChild(rez.point);
+        gam.Interface.MainElements.Find(typeof(T).GetCustomAttribute<PassiveInterface>() is not null ?
+            "Passive Interface" : "Active Interface", false)?.Childs.AddChild(rez.point);
         gam.UserInterfaces.Add((key.name, rez.status, rez.point));
         return (T)rez.status;
     }
@@ -136,7 +139,7 @@ public static class Client
         if (!user.HasValue)
             return false;
         gam.UserInterfaces.RemoveAt(user.Value.index);
-        gam.Interface.MainElements.Find("Active Interface", false)?.Childs.RemoveChild(user.Value.element.point);
+        user.Value.element.point.Parent!.Childs.RemoveChild(user.Value.element.point);
         return true;
     }
 

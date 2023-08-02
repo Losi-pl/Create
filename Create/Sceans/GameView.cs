@@ -53,6 +53,14 @@ internal sealed partial class GameView : Scean
         _interface.MainElements.AddChild(Assets.GetInterface("create:crosshair"));
         _interface.MainElements.AddChild(Assets.GetInterface("create:statusbars"));
 
+        _interface.MainElements.AddChild(new SpacePoint
+        {
+            Size = OpenGL.Engine.Size.ToTumple(),
+            Pozition = (0, 0),
+            Interactable = false,
+            Name = "Passive Interface",
+            AnkerMode = SpacePoint.Anker.All,
+        });
         var user_interface = new SpacePoint
         {
             Size = (OpenGL.Engine.Size.X + 1, OpenGL.Engine.Size.Y + 1),
@@ -112,9 +120,8 @@ internal sealed partial class GameView : Scean
             {
                 _interface.MainElements.Find("Active Interface")!.Active = true;
                 inventory = true;
-                var inte = Client.GetUserInterfaces().FirstOrDefault();
-                if (inte is not null)
-                    Client.RemoveUserInterface(inte);
+                Client.GetUserInterfaces().Where(i => !i.IsPassive)
+                    .ForEvery(i => Client.RemoveUserInterface(i));
             }
         }
 
