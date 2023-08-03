@@ -25,6 +25,16 @@ public sealed class BlockItem : Item
 
         return new() { model = new BLockModel() { model = model }, statusBar = null};
     }
+
+    public override bool OnClick(OnClickArgs args)
+    {
+        if(!args.BlockArgs.HasValue)
+            return base.OnClick(args);
+        if (args.Button != OpenGL.GUI.ClickEventButton.Right)
+            return false;
+        args.World.SetBlock(args.BlockArgs.Value.BlockOnSide, args.InHand.Stack.AsPlacedBlock());
+        return true;
+    }
 }
 
 file class SingleBlockWorld : World

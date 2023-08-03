@@ -131,28 +131,57 @@ internal sealed partial class GameView : Scean
             }
         }
 
-        if(Mouse.Left.Down && !inventory)
-            if(interaction.HasValue)
-                Client.Me.Entity.Dimention?.World.SetBlock(interaction.Value.pozition, new PlacedBlock(Blocks.AIR));
-        
-        if(Mouse.Right.Down && !inventory)
+        if(Mouse.Left.Down || Mouse.Right.Down || Mouse.Scroll.Down)
         {
+            var button = Mouse.Left.Down ? ClickEventButton.Left :
+                         Mouse.Right.Down ? ClickEventButton.Right :
+                         Mouse.Scroll.Down ? ClickEventButton.Scroll :
+                         ClickEventButton.Unknown;
+            var world = Client.Me.Entity!.Dimention!.World;
+            (int, ItemStack?) inHand = (Client.GetUserInterface<InformationBars>(), Client.Me).Cast(t =>
+                (t.Item1?.UsedSlot ?? 0, (t.Me.Entity?.Data.Get("tool_slots") as ToolsBar? ?? new())[t.Item1?.UsedSlot ?? 0]));
             if(interaction.HasValue)
             {
-                var point = interaction!.Value.pozition.ToVector() + interaction!.Value.side switch
+                var block = world.GetBlock(interaction!.Value.pozition);
+                var blockArgs = new Block.OnClickArgs()
                 {
-                    Block.BlockSide.Top => new(0, 1, 0),
-                    Block.BlockSide.Bottom => new(0, -1, 0),
-                    Block.BlockSide.North => new(0, 0, 1),
-                    Block.BlockSide.South => new(0, 0, -1),
-                    Block.BlockSide.West => new(-1, 0, 0),
-                    Block.BlockSide.East => new(1, 0, 0),
-                    _ => new Vector3i(0)
+                    HitBoxIndex = interaction.Value.hitBoxNumer,
+                    BlockPozition = interaction.Value.pozition,
+                    TargetSide = interaction.Value.side,
+                    Player = Client.Me,
+                    Button = button,
+                    Block = block,
+                    World = world,
+                    InHand = inHand
                 };
-                Client.Me.Entity.Dimention?.World.SetBlock(point, new PlacedBlock(Blocks.STONE));
-            }
-        }
+                var itemArgs = new Item.OnClickArgs()
+                {
+                    BlockArgs = blockArgs,
+                    Player = Client.Me,
+                    Button = button,
+                    World = world,
+                    InHand = (inHand.Item1, inHand.Item2 ?? new(1, Items.BLOCK_ITEM))
+                };
 
+                if (Keyboard.LeftShift.Status || Keyboard.RightShift.Status)
+                {
+                    if ((!inHand.Item2?.Item.OnClick(itemArgs)) ?? true)
+                        block.Block.OnClick(blockArgs);
+                }
+                else
+                {
+                    if (!block.Block.OnClick(blockArgs))
+                        inHand.Item2?.Item.OnClick(itemArgs);
+                }
+            }
+            else
+                inHand.Item2?.Item.OnClick(new() { 
+                    BlockArgs = null,
+                    Button = button,
+                    Player = Client.Me,
+                    World = world,
+                    InHand = (inHand.Item1, inHand.Item2 ?? new(1, Items.BLOCK_ITEM))});
+        }
         _interface.Phizic();
         foreach (var i in userInterfaces)
             i.user.Update(new() { time = args.Time, activeInventory = inventory });

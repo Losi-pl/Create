@@ -1,4 +1,6 @@
 using Create.Conteiner;
+using Create.Net;
+using Create.OpenGL.GUI;
 using Create.OpenGL.Textures;
 using Create.Render;
 using Create.Render.ModelCreators.Model;
@@ -243,6 +245,21 @@ public abstract class Block : Baze
     }
 
     /// <summary>
+    /// Gdy gracz naciśnie prawym przycieskiem na
+    /// </summary>
+    /// <param name="args"></param>
+    /// <returns></returns>
+    public virtual bool OnClick(OnClickArgs args)
+    {
+        if(args.Button == ClickEventButton.Left)
+        {
+            args.World.SetBlock(args.BlockPozition, new(Blocks.AIR));
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
     /// Używany do definiowania stron bloku
     /// </summary>
     [Flags]
@@ -255,7 +272,30 @@ public abstract class Block : Baze
         East = 16,
         West = 32
     }
-
+    /// <summary>
+    /// Parametry interakcji z blokami
+    /// </summary>
+    public struct OnClickArgs
+    {
+        public (int x, int y, int z) BlockPozition;
+        public BlockSide TargetSide;
+        public ClickEventButton Button;
+        public PlacedBlock Block;
+        public Player Player;
+        public World World;
+        public int HitBoxIndex;
+        public (int Slot, ItemStack? Stack) InHand;
+        public (int x, int y, int z) BlockOnSide => (TargetSide switch
+        {
+            BlockSide.Top => new(0, 1, 0),
+            BlockSide.Bottom => new(0, -1, 0),
+            BlockSide.North => new(0, 0, 1),
+            BlockSide.South => new(0, 0, -1),
+            BlockSide.West => new(-1, 0, 0),
+            BlockSide.East => new(1, 0, 0),
+            _ => new Vector3i(0)
+        } + BlockPozition.ToVector()).ToTumple();
+    }
     /// <summary>
     /// Standardowe parametry bloku
     /// </summary>
