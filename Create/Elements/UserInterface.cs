@@ -13,6 +13,10 @@ public interface IUserInterface<T> where T : UserInterface
 
 public abstract class UserInterface
 {
+#nullable disable
+    Net.Player player;
+#nullable restore
+
     public virtual void Update(UpdateArgs args) { }
 
     public bool IsPassive => GetType().GetCustomAttribute<PassiveInterface>() is not null;
@@ -23,6 +27,9 @@ public abstract class UserInterface
         public bool activeInventory;
     }
 
+    internal void bind_player(Net.Player player) => this.player = player;
+
+    public Net.Player Player => player;
     internal static void LoadInterfaces(Mod mod)
     {
         mod.RegisterInterface<CreativeInventory>("creativeinventory");

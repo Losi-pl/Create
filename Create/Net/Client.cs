@@ -43,6 +43,7 @@ public static class Client
             throw new Exception("Game isn't active");
         var rez = func.Invoke(sender);
 
+        rez.status.bind_player(Me);
         gam.Interface.MainElements.Find(rez.status.GetType().GetCustomAttribute<PassiveInterface>() is not null ?
             "Passive Interface" : "Active Interface", false)?.Childs.AddChild(rez.point);
         gam.UserInterfaces.Add((name, rez.status, rez.point));
@@ -69,6 +70,7 @@ public static class Client
             throw new Exception("Game isn't active");
         var rez = func.Invoke(sender);
 
+        rez.status.bind_player(Me);
         gam.Interface.MainElements.Find(typeof(T).GetCustomAttribute<PassiveInterface>() is not null ?
             "Passive Interface" : "Active Interface", false)?.Childs.AddChild(rez.point);
         gam.UserInterfaces.Add((key.name, rez.status, rez.point));
