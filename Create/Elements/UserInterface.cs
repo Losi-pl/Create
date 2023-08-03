@@ -15,17 +15,17 @@ public abstract class UserInterface
 {
     public virtual void Update(UpdateArgs args) { }
 
-    internal static void LoadInterfaces(Mod mod)
-    {
-        mod.RegisterInterface<CreativeInventory>("creativeinventory");
-        mod.RegisterInterface<InformationBars>("informationbars");
-    }
-
     public bool IsPassive => GetType().GetCustomAttribute<PassiveInterface>() is not null;
 
     public struct UpdateArgs
     {
         public double time;
         public bool activeInventory;
+    }
+
+    internal static void LoadInterfaces(Mod mod)
+    {
+        mod.RegisterInterface<CreativeInventory>("creativeinventory");
+        mod.RegisterInterface<InformationBars>("informationbars");
     }
 }
