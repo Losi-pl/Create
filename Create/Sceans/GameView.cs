@@ -131,12 +131,13 @@ internal sealed partial class GameView : Scean
             }
         }
 
-        if(Mouse.Left.Down || Mouse.Right.Down || Mouse.Scroll.Down)
+        if((Mouse.Left.Down || Mouse.Right.Down || Mouse.Scroll.Down) && !inventory)
         {
             var button = Mouse.Left.Down ? ClickEventButton.Left :
                          Mouse.Right.Down ? ClickEventButton.Right :
                          Mouse.Scroll.Down ? ClickEventButton.Scroll :
                          ClickEventButton.Unknown;
+
             var world = Client.Me.Entity!.Dimention!.World;
             (int, ItemStack?) inHand = (Client.GetUserInterface<InformationBars>(), Client.Me).Cast(t =>
                 (t.Item1?.UsedSlot ?? 0, (t.Me.Entity?.Data.Get("tool_slots") as ToolsBar? ?? new())[t.Item1?.UsedSlot ?? 0]));
