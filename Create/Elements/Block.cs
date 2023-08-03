@@ -219,6 +219,11 @@ public abstract class Block : Baze
         yield return new() { pozition = (.5f, .5f, .5f), size = (1, 1, 1) };
     }
 
+    /// <summary>
+    /// Generuje model wyświetlający granice interakcji z blokiem
+    /// </summary>
+    /// <param name="set">Parametry bloku</param>
+    /// <returns></returns>
     public virtual IEnumerable<((float x, float y, float z) start, (float x, float y, float z) end)> GetInteractionModel(StandardBlockSet set)
     {
         yield return ((0, 0, 0), (1, 0, 0));
@@ -237,6 +242,9 @@ public abstract class Block : Baze
         yield return ((1, 0, 1), (1, 1, 1));
     }
 
+    /// <summary>
+    /// Używany do definiowania stron bloku
+    /// </summary>
     [Flags]
     public enum BlockSide
     {
@@ -257,7 +265,6 @@ public abstract class Block : Baze
         public PlacedBlock block;
         public World world;
     }
-
     /// <summary>
     /// Parametry granic bloku
     /// </summary>
