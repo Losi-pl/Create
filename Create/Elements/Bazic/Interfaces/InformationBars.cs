@@ -56,4 +56,6 @@ internal sealed class InformationBars : UserInterface, IUserInterface<Informatio
         foreach (var s in slots)
             s.slot.ItemStack = tools[s.id];
     }
+
+    public int UsedSlot => slot_ind;
 }
