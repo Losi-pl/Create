@@ -15,7 +15,7 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
     InventorySlots inventory;
     #nullable restore
 
-    static (CreativeInventory status, SpacePoint point) IUserInterface<CreativeInventory>.LoadInterface(object? aditionalParameters)
+    static (CreativeInventory status, SpacePoint point) IUserInterface<CreativeInventory>.LoadInterface(InterfaceCreatorArgs args)
     {
         var ci = new CreativeInventory();
         ci.root = Assets.GetInterface("create:creativeinventory");

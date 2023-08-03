@@ -14,7 +14,7 @@ internal sealed class InformationBars : UserInterface, IUserInterface<Informatio
     (ItemSlot slot, int id)[] slots;
 #nullable restore
 
-    static (InformationBars status, SpacePoint point) IUserInterface<InformationBars>.LoadInterface(object? aditionalParameters)
+    static (InformationBars status, SpacePoint point) IUserInterface<InformationBars>.LoadInterface(InterfaceCreatorArgs args)
     {
         var ib = new InformationBars();
         var sp = new SpacePoint();

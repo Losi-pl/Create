@@ -29,7 +29,7 @@ public static class Register
     public static readonly ElementRegister<Entity> Entitys = entitys_console.Register;
     public static readonly ElementRegister<Item> Items = items_console.Register;
 
-    internal static readonly Dictionary<(string name, Type type), Func<object?, (UserInterface status, OpenGL.GUI.SpacePoint point)>> userinterfaces = new();
+    internal static readonly Dictionary<(string name, Type type), Func<UserInterface.InterfaceCreatorArgs, (UserInterface status, OpenGL.GUI.SpacePoint point)>> userinterfaces = new();
 
     /// <summary>
     /// Załadowanie podstawowego pakietu zasobów

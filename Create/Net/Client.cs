@@ -41,7 +41,7 @@ public static class Client
         var gam = OpenGL.Engine.Scean as GameView;
         if (gam is null)
             throw new Exception("Game isn't active");
-        var rez = func.Invoke(sender);
+        var rez = func.Invoke(new() { Player = Me, AditionalParameters = sender });
 
         rez.status.bind_player(Me);
         gam.Interface.MainElements.Find(rez.status.GetType().GetCustomAttribute<PassiveInterface>() is not null ?
@@ -68,7 +68,7 @@ public static class Client
         var gam = OpenGL.Engine.Scean as GameView;
         if (gam is null)
             throw new Exception("Game isn't active");
-        var rez = func.Invoke(sender);
+        var rez = func.Invoke(new() { Player = Me, AditionalParameters = sender });
 
         rez.status.bind_player(Me);
         gam.Interface.MainElements.Find(typeof(T).GetCustomAttribute<PassiveInterface>() is not null ?

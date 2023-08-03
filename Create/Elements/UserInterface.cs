@@ -8,7 +8,7 @@ namespace Create.Elements;
 public interface IUserInterface<T> where T : UserInterface
 {
     [RequiresPreviewFeatures]
-    internal abstract static (T status, SpacePoint point) LoadInterface(object? aditionalParameters);
+    internal abstract static (T status, SpacePoint point) LoadInterface(UserInterface.InterfaceCreatorArgs args);
 }
 
 public abstract class UserInterface
@@ -34,5 +34,11 @@ public abstract class UserInterface
     {
         mod.RegisterInterface<CreativeInventory>("creativeinventory");
         mod.RegisterInterface<InformationBars>("informationbars");
+    }
+
+    public struct InterfaceCreatorArgs
+    {
+        public object? AditionalParameters;
+        public Net.Player Player;
     }
 }
