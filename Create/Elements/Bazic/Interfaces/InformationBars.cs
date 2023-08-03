@@ -16,12 +16,8 @@ internal sealed class InformationBars : UserInterface, IUserInterface<Informatio
 
     static (InformationBars status, SpacePoint point) IUserInterface<InformationBars>.LoadInterface(object? aditionalParameters)
     {
-        ArgumentNullException.ThrowIfNull(aditionalParameters, nameof(aditionalParameters));
-
         var ib = new InformationBars();
         var sp = new SpacePoint();
-
-        ib.player = aditionalParameters as Net.Player ?? throw new("Invalid parameter");
         sp.AnkerPoints = (new(.5f, 0), new(.5f, .5f));
         sp.Size = (0, OpenGL.Engine.Size.Y / 2);
 
@@ -52,7 +48,7 @@ internal sealed class InformationBars : UserInterface, IUserInterface<Informatio
             statusBars.RunEvent(slot_ind.ToString());
         }
 
-        var tools = player.Entity?.Data.Get("tool_slots") as Conteiner.Items.ToolsBar? ?? new();
+        var tools = Player.Entity?.Data.Get("tool_slots") as Conteiner.Items.ToolsBar? ?? new();
         foreach (var s in slots)
             s.slot.ItemStack = tools[s.id];
     }

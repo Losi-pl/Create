@@ -78,6 +78,7 @@ internal sealed partial class GameView : Scean
             Name = "Transferred Item",
             Element = new ItemSlot() { Enable = false }
         });
+        Client.CreateUserInterface<InformationBars>();
     }
 
     protected override void RenderFrame(FrameEventArgs args)
@@ -126,7 +127,7 @@ internal sealed partial class GameView : Scean
             _interface.MainElements.Find("Active Interface")!.Active = inventory;
             if (inventory)
             {
-                var @int = Client.GetUserInterface<CreativeInventory>() ?? Client.CreateUserInterface<CreativeInventory>(Client.Me);
+                var @int = Client.GetUserInterface<CreativeInventory>() ?? Client.CreateUserInterface<CreativeInventory>();
                 @int.Tab = CreativeInventory.OpenTab.InventoryTab;
             }
         }

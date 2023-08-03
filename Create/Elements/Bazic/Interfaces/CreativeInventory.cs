@@ -19,8 +19,7 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
     {
         var ci = new CreativeInventory();
         ci.root = Assets.GetInterface("create:creativeinventory");
-        ci.player = aditionalParameters as Net.Player ?? throw new InvalidCastException("Aditional parameter must by Net.Player type");
-
+        
         var points = (new[] {
             ("tab1", OpenTab.Tab1),
             ("tab2", OpenTab.Tab2),
@@ -74,16 +73,14 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
                 .Select(s => (s, s.ID ?? 0))
                 .Where(s => s.Item2 < 27));
 
-        ci.inventory.GetToolBar += () => ci.player.Entity?.Data.Get("tool_slots") as ToolsBar? ?? new();
-        ci.inventory.SetToolBar += t  => ci.player.Entity?.Data.Set("tool_slots", t);
+        ci.inventory.GetToolBar += () => ci.Player.Entity?.Data.Get("tool_slots") as ToolsBar? ?? new();
+        ci.inventory.SetToolBar += t  => ci.Player.Entity?.Data.Set("tool_slots", t);
 
-        ci.inventory.GetTransferredItem += () => ci.player.Entity?.Data.Get("transferred_item") as ItemStack?;
-        ci.inventory.SetTransferredItem += i  => ci.player.Entity?.Data.Set("transferred_item", i);
+        ci.inventory.GetTransferredItem += () => ci.Player.Entity?.Data.Get("transferred_item") as ItemStack?;
+        ci.inventory.SetTransferredItem += i  => ci.Player.Entity?.Data.Set("transferred_item", i);
 
-        ci.inventory.GetPlayerInventory += () => ci.player.Entity?.Data.Get("inventory") as PlayerInventory? ?? new();
-        ci.inventory.SetPlayerInventory += t => ci.player.Entity?.Data.Set("inventory", t);
-
-        ci.inventory.UpdateSlotsContent();
+        ci.inventory.GetPlayerInventory += () => ci.Player.Entity?.Data.Get("inventory") as PlayerInventory? ?? new();
+        ci.inventory.SetPlayerInventory += t => ci.Player.Entity?.Data.Set("inventory", t);
 
         return (ci, ci.root);
     }
