@@ -191,12 +191,10 @@ internal sealed partial class GameView : Scean
         if (inventory)
         {
             var trans_slot = _interface.MainElements.Find("Transferred Item")?.Element as ItemSlot;
-            var item = Client.Me.Entity!.Data.Get("transferred_item") as ItemStack?;
             if (trans_slot != null)
             {
                 trans_slot.Point!.Active = true;
                 trans_slot.Point!.GlobalPozition = Mouse.Pozition;
-                trans_slot.ItemStack = item;
             }
         }
         else
