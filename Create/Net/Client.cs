@@ -1,5 +1,6 @@
 ﻿using Create.Conteiner;
 using Create.Elements;
+using Create.Elements.Gui;
 using Create.Sceans;
 using System.Reflection;
 
@@ -154,4 +155,8 @@ public static class Client
             throw new Exception("Game isn't active");
         return gam.UserInterfaces.ConvertAll(ui => ui.user);
     }
+
+    public static ItemSlot TransferedItemSlot => (OpenGL.Engine.Scean as GameView)?
+                                                .Interface.MainElements.Find("Transferred Item").Element as ItemSlot ??
+                                             throw new("Game isn't active");
 }
