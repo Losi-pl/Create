@@ -16,7 +16,7 @@ public sealed class ItemSlot : Element
         HorizontalDirection = Render.Text.HorizontalDirection.Left, 
         VerticalDirection = Render.Text.VerticalDirection.Up, 
         Size = 8 * 4};
-    bool enable = true, hoverd, status;
+    bool enable = true, hoverd, status, hardSelect;
     int? id;
     static Shader shader = Assets.GetShader("create:interface/itemslot")
         .SetUniform("hoverd_color", (Vector4)new Color4(1f, 1f, 1f, .4f));
@@ -65,7 +65,7 @@ public sealed class ItemSlot : Element
                 if(dis is not null)
                     dis.Dispose();
             }
-            itemStack = value;
+            itemStack = value?.Item == null || value?.Count == 0 ? null : value;
             itemModel = itemStack?.Item.GetItemModel(itemStack.Value, Net.Client.Me);
             text.Text = (itemStack?.Count > 1 ? itemStack?.Count.ToString() : text.Text) ?? text.Text;
         }
@@ -75,6 +75,7 @@ public sealed class ItemSlot : Element
         get => status;
         set => status = value;
     }
+    public bool HardSelected { get => hardSelect; set => hardSelect = value; }
 
     void OnEnter(SpacePoint point)
     {
@@ -150,7 +151,7 @@ public sealed class ItemSlot : Element
             render_layer.ExecuteIn(itemModel.Value.model.Draw);
             shader.SetUniform("text", render_layer.Textures[OpenTK.Graphics.OpenGL.FramebufferAttachment.ColorAttachment0]);
             shader.SetUniform("contains", true);
-            shader.SetUniform("hoverd", hoverd);
+            shader.SetUniform("hoverd", hoverd || hardSelect);
             mesh.Draw(Matrix4.CreateScale(Point!.Size.Width, Point.Size.Height, 1) * projection);
             if(itemStack?.Count > 1)
             {
@@ -162,7 +163,7 @@ public sealed class ItemSlot : Element
         }
         else
         {
-            if (!hoverd)
+            if (!(hoverd || hardSelect))
                 return;
             shader.SetUniform("contains", false);
             mesh.Draw(Matrix4.CreateScale(Point!.Size.Width, Point.Size.Height, 1) * projection);
