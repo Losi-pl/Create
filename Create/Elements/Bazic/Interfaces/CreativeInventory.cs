@@ -2,6 +2,7 @@
 using Create.Elements.Gui;
 using Create.Conteiner.Items;
 using Create.Conteiner;
+using Create.Net;
 
 namespace Create.Elements.Interfaces;
 
@@ -66,7 +67,7 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
         for (int i = 0; i < points.Length; i++)
             points[i].slot!.Enable = false;
 
-        ci.inventory = new(
+        ci.inventory = new(Client.TransferedItemSlot,
             ItemSlot.GetAllSlots(ci.root.Childs.Find("Slots bar", true) ?? new())
                 .Select(s => (s, s.ID ?? 0)),
             ItemSlot.GetAllSlots(ci.root.Childs.Find("Inventory", true) ?? new())

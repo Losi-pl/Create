@@ -16,19 +16,19 @@ public sealed class InventorySlots
     public event Func<PlayerInventory>? GetPlayerInventory;
     public event Action<PlayerInventory>? SetPlayerInventory;
 
+    (ItemSlot slot, int id)[] toolBarArray, inventorySlotsArray; ItemSlot transferSlot;
+
     ToolsBar toolBar { get => GetToolBar?.Invoke() ?? new(); set => SetToolBar?.Invoke(value); }
     PlayerInventory playerInventory { get => GetPlayerInventory?.Invoke() ?? new(); set => SetPlayerInventory?.Invoke(value); }
     ItemStack? transferredItem { get => GetTransferredItem?.Invoke(); set => SetTransferredItem?.Invoke(value); }
 
-    (ItemSlot slot, int id)[] toolBarArray, inventorySlotsArray;
-
-    public InventorySlots(IEnumerable<(ItemSlot slot, int id)> toolBarSlots, IEnumerable<(ItemSlot slot, int id)> inventorySlots)
+    public InventorySlots(ItemSlot transfered, IEnumerable<(ItemSlot slot, int id)> toolBarSlots, IEnumerable<(ItemSlot slot, int id)> inventorySlots)
     {
-        if(toolBarSlots == null)
-            throw new ArgumentNullException(nameof(toolBarSlots));
-        if (inventorySlots == null)
-            throw new ArgumentNullException(nameof(inventorySlots));
+        ArgumentNullException.ThrowIfNull(inventorySlots, nameof(inventorySlots));
+        ArgumentNullException.ThrowIfNull(toolBarSlots, nameof(toolBarSlots));
+        ArgumentNullException.ThrowIfNull(transfered, nameof(transfered));
 
+        transferSlot = transfered;
         toolBarArray = toolBarSlots.ToArray();
         inventorySlotsArray = inventorySlots.ToArray();
 
