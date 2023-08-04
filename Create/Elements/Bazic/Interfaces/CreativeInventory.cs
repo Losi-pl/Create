@@ -58,9 +58,9 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
         for (int i = 0; i < points.Length; i++)
             points[i].slot!.ItemStack = new((i % 3) switch
             {
-                0 => Elements.Blocks.STONE,
-                1 => Elements.Blocks.DIRT,
-                _ => Elements.Blocks.GRASS_BLOCK
+                0 => Blocks.STONE,
+                1 => Blocks.DIRT,
+                _ => Blocks.GRASS_BLOCK
             });
 
         for (int i = 0; i < points.Length; i++)
