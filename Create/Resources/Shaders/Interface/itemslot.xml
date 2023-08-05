@@ -22,6 +22,7 @@
     uniform sampler2D text;
     uniform bool contains;
     uniform bool hoverd;
+    uniform bool hard_select;
     uniform vec4 hoverd_color;
     out vec4 color_o;
     vec4 get_color()
@@ -32,13 +33,23 @@
     {
       if(contains)
       {
-        if(!hoverd)
+        if(!hoverd &amp;&amp; !hard_select)
           color_o = get_color();
-        else
+        else if(hoverd &amp;&amp; !hard_select)
         {
           vec4 baze = get_color();
           vec3 mix_c = mix(baze.rgb, hoverd_color.rgb, hoverd_color.a);
           float mix_a = baze.a + hoverd_color.a;
+          if(mix_a > 1)
+            mix_a = 1;
+          color_o = vec4(mix_c, mix_a);
+        }
+        else
+        {
+          vec4 baze = get_color();
+          vec4 emp = vec4(mix(vec3(0, 0, 0), hoverd_color.rgb, hoverd_color.a), hoverd_color.a);
+          vec3 mix_c = mix(emp.rgb, baze.rgb, baze.a);
+          float mix_a = baze.a + emp.a;
           if(mix_a > 1)
             mix_a = 1;
           color_o = vec4(mix_c, mix_a);

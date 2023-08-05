@@ -151,7 +151,8 @@ public sealed class ItemSlot : Element
             render_layer.ExecuteIn(itemModel.Value.model.Draw);
             shader.SetUniform("text", render_layer.Textures[OpenTK.Graphics.OpenGL.FramebufferAttachment.ColorAttachment0]);
             shader.SetUniform("contains", true);
-            shader.SetUniform("hoverd", hoverd || hardSelect);
+            shader.SetUniform("hoverd", hoverd);
+            shader.SetUniform("hard_select", hardSelect);
             mesh.Draw(Matrix4.CreateScale(Point!.Size.Width, Point.Size.Height, 1) * projection);
             if(itemStack?.Count > 1)
             {
