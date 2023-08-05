@@ -21,6 +21,7 @@ public sealed class InventorySlots
     ClickEventButton button = ClickEventButton.Unknown;
     List<(int id, bool main)> slots = new();
     ItemStack transfered;
+    double timeSinceClick = 0;
 
     ToolsBar toolBar { get => GetToolBar?.Invoke() ?? new(); set => SetToolBar?.Invoke(value); }
     PlayerInventory playerInventory { get => GetPlayerInventory?.Invoke() ?? new(); set => SetPlayerInventory?.Invoke(value); }
@@ -63,28 +64,61 @@ public sealed class InventorySlots
             case ClickEventButton.Left:
                 if (button != ClickEventButton.Unknown)
                     return;
-                var sItem = get_item();
-                if (!sItem.HasValue && !transfered.HasValue)
-                    return;
-                if (!sItem.HasValue && transfered.HasValue)
+                ItemStack? sItem;
+                if (timeSinceClick > 0.17)
                 {
-                    slots.Add(id);
-                    this.transfered = transferredItem!.Value;
-                    button = ClickEventButton.Left;
-                }
-                else if (sItem.HasValue && transfered.HasValue && sItem == transfered)
-                {
-                    button = ClickEventButton.Left;
-                    slots.Add(id);
-                    this.transfered = transferredItem!.Value;
-                    button = ClickEventButton.Left;
+                    sItem = get_item();
+                    if (!sItem.HasValue && !transfered.HasValue)
+                        return;
+                    if (!sItem.HasValue && transfered.HasValue)
+                    {
+                        slots.Add(id);
+                        this.transfered = transferredItem!.Value;
+                        button = ClickEventButton.Left;
+                    }
+                    else if (sItem.HasValue && transfered.HasValue && sItem == transfered)
+                    {
+                        button = ClickEventButton.Left;
+                        slots.Add(id);
+                        this.transfered = transferredItem!.Value;
+                        button = ClickEventButton.Left;
+                    }
+                    else
+                    {
+                        var tmp = sItem;
+                        set_item(transfered);
+                        transfered = tmp;
+                    }
                 }
                 else
                 {
-                    var tmp = sItem;
-                    set_item(transfered);
-                    transfered = tmp;
+                    if (!transfered.HasValue)
+                        return;
+                    var maxCount = transfered.Value.Item.MaxStackCount(transfered.Value) - transfered.Value.Count;
+                    var count = transfered.Value.Count;
+                    for(int i = 0; i < inv.Length; i++)
+                    {
+                        var @is = inv.GetItem(i);
+                        if (@is != transfered)
+                            continue;
+                        if (maxCount > @is.Value.Count)
+                        {
+                            count += @is.Value.Count;
+                            maxCount -= @is.Value.Count;
+                            inv.SetItem(i, null);
+                        }
+                        else if (maxCount > 0)
+                        {
+                            inv.SetItem(i, new(@is.Value.Count - maxCount, @is.Value.Item, @is.Value.Type, @is.Value.Meta));
+                            count += maxCount;
+                            maxCount -= maxCount;
+                        }
+                        else if (maxCount == 0)
+                            break;
+                    }
+                    transfered = new(count, transfered.Value.Item, transfered.Value.Type, transfered.Value.Meta);
                 }
+                timeSinceClick = 0;
                 break;
             case ClickEventButton.Scroll:
                 if (button != ClickEventButton.Unknown)
@@ -183,6 +217,7 @@ public sealed class InventorySlots
         var tool = toolBar;
         var inv = playerInventory;
         bool changet = false;
+        timeSinceClick += time;
 
         if (button == ClickEventButton.Left)
         {
