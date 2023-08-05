@@ -123,32 +123,6 @@ public sealed class InventorySlots
                     transfered = new(half, sItem.Value.Item, sItem.Value.Type, sItem.Value.Meta);
                     set_item(new(sItem!.Value.Count - half, sItem.Value.Item, sItem.Value.Type, sItem.Value.Meta));
                 }
-                /*
-                if (!sItem.HasValue && transfered.HasValue)
-                {
-                    sItem = new(transfered.Value.Item, transfered.Value.Type, transfered.Value.Meta);
-                    set_item(sItem);
-                    transfered = transfered.Value.Count == 1 ? null :
-                        new(transfered.Value.Count - 1, 
-                            transfered.Value.Item, 
-                            transfered.Value.Type, 
-                            transfered.Value.Meta);
-                }
-                else if (sItem.HasValue && transfered.HasValue)
-                {
-                    if (sItem != transfered)
-                        return;
-                    if (sItem?.Count >= sItem?.Item.MaxStackCount(sItem.Value))
-                        return;
-
-                    transfered = transfered!.Value.Count == 1 ? null :
-                        new(transfered.Value.Count - 1, transfered.Value.Item, transfered.Value.Type, transfered.Value.Meta);
-                    set_item(new(sItem!.Value.Count + 1, sItem.Value.Item, sItem.Value.Type, sItem.Value.Meta));
-                }
-                else if(sItem.HasValue && !transfered.HasValue)
-                {
-                    
-                }*/
                 break;
         }
         transferredItem = transfered;
