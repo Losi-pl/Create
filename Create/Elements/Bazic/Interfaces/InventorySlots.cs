@@ -2,6 +2,7 @@
 using Create.Conteiner.Items;
 using Create.Elements.Gui;
 using Create.Input;
+using Create.Net;
 using Create.OpenGL.GUI;
 
 namespace Create.Elements.Interfaces;
@@ -62,61 +63,180 @@ public sealed class InventorySlots
         switch (args)
         {
             case ClickEventButton.Left:
-                if (button != ClickEventButton.Unknown)
+                if (button != ClickEventButton.Unknown && button != ClickEventButton.Scroll)
                     return;
                 ItemStack? sItem;
-                if (timeSinceClick > 0.17)
+                if(Keyboard.LeftShift.Status || Keyboard.RightShift.Status)
                 {
-                    sItem = get_item();
-                    if (!sItem.HasValue && !transfered.HasValue)
+                    if (timeSinceClick > 0.17)
+                    {
+                        button = ClickEventButton.Scroll;
+                        IItemContainer con = id.main ? tools : inv;
+                        sItem = get_item();
+                        if (!sItem.HasValue)
+                            return;
+                        uint count = sItem.Value.Count, maxCount = sItem.Value.Item.MaxStackCount(sItem.Value);
+                        for (int i = 0; i < con.Length && count > 0; i++)
+                        {
+                            var @is = con.GetItem(i);
+                            if (!@is.HasValue)
+                                continue;
+                            if (sItem != @is)
+                                continue;
+                            var free = maxCount - @is.Value.Count;
+                            if (free == 0)
+                                continue;
+                            if (count > free)
+                                (@is, count) = (new(maxCount, @is.Value.Item, @is.Value.Type, @is.Value.Meta), count - free);
+                            else
+                                (@is, count) = (new(@is.Value.Count + count, @is.Value.Item, @is.Value.Type, @is.Value.Meta), 0);
+                            con.SetItem(i, @is);
+                        }
+                        for (int i = 0; i < con.Length && count > 0; i++)
+                        {
+                            if (con.GetItem(i).HasValue)
+                                continue;
+                            con.SetItem(i, new(count, sItem.Value.Item, sItem.Value.Type, sItem.Value.Meta));
+                            count = 0;
+                            break;
+                        }
+                        if (con is PlayerInventory pi)
+                            inv = pi;
+                        else if (con is ToolsBar tb)
+                            tools = tb;
+                        set_item(count > 0 ? new(count, sItem.Value.Item, sItem.Value.Type, sItem.Value.Meta) : null);
+                        this.transfered = sItem.Value;
+                    }
+                    else if(button == ClickEventButton.Scroll)
+                    {
+                        IItemContainer con = id.main ? tools : inv;
+                        IItemContainer src = id.main ? inv : tools;
+                        uint count = 0;
+                        for(int i = 0; i < src.Length; i++)
+                        {
+                            var @is = src.GetItem(i);
+                            if (!@is.HasValue)
+                                continue;
+                            if (@is != this.transfered)
+                                continue;
+                            count += @is.Value.Count;
+                        }
+                        var old_count = count;
+                        var maxCount = this.transfered.Item.MaxStackCount(this.transfered);
+                        for (int i = 0; i < con.Length && count > 0; i++)
+                        {
+                            var @is = con.GetItem(i);
+                            if (!@is.HasValue)
+                                continue;
+                            if (this.transfered != @is)
+                                continue;
+                            var free = maxCount - @is.Value.Count;
+                            if (free == 0)
+                                continue;
+                            if (count > free)
+                                (@is, count) = (new(maxCount, @is.Value.Item, @is.Value.Type, @is.Value.Meta), count - free);
+                            else
+                                (@is, count) = (new(@is.Value.Count + count, @is.Value.Item, @is.Value.Type, @is.Value.Meta), 0);
+                            con.SetItem(i, @is);
+                        }
+                        for (int i = 0; i < con.Length && count > 0; i++)
+                        {
+                            if (con.GetItem(i).HasValue)
+                                continue;
+                            if (count > maxCount)
+                            {
+                                con.SetItem(i, new(maxCount, this.transfered.Item, this.transfered.Type, this.transfered.Meta));
+                                count -= maxCount;
+                            }
+                            else
+                            {
+                                con.SetItem(i, new(count, this.transfered.Item, this.transfered.Type, this.transfered.Meta));
+                                count = 0;
+                            }
+                        }
+                        if(old_count > count)
+                        {
+                            count = old_count - count;
+                            for(int i = src.Length - 1; i > -1 && count > 0; i--)
+                            {
+                                var @is = src.GetItem(i);
+                                if (@is != this.transfered)
+                                    continue;
+                                if (count < @is.Value.Count)
+                                    (@is, count) = (new(@is.Value.Count - count, @is.Value.Item, @is.Value.Type, @is.Value.Meta), 0);
+                                else
+                                    (@is, count) = (null, count - @is!.Value.Count);
+                                src.SetItem(i, @is);
+                            }
+                        }
+                        if (src is PlayerInventory pi1)
+                            playerInventory = pi1;
+                        else if (src is ToolsBar tb1)
+                            toolBar = tb1;
+                        if (con is PlayerInventory pi2)
+                            playerInventory = pi2;
+                        else if (con is ToolsBar tb2)
+                            toolBar = tb2;
+
+                        button = ClickEventButton.Unknown;
                         return;
-                    if (!sItem.HasValue && transfered.HasValue)
-                    {
-                        slots.Add(id);
-                        this.transfered = transferredItem!.Value;
-                        button = ClickEventButton.Left;
-                    }
-                    else if (sItem.HasValue && transfered.HasValue && sItem == transfered)
-                    {
-                        button = ClickEventButton.Left;
-                        slots.Add(id);
-                        this.transfered = transferredItem!.Value;
-                        button = ClickEventButton.Left;
-                    }
-                    else
-                    {
-                        var tmp = sItem;
-                        set_item(transfered);
-                        transfered = tmp;
                     }
                 }
                 else
                 {
-                    if (!transfered.HasValue)
-                        return;
-                    var maxCount = transfered.Value.Item.MaxStackCount(transfered.Value) - transfered.Value.Count;
-                    var count = transfered.Value.Count;
-                    for(int i = 0; i < inv.Length; i++)
+                    if (timeSinceClick > 0.17)
                     {
-                        var @is = inv.GetItem(i);
-                        if (@is != transfered)
-                            continue;
-                        if (maxCount > @is.Value.Count)
+                        sItem = get_item();
+                        if (!sItem.HasValue && !transfered.HasValue)
+                            return;
+                        if (!sItem.HasValue && transfered.HasValue)
                         {
-                            count += @is.Value.Count;
-                            maxCount -= @is.Value.Count;
-                            inv.SetItem(i, null);
+                            slots.Add(id);
+                            this.transfered = transferredItem!.Value;
+                            button = ClickEventButton.Left;
                         }
-                        else if (maxCount > 0)
+                        else if (sItem.HasValue && transfered.HasValue && sItem == transfered)
                         {
-                            inv.SetItem(i, new(@is.Value.Count - maxCount, @is.Value.Item, @is.Value.Type, @is.Value.Meta));
-                            count += maxCount;
-                            maxCount -= maxCount;
+                            button = ClickEventButton.Left;
+                            slots.Add(id);
+                            this.transfered = transferredItem!.Value;
+                            button = ClickEventButton.Left;
                         }
-                        else if (maxCount == 0)
-                            break;
+                        else
+                        {
+                            var tmp = sItem;
+                            set_item(transfered);
+                            transfered = tmp;
+                        }
                     }
-                    transfered = new(count, transfered.Value.Item, transfered.Value.Type, transfered.Value.Meta);
+                    else
+                    {
+                        if (!transfered.HasValue)
+                            return;
+                        var maxCount = transfered.Value.Item.MaxStackCount(transfered.Value) - transfered.Value.Count;
+                        var count = transfered.Value.Count;
+                        for (int i = 0; i < inv.Length; i++)
+                        {
+                            var @is = inv.GetItem(i);
+                            if (@is != transfered)
+                                continue;
+                            if (maxCount > @is.Value.Count)
+                            {
+                                count += @is.Value.Count;
+                                maxCount -= @is.Value.Count;
+                                inv.SetItem(i, null);
+                            }
+                            else if (maxCount > 0)
+                            {
+                                inv.SetItem(i, new(@is.Value.Count - maxCount, @is.Value.Item, @is.Value.Type, @is.Value.Meta));
+                                count += maxCount;
+                                maxCount -= maxCount;
+                            }
+                            else if (maxCount == 0)
+                                break;
+                        }
+                        transfered = new(count, transfered.Value.Item, transfered.Value.Type, transfered.Value.Meta);
+                    }
                 }
                 timeSinceClick = 0;
                 break;
@@ -135,7 +255,6 @@ public sealed class InventorySlots
             case ClickEventButton.Right:
                 if (button != ClickEventButton.Unknown)
                     return;
-                button = ClickEventButton.Right;
                 sItem = get_item();
                 if (!sItem.HasValue && !transfered.HasValue)
                     return;
