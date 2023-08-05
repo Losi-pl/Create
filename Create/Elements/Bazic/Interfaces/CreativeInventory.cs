@@ -88,7 +88,7 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
 
     public override void Update(UpdateArgs args)
     {
-        inventory.UpdateSlotsContent();
+        inventory.UpdateSlotsContent(args.time);
     }
 
     private void TabOpenClose(SpacePoint obj, OpenTab tab, ClickEventButton args) => Tab = tab;

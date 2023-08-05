@@ -178,7 +178,7 @@ public sealed class InventorySlots
 
     }
 
-    public void UpdateSlotsContent()
+    public void UpdateSlotsContent(double time)
     {
         var tool = toolBar;
         var inv = playerInventory;
