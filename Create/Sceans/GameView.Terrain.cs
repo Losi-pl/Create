@@ -16,7 +16,7 @@ partial class GameView
     /// </summary>
     public class Terrain
     {
-        Dictionary<ChunkPoz, ChunkConstructor.FinischedChunkModel> chunk_models = new();
+        Dictionary<ChunkPoz, FinischedChunkModel> chunk_models = new();
         List<ChunkPoz> chunks_to_add = new();
         List<ChunkPoz> chunks_to_rem = new();
         List<ChunkPoz> chunks_to_ren = new();
@@ -80,7 +80,7 @@ partial class GameView
             lock (task_lock)
             {
                 nontransparent_blocks.Meshes.Remove(chunk_models[chunk]);
-                var new_chunk = ChunkConstructor.GenerateModel(Client.Me.Entity!.Dimention!, chunk);
+                var new_chunk = ModelConstructor.ChunkModel(Client.Me.Entity!.Dimention!, chunk);
                 nontransparent_blocks.Meshes.Add(new_chunk);
                 chunk_models[chunk].Dispose();
                 chunk_models[chunk] = new_chunk;
@@ -97,7 +97,7 @@ partial class GameView
             lock (task_lock)
             {
                 var chunk_m = chunk_models[chunk];
-                var new_quard = ChunkConstructor.QuardModel(Client.Me.Entity!.Dimention!, chunk, quard);
+                var new_quard = ModelConstructor.ChunkModel(Client.Me.Entity!.Dimention!, chunk, quard);
                 chunk_m.set_new_quard(new_quard, quard);
             }
         }
@@ -165,7 +165,7 @@ partial class GameView
                 if (chunks_to_add.Count == 0)
                     return;
                 var chunk = chunks_to_add[0];
-                var done_model = ChunkConstructor.GenerateModel(Server.Dimentions[Dimentions.OVERWORLD], chunk);
+                var done_model = ModelConstructor.ChunkModel(Server.Dimentions[Dimentions.OVERWORLD], chunk);
                 lock(task_lock)
                 {
                     chunk_models.Add(chunk, done_model);
@@ -193,7 +193,7 @@ partial class GameView
                     return;
                 var chunk = chunks_to_ren[0];
                 var m = nontransparent_blocks.Meshes;
-                var new_model = ChunkConstructor.GenerateModel(Server.Dimentions[Dimentions.OVERWORLD], chunk);
+                var new_model = ModelConstructor.ChunkModel(Server.Dimentions[Dimentions.OVERWORLD], chunk);
                 lock(task_lock)
                 {
                     var old_model = chunk_models[chunk];
@@ -234,7 +234,7 @@ partial class GameView
                             Renew(chunk_poz + new ChunkPoz(0, -1));
                             Renew(chunk_poz + new ChunkPoz(0, 1));
                         }
-                        ChunkConstructor.FinischedChunkModel[] models;
+                        FinischedChunkModel[] models;
                         lock (task_lock)
                             models = chunk_models.Values.ToArray();
                         foreach(var chm in models)

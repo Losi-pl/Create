@@ -1,21 +1,26 @@
 ﻿using Create.OpenGL.GUI;
-using System.Runtime.Versioning;
+using Create.Elements.Gui;
+using Create.Conteiner.Items;
+using Create.Conteiner;
+using Create.Net;
 
-namespace Create.Elements.Bazic.Interfaces;
+namespace Create.Elements.Interfaces;
 
 internal class CreativeInventory : UserInterface, IUserInterface<CreativeInventory>
 {
     readonly static OpenTab[] tabTypes = Enum.GetValues<OpenTab>();
-    (bool active, SpacePoint? point) tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tabInventory, tabKompas;
+    (bool active, SpacePoint? point, ItemSlot? slot) tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tabInventory, tabKompas;
     #nullable disable
     SpacePoint root;
+    Net.Player player;
+    InventorySlots inventory;
     #nullable restore
 
-    static (CreativeInventory status, SpacePoint point) IUserInterface<CreativeInventory>.LoadInterface(object? aditionalParameters)
+    static (CreativeInventory status, SpacePoint point) IUserInterface<CreativeInventory>.LoadInterface(InterfaceCreatorArgs args)
     {
         var ci = new CreativeInventory();
         ci.root = Assets.GetInterface("create:creativeinventory");
-
+        
         var points = (new[] {
             ("tab1", OpenTab.Tab1),
             ("tab2", OpenTab.Tab2),
@@ -32,40 +37,61 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
             .ConvertAll(n =>
             {
                 var point = ci.root.Childs.Find(n.Item1, true);
-                point!.OnClick += p => ci.TabOpenClose(p, n.Item2);
-                return point;
+                point!.OnClick += (p, a) => ci.TabOpenClose(p, n.Item2, a);
+                var slot = ItemSlot.GetAllSlots(point).FirstOrDefault();
+                return (point, slot);
             });
 
-        ci.tab1 = (false, points[0]);
-        ci.tab2 = (true, points[1]);
-        ci.tab3 = (true, points[2]);
-        ci.tab4 = (true, points[3]);
-        ci.tab5 = (true, points[4]);
-        ci.tab6 = (true, points[5]);
-        ci.tab7 = (true, points[6]);
-        ci.tab8 = (true, points[7]);
-        ci.tab9 = (true, points[8]);
-        ci.tab10 = (true, points[9]);
-        ci.tabKompas = (true, points[10]);
-        ci.tabInventory = (true, points[11]);
+        ci.tab1 = (false, points[0].point, points[0].slot);
+        ci.tab2 = (true, points[1].point, points[1].slot);
+        ci.tab3 = (true, points[2].point, points[2].slot);
+        ci.tab4 = (true, points[3].point, points[3].slot);
+        ci.tab5 = (true, points[4].point, points[4].slot);
+        ci.tab6 = (true, points[5].point, points[5].slot);
+        ci.tab7 = (true, points[6].point, points[6].slot);
+        ci.tab8 = (true, points[7].point, points[7].slot);
+        ci.tab9 = (true, points[8].point, points[8].slot);
+        ci.tab10 = (true, points[9].point, points[9].slot);
+        ci.tabKompas = (true, points[10].point, points[10].slot);
+        ci.tabInventory = (true, points[11].point, points[11].slot);
+        ci.SetOpenTabs(OpenTab.Tab1);
 
-        ci.Tab1 = true;
-        ci.Tab2 = false;
-        ci.Tab3 = false;
-        ci.Tab4 = false;
-        ci.Tab5 = false;
-        ci.Tab6 = false;
-        ci.Tab7 = false;
-        ci.Tab8 = false;
-        ci.Tab9 = false;
-        ci.Tab10 = false;
-        ci.TabKompas = false;
-        ci.TabInventory = false;
+        for (int i = 0; i < points.Length; i++)
+            points[i].slot!.ItemStack = new((i % 3) switch
+            {
+                0 => Blocks.STONE,
+                1 => Blocks.DIRT,
+                _ => Blocks.GRASS_BLOCK
+            });
+
+        for (int i = 0; i < points.Length; i++)
+            points[i].slot!.Enable = false;
+
+        ci.inventory = new(Client.TransferedItemSlot,
+            ItemSlot.GetAllSlots(ci.root.Childs.Find("Slots bar", true) ?? new())
+                .Select(s => (s, s.ID ?? 0)),
+            ItemSlot.GetAllSlots(ci.root.Childs.Find("Inventory", true) ?? new())
+                .Select(s => (s, s.ID ?? 0))
+                .Where(s => s.Item2 < 27));
+
+        ci.inventory.GetToolBar += () => ci.Player.Entity?.Data.Get("tool_slots") as ToolsBar? ?? new();
+        ci.inventory.SetToolBar += t  => ci.Player.Entity?.Data.Set("tool_slots", t);
+
+        ci.inventory.GetTransferredItem += () => ci.Player.Entity?.Data.Get("transferred_item") as ItemStack?;
+        ci.inventory.SetTransferredItem += i  => ci.Player.Entity?.Data.Set("transferred_item", i);
+
+        ci.inventory.GetPlayerInventory += () => ci.Player.Entity?.Data.Get("inventory") as PlayerInventory? ?? new();
+        ci.inventory.SetPlayerInventory += t => ci.Player.Entity?.Data.Set("inventory", t);
 
         return (ci, ci.root);
     }
 
-    private void TabOpenClose(SpacePoint obj, OpenTab tab) => Tab = tab;
+    public override void Update(UpdateArgs args)
+    {
+        inventory.UpdateSlotsContent(args.time);
+    }
+
+    private void TabOpenClose(SpacePoint obj, OpenTab tab, ClickEventButton args) => Tab = tab;
 
     public OpenTab Tab
     {
@@ -99,7 +125,7 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
     bool Tab10 { get => tab10.active; set => chane_mode(value, ref tab10); }
     bool TabKompas { get => tabKompas.active; set => chane_mode(value, ref tabKompas); }
     bool TabInventory { get => tabInventory.active; set => chane_mode(value, ref tabInventory); }
-    void chane_mode(bool value, ref (bool active, SpacePoint? point) data)
+    void chane_mode(bool value, ref (bool active, SpacePoint? point, ItemSlot? slot) data)
     {
         if (data.point is null)
             return;

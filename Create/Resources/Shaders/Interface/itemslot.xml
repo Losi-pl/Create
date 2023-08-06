@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<shader>
+  <properties>
+    <matrix>matrix</matrix>
+  </properties>
+  <depth status="false"/>
+  <alpha status="true"/>
+  <blend sfactor="One" dfactor="OneMinusSrcAlpha"/>
+  <version number="440" core="true"/>
+  <vertex>
+    in vec2 poz;
+    uniform mat4 matrix;
+    out vec2 uv;
+    void main()
+    {
+      uv = poz;
+      gl_Position = matrix * vec4(poz - vec2(.5, .5), 0.0, 1.0);
+    }
+  </vertex>
+  <fragment>
+    in vec2 uv;
+    uniform sampler2D text;
+    uniform bool contains;
+    uniform bool hoverd;
+    uniform bool hard_select;
+    uniform vec4 hoverd_color;
+    out vec4 color_o;
+    vec4 get_color()
+    {
+      return texture(text, uv);
+    }
+    void main()
+    {
+      if(contains)
+      {
+        if(!hoverd &amp;&amp; !hard_select)
+          color_o = get_color();
+        else if(hoverd &amp;&amp; !hard_select)
+        {
+          vec4 baze = get_color();
+          vec3 mix_c = mix(baze.rgb, hoverd_color.rgb, hoverd_color.a);
+          float mix_a = baze.a + hoverd_color.a;
+          if(mix_a > 1)
+            mix_a = 1;
+          color_o = vec4(mix_c, mix_a);
+        }
+        else
+        {
+          vec4 baze = get_color();
+          vec4 emp = vec4(mix(vec3(0, 0, 0), hoverd_color.rgb, hoverd_color.a), hoverd_color.a);
+          vec3 mix_c = mix(emp.rgb, baze.rgb, baze.a);
+          float mix_a = baze.a + emp.a;
+          if(mix_a > 1)
+            mix_a = 1;
+          color_o = vec4(mix_c, mix_a);
+        }
+      }
+      else
+      {
+        vec4 baze = vec4(0, 0, 0, 0);
+        vec3 mix_c = mix(baze.rgb, hoverd_color.rgb, hoverd_color.a);
+        float mix_a = baze.a + hoverd_color.a;
+        if(mix_a > 1)
+          mix_a = 1;
+        color_o = vec4(mix_c, mix_a);
+      }
+    }
+  </fragment>
+</shader>

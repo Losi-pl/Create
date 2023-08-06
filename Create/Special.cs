@@ -84,18 +84,6 @@ internal static partial class Special
         (T)constructor.ModelMekanizm[typeof(T)];
     
     /// <summary>
-    /// Wyciąga wrzystkie elementy modelu terenu z konstruktora
-    /// </summary>
-    /// <param name="model">Konstruktor terenu</param>
-    /// <returns></returns>
-    public static IEnumerable<Mesh> AllModelParts(this ChunkConstructor.FinischedChunkModel model)
-    {
-        foreach (var quard in model.ModelParts)
-            foreach (var mesh in quard)
-                yield return mesh.Value;
-    }
-    
-    /// <summary>
     /// Odległość między dwoma Chunkami
     /// </summary>
     /// <param name="v1"></param>
@@ -216,5 +204,49 @@ internal static partial class Special
     {
         action(element);
         return element;
+    }
+
+    public static IEnumerable<char> Pattern(this IEnumerable<char> enums, string replacement, string pattern)
+    {
+        int progress = 0;
+
+        foreach(char c in enums)
+        {
+            if(c != pattern[progress])
+            {
+                for (int i = 0; i < progress; i++)
+                    yield return pattern[i];
+                yield return c;
+                progress = 0;
+            }
+            else
+            {
+                progress++;
+                if (!(pattern.Length > progress))
+                {
+                    foreach (var nc in replacement)
+                        yield return nc;
+                    progress = 0;
+                }
+            }
+        }
+    }
+
+    public static IEnumerable<T> Replace<T>(this IEnumerable<T> enums, Func<T, bool> condition, T @new)
+    {
+        ArgumentNullException.ThrowIfNull(condition, nameof(condition));
+
+        foreach (var t in enums)
+            if (condition(t))
+                yield return @new;
+            else
+                yield return t;
+    }
+
+    public static IEnumerable<(T item, int index)> Numerate<T>(this IEnumerable<T> values)
+    {
+        int i = 0;
+        foreach (var e in values)
+            yield return (e, i++);
     }
 }

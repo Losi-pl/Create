@@ -1,0 +1,164 @@
+{
+  "spaceing": {
+    "horizontal": 0.142857142857142857,
+    "vertical": 0.142857142857142857
+  },
+  "static-char-width": 0.714285714285714285,
+  "default-char": "?",
+  "tabs": 3.285714285714285714,
+  "sources": [
+    {
+      "type": "bitmap",
+      "source": "create:font/ascii",
+      "pixel-height": 14,
+      "loaders": [
+        {
+          "type": "automatic",
+          "pozition": [ 0, 208 ],
+          "size": [ 16, 16 ],
+          "baze-offset": 2,
+          "in-line": 16,
+          "chars": [
+            "\u0000",
+            {
+              "start": "\u0021",
+              "end": "\u007e"
+            }
+          ]
+        },
+        {
+          "type": "fast",
+          "pozition": [ 0, 64 ],
+          "size": [ 16, 16 ],
+          "static-witdh": 10,
+          "in-line": 16,
+          "char": {
+            "offset": [ -1, -1 ],
+            "pozition": [ 3, 0 ],
+            "width": 10,
+            "size": [ 12, 16 ]
+          },
+          "chars": [
+            "░▒▓│┤╡╢╖╕╣║╗╝╜╛┐",
+            "└┴┬├─┼╞╟╚╔╩╦╠═╬╧",
+            "╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀"
+          ]
+        },
+        {
+          "type": "automatic",
+          "pozition": [ 0, 0 ],
+          "size": [ 16, 16 ],
+          "baze-offset": 2,
+          "in-line": 16,
+          "chars": [
+            "≡±≥≤\u0000\u0000÷≈∘×\u0000√ⁿ²∎"
+          ]
+        },
+        {
+          "type": "automatic",
+          "pozition": [ 208, 16 ],
+          "size": [ 16, 16 ],
+          "baze-offset": 2,
+          "in-line": 2,
+          "chars": [
+            "∅∈"
+          ]
+        },
+        {
+          "type": "manual",
+          "chars": {
+            " ": {
+              "size": [ 4, 0 ]
+            },
+            "\u2000": {
+              "size": [ 10, 0 ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "bitmap",
+      "source": "create:font/accented",
+      "pixel-height": 14,
+      "loaders": [
+        {
+          "type": "automatic",
+          "size": [ 18, 24 ],
+          "pozition": [ 0, 1776 ],
+          "baze-offset": 4,
+          "in-line": 16,
+          "chars": [
+            {
+              "start": "\u00c0",
+              "end": "\u00d6"
+            },
+            {
+              "start": "\u00d9",
+              "end": "\u00dd"
+            },
+            {
+              "start": "\u00e0",
+              "end": "\u00e7"
+            },
+            {
+              "start": "\u00ec",
+              "end": "\u00ef"
+            },
+            {
+              "start": "\u00f1",
+              "end": "\u00f6"
+            },
+            {
+              "start": "\u00f9",
+              "end": "\u00fd"
+            },
+            {
+              "start": "\u00ff",
+              "end": "\u011d"
+            },
+            "\u1e20\u1e21",
+            {
+              "start": "\u011e",
+              "end": "\u0131"
+            },
+            {
+              "start": "\u0134",
+              "end": "\u0137"
+            },
+            {
+              "start": "\u0139",
+              "end": "\u0148"
+            },
+            "\u0000\u0000",
+            {
+              "start": "\u014c",
+              "end": "\u017e"
+            },
+            {
+              "start": "\u01fc",
+              "end": "\u01ff"
+            },
+            {
+              "start": "\u0218",
+              "end": "\u021b"
+            },
+            "ΆΈΉΊΌΎΏΐ",
+            {
+              "start": "\u03aa",
+              "end": "\u03b0"
+            },
+            {
+              "start": "\u03ca",
+              "end": "\u03ce"
+            },
+            "ЀЁЃЇЌЍЎЙйѐёЋѓїћќѝўџ",
+            "ҐґḂḃḊḋḞḟḢḣḰḱṀṁṖṗ",
+            "ṠṡṪṫẀẁẂẃẄẅỲỳèéêë",
+            "\u0000ǧ\u0000ЏḍḥṛṭẒỊịỌọỤụ\u0000"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,7 +1,8 @@
 ﻿using Create.Conteiner;
+using Create.Conteiner.Items;
 using Create.Elements;
 using Create.Elements.Bazic.Entitys;
-using Create.Elements.Bazic.Interfaces;
+using Create.Elements.Interfaces;
 using Create.Elements.Gui;
 using Create.Input;
 using Create.Net;
@@ -20,7 +21,6 @@ internal sealed partial class GameView : Scean
     Camera camera;
     Terrain terrain;
     Interface _interface;
-    int slot_ind;
     List<(string name, UserInterface user, SpacePoint point)> userInterfaces = new();
     static Shader shader = Assets.GetShader("create:selector");
     
@@ -37,6 +37,7 @@ internal sealed partial class GameView : Scean
         _interface.CursorGet += () => Mouse.Pozition;
         _interface.MouseLeft += () => Mouse.Lock ? (false, false, false) : Mouse.Left;
         _interface.MouseRight += () => Mouse.Lock ? (false, false, false) : Mouse.Right;
+        _interface.MouseScroll += () => Mouse.Lock ? (false, false, false, 0) : Mouse.Scroll;
     }
 
     protected override void SceanLoad()
@@ -48,10 +49,15 @@ internal sealed partial class GameView : Scean
         camera.RevertAxis.x = true;
         Mouse.Visible = false;
 
-        _interface.MainElements.AddChild(Assets.GetInterface("create:crosshair"));
-        _interface.MainElements.AddChild(Assets.GetInterface("create:statusbars"));
-
-        var user_interface = new SpacePoint
+        _interface.MainElements.AddChild(new SpacePoint
+        {
+            Size = OpenGL.Engine.Size.ToTumple(),
+            Pozition = (0, 0),
+            Interactable = false,
+            Name = "Passive Interface",
+            AnkerMode = SpacePoint.Anker.All,
+        });
+        _interface.MainElements.AddChild(new SpacePoint
         {
             Size = (OpenGL.Engine.Size.X + 1, OpenGL.Engine.Size.Y + 1),
             Pozition = (0, 0),
@@ -62,8 +68,17 @@ internal sealed partial class GameView : Scean
             {
                 Color = new Color4(0, 0, 0, .75f)
             }
-        };
-        _interface.MainElements.AddChild(user_interface);
+        });
+        _interface.MainElements.AddChild(new()
+        {
+            Active = false,
+            Pozition = (0, 0),
+            Interactable = false,
+            Size = (16 * 4, 16 * 4),
+            Name = "Transferred Item",
+            Element = new ItemSlot() { Enable = false }
+        });
+        Client.CreateUserInterface<InformationBars>();
     }
 
     protected override void RenderFrame(FrameEventArgs args)
@@ -96,14 +111,13 @@ internal sealed partial class GameView : Scean
             {
                 _interface.MainElements.Find("Active Interface")!.Active = false;
                 inventory = false;
-                var inte = Client.GetUserInterfaces().FirstOrDefault();
-                if (inte is not null)
-                    Client.RemoveUserInterface(inte);
             }
             else
             {
                 _interface.MainElements.Find("Active Interface")!.Active = true;
                 inventory = true;
+                Client.GetUserInterfaces().Where(i => !i.IsPassive)
+                    .ForEvery(i => Client.RemoveUserInterface(i));
             }
         }
 
@@ -118,37 +132,76 @@ internal sealed partial class GameView : Scean
             }
         }
 
-        if(Mouse.Left.Down)
-            if(interaction.HasValue)
-                Client.Me.Entity.Dimention?.World.SetBlock(interaction.Value.pozition, new PlacedBlock(Blocks.AIR));
-        
-        if(Mouse.Right.Down)
+        if((Mouse.Left.Down || Mouse.Right.Down || Mouse.Scroll.Down) && !inventory)
         {
+            var button = Mouse.Left.Down ? ClickEventButton.Left :
+                         Mouse.Right.Down ? ClickEventButton.Right :
+                         Mouse.Scroll.Down ? ClickEventButton.Scroll :
+                         ClickEventButton.Unknown;
+
+            var world = Client.Me.Entity!.Dimention!.World;
+            (int, ItemStack?) inHand = (Client.GetUserInterface<InformationBars>(), Client.Me).Cast(t =>
+                (t.Item1?.UsedSlot ?? 0, (t.Me.Entity?.Data.Get("tool_slots") as ToolsBar? ?? new())[t.Item1?.UsedSlot ?? 0]));
             if(interaction.HasValue)
             {
-                var point = interaction!.Value.pozition.ToVector() + interaction!.Value.side switch
+                var block = world.GetBlock(interaction!.Value.pozition);
+                var blockArgs = new Block.OnClickArgs()
                 {
-                    Block.BlockSide.Top => new(0, 1, 0),
-                    Block.BlockSide.Bottom => new(0, -1, 0),
-                    Block.BlockSide.North => new(0, 0, 1),
-                    Block.BlockSide.South => new(0, 0, -1),
-                    Block.BlockSide.West => new(-1, 0, 0),
-                    Block.BlockSide.East => new(1, 0, 0),
-                    _ => new Vector3i(0)
+                    HitBoxIndex = interaction.Value.hitBoxNumer,
+                    BlockPozition = interaction.Value.pozition,
+                    TargetSide = interaction.Value.side,
+                    Player = Client.Me,
+                    Button = button,
+                    Block = block,
+                    World = world,
+                    InHand = inHand
                 };
-                Client.Me.Entity.Dimention?.World.SetBlock(point, new PlacedBlock(Blocks.STONE));
+                var itemArgs = new Item.OnClickArgs()
+                {
+                    BlockArgs = blockArgs,
+                    Player = Client.Me,
+                    Button = button,
+                    World = world,
+                    InHand = (inHand.Item1, inHand.Item2 ?? new(1, Items.BLOCK_ITEM))
+                };
+
+                if (Keyboard.LeftShift.Status || Keyboard.RightShift.Status)
+                {
+                    if ((!inHand.Item2?.Item.OnClick(itemArgs)) ?? true)
+                        block.Block.OnClick(blockArgs);
+                }
+                else
+                {
+                    if (!block.Block.OnClick(blockArgs))
+                        inHand.Item2?.Item.OnClick(itemArgs);
+                }
+            }
+            else
+                inHand.Item2?.Item.OnClick(new() { 
+                    BlockArgs = null,
+                    Button = button,
+                    Player = Client.Me,
+                    World = world,
+                    InHand = (inHand.Item1, inHand.Item2 ?? new(1, Items.BLOCK_ITEM))});
+        }
+        _interface.Phizic();
+        foreach (var i in userInterfaces)
+            i.user.Update(new() { time = args.Time, activeInventory = inventory });
+
+        if (inventory)
+        {
+            var trans_slot = _interface.MainElements.Find("Transferred Item")?.Element as ItemSlot;
+            if (trans_slot != null)
+            {
+                trans_slot.Point!.Active = true;
+                trans_slot.Point!.GlobalPozition = Mouse.Pozition;
             }
         }
-
-        _interface.Phizic();
-        if(Mouse.Scroll.Delta != 0)
+        else
         {
-            slot_ind -= Mouse.Scroll.Delta;
-            if(slot_ind < 0)
-                slot_ind = 8;
-            if (slot_ind > 8)
-                slot_ind = 0;
-            _interface.MainElements.Find("create:statusbars")?.RunEvent(slot_ind.ToString());
+            var trans_slot = _interface.MainElements.Find("Transferred Item")?.Element as ItemSlot;
+            if (trans_slot != null)
+                trans_slot.Point!.Active = false;
         }
 
         terrain.ChunkUpdate(args.Time);

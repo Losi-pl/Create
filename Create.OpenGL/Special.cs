@@ -98,10 +98,12 @@ internal static partial class Special
         ActiveUniformType.BoolVec3 => typeof(Vector3b),
         ActiveUniformType.BoolVec4 => typeof(Vector4b),
 
-        ActiveUniformType.Image2D => typeof(Texture2D),
-        ActiveUniformType.UnsignedIntImage2D => typeof(Texture2D),
+        ActiveUniformType.Sampler2D => typeof(Texture2D),
+        ActiveUniformType.UnsignedIntSampler2D => typeof(Texture2D),
+        ActiveUniformType.Sampler2DArray => typeof(Texture2DArray),
+        ActiveUniformType.UnsignedIntSampler2DArray => typeof(Texture2DArray),
 
-        _ => throw new Exception("Uncnown type")
+        _ => typeof(object)
     };
 
     /// <summary>

@@ -9,24 +9,29 @@ namespace Create.OpenGL.GUI;
 [DebuggerDisplay("""{(string.IsNullOrEmpty(name) ? string.Empty : $"Name: \"{name}\", "), nq}Pozition: (x:{Pozition.x}, y:{Pozition.y})""")]
 public sealed class SpacePoint
 {
-    SpacePoint? parent = null;
+    WeakReference<SpacePoint> parentReference = new(null!);
     List<SpacePoint> childs = new List<SpacePoint>();
     Vector2 ancor1 = new(.5f, .5f), ancor2 = new(.5f, .5f);
     Dictionary<string, (Action<SpacePoint, object> @event, object sender)> events = new();
     Interface? @interface;
     Element? element;
-    bool active = true;
+    bool active = true, interactable = true;
     string name = string.Empty;
-    public event Action<SpacePoint>? OnClick;
+    public event Action<SpacePoint, ClickEventButton>? OnClick;
     public event Action<SpacePoint>? OnEnter;
     public event Action<SpacePoint>? OnExit;
 
     float width, height;
     float poz_x, poz_y;
 
-    internal Action<SpacePoint>? _onClick => OnClick;
+    internal Action<SpacePoint, ClickEventButton>? _onClick => OnClick;
     internal Action<SpacePoint>? _onEnter => OnEnter;
     internal Action<SpacePoint>? _onExit => OnExit;
+    private SpacePoint? parent
+    {
+        get => parentReference.TryGetTarget(out var p) ? p : null;
+        set => parentReference.SetTarget(value!);
+    }
 
     public SpacePoint() { }
 
@@ -44,6 +49,11 @@ public sealed class SpacePoint
         (poz_x, poz_y) = point.GlobalPozition;
         @interface = null!;
         point.Childs.AddChild(this);
+    }
+
+    ~SpacePoint()
+    {
+        element?.Unbind(this);
     }
 
     /// <summary>
@@ -128,8 +138,15 @@ public sealed class SpacePoint
     /// </summary>
     public (float x, float y) Pozition
     {
-        set => (poz_x, poz_y) = value;
         get => (poz_x, poz_y);
+        set
+        {
+            var old = (poz_x, poz_y);
+            if (old == value)
+                return;
+            (poz_x, poz_y) = value;
+            element?.OnPozitionChanget(old, value);
+        }
     }
     
     /// <summary>
@@ -172,10 +189,8 @@ public sealed class SpacePoint
         }
         set
         {
-            var old = GlobalPozition;
-
-            poz_x = value.x - old.x;
-            poz_y = value.y - old.y;
+            var old = Parent?.GlobalPozition ?? new();
+            Pozition = (value.x - old.x, value.y - old.y);
         }
     }
 
@@ -187,13 +202,15 @@ public sealed class SpacePoint
         get => (width, height);
         set
         {
-            if (Size == value)
+            var old = Size;
+            if (old == value)
                 return;
 
             foreach (var point in childs)
                 move_elm(point);
 
             (width, height) = value;
+            element?.OnSizeChanget(old, value);
 
             void move_elm(SpacePoint point)
             {
@@ -218,6 +235,11 @@ public sealed class SpacePoint
     /// Czy ten element jest aktywny w fizyce interfejsu
     /// </summary>
     public bool Active { get => active; set => active = value; }
+
+    /// <summary>
+    /// Czy ten obiekt i jego podrzędne biorą udzał w fizyce <see cref="OnEnter"/>, <see cref="OnExit"/>, <see cref="OnClick"/>
+    /// </summary>
+    public bool Interactable { get => interactable; set => interactable = value; }
 
     /// <summary>
     /// Tryb zamocowania elementu w przestrzeni
@@ -285,14 +307,12 @@ public sealed class SpacePoint
             throw new ArgumentException($"Event witch name \"{name}\" alredy exists");
         events.Add(name, (action, sender));
     }
-
     public bool RemoveEvent(string name)
     {
         if (name == null)
             throw new ArgumentNullException(nameof(name));
         return events.Remove(name);
     }
-
     public bool RunEvent(string name)
     {
         if (name == null)
@@ -456,4 +476,12 @@ public sealed class SpacePoint
             public SpacePoint[] elements => point.childs.ToArray();
         }
     }
+}
+
+public enum ClickEventButton
+{
+    Unknown,
+    Left,
+    Right,
+    Scroll,
 }

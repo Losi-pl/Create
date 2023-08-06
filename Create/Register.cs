@@ -22,12 +22,14 @@ public static class Register
     internal static readonly ElementRegister<Block>.Console blocks_console = new();
     internal static readonly ElementRegister<Dimention>.Console dimentions_console = new();
     internal static readonly ElementRegister<Entity>.Console entitys_console = new();
+    internal static readonly ElementRegister<Item>.Console items_console = new();
 
     public static readonly ElementRegister<Block> Blocks = blocks_console.Register;
     public static readonly ElementRegister<Dimention> Dimentions = dimentions_console.Register;
     public static readonly ElementRegister<Entity> Entitys = entitys_console.Register;
+    public static readonly ElementRegister<Item> Items = items_console.Register;
 
-    internal static readonly Dictionary<(string name, Type type), Func<object?, (UserInterface status, OpenGL.GUI.SpacePoint point)>> userinterfaces = new();
+    internal static readonly Dictionary<(string name, Type type), Func<UserInterface.InterfaceCreatorArgs, (UserInterface status, OpenGL.GUI.SpacePoint point)>> userinterfaces = new();
 
     /// <summary>
     /// Załadowanie podstawowego pakietu zasobów
@@ -204,12 +206,10 @@ public static class Register
     static void load_create(Mod mod)
     {
         bazic_setup();
-        get_all_elements<Block>(typeof(Blocks))
-            .ForEvery(e => mod.RegisterElement(e.name, e.element));
-        get_all_elements<Dimention>(typeof(Dimentions))
-            .ForEvery(e => mod.RegisterElement(e.name, e.element));
-        get_all_elements<Entity>(typeof(Entitys))
-            .ForEvery(e => mod.RegisterElement(e.name, e.element));
+        SourceGenerators.Registers.LoadBlocks(mod);
+        SourceGenerators.Registers.LoadDimentions(mod);
+        SourceGenerators.Registers.LoadEntitys(mod);
+        SourceGenerators.Registers.LoadItems(mod);
         Assets.load_elements(mod);
         UserInterface.LoadInterfaces(mod);
     }
@@ -222,46 +222,6 @@ public static class Register
         MainTask.Run(() => RenderLayer.set_shader(Assets.GetShader("create:bazic/renderlayer")));
         MainTask.Run(() => OpenGL.GUI.Elements.Image.set_shader(Assets.GetShader("create:interface/image")));
     }
-
-    /// <summary>
-    /// Ładuje wrzystkie elementy z klasy <paramref name="where"/>
-    /// </summary>
-    /// <typeparam name="T">Typ ładowanych elementów</typeparam>
-    /// <param name="where">Z kąd te elementy mają być ładowane</param>
-    /// <returns></returns>
-    internal static IEnumerable<(T element, string name)> get_all_elements<T>(Type where) where T : Baze =>
-        where.GetFields(BindingFlags.Static | BindingFlags.Public)
-            .Where(t => t.FieldType == typeof(T))
-            .Where(t => t.GetCustomAttribute<IgnoreAttribute>() == null)
-            .ConvertAll(t =>
-            {
-                T d = (T)t.GetValue(null)!;
-                string name;
-                var att = t.GetCustomAttribute<ElementNameAttribute>();
-                if (att != null)
-                    name = att.Name;
-                else
-                    name = t.Name.ToLower().Replace('_', '-');
-                return (d, name);
-            });
-
-    /// <summary>
-    /// Ustawienie innej nazwy elementu
-    /// </summary>
-    internal class ElementNameAttribute : Attribute
-    {
-        string new_name;
-        public ElementNameAttribute(string name)
-        {
-            new_name = name;
-        }
-        public string Name => new_name;
-    }
-    
-    /// <summary>
-    /// Pominięcie w ładowaniu danego elementu
-    /// </summary>
-    internal class IgnoreAttribute : Attribute { }
 
     /// <summary>
     /// Rejestr elementów typu <typeparamref name="T"/>

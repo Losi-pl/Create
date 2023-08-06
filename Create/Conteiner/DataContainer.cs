@@ -10,7 +10,7 @@ public sealed class DataContainer
     /// <typeparam name="T"></typeparam>
     /// <param name="name">Nazwa wartości</param>
     /// <param name="value">Wartość</param>
-    public void Set<T>(string name, T value) where T : unmanaged
+    public void Set<T>(string name, T value) where T : struct
     {
         if (data.ContainsKey(name))
             data[name] = value;
@@ -24,7 +24,7 @@ public sealed class DataContainer
     /// <typeparam name="T"></typeparam>
     /// <param name="name">Nazwa wartości</param>
     /// <param name="value">Wartość</param>
-    public void Set<T>(string name, T? value) where T : unmanaged
+    public void Set<T>(string name, T? value) where T : struct
     {
         if(value.HasValue)
         {
@@ -46,7 +46,7 @@ public sealed class DataContainer
     /// <typeparam name="T"></typeparam>
     /// <param name="name">Nazwa wartości</param>
     /// <param name="value">Wartość</param>
-    public void Set<T>(string name, T[]? value) where T : unmanaged
+    public void Set<T>(string name, T[]? value) where T : struct
     {
         if (value == null)
         {
@@ -68,7 +68,7 @@ public sealed class DataContainer
     /// <typeparam name="T"></typeparam>
     /// <param name="name">Nazwa wartości</param>
     /// <param name="value">Wartość</param>
-    public void Set<T>(string name, T[,]? value) where T : unmanaged
+    public void Set<T>(string name, T[,]? value) where T : struct
     {
         if (value == null)
         {
@@ -90,7 +90,7 @@ public sealed class DataContainer
     /// <typeparam name="T"></typeparam>
     /// <param name="name">Nazwa wartości</param>
     /// <param name="value">Wartość</param>
-    public void Set<T>(string name, T[,,]? value) where T : unmanaged
+    public void Set<T>(string name, T[,,]? value) where T : struct
     {
         if (value == null)
         {

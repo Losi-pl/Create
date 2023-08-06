@@ -13,6 +13,7 @@ public sealed class Interface
     public event Func<(int x, int y)>? CursorGet;
     public event Func<(bool up, bool down, bool status)>? MouseLeft;
     public event Func<(bool up, bool down, bool status)>? MouseRight;
+    public event Func<(bool up, bool down, bool status, int delta)>? MouseScroll;
     SpacePoint? last_hovered_over;
 
     public Interface(int width, int height)
@@ -78,16 +79,25 @@ public sealed class Interface
         var cursor = (CursorGet ?? (() => (0, 0))).Invoke();
         var mouseleft = (MouseLeft ?? (() => (false, false, false))).Invoke();
         var mouseright = (MouseRight ?? (() => (false, false, false))).Invoke();
+        var mousescroll = (MouseScroll ?? (() => (false, false, false, 0))).Invoke();
 
         var element = pointingAt(main, new())!;
 
-        if (mouseleft.down || mouseright.down)
+        if (mouseleft.down || mouseright.down || mousescroll.down)
             if (element is not null)
             {
                 var el = element;
                 while (el.Parent is not null)
                 {
-                    el._onClick?.Invoke(el);
+                    el._onClick?.Invoke(el, 
+                        mouseleft.down? 
+                            ClickEventButton.Left: 
+                       (mouseright.down? 
+                            ClickEventButton.Right: 
+                       (mousescroll.down? 
+                            ClickEventButton.Scroll: 
+                        ClickEventButton.Unknown)));
+
                     el = el.Parent;
                 }
             }
@@ -123,7 +133,7 @@ public sealed class Interface
                 (main.Size.ToVector() / -2) + (main.Size.ToVector() * ((space.AnkerPoints.point1 + space.AnkerPoints.point2) / 2)) + space.Pozition.ToVector();
             l_poz = parent + l_poz;
 
-            foreach(var sp in space.Childs.GetEnumerable().Reverse())
+            foreach(var sp in space.Childs.GetEnumerable().Reverse().Where(p => p.Interactable))
             {
                 var v = pointingAt(sp, l_poz);
                 if (v is not null)
