@@ -157,6 +157,6 @@ public static class Client
     }
 
     public static ItemSlot TransferedItemSlot => (OpenGL.Engine.Scean as GameView)?
-                                                .Interface.MainElements.Find("Transferred Item").Element as ItemSlot ??
-                                             throw new("Game isn't active");
+                                                 .Interface.MainElements.Find("Transferred Item")?.Element as ItemSlot ??
+                                              throw new("Game isn't active");
 }
