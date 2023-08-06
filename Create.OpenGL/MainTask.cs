@@ -7,12 +7,12 @@ public static class MainTask
 {
     static List<Action> actions = new();
     static object task_lock = new();
-    static Thread? main_thread;
+    static int main_thread_id = 0;
 
     /// <summary>
     /// Uzyskanie kłównego wątku
     /// </summary>
-    internal static void set_main_task() => main_thread = main_thread ?? Thread.CurrentThread;
+    internal static void set_main_task() => main_thread_id = Thread.CurrentThread.ManagedThreadId;
 
     /// <summary>
     /// Wykonuje funkcje w wątku głównym
@@ -37,11 +37,10 @@ public static class MainTask
     /// </summary>
     public static void Run(Action action)
     {
-        if (main_thread == Thread.CurrentThread)
+        if (main_thread_id == Thread.CurrentThread.ManagedThreadId)
             action();
         else
-            lock(task_lock)
-                actions.Add(action);
+            RunAsync(action).Wait();
     }
 
     /// <summary>
@@ -50,46 +49,65 @@ public static class MainTask
     /// </summary>
     public static T Run<T>(Func<T> func)
     {
-        if (main_thread == Thread.CurrentThread)
+        if (main_thread_id == Thread.CurrentThread.ManagedThreadId)
             return func();
         else
         {
-            T wyn = default!;
-            bool kompl = false;
-            lock (task_lock)
-                actions.Add(() => (kompl, wyn) = (true, func()));
-            while (!kompl) { Engine.Title = Engine.Title; }
-            return wyn;
-        }
-            
+            var t = RunAsync(func);
+            t.Wait();
+            return t.Result;
+        }   
     }
 
     /// <summary>
     /// Wywołuje funkce w wątku głównym
     /// <para>Funkcja może zwracać wartość</para>
     /// </summary>
-    public static Task<T> RunAsync<T>(Func<T> func)
+    public static async Task<T> RunAsync<T>(Func<T> func)
     {
-        return Task.Run(() =>
+        bool f = true;
+        T value = default!;
+        Exception ex = null!;
+        Action ax = () => { try { value = func(); } catch (Exception e) { ex = e; } finally { f = false; } };
+        lock (task_lock)
+            actions.Add(ax);
+        while (f)
         {
-            T wyn = default!;
-            bool kompl = false;
-            lock (task_lock)
-                actions.Add(() => (kompl, wyn) = (true, func()));
-            while (!kompl) { }
-            return wyn;
-        });
+            await Task.Delay(2);
+            if (main_thread_id == Thread.CurrentThread.ManagedThreadId)
+            {
+                lock (task_lock)
+                    actions.Remove(ax);
+                return func();
+            }
+        }
+        if (ex is not null)
+            throw new(ex.Message, ex);
+        return value;
     }
 
     /// <summary>
     /// Wywołuje funkce w wątku głównym
     /// </summary>
-    public static Task RunAsync(Action action)
+    public static async Task RunAsync(Action action)
     {
-        return Task.Run(() =>
+        bool f = true;
+        Exception ex = null!;
+        Action ax = () => { try { action(); } catch (Exception e) { ex = e; } finally { f = false; } };
+        lock (task_lock)
+            actions.Add(ax);
+        while (f) 
         {
-            lock (task_lock)
-                actions.Add(action);
-        }); 
+            await Task.Delay(2);
+            if (main_thread_id == Thread.CurrentThread.ManagedThreadId)
+            {
+                lock (task_lock)
+                    actions.Remove(ax);
+                action();
+                return;
+            }
+        }
+        if (ex is not null)
+            throw new(ex.Message, ex);
     }
 }
