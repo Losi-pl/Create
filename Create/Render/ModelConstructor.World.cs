@@ -43,7 +43,8 @@ public sealed class WorldModel : IDrawable, IDisposable
     public void Draw(Matrix4 projection, Matrix4 model)
     {
         foreach (var kvp in meshes)
-            kvp.Value?.Draw(projection, model);
+            if (kvp.Value?.TrianglesCount > 0)
+                kvp.Value?.Draw(projection, model);
     }
 
     public void Dispose()
