@@ -273,35 +273,12 @@ internal static partial class Special
     /// <inheritdoc cref="GetEnumerator(Range)"/>
     /// </summary>
     public static IEnumerable<int> GetEnumerable(this Range range) => new foreach_range(range);
-
-    /// <summary>
-    /// <inheritdoc cref="GetEnumerator(Range)"/>
-    /// </summary>
-    public struct foreach_range : IEnumerator<int>, IEnumerable<int>
-    {
-        int index, end;
-        public foreach_range(Range range)
-        {
-            if (range.Start.IsFromEnd)
-                throw new NotSupportedException();
-            index = range.Start.Value - 1;
-            if(range.End.IsFromEnd)
-                throw new NotSupportedException();
-            end = range.End.Value;
-        }
-        public bool MoveNext()
-        {
-            index++;
-            return index <= end;
-        }
-        public IEnumerator<int> GetEnumerator() => this;
-        IEnumerator IEnumerable.GetEnumerator() => this;
-        public void Reset() { }
-        public void Dispose() { }
-        public int Current => index;
-        object IEnumerator.Current => Current;
-    }
     
+    /// <summary>
+    /// Do zabespieczania elementów od prostego modyfikowania
+    /// </summary>
+    public static IEnumerable<T> Secure<T>(this IEnumerable<T> enumerable) => new SecuredEnumerable<T>() { values = enumerable };
+
     /// <summary>
     /// Konwertuje tablice kolorów w obraz
     /// </summary>
@@ -511,6 +488,34 @@ internal static partial class Special
     #endregion
 
     /// <summary>
+    /// <inheritdoc cref="GetEnumerator(Range)"/>
+    /// </summary>
+    public struct foreach_range : IEnumerator<int>, IEnumerable<int>
+    {
+        int index, end;
+        public foreach_range(Range range)
+        {
+            if (range.Start.IsFromEnd)
+                throw new NotSupportedException();
+            index = range.Start.Value - 1;
+            if (range.End.IsFromEnd)
+                throw new NotSupportedException();
+            end = range.End.Value;
+        }
+        public bool MoveNext()
+        {
+            index++;
+            return index <= end;
+        }
+        public IEnumerator<int> GetEnumerator() => this;
+        IEnumerator IEnumerable.GetEnumerator() => this;
+        public void Reset() { }
+        public void Dispose() { }
+        public int Current => index;
+        object IEnumerator.Current => Current;
+    }
+
+    /// <summary>
     /// <inheritdoc cref="Cast{TIn, TOut}(TIn, Func{TIn, TOut})"/>
     /// </summary>
     private struct CastEnumerable<TIn, TOut> : IEnumerable<TOut>
@@ -553,6 +558,28 @@ internal static partial class Special
                 value = func(enumerator.Current);
                 return true;
             }
+        }
+    }
+
+    /// <summary>
+    /// <inheritdoc cref="Secure{T}(IEnumerable{T})"/>
+    /// </summary>
+    private struct SecuredEnumerable<T> : IEnumerable<T>
+    {
+        public IEnumerable<T> values;
+
+        public IEnumerator<T> GetEnumerator() => new Enumerator() { enumerator = values.GetEnumerator() };
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        struct Enumerator : IEnumerator<T>
+        {
+            public IEnumerator<T> enumerator;
+
+            public T Current => enumerator.Current;
+            object IEnumerator.Current => enumerator.Current!;
+            public void Dispose() => enumerator.Dispose();
+            public bool MoveNext() => enumerator.MoveNext();
+            public void Reset() => enumerator.Reset();
         }
     }
 }
