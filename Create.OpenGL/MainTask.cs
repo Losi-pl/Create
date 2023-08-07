@@ -1,4 +1,7 @@
-﻿namespace Create.OpenGL;
+﻿using System;
+using static System.Collections.Specialized.BitVector32;
+
+namespace Create.OpenGL;
 
 /// <summary>
 /// Do wykonywania operacji w wątku głównym z wątków pobocznych
@@ -43,6 +46,7 @@ public static class MainTask
     /// </summary>
     public static void Run(Action action)
     {
+        ArgumentNullException.ThrowIfNull(action, nameof(action));
         if (main_thread_id == Thread.CurrentThread.ManagedThreadId)
             action();
         else
@@ -55,6 +59,7 @@ public static class MainTask
     /// </summary>
     public static T Run<T>(Func<T> func)
     {
+        ArgumentNullException.ThrowIfNull(func, nameof(func));
         if (main_thread_id == Thread.CurrentThread.ManagedThreadId)
             return func();
         else
@@ -71,6 +76,7 @@ public static class MainTask
     /// </summary>
     public static async Task<T> RunAsync<T>(Func<T> func)
     {
+        ArgumentNullException.ThrowIfNull(func, nameof(func));
         bool f = true;
         T value = default!;
         Exception ex = null!;
@@ -97,6 +103,7 @@ public static class MainTask
     /// </summary>
     public static async Task RunAsync(Action action)
     {
+        ArgumentNullException.ThrowIfNull(action, nameof(action));
         bool f = true;
         Exception ex = null!;
         Action ax = () => { try { action(); } catch (Exception e) { ex = e; } finally { f = false; } };
