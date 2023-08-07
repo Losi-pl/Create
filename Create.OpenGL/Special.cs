@@ -488,7 +488,7 @@ internal static partial class Special
     #endregion
 
     /// <summary>
-    /// <inheritdoc cref="GetEnumerator(Range)"/>
+    /// <inheritdoc cref="GetEnumerator"/>
     /// </summary>
     public struct foreach_range : IEnumerator<int>, IEnumerable<int>
     {
