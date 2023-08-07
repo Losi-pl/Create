@@ -80,6 +80,14 @@ public sealed class Mod
     public Mod RegisterElement(string name, Item item) => register_element(item, name, Register.items_console);
 
     /// <summary>
+    /// Metoda dodawanie <paramref name="creativeTab"/> do rejestru
+    /// </summary>
+    /// <param name="name">Nazwa zakładki</param>
+    /// <param name="creativeTab">Klasa zakładki</param>
+    /// <returns></returns>
+    public Mod RegisterElement(string name, CreativeTab creativeTab) => register_element(creativeTab, name, Register.creativetab_console);
+
+    /// <summary>
     /// Dodawanie interpretera który konwertuje element zapisany w zasobach w kawałek interfejsu
     /// </summary>
     /// <param name="name">Nazwa interpretera</param>

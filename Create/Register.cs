@@ -23,11 +23,13 @@ public static class Register
     internal static readonly ElementRegister<Dimention>.Console dimentions_console = new();
     internal static readonly ElementRegister<Entity>.Console entitys_console = new();
     internal static readonly ElementRegister<Item>.Console items_console = new();
+    internal static readonly ElementRegister<CreativeTab>.Console creativetab_console = new();
 
     public static readonly ElementRegister<Block> Blocks = blocks_console.Register;
     public static readonly ElementRegister<Dimention> Dimentions = dimentions_console.Register;
     public static readonly ElementRegister<Entity> Entitys = entitys_console.Register;
     public static readonly ElementRegister<Item> Items = items_console.Register;
+    public static readonly ElementRegister<CreativeTab> CreativeTabs = creativetab_console.Register;
 
     internal static readonly Dictionary<(string name, Type type), Func<UserInterface.InterfaceCreatorArgs, (UserInterface status, OpenGL.GUI.SpacePoint point)>> userinterfaces = new();
 
@@ -225,6 +227,7 @@ public static class Register
         SourceGenerators.Registers.LoadDimentions(mod);
         SourceGenerators.Registers.LoadEntitys(mod);
         SourceGenerators.Registers.LoadItems(mod);
+        SourceGenerators.Registers.LoadCreativeTabs(mod);
         Assets.load_elements(mod);
         UserInterface.LoadInterfaces(mod);
     }
@@ -238,6 +241,14 @@ public static class Register
         MainTask.Run(() => RenderLayer.set_shader(Assets.GetShader("create:bazic/renderlayer")));
         MainTask.Run(() => OpenGL.GUI.Elements.Image.set_shader(Assets.GetShader("create:interface/image")));
     }
+
+    [ModIniter(InitjalizationStage.Finishing)]
+    static void finishing_toutches(Mod mod)
+    {
+        foreach (var ct in CreativeTabs)
+            ct.load_stacks();
+    }
+
 
     /// <summary>
     /// Rejestr elementów typu <typeparamref name="T"/>
