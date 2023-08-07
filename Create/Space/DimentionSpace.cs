@@ -11,6 +11,7 @@ public sealed class DimentionSpace
     DimentionWorld world;
     List<LivingEntity> entities = new();
     List<ChunkPoz> changet_chunks = new();
+    List<ChunkPoz> loadet_chunks = new();
 
     internal DimentionSpace(Dimention dimention)
     {
@@ -40,9 +41,24 @@ public sealed class DimentionSpace
         }
         else
         {
-            Chunk ch = new();
-            dimention.GenerateChunk(new() { chunk = ch, pozition = position });
-            chunks.Add(position, ch);
+            lock (loadet_chunks)
+            {
+                if (loadet_chunks.Contains(position))
+                    return;
+                CancellationTokenSource token = new(TimeSpan.FromMinutes(2));
+                var t = Task.Run(() =>
+                {
+                    Chunk ch = new();
+                    dimention.GenerateChunk(new() { chunk = ch, pozition = position });
+                    return ch;
+                }, token.Token).ContinueWith((Task<Chunk> task) =>
+                {
+                    lock (loadet_chunks)
+                        loadet_chunks.Remove(position);
+                    lock (chunks)
+                        chunks.Add(position, task.Result);
+                });
+            }
         }
     }
     
@@ -53,8 +69,11 @@ public sealed class DimentionSpace
     /// <returns>Jeżali zwraca <see langword="null"/>, <see cref="Chunk"/> nie znajduje się w pamięci</returns>
     internal Chunk? get_chunk(ChunkPoz poz)
     {
-        if (chunks.TryGetValue(poz, out var chunk))
-            return chunk;
+        lock (chunks)
+        {
+            if (chunks.TryGetValue(poz, out var chunk))
+                return chunk;
+        }
         return null;
     }
 
@@ -63,7 +82,25 @@ public sealed class DimentionSpace
     /// </summary>
     /// <param name="chunk"></param>
     /// <returns></returns>
-    public bool IsChunkLoadet(ChunkPoz chunk) => chunks.ContainsKey(chunk);
+    public bool IsChunkLoadet(ChunkPoz chunk)
+    {
+        lock(chunks)
+            return chunks.ContainsKey(chunk);
+    }
+
+    /// <summary>
+    /// Sprawdza czy <see cref="Chunk"/> jest w procesie ładowania
+    /// </summary>
+    public bool IsChunkLoading(ChunkPoz chunk)
+    {
+        lock (loadet_chunks)
+            return loadet_chunks.Contains(chunk);
+    }
+
+    /// <summary>
+    /// Sprawdza czy <see cref="Chunk"/> jest załadowany do pamięci albo się ładuje
+    /// </summary>
+    public bool IsChunkLoadetOrLoading(ChunkPoz chunk) => IsChunkLoadet(chunk) || IsChunkLoading(chunk);
 
     /// <summary>
     /// Ma sprawdzać czy <see cref="Chunk"/> został zapisany w plikach

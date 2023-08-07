@@ -224,9 +224,11 @@ partial class GameView
                         foreach (var ch in MathC.GetElementsFromCenter(10))
                         {
                             var chunk_poz = new ChunkPoz(ch.x, ch.y) + en.Chunk;
-                            if (!dim.IsChunkLoadet(chunk_poz))
+                            if (!dim.IsChunkLoadetOrLoading(chunk_poz))
                                 continue;
                             if (chunk_models.ContainsKey(chunk_poz))
+                                continue;
+                            if (chunks_to_add.ContainsKey(chunk_poz))
                                 continue;
                             Add(chunk_poz);
                             Renew(chunk_poz + new ChunkPoz(-1, 0));
