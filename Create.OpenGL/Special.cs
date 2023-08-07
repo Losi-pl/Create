@@ -327,6 +327,12 @@ internal static partial class Special
             yield return e.Current;
     }
 
+    public static T WaitResult<T>(this Task<T> task)
+    {
+        task.Wait();
+        return task.Result;
+    }
+
     #region Vector - Tumple Conversion
     /// <summary>
     /// Przekłada <see cref="Vector2"/> na krotke
