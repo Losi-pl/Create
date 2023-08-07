@@ -13,14 +13,13 @@ public sealed class Chunk
     PlacedBlock[][,,] blocks = new PlacedBlock[QUARD_STACK][,,];
     uint[] block_content = new uint[QUARD_STACK];
     List<int> modified_quard = new();
-    object task_lock = new();
     internal List<LivingEntity> local_entitys = new();
 
     public PlacedBlock this[int x, int y, int z]
     {
         get
         {
-            lock (task_lock)
+            lock (blocks)
             {
                 var y_ = y / QUARD_SIZE;
                 var qu = blocks[y_];
@@ -32,11 +31,13 @@ public sealed class Chunk
         }
         set
         {
-            lock (task_lock)
+            lock (blocks)
             {
                 var y_ = y / QUARD_SIZE;
                 var Y = y % QUARD_SIZE;
                 var qu = blocks[y_];
+                if (qu?[x, Y, z] == value)
+                    return;
                 if (value.Block == Blocks.AIR)
                 {
                     if (qu == null)
@@ -52,7 +53,7 @@ public sealed class Chunk
                 {
                     if(qu == null)
                     {
-                        PlacedBlock[,,] bls = new PlacedBlock[QUARD_SIZE, QUARD_SIZE, QUARD_SIZE];
+                        var bls = new PlacedBlock[QUARD_SIZE, QUARD_SIZE, QUARD_SIZE];
                         blocks[y_] = bls;
                         qu = bls;
                     }
@@ -61,8 +62,13 @@ public sealed class Chunk
                     if (old.Block == Blocks.AIR)
                         block_content[y_]++;
                 }
-                if(!modified_quard.Contains(y_))
-                    modified_quard.Add(y_);
+                modyfication(y_, false);
+                if (Y == 0)
+                    if (y_ > 0)
+                        modyfication(y_ - 1, false);
+                if(Y == QUARD_SIZE - 1)
+                    if(y_ < QUARD_STACK - 1)
+                        modyfication(y_ + 1, false);
             }
         }
     }
@@ -78,7 +84,7 @@ public sealed class Chunk
     /// <returns></returns>
     internal IEnumerable<int> las_modified_quards()
     {
-        lock(task_lock)
+        lock (blocks)
         {
             if(modified_quard.Count == 0)
                 return Enumerable.Empty<int>();
@@ -86,6 +92,19 @@ public sealed class Chunk
             list.Sort();
             modified_quard = new();
             return list;
+        }
+    }
+
+    /// <summary>
+    /// Oznacza dany sześcian jako ostatnio modyfikowany
+    /// </summary>
+    internal void modyfication(int quard, bool absolute)
+    {
+        lock(blocks)
+        {
+            quard = absolute ? quard / QUARD_SIZE : quard;
+            if (!modified_quard.Contains(quard))
+                modified_quard.Add(quard);
         }
     }
 }

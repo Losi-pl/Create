@@ -178,17 +178,20 @@ public sealed class DimentionSpace
         {
             if(changet_chunks.Count == 0)
                 return Enumerable.Empty<(ChunkPoz chunk, uint quard)>();
-            return result().ToArray();
+            return result();
         }
         IEnumerable<(ChunkPoz chunk, uint quard)> result()
         {
-            for (int i = 0; i < changet_chunks.Count; i++)
+            lock(chunks)
             {
-                var ch = changet_chunks[i];
-                foreach (var q in chunks[ch].las_modified_quards())
-                    yield return (ch, (uint)q);
+                for (int i = 0; i < changet_chunks.Count; i++)
+                {
+                    var ch = changet_chunks[i];
+                    foreach (var q in chunks[ch].las_modified_quards())
+                        yield return (ch, (uint)q);
+                }
+                changet_chunks.Clear();
             }
-            changet_chunks.Clear();
         }
     }
     
@@ -241,11 +244,47 @@ public sealed class DimentionSpace
                 return;
             var chunk_poz = calculate_chunk_pozition(x, z);
             var ib = (x - (chunk_poz.X * Chunk.QUARD_SIZE), z - (chunk_poz.Z * Chunk.QUARD_SIZE));
-            if (dimentionSpace.chunks.TryGetValue(chunk_poz, out var chunk))
+            set(chunk_poz, (ib.Item1, y, ib.Item2), block);
+            if(ib.Item1 == 0)
             {
-                chunk[ib.Item1, y, ib.Item2] = block;
-                if (!dimentionSpace.changet_chunks.Contains(chunk_poz))
-                    dimentionSpace.changet_chunks.Add(chunk_poz);
+                forced_update(chunk_poz + new ChunkPoz(-1, 0));
+                if(ib.Item2 == 0)
+                    forced_update(chunk_poz + new ChunkPoz(-1, -1));
+                if (ib.Item2 == Chunk.QUARD_SIZE - 1)
+                    forced_update(chunk_poz + new ChunkPoz(-1, 1));
+            }
+            if (ib.Item1 == Chunk.QUARD_SIZE - 1)
+            {
+                forced_update(chunk_poz + new ChunkPoz(1, 0));
+                if (ib.Item2 == 0)
+                    forced_update(chunk_poz + new ChunkPoz(1, -1));
+                if (ib.Item2 == Chunk.QUARD_SIZE - 1)
+                    forced_update(chunk_poz + new ChunkPoz(1, 1));
+            }
+            if (ib.Item2 == 0)
+                forced_update(chunk_poz + new ChunkPoz(0, -1));
+            if (ib.Item2 == Chunk.QUARD_SIZE - 1)
+                forced_update(chunk_poz + new ChunkPoz(0, 1));
+
+            void set(ChunkPoz chunk, (int x, int y, int z) block_poz, PlacedBlock block)
+            {
+                lock (dimentionSpace.chunks)
+                    if (dimentionSpace.chunks.TryGetValue(chunk, out var chunk_))
+                    {
+                        chunk_[block_poz.x, block_poz.y, block_poz.z] = block;
+                        if (!dimentionSpace.changet_chunks.Contains(chunk))
+                            dimentionSpace.changet_chunks.Add(chunk);
+                    }
+            }
+            void forced_update(ChunkPoz chunk)
+            {
+                lock (dimentionSpace.chunks)
+                {
+                    if (dimentionSpace.chunks.TryGetValue(chunk, out var chunk_))
+                        chunk_.modyfication(y, true);
+                    if (!dimentionSpace.changet_chunks.Contains(chunk))
+                    dimentionSpace.changet_chunks.Add(chunk);
+                }
             }
         }
     }
@@ -291,11 +330,47 @@ public sealed class DimentionSpace
                 return;
             var chunk_poz = calculate_chunk_pozition(x, z);
             var ib = (x - (chunk_poz.X * Chunk.QUARD_SIZE), z - (chunk_poz.Z * Chunk.QUARD_SIZE));
-            if (get_chunk(chunk_poz, out var chunk))
+            set(chunk_poz, (ib.Item1, y, ib.Item2), block);
+            if (ib.Item1 == 0)
             {
-                chunk[ib.Item1, y, ib.Item2] = block;
-                if (!dimentionSpace.changet_chunks.Contains(chunk_poz))
-                    dimentionSpace.changet_chunks.Add(chunk_poz);
+                forced_update(chunk_poz + new ChunkPoz(-1, 0));
+                if (ib.Item2 == 0)
+                    forced_update(chunk_poz + new ChunkPoz(-1, -1));
+                if (ib.Item2 == Chunk.QUARD_SIZE - 1)
+                    forced_update(chunk_poz + new ChunkPoz(-1, 1));
+            }
+            if (ib.Item1 == Chunk.QUARD_SIZE - 1)
+            {
+                forced_update(chunk_poz + new ChunkPoz(1, 0));
+                if (ib.Item2 == 0)
+                    forced_update(chunk_poz + new ChunkPoz(1, -1));
+                if (ib.Item2 == Chunk.QUARD_SIZE - 1)
+                    forced_update(chunk_poz + new ChunkPoz(1, 1));
+            }
+            if (ib.Item2 == 0)
+                forced_update(chunk_poz + new ChunkPoz(0, -1));
+            if (ib.Item2 == Chunk.QUARD_SIZE - 1)
+                forced_update(chunk_poz + new ChunkPoz(0, 1));
+
+            void set(ChunkPoz chunk, (int x, int y, int z) block_poz, PlacedBlock block)
+            {
+                lock (dimentionSpace.chunks)
+                    if (get_chunk(chunk, out var chunk_))
+                    {
+                        chunk_[block_poz.x, block_poz.y, block_poz.z] = block;
+                        if (!dimentionSpace.changet_chunks.Contains(chunk))
+                            dimentionSpace.changet_chunks.Add(chunk);
+                    }
+            }
+            void forced_update(ChunkPoz chunk)
+            {
+                lock (dimentionSpace.chunks)
+                {
+                    if (get_chunk(chunk, out var chunk_))
+                        chunk_.modyfication(y, true);
+                    if (!dimentionSpace.changet_chunks.Contains(chunk))
+                        dimentionSpace.changet_chunks.Add(chunk);
+                }
             }
         }
     }
