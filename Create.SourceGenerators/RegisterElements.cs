@@ -69,7 +69,7 @@ namespace Create.SourceGenerators
 
                     
 
-                    foreach (var pr in cl.Class.Members.OfType<FieldDeclarationSyntax>().Where(node =>
+                    foreach (var pr in GetClassParts(context.Compilation, cl.Class).SelectMany(c => c.Members).OfType<FieldDeclarationSyntax>().Where(node =>
                         node.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.PublicKeyword)) &&
                         node.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.StaticKeyword)) &&
                         node.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.ReadOnlyKeyword)))
@@ -213,6 +213,31 @@ namespace Create.SourceGenerators
                 })
                 .OfType<ClassDeclarationSyntax>()
                 .Where(c => c.Identifier.Text == name);
+        }
+        public IEnumerable<ClassDeclarationSyntax> GetClassParts(Compilation compilation, ClassDeclarationSyntax @class)
+        {
+            var @namespace = @class.Parent is FileScopedNamespaceDeclarationSyntax file1 ?
+                                 (file1.Name?.ToString() ?? string.Empty) :
+                             @class.Parent is NamespaceDeclarationSyntax nam1 ?
+                                 (nam1.Name?.ToString() ?? string.Empty) : string.Empty;
+
+            return compilation.SyntaxTrees
+                .SelectMany(tree => tree.GetRoot().DescendantNodes())
+                .Select(e => e is FileScopedNamespaceDeclarationSyntax fie2 ?
+                                    (fie2.Name?.ToString() == @namespace ? e : null) :
+                            (e is NamespaceDeclarationSyntax nam2 ?
+                                    (nam2.Name?.ToString() == @namespace ? e : null) : null))
+                .Where(o => o != null)
+                .SelectMany(ns =>
+                {
+                    if (ns is FileScopedNamespaceDeclarationSyntax file)
+                        return file.Members;
+                    else if (ns is NamespaceDeclarationSyntax norm)
+                        return norm.Members;
+                    return Enumerable.Empty<MemberDeclarationSyntax>();
+                })
+                .OfType<ClassDeclarationSyntax>()
+                .Where(c => c.Identifier.Text == @class.Identifier.Text);
         }
     }
 
