@@ -22,7 +22,7 @@ public sealed class DimentionSpace
     /// <summary>
     /// Mechanizm do modyfikowania terenu w danym wymiarze
     /// </summary>
-    public World World => new DimentionWorld(this);
+    public World World => world;
     
     /// <summary>
     /// Parametry i statystyki danego świata
