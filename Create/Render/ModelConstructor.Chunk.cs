@@ -55,6 +55,52 @@ partial class ModelConstructor
         }
         return new(models, chunk);
     }
+
+    /// <summary>
+    /// Generuje model sześcianu chunka ze świata <paramref name="dimention"/> o pozycji <paramref name="chunk"/> i o szescianie numer <paramref name="quard"/>
+    /// </summary>
+    /// <param name="dimention">Świat źrudłowy</param>
+    /// <param name="chunk">Pozycja chunka</param>
+    /// <param name="quard">Numer sześcianu od dołu do wygenerowania</param>
+    /// <returns></returns>
+    public static async Task<WorldModel> ChunkModelAsync(DimentionSpace dimention, ChunkPoz chunk, int quard)
+    {
+        var chunk_s = dimention.get_chunk(chunk);
+        World world = new DimentionSpace.DimentionWorldFaster(dimention, chunk);
+        (int s, int e) xRange = (chunk.X * Chunk.QUARD_SIZE, ((chunk.X + 1) * Chunk.QUARD_SIZE) - 1);
+        (int s, int e) zRange = (chunk.Z * Chunk.QUARD_SIZE, ((chunk.Z + 1) * Chunk.QUARD_SIZE) - 1);
+        (int s, int e) yRange = (quard * Chunk.QUARD_SIZE, ((quard + 1) * Chunk.QUARD_SIZE) - 1);
+        if (chunk_s?.quards_content[quard] == 0)
+            return new(new());
+        else
+            return await WorldModelAsync(world, xRange, yRange, zRange);
+    }
+
+    /// <summary>
+    /// Generuje model całego chunka z ze świata <paramref name="dimention"/> o pozycji <paramref name="chunk"/>
+    /// </summary>
+    /// <param name="dimention">Świat źrudłowy</param>
+    /// <param name="chunk">Pozycja chunka</param>
+    /// <returns></returns>
+    public static async Task<FinischedChunkModel> ChunkModelAsync(DimentionSpace dimention, ChunkPoz chunk)
+    {
+        var need_r = dimention.get_chunk(chunk)?.quards_content;
+        if (need_r == null)
+            return new(new WorldModel[Chunk.QUARD_STACK], chunk);
+        World w = new DimentionSpace.DimentionWorldFaster(dimention, chunk);
+        WorldModel[] models = new WorldModel[Chunk.QUARD_STACK];
+        (int s, int e) xRange = (chunk.X * Chunk.QUARD_SIZE, ((chunk.X + 1) * Chunk.QUARD_SIZE) - 1);
+        (int s, int e) zRange = (chunk.Z * Chunk.QUARD_SIZE, ((chunk.Z + 1) * Chunk.QUARD_SIZE) - 1);
+        for (int q = 0; q < Chunk.QUARD_STACK; q++)
+        {
+            (int s, int e) yRange = (q * Chunk.QUARD_SIZE, ((q + 1) * Chunk.QUARD_SIZE) - 1);
+            if (need_r![q] == 0)
+                models[q] = new(new Dictionary<Type, Mesh>());
+            else
+                models[q] = await WorldModelAsync(w, xRange, yRange, zRange);
+        }
+        return new(models, chunk);
+    }
 }
 
 /// <summary>
