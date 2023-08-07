@@ -199,6 +199,16 @@ public sealed class DimentionSpace
     /// Kolekcja <see cref="ChunkPoz"/> wrzystkich załadowanych <see cref="Chunk"/>ów w tym świecie
     /// </summary>
     public IEnumerable<ChunkPoz> LoadetChunks => chunks.Keys.Secure();
+
+    /// <summary>
+    /// Kolekcja <see cref="ChunkPoz"/> wrzystkich <see cref="Chunk"/>ów w procesie ładowania
+    /// </summary>
+    public IEnumerable<ChunkPoz> ChunksDurringLoading => loadet_chunks.Secure();
+    
+    /// <summary>
+    /// Kolekcja <see cref="ChunkPoz"/> wrzystkich <see cref="Chunk"/>ów załadowanych lub w procesie ładowania
+    /// </summary>
+    public IEnumerable<ChunkPoz> ProcessedChunks => chunks.Keys.Concat(loadet_chunks);
     
     /// <summary>
     /// Tworzy i umieszcza instancje bytu w tym świecie
