@@ -146,10 +146,10 @@ public static class Register
         {
             var main = find_main_class(a.assembly);
             if (!main.HasValue)
-                return (null, null, null)!;
+                return (null, new(), null)!;
             var method = find_starter_method(main.Value.@class);
-            if (method == null)
-                return (null, null, null)!;
+            if (method.initial == null && method.main == null && method.finishing == null)
+                return (null, new(), null)!;
             Mod mod = new(main.Value.attribute.CodeName, new(main.Value.attribute.Version), a.resource);
             return (mod, method, a.resource);
         })
@@ -163,26 +163,42 @@ public static class Register
         Assets.first_proces_resources();
 
         foreach (var mod in all_mods)
-            mod.method(mod.mod);
+            mod.method.initial?.Invoke(mod.mod);
+
+        foreach (var mod in all_mods)
+            mod.method.main?.Invoke(mod.mod);
+
+        foreach (var mod in all_mods)
+            mod.method.finishing?.Invoke(mod.mod);
 
         //Methods
-        Action<Mod>? find_starter_method(Type @class)
+        (Action<Mod>? initial, Action<Mod>? main, Action<Mod>? finishing) find_starter_method(Type @class)
         {
+            Action<Mod>? initial = null, main = null, finishing = null;
+
+
             var methods = new[] {
                 @class.GetMethods(BindingFlags.Static | BindingFlags.Public),
                 @class.GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
             }.Combine();
-            foreach (var method in methods)
-                if (method.GetCustomAttribute<ModIniterAttribute>() != null)
+            foreach (var method in methods.Select(m => (m, m.GetCustomAttribute<ModIniterAttribute>())))
+                if (method.Item2 != null)
                 {
-                    var inputs = method.GetParameters();
+                    var inputs = method.m.GetParameters();
                     if (inputs.Length != 1)
                         continue;
                     if (inputs[0].ParameterType != typeof(Mod))
                         continue;
-                    return (m => method.Invoke(null, new[] { m }));
+                    if (method.Item2.Stage == InitjalizationStage.Initial)
+                        initial = m => method.m.Invoke(null, new[] { m });
+                    else if (method.Item2.Stage == InitjalizationStage.Main)
+                        main = m => method.m.Invoke(null, new[] { m });
+                    else if (method.Item2.Stage == InitjalizationStage.Finishing)
+                        finishing = m => method.m.Invoke(null, new[] { m });
+                    else
+                        main = m => method.m.Invoke(null, new[] { m });
                 }
-            return null;
+            return (initial, main, finishing);
         }
         (Type @class, ModAttribute attribute)? find_main_class(Assembly assembly)
         {
@@ -205,7 +221,6 @@ public static class Register
     [ModIniter]
     static void load_create(Mod mod)
     {
-        bazic_setup();
         SourceGenerators.Registers.LoadBlocks(mod);
         SourceGenerators.Registers.LoadDimentions(mod);
         SourceGenerators.Registers.LoadEntitys(mod);
@@ -217,7 +232,8 @@ public static class Register
     /// <summary>
     /// Wywoływana przed załadowaniem elementów
     /// </summary>
-    static void bazic_setup()
+    [ModIniter(InitjalizationStage.Initial)]
+    static void bazic_setup(Mod mod)
     {
         MainTask.Run(() => RenderLayer.set_shader(Assets.GetShader("create:bazic/renderlayer")));
         MainTask.Run(() => OpenGL.GUI.Elements.Image.set_shader(Assets.GetShader("create:interface/image")));

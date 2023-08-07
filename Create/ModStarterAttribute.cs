@@ -35,4 +35,15 @@ public sealed class ModAttribute : Attribute
 /// Przypisywany do funkcji inicjalizacyjnej modyfikacji w klasie zawierającej <see cref="ModAttribute"/>
 /// </summary>
 [AttributeUsage(AttributeTargets.Method)]
-public sealed class ModIniterAttribute : Attribute { }
+public sealed class ModIniterAttribute : Attribute 
+{
+    public InitjalizationStage Stage { get; }
+    public ModIniterAttribute(InitjalizationStage stage = InitjalizationStage.Main) { Stage = stage; }
+}
+
+public enum InitjalizationStage
+{
+    Initial = 1,
+    Main = 0,
+    Finishing = 2
+}
