@@ -89,8 +89,9 @@ public static class Server
         var entity_poz = Elements.Dimentions.OVERWORLD.GetNewSpawnPoint();
         var dimention = Dimentions[Elements.Dimentions.OVERWORLD];
         var ch_poz = DimentionSpace.calculate_chunk_pozition(entity_poz.x, entity_poz.z);
-        if (!dimention.IsChunkLoadet(ch_poz))
+        if (!dimention.IsChunkLoadetOrLoading(ch_poz))
             dimention.add_chunk(ch_poz);
+        while (dimention.IsChunkLoadet(ch_poz)) { Task.Delay(1); }
         var entity = dimention.Spawn(Entitys.PLAYER, entity_poz.ToVector().ToNumeric());
         var player = new Player(account);
         player.Entity = entity;
@@ -129,7 +130,7 @@ public static class Server
                         foreach(var ch in MathC.GetElementsFromCenter(10)
                             .ConvertAll(ch => player.Entity!.Chunk + new ChunkPoz(ch.x, ch.y)))
                         {
-                            if (dimen.IsChunkLoadet(ch))
+                            if (dimen.IsChunkLoadetOrLoading(ch))
                                 continue;
                             dimen.add_chunk(ch);
                         }

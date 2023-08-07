@@ -3,9 +3,13 @@ using Create.Net;
 using Create.OpenGL;
 using Create.Render;
 using Create.Space;
+using OneOf;
 using OpenTK.Mathematics;
+using System.Collections;
 using System.Drawing;
 using System.Reflection;
+using System.Threading.Tasks;
+using static OneOf.Types.TrueFalseOrNull;
 
 namespace Create.Sceans;
 
@@ -17,9 +21,8 @@ partial class GameView
     public class Terrain
     {
         Dictionary<ChunkPoz, FinischedChunkModel> chunk_models = new();
-        List<ChunkPoz> chunks_to_add = new();
         List<ChunkPoz> chunks_to_rem = new();
-        List<ChunkPoz> chunks_to_ren = new();
+        ChunksConstructor to_add = new(), to_renew = new();
         RenderLayer binded_world_layer, nontransparent_blocks;
         Camera camera;
         object task_lock = new();
@@ -62,14 +65,10 @@ partial class GameView
         /// </summary>
         public void Add(ChunkPoz chunk)
         {
-            lock(task_lock)
-            {
+            lock (chunk_models)
                 if (chunk_models.ContainsKey(chunk))
                     return;
-                if (chunks_to_add.Contains(chunk))
-                    return;
-                chunks_to_add.Add(chunk);
-            }
+            to_add.Add(chunk);
         }
         
         /// <summary>
@@ -96,9 +95,11 @@ partial class GameView
         {
             lock (task_lock)
             {
-                var chunk_m = chunk_models[chunk];
-                var new_quard = ModelConstructor.ChunkModel(Client.Me.Entity!.Dimention!, chunk, quard);
-                chunk_m.set_new_quard(new_quard, quard);
+                if (chunk_models.TryGetValue(chunk, out var chunk_m))
+                {
+                    var new_quard = ModelConstructor.ChunkModel(Client.Me.Entity!.Dimention!, chunk, quard);
+                    chunk_m.set_new_quard(new_quard, quard);
+                }
             }
         }
         
@@ -122,14 +123,10 @@ partial class GameView
         /// </summary>
         public void Renew(ChunkPoz chunk)
         {
-            lock (task_lock)
-            {
+            lock (chunk_models)
                 if (!chunk_models.ContainsKey(chunk))
                     return;
-                if (chunks_to_ren.Contains(chunk))
-                    return;
-                chunks_to_ren.Add(chunk);
-            }
+            to_renew.Add(chunk);
         }
 
         /// <summary>
@@ -137,9 +134,13 @@ partial class GameView
         /// </summary>
         public void Draw()
         {
-            nontransparent_blocks.UpdateContent();
-            binded_world_layer.UpdateContent();
-            binded_world_layer.Draw();
+            lock (nontransparent_blocks)
+                nontransparent_blocks.UpdateContent();
+            lock (binded_world_layer)
+            {
+                binded_world_layer.UpdateContent();
+                binded_world_layer.Draw();
+            }
         }
         
         /// <summary>
@@ -153,24 +154,32 @@ partial class GameView
         /// <param name="time"></param>
         public void ChunkUpdate(double time)
         {
-            render_new_chunk();
+            to_add.Dimention = to_renew.Dimention = Client.Me.Entity!.Dimention!;
+            
+            add_new_chunks();
+            renew_old_chunks();
             remove_old_chunk();
-            renew_old_chunk();
             emidiet_renew();
             chunk_rendering_task();
 
             //Methods
-            void render_new_chunk()
+            void add_new_chunks()
             {
-                if (chunks_to_add.Count == 0)
-                    return;
-                var chunk = chunks_to_add[0];
-                var done_model = ModelConstructor.ChunkModel(Server.Dimentions[Dimentions.OVERWORLD], chunk);
-                lock(task_lock)
+                foreach(var ch in to_add.Finished())
                 {
-                    chunk_models.Add(chunk, done_model);
-                    nontransparent_blocks.Meshes.Add(done_model);
-                    chunks_to_add.RemoveAt(0);
+                    chunk_models.TryAdd(ch.Key, ch.Value);
+                    nontransparent_blocks.Meshes.Add(ch.Value);
+                }
+            }
+            void renew_old_chunks()
+            {
+                foreach (var ch in to_renew.Finished())
+                {
+                    var old = chunk_models[ch.Key];
+                    nontransparent_blocks.Meshes.Remove(old);
+                    old?.Dispose();
+                    chunk_models[ch.Key] = ch.Value;
+                    nontransparent_blocks.Meshes.Add(ch.Value);
                 }
             }
             void remove_old_chunk()
@@ -185,22 +194,6 @@ partial class GameView
                     m.Remove(model!);
                     model!.Dispose();
                     chunks_to_rem.RemoveAt(0);
-                }
-            }
-            void renew_old_chunk()
-            {
-                if (chunks_to_ren.Count == 0)
-                    return;
-                var chunk = chunks_to_ren[0];
-                var m = nontransparent_blocks.Meshes;
-                var new_model = ModelConstructor.ChunkModel(Server.Dimentions[Dimentions.OVERWORLD], chunk);
-                lock(task_lock)
-                {
-                    var old_model = chunk_models[chunk];
-                    chunk_models[chunk] = new_model;
-                    m.Add(new_model);
-                    m.Remove(old_model);
-                    chunks_to_ren.RemoveAt(0);
                 }
             }
             void emidiet_renew()
@@ -224,7 +217,9 @@ partial class GameView
                         foreach (var ch in MathC.GetElementsFromCenter(10))
                         {
                             var chunk_poz = new ChunkPoz(ch.x, ch.y) + en.Chunk;
-                            if (!dim.IsChunkLoadet(chunk_poz))
+                            if (!dim.IsChunkLoadetOrLoading(chunk_poz))
+                                continue;
+                            if (to_add.IsProcessed(chunk_poz))
                                 continue;
                             if (chunk_models.ContainsKey(chunk_poz))
                                 continue;
@@ -255,6 +250,99 @@ partial class GameView
         {
             nontransparent_blocks.Resize(size);
             binded_world_layer.Resize(size);
+        }
+    }
+
+    class ChunksConstructor
+    {
+        Dictionary<ChunkPoz, OneOf<Null, Task, FinischedChunkModel, Exception>> chunks_to_add = new();
+        DimentionSpace dimention = Server.Dimentions[Dimentions.OVERWORLD];
+        int in_working = 0, max_working = 20;
+
+        public DimentionSpace Dimention { get => dimention; set => dimention = value; }
+        public int MaxInWorking { get => max_working; set => max_working = value; }
+        public void Add(ChunkPoz chunk)
+        {
+            lock(chunks_to_add)
+            {
+                if (chunks_to_add.ContainsKey(chunk))
+                    return;
+                if(max_working > in_working)
+                {
+                    in_working++;
+                    var task = generate(chunk);
+                    chunks_to_add.Add(chunk, task);
+                }
+                else
+                    chunks_to_add.Add(chunk, new Null());
+            }
+        }
+        public bool IsProcessed(ChunkPoz chunk)
+        {
+            lock (chunks_to_add)
+                return chunks_to_add.ContainsKey(chunk);
+        }
+
+        async Task generate(ChunkPoz poz)
+        {
+            try
+            {
+                var rez = await ModelConstructor.ChunkModelAsync(dimention, poz);
+                lock (chunks_to_add)
+                {
+                    chunks_to_add[poz] = rez;
+                    if (chunks_to_add.Count(e => e.Value.IsT0) > 0)
+                    {
+                        var new_poz = chunks_to_add.Where(e => e.Value.IsT0).First().Key;
+                        var t = generate(new_poz);
+                        chunks_to_add[new_poz] = t;
+                    }
+                    else
+                        in_working--;
+                }
+            }
+            catch (Exception ex)
+            {
+                lock (chunks_to_add)
+                {
+                    chunks_to_add[poz] = ex;
+                    if (chunks_to_add.Count(e => e.Value.IsT0) > 0)
+                    {
+                        var new_poz = chunks_to_add.Where(e => e.Value.IsT0).First().Key;
+                        var t = generate(new_poz);
+                        chunks_to_add[new_poz] = t;
+                    }
+                    else
+                        in_working--;
+                }
+            }
+        }
+        public IEnumerable<(ChunkPoz Key, FinischedChunkModel Value)> Finished() => new Enumerable(this);
+        struct Enumerable : IEnumerable<(ChunkPoz Key, FinischedChunkModel Value)>, IEnumerator<(ChunkPoz Key, FinischedChunkModel Value)>
+        {
+            OneOf<(ChunkPoz Key, FinischedChunkModel Valie), Exception> current;
+            ChunksConstructor source;
+
+            public Enumerable(ChunksConstructor source) => this.source = source;
+            public (ChunkPoz Key, FinischedChunkModel Value) Current => current.IsT1 ? throw new(current.AsT1.Message, current.AsT1) : current.AsT0;
+            object IEnumerator.Current => Current;
+            public void Dispose() => (source, current) = (null!, new());
+            public IEnumerator<(ChunkPoz Key, FinischedChunkModel Value)> GetEnumerator() => this;
+            IEnumerator IEnumerable.GetEnumerator() => this;
+            public void Reset() { }
+
+            public bool MoveNext()
+            {
+                lock (source.chunks_to_add)
+                {
+                    var res = source.chunks_to_add.Where(t => t.Value.IsT2 || t.Value.IsT3).GetEnumerator();
+                    if (!res.MoveNext())
+                        return false;
+                    source.chunks_to_add.Remove(res.Current.Key);
+                    current = res.Current.Value.IsT2 ? (res.Current.Key, res.Current.Value.AsT2) : res.Current.Value.AsT3;
+                    return true;
+                }
+            }
         }
     }
 }
