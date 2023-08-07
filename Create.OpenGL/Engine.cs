@@ -295,7 +295,6 @@ public static class Engine
     /// </summary>
     static void w_gl_RenderFrame(FrameEventArgs args)
     {
-        MainTask.make_listed_tasks();
         OnRenderFrame?.Invoke(args);
         Scean?.m_RenderFrame(args);
     }
@@ -342,6 +341,7 @@ public static class Engine
     /// </summary>
     static void w_gl_UpdateFrame(FrameEventArgs args)
     {
+        MainTask.make_listed_tasks();
         Input.Mouse.standard_mode(args);
         clear_memory((float)args.Time);
         Scean?.m_UpdateFrame(args);
