@@ -196,16 +196,6 @@ internal static partial class Special
     }
 
     /// <summary>
-    /// Sprawdza czy w kolekcji znajduje się jaki kolwiek obiekt spełniający warunki <paramref name="condition"/>
-    /// </summary>
-    public static bool ConditionsMeet<T>(this IEnumerable<T> enume, Func<T, bool> condition)
-    {
-        foreach(var elem in enume)
-            if(condition(elem)) return true;
-        return false;
-    }
-    
-    /// <summary>
     /// Przekłada z jakiego typu informacji zbudowane są wyrzsze typy zmiennych i ile zajmują one w pamięci karty graficznej
     /// </summary>
     public static (int values, VertexAttribPointerType type) ValueBindData(this ActiveAttribType value) => value switch

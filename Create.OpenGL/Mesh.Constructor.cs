@@ -241,7 +241,7 @@ partial class Mesh
                 if (att is not Array)
                     throw new Exception("Not every attrybute was specyfied");
             int? lenght = null;
-            if (attributes.ConditionsMeet(attr =>
+            if (attributes.Any(attr =>
             {
                 if (!lenght.HasValue)
                 {
@@ -252,7 +252,7 @@ partial class Mesh
                     return lenght != ((Array)attr).Length;
             }))
                 throw new Exception("Attributes lists lenghts are not math");
-            if (trangles.ConditionsMeet(vert => vert >= lenght))
+            if (trangles.Any(vert => vert >= lenght))
                 throw new Exception("Trangle out of range");
             lenght = lenght ?? 0;
             var buffer = map_vertices(lenght.Value);
