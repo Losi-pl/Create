@@ -19,15 +19,21 @@ public static class MainTask
     /// </summary>
     internal static void make_listed_tasks()
     {
-        lock(task_lock)
+        while(loop(out var ex))
+            ex?.Invoke();
+
+        bool loop(out Action action)
         {
-            if (actions.Count == 0)
-                return;
-            for(int i = actions.Count - 1; i >= 0; --i)
+            lock(task_lock)
             {
-                var tex = actions[0].ToString();
-                actions[0]();
+                if (actions.Count == 0)
+                {
+                    action = null!;
+                    return false;
+                }
+                action = actions[0];
                 actions.RemoveAt(0);
+                return true;
             }
         }
     }
