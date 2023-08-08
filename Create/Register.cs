@@ -249,7 +249,6 @@ public static class Register
             ct.load_stacks();
     }
 
-
     /// <summary>
     /// Rejestr elementów typu <typeparamref name="T"/>
     /// </summary>
@@ -280,6 +279,7 @@ public static class Register
 
         VirtualDictionaty<ushort, T> by_id;
         VirtualDictionaty<string, T> by_name;
+        VirtualList<T> v_list;
         object task_lock = new();
         static object static_task_lock = new();
 
@@ -293,9 +293,15 @@ public static class Register
         /// </summary>
         public VirtualDictionaty<ushort, T> ById => by_id;
 
+        /// <summary>
+        /// Lista elementów w kolejności od dodania
+        /// </summary>
+        public VirtualList<T> List => v_list;
+        
         public ElementRegister()
         {
             list = new();
+            v_list = VirtualList.Create(list).Finish();
             by_name = new VirtualDictionaty<string, T>.Constructor()
                 .GetMethod(n => list.Find(l => l.CodeName == n, new KeyNotFoundException()))
                 .CountMethod(() => list.Count)
