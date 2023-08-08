@@ -135,6 +135,10 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
         data.point.RunEvent(value ? "enable" : "disable");
     }
 
+    /// <summary>
+    /// Bierze zestaw wrzystkich zakładek ustawionych jako aktywne
+    /// </summary>
+    /// <returns></returns>
     public OpenTab GetOpenTabs()
     {
         var s = OpenTab.None;
@@ -165,6 +169,11 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
             s |= OpenTab.InventoryTab;
         return s;
     }
+    
+    /// <summary>
+    /// Ustawia które zakładki są ustawione jako aktywne
+    /// </summary>
+    /// <param name="tab"></param>
     public void SetOpenTabs(OpenTab tab)
     {
         Tab1 = tab.HasFlag(OpenTab.Tab1);
