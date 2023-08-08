@@ -130,6 +130,11 @@ partial class Assets
             ChangeEventItemSlot.Parse,
             ChangeEventItemSlot.ChangeEvent,
             ChangeEventItemSlot.ParamParse);
+
+        mod.RegisterInterfaceLoadingMethod("SimpleText",
+            ChangeEventSimpleText.Parse,
+            ChangeEventSimpleText.ChangeEvent,
+            ChangeEventSimpleText.ParamParse);
     }
 }
 
@@ -711,7 +716,6 @@ file class ChangeEventStatusBar
             elem.Filled = @params.filled.Value;
     }
 }
-
 file class ChangeEventItemSlot
 {
     bool? enable;
@@ -752,5 +756,123 @@ file class ChangeEventItemSlot
 
         if (@params.stack.IsT0)
             elem.ItemStack = @params.stack.AsT0;
+    }
+}
+file class ChangeEventSimpleText
+{
+    static readonly (string name, HorizontalAlgin)[] horizontalAlgins = Enum.GetValues<HorizontalAlgin>().Select(v => (v.ToString().ToLower(), v)).ToArray();
+    static readonly (string name, VerticalAlgin)[] verticalAlgin = Enum.GetValues<VerticalAlgin>().Select(v => (v.ToString().ToLower(), v)).ToArray();
+
+    OneOf<string, Null> text;
+    string? font;
+    float? size;
+    Color4? color;
+    bool? staticCharWidth;
+    HorizontalAlgin? halgin;
+    VerticalAlgin? valgin;
+
+    public static Element Parse(XElement e)
+    {
+        var st = new SimpleText();
+
+        var val = e.Element("text");
+        if (val is not null)
+            st.Text = value(val);
+
+        val = e.Element("font");
+        if (val is not null)
+            st.Font = Assets.GetFont(value(val));
+
+        val = e.Element("size");
+        if (val is not null)
+            st.Size = ParseFloat(value(val)) * 4;
+
+        val = e.Element("color");
+        if (val is not null)
+            st.Color = load_color(val) ?? Color4.White;
+
+        val = e.Element("static-font-size");
+        if (val is not null)
+            st.StaticCharWidth = bool.TryParse(value(val), out var b) ? b : false;
+
+        val = e.Element("algin");
+        if (val is not null)
+        {
+            var t = val.Attribute("horizontal")?.Value.ToLower();
+            if (t is not null)
+                st.HorizontalAlgin = horizontalAlgins.FirstOrDefault(a => a.name == t).Item2;
+
+            t = val.Attribute("vertical")?.Value.ToLower();
+            if (t is not null)
+                st.VerticalAlgin = verticalAlgin.FirstOrDefault(a => a.name == t).Item2;
+        }
+
+        return st;
+    }
+    public static object ParamParse(XElement e)
+    {
+        var st = new ChangeEventSimpleText();
+
+        var val = e.Element("text");
+        if (val is not null)
+            st.text = value(val);
+        else
+            st.text = new Null();
+
+        val = e.Element("font");
+        if (val is not null)
+            st.font = value(val);
+
+        val = e.Element("size");
+        if (val is not null)
+            st.size = ParseFloat(value(val)) * 4;
+
+        val = e.Element("color");
+        if (val is not null)
+            st.color = load_color(val);
+
+        val = e.Element("static-font-size");
+        if (val is not null)
+            st.staticCharWidth = bool.TryParse(value(val), out var b) ? b : false;
+
+        val = e.Element("algin");
+        if (val is not null)
+        {
+            var t = val.Attribute("horizontal")?.Value;
+            if (t is not null)
+                st.halgin = horizontalAlgins.FirstOrDefault(a => a.name == t).Item2;
+
+            t = val.Attribute("vertical")?.Value;
+            if (t is not null)
+                st.valgin = verticalAlgin.FirstOrDefault(a => a.name == t).Item2;
+        }
+
+        return st;
+    }
+    public static void ChangeEvent(Element element, object value)
+    {
+        var test = (SimpleText)element;
+        var @params = (ChangeEventSimpleText)value;
+
+        if (@params.text.IsT0)
+            test.Text = @params.text.AsT0;
+
+        if (@params.font is not null)
+            test.Font = Assets.GetFont(@params.font);
+
+        if (@params.size.HasValue)
+            test.Size = @params.size.Value;
+
+        if (@params.color.HasValue)
+            test.Color = @params.color.Value;
+
+        if (@params.staticCharWidth.HasValue)
+            test.StaticCharWidth = @params.staticCharWidth.Value;
+
+        if (@params.halgin.HasValue)
+            test.HorizontalAlgin = @params.halgin.Value;
+
+        if (@params.valgin.HasValue)
+            test.VerticalAlgin = @params.valgin.Value;
     }
 }

@@ -79,6 +79,16 @@
     <size v="162; 90"/>
     <pozition v="89; -62"/>
     <anker mode="leftup"/>
+    <point name="Title">
+      <size v="72; 7"/>
+      <pozition v="36; 7"/>
+      <anker mode="leftup"/>
+      <element type="create:SimpleText">
+        <algin vertical="center"/>
+        <text v="Zakładka"/>
+        <size v="8"/>
+      </element>
+    </point>
     <point name="Row 1">
       <pozition v="1; 81"/>
       <anker mode="leftdown"/>
