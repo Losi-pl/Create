@@ -3,6 +3,8 @@ using Create.Elements.Gui;
 using Create.Conteiner.Items;
 using Create.Conteiner;
 using Create.Net;
+using OpenTK.Graphics.OpenGL;
+using Create.Input;
 
 namespace Create.Elements.Interfaces;
 
@@ -10,10 +12,15 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
 {
     readonly static OpenTab[] tabTypes = Enum.GetValues<OpenTab>();
     (bool active, SpacePoint? point, ItemSlot? slot) tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tabInventory, tabKompas;
+    int tabs_set_index;
+
     #nullable disable
     SpacePoint root;
     Net.Player player;
     InventorySlots inventory;
+    (ItemSlot slot, (int x, int y) index)[] creativeSlots;
+    int scroll_offset = 0, lines_of_items = 5;
+    CreativeTab usedTab;
     #nullable restore
 
     static (CreativeInventory status, SpacePoint point) IUserInterface<CreativeInventory>.LoadInterface(InterfaceCreatorArgs args)
@@ -57,14 +64,6 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
         ci.SetOpenTabs(OpenTab.Tab1);
 
         for (int i = 0; i < points.Length; i++)
-            points[i].slot!.ItemStack = new((i % 3) switch
-            {
-                0 => Blocks.STONE,
-                1 => Blocks.DIRT,
-                _ => Blocks.GRASS_BLOCK
-            });
-
-        for (int i = 0; i < points.Length; i++)
             points[i].slot!.Enable = false;
 
         ci.inventory = new(Client.TransferedItemSlot,
@@ -83,15 +82,70 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
         ci.inventory.GetPlayerInventory += () => ci.Player.Entity?.Data.Get("inventory") as PlayerInventory? ?? new();
         ci.inventory.SetPlayerInventory += t => ci.Player.Entity?.Data.Set("inventory", t);
 
+        ci.creativeSlots = ItemSlot.GetAllSlots(ci.root.Childs.Find("Creative", true)!)
+            .Select(s => (s, ((s.ID ?? 0) % 9, (s.ID ?? 0) / 9))).ToArray();
+
+        ci.SetOfTabs(0);
         return (ci, ci.root);
     }
 
     public override void Update(UpdateArgs args)
     {
         inventory.UpdateSlotsContent(args.time);
+        if(Mouse.Scroll.Delta != 0)
+        {
+            scroll_offset -= Mouse.Scroll.Delta;
+            if (scroll_offset < 0)
+                scroll_offset = 0;
+            if (scroll_offset > lines_of_items)
+                scroll_offset = lines_of_items;
+            var items = usedTab.Items;
+            foreach (var s in creativeSlots.Select(s => (s.slot, ((s.index.y + scroll_offset) * 9) + s.index.x)))
+                if (s.Item2 < items.Count)
+                    s.slot.ItemStack = items[s.Item2];
+                else
+                    s.slot.ItemStack = null;
+        }
     }
 
-    private void TabOpenClose(SpacePoint obj, OpenTab tab, ClickEventButton args) => Tab = tab;
+    private void TabOpenClose(SpacePoint obj, OpenTab tab, ClickEventButton args)
+    {
+        Tab = tab;
+        if(tab == OpenTab.InventoryTab)
+        {
+
+        }
+        else if (tab == OpenTab.SearchTab)
+        {
+
+        }
+        else
+        {
+            scroll_offset = 0;
+            usedTab = Register.CreativeTabs.List[(tabs_set_index * 10) + tab switch
+            {
+                OpenTab.Tab1 => 0,
+                OpenTab.Tab2 => 1,
+                OpenTab.Tab3 => 2,
+                OpenTab.Tab4 => 3,
+                OpenTab.Tab5 => 4,
+                OpenTab.Tab6 => 5,
+                OpenTab.Tab7 => 6,
+                OpenTab.Tab8 => 7,
+                OpenTab.Tab9 => 8,
+                OpenTab.Tab10 => 9,
+                _ => 0
+            }];
+            var items = usedTab.Items;
+            lines_of_items = ((items.Count % 9 == 0) ? (items.Count / 9) : (items.Count / 9) + 1) - (creativeSlots.Length / 9);
+            lines_of_items = lines_of_items < 0 ? 0 : lines_of_items;
+            foreach (var s in creativeSlots.Select(s => (s.slot, (s.index.y * 9) + s.index.x)))
+                if (s.Item2 < items.Count)
+                    s.slot.ItemStack = items[s.Item2];
+                else
+                    s.slot.ItemStack = null;
+        }
+    }
 
     public OpenTab Tab
     {
@@ -133,6 +187,98 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
             return;
         data.active = value;
         data.point.RunEvent(value ? "enable" : "disable");
+    }
+
+    /// <summary>
+    /// Ustawia zakładki i ich ikony z danego zestawu
+    /// </summary>
+    void SetOfTabs(int index)
+    {
+        int tabs_count = Register.CreativeTabs.List.Count;
+        int sets_count = tabs_count % 10 == 0 ? tabs_count / 10 : (tabs_count / 10) + 1;
+        int in_set = sets_count - 1 < index ? 10 : (tabs_count % 10 == 0 ? 10 : tabs_count % 10);
+        tabs_set_index = index;
+        SetVisible(OpenTab.Tab1, in_set > 0);
+        SetVisible(OpenTab.Tab2, in_set > 1);
+        SetVisible(OpenTab.Tab3, in_set > 2);
+        SetVisible(OpenTab.Tab4, in_set > 3);
+        SetVisible(OpenTab.Tab5, in_set > 4);
+        SetVisible(OpenTab.Tab6, in_set > 5);
+        SetVisible(OpenTab.Tab7, in_set > 6);
+        SetVisible(OpenTab.Tab8, in_set > 7);
+        SetVisible(OpenTab.Tab9, in_set > 8);
+        SetVisible(OpenTab.Tab10, in_set > 9);
+
+        if (in_set > 0)
+            SetIcon(OpenTab.Tab1, Register.CreativeTabs.List[(index * 10)]?.Icon);
+        if (in_set > 1)
+            SetIcon(OpenTab.Tab2, Register.CreativeTabs.List[(index * 10) + 1]?.Icon);
+        if (in_set > 2)
+            SetIcon(OpenTab.Tab3, Register.CreativeTabs.List[(index * 10) + 2]?.Icon);
+        if (in_set > 3)
+            SetIcon(OpenTab.Tab4, Register.CreativeTabs.List[(index * 10) + 3]?.Icon);
+        if (in_set > 4)
+            SetIcon(OpenTab.Tab5, Register.CreativeTabs.List[(index * 10) + 4]?.Icon);
+        if (in_set > 5)
+            SetIcon(OpenTab.Tab6, Register.CreativeTabs.List[(index * 10) + 5]?.Icon);
+        if (in_set > 6)
+            SetIcon(OpenTab.Tab7, Register.CreativeTabs.List[(index * 10) + 6]?.Icon);
+        if (in_set > 7)
+            SetIcon(OpenTab.Tab8, Register.CreativeTabs.List[(index * 10) + 7]?.Icon);
+        if (in_set > 8)
+            SetIcon(OpenTab.Tab9, Register.CreativeTabs.List[(index * 10) + 8]?.Icon);
+        if (in_set > 9)
+            SetIcon(OpenTab.Tab10, Register.CreativeTabs.List[(index * 10) + 9]?.Icon);
+    }
+
+    /// <summary>
+    /// Ustawia przedmiot w ikonie zakładki
+    /// </summary>
+    void SetIcon(OpenTab tab, ItemStack? stack)
+    {
+        var slot = tab switch
+        {
+            OpenTab.Tab1 => tab1.slot,
+            OpenTab.Tab2 => tab2.slot,
+            OpenTab.Tab3 => tab3.slot,
+            OpenTab.Tab4 => tab4.slot,
+            OpenTab.Tab5 => tab5.slot,
+            OpenTab.Tab6 => tab6.slot,
+            OpenTab.Tab7 => tab7.slot,
+            OpenTab.Tab8 => tab8.slot,
+            OpenTab.Tab9 => tab9.slot,
+            OpenTab.Tab10 => tab10.slot,
+            OpenTab.InventoryTab => tabInventory.slot,
+            OpenTab.SearchTab => tabKompas.slot,
+            _ => null
+        };
+        if (slot is not null)
+            slot.ItemStack = stack;
+    }
+
+    /// <summary>
+    /// Ustawia czy dana zakładka jest widoczna
+    /// </summary>
+    void SetVisible(OpenTab tab, bool status)
+    {
+        var point = tab switch
+        {
+            OpenTab.Tab1 => tab1.point,
+            OpenTab.Tab2 => tab2.point,
+            OpenTab.Tab3 => tab3.point,
+            OpenTab.Tab4 => tab4.point,
+            OpenTab.Tab5 => tab5.point,
+            OpenTab.Tab6 => tab6.point,
+            OpenTab.Tab7 => tab7.point,
+            OpenTab.Tab8 => tab8.point,
+            OpenTab.Tab9 => tab9.point,
+            OpenTab.Tab10 => tab10.point,
+            OpenTab.InventoryTab => tabInventory.point,
+            OpenTab.SearchTab => tabKompas.point,
+            _ => null
+        };
+        if (point is not null)
+            point.Active = status;
     }
 
     /// <summary>
