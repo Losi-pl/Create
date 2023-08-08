@@ -47,8 +47,8 @@ public sealed class SimpleText : Element
             _ => 0
         }, mesh.VerticalDirection switch
         {
-            VerticalDirection.Up => -Point!.Size.Width / 2,
-            VerticalDirection.Down => Point!.Size.Width / 2,
+            VerticalDirection.Up => -Point!.Size.Height / 2,
+            VerticalDirection.Down => Point!.Size.Height / 2,
             _ => 0
         }, 0) * projection;
 
