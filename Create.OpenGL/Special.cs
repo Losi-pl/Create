@@ -582,4 +582,12 @@ internal static partial class Special
             public void Reset() => enumerator.Reset();
         }
     }
+
+    public static IEnumerable<T> Repeat<T>(this IEnumerable<T> values, int count)
+    {
+        for (; count > 0; count--)
+            foreach (var t in values)
+                yield return t;
+    }
+
 }
