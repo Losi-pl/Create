@@ -195,16 +195,16 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
     {
         None = 0,
         Tab1 = 1,
-        Tab2 = 2,
-        Tab3 = 4,
-        Tab4 = 8,
-        Tab5 = 16,
-        Tab6 = 32,
-        Tab7 = 64,
-        Tab8 = 128,
-        Tab9 = 256,
-        Tab10 = 512,
-        InventoryTab = 1024,
-        SearchTab = 2048
+        Tab2 = 1 << 1,
+        Tab3 = 1 << 2,
+        Tab4 = 1 << 3,
+        Tab5 = 1 << 4,
+        Tab6 = 1 << 5,
+        Tab7 = 1 << 6,
+        Tab8 = 1 << 7,
+        Tab9 = 1 << 8,
+        Tab10 = 1 << 9,
+        InventoryTab = 1 << 10,
+        SearchTab = 1 << 11
     }
 }
