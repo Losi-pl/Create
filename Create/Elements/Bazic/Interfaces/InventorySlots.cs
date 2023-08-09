@@ -87,16 +87,16 @@ public sealed class InventorySlots
                             if (free == 0)
                                 continue;
                             if (count > free)
-                                (@is, count) = (new(maxCount, @is.Value.Item, @is.Value.Type, @is.Value.Meta), count - free);
+                                (@is, count) = (new(maxCount, @is.Value), count - free);
                             else
-                                (@is, count) = (new(@is.Value.Count + count, @is.Value.Item, @is.Value.Type, @is.Value.Meta), 0);
+                                (@is, count) = (new(@is.Value.Count + count, @is.Value), 0);
                             con.SetItem(i, @is);
                         }
                         for (int i = 0; i < con.Length && count > 0; i++)
                         {
                             if (con.GetItem(i).HasValue)
                                 continue;
-                            con.SetItem(i, new(count, sItem.Value.Item, sItem.Value.Type, sItem.Value.Meta));
+                            con.SetItem(i, new(count, sItem.Value));
                             count = 0;
                             break;
                         }
@@ -104,7 +104,7 @@ public sealed class InventorySlots
                             inv = pi;
                         else if (con is ToolsBar tb)
                             tools = tb;
-                        set_item(count > 0 ? new(count, sItem.Value.Item, sItem.Value.Type, sItem.Value.Meta) : null);
+                        set_item(count > 0 ? new(count, sItem.Value) : null);
                         this.transfered = sItem.Value;
                     }
                     else if(button == ClickEventButton.Scroll)
@@ -134,9 +134,9 @@ public sealed class InventorySlots
                             if (free == 0)
                                 continue;
                             if (count > free)
-                                (@is, count) = (new(maxCount, @is.Value.Item, @is.Value.Type, @is.Value.Meta), count - free);
+                                (@is, count) = (new(maxCount, @is.Value), count - free);
                             else
-                                (@is, count) = (new(@is.Value.Count + count, @is.Value.Item, @is.Value.Type, @is.Value.Meta), 0);
+                                (@is, count) = (new(@is.Value.Count + count, @is.Value), 0);
                             con.SetItem(i, @is);
                         }
                         for (int i = 0; i < con.Length && count > 0; i++)
@@ -145,12 +145,12 @@ public sealed class InventorySlots
                                 continue;
                             if (count > maxCount)
                             {
-                                con.SetItem(i, new(maxCount, this.transfered.Item, this.transfered.Type, this.transfered.Meta));
+                                con.SetItem(i, new(maxCount, this.transfered));
                                 count -= maxCount;
                             }
                             else
                             {
-                                con.SetItem(i, new(count, this.transfered.Item, this.transfered.Type, this.transfered.Meta));
+                                con.SetItem(i, new(count, this.transfered));
                                 count = 0;
                             }
                         }
@@ -163,7 +163,7 @@ public sealed class InventorySlots
                                 if (@is != this.transfered)
                                     continue;
                                 if (count < @is.Value.Count)
-                                    (@is, count) = (new(@is.Value.Count - count, @is.Value.Item, @is.Value.Type, @is.Value.Meta), 0);
+                                    (@is, count) = (new(@is.Value.Count - count, @is.Value), 0);
                                 else
                                     (@is, count) = (null, count - @is!.Value.Count);
                                 src.SetItem(i, @is);
@@ -228,14 +228,14 @@ public sealed class InventorySlots
                             }
                             else if (maxCount > 0)
                             {
-                                inv.SetItem(i, new(@is.Value.Count - maxCount, @is.Value.Item, @is.Value.Type, @is.Value.Meta));
+                                inv.SetItem(i, new(@is.Value.Count - maxCount, @is.Value));
                                 count += maxCount;
                                 maxCount -= maxCount;
                             }
                             else if (maxCount == 0)
                                 break;
                         }
-                        transfered = new(count, transfered.Value.Item, transfered.Value.Type, transfered.Value.Meta);
+                        transfered = new(count, transfered.Value);
                     }
                 }
                 timeSinceClick = 0;
@@ -248,8 +248,7 @@ public sealed class InventorySlots
                     return;
                 if (!sItem.HasValue)
                     return;
-                sItem = new(sItem.Value.Item.MaxStackCount(sItem.Value), 
-                    sItem!.Value.Item, sItem.Value.Type, sItem.Value.Meta);
+                sItem = new(sItem.Value.Item.MaxStackCount(sItem.Value), sItem!.Value);
                 transfered = sItem;
                 break;
             case ClickEventButton.Right:
@@ -273,8 +272,8 @@ public sealed class InventorySlots
                 else if(sItem.HasValue && !transfered.HasValue)
                 {
                     var half = sItem.Value.Count % 2 == 0 ? sItem.Value.Count / 2 : (sItem.Value.Count / 2) + 1;
-                    transfered = new(half, sItem.Value.Item, sItem.Value.Type, sItem.Value.Meta);
-                    set_item(new(sItem!.Value.Count - half, sItem.Value.Item, sItem.Value.Type, sItem.Value.Meta));
+                    transfered = new(half, sItem.Value);
+                    set_item(new(sItem!.Value.Count - half, sItem.Value));
                 }
                 break;
         }
@@ -355,8 +354,8 @@ public sealed class InventorySlots
                             (ci, ct) = (maxStack, sum - maxStack);
                         else
                             (ci, ct) = (sum, 0);
-                        set_item(slots[0], new(ci, sItem!.Value.Item, sItem.Value.Type, sItem.Value.Meta));
-                        transferredItem = ct > 0 ? new(ct, transfered.Item, transfered.Type, transfered.Meta) : null;
+                        set_item(slots[0], new(ci, sItem!.Value));
+                        transferredItem = ct > 0 ? new(ct, transfered) : null;
                     }
                     else
                     {
@@ -377,8 +376,8 @@ public sealed class InventorySlots
                     {
                         foreach (var s in slots_space.Where(s => s.index < transfered.Count))
                             set_item(s.item.d, s.item.Item2.HasValue ?
-                                    new ItemStack(s.item.Item2.Value.Count + 1, s.item.Item2.Value.Item, s.item.Item2.Value.Type, s.item.Item2.Value.Meta) :
-                                    new ItemStack(1, transfered.Item, transfered.Type, transfered.Meta));
+                                    new ItemStack(s.item.Item2.Value.Count + 1, s.item.Item2.Value) :
+                                    new ItemStack(1, transfered));
                         transferredItem = null;
                     }
                     else
@@ -424,15 +423,15 @@ public sealed class InventorySlots
                             if (forEvery[s.index] == 0)
                                 foreach (var s_ in s.item.Item1)
                                     set_item(s.item.d, s.item.Item2.HasValue ?
-                                        new(s.item.Item2!.Value.Count + split, transfered.Item, transfered.Type, transfered.Meta) :
-                                        new(split, transfered.Item, transfered.Type, transfered.Meta));
+                                        new(s.item.Item2!.Value.Count + split, transfered) :
+                                        new(split, transfered));
                             else
                                 foreach (var s_ in s.item.Item1)
                                     set_item(s.item.d, s.item.Item2.HasValue ?
-                                        new(s.item.Item2!.Value.Count + split, transfered.Item, transfered.Type, transfered.Meta) :
-                                        new(split, transfered.Item, transfered.Type, transfered.Meta));
+                                        new(s.item.Item2!.Value.Count + split, transfered) :
+                                        new(split, transfered));
                         }
-                        transferredItem = rest > 0 ? new(rest, transfered.Item, transfered.Type, transfered.Meta) : null;
+                        transferredItem = rest > 0 ? new(rest, transfered) : null;
                     }
                 }
                 foreach (var s in slots)
@@ -453,8 +452,8 @@ public sealed class InventorySlots
                     else
                         (ci, ct) = (sum, 0);
                     foreach (var s in get_slot(slots[0]))
-                        (s.ItemStack, s.HardSelected) = (new(ci, sItem!.Value.Item, sItem.Value.Type, sItem.Value.Meta), true);
-                    transferSlot.ItemStack = ct > 0 ? new(ct, transfered.Item, transfered.Type, transfered.Meta) : null;
+                        (s.ItemStack, s.HardSelected) = (new(ci, sItem!.Value), true);
+                    transferSlot.ItemStack = ct > 0 ? new(ct, transfered) : null;
                 }
                 else
                 {
@@ -479,8 +478,8 @@ public sealed class InventorySlots
                         {
                             s_.HardSelected = true;
                             s_.ItemStack = s.item.Item2.HasValue ? 
-                                new ItemStack(s.item.Item2.Value.Count + 1, s.item.Item2.Value.Item, s.item.Item2.Value.Type, s.item.Item2.Value.Meta) :
-                                new ItemStack(1, transfered.Item, transfered.Type, transfered.Meta);
+                                new ItemStack(s.item.Item2.Value.Count + 1, s.item.Item2.Value) :
+                                new ItemStack(1, transfered);
                         }
                     transferSlot.ItemStack = null;
                 }
@@ -527,15 +526,15 @@ public sealed class InventorySlots
                         var new_item = forEvery[s.index] > 0 ?
                             (s.item.Item2.HasValue ?
                                 new(s.item.Item2!.Value.Count + forEvery[s.index], transfered.Item, transfered.Type, transfered.Meta) :
-                                new ItemStack(split, transfered.Item, transfered.Type, transfered.Meta)) :
+                                new ItemStack(split, transfered)) :
                             (s.item.Item2.HasValue ?
-                                new(s.item.Item2!.Value.Count + split, transfered.Item, transfered.Type, transfered.Meta) :
-                                new(split, transfered.Item, transfered.Type, transfered.Meta));
+                                new(s.item.Item2!.Value.Count + split, transfered) :
+                                new(split, transfered));
 
                         foreach (var s_ in s.item.Item1)
                             (s_.ItemStack, s_.HardSelected) = (new_item, true);
                     }
-                    transferSlot.ItemStack = rest > 0 ? new(rest, transfered.Item, transfered.Type, transfered.Meta) : null;
+                    transferSlot.ItemStack = rest > 0 ? new(rest, transfered) : null;
                 }
             }
         }
@@ -549,8 +548,8 @@ public sealed class InventorySlots
                     foreach (var s in enume.Numerate().Where(i => i.index < transfered.Count))
                     {
                         var @is = get_item(s.item);
-                        @is = @is.HasValue ? new(@is.Value.Count + 1, @is.Value.Item, @is.Value.Type, @is.Value.Meta) :
-                            new(1, transfered.Item, transfered.Type, transfered.Meta);
+                        @is = @is.HasValue ? new(@is.Value.Count + 1, @is.Value) :
+                            new(1, transfered);
                         set_item(s.item, @is);
                     }
                     transferredItem = null;
@@ -561,12 +560,12 @@ public sealed class InventorySlots
                     foreach (var s in enume)
                     {
                         var @is = get_item(s);
-                        @is = @is.HasValue ? new(@is.Value.Count + 1, @is.Value.Item, @is.Value.Type, @is.Value.Meta) :
-                            new(1, transfered.Item, transfered.Type, transfered.Meta);
+                        @is = @is.HasValue ? new(@is.Value.Count + 1, @is.Value) :
+                            new(1, transfered);
                         set_item(s, @is);
                         c--;
                     }
-                    transferredItem = c > 0 ? new(c, transfered.Item, transfered.Type, transfered.Meta) : null;
+                    transferredItem = c > 0 ? new(c, transfered) : null;
                 }
                 button = ClickEventButton.Unknown;
                 foreach (var s in slots)
@@ -582,8 +581,8 @@ public sealed class InventorySlots
                     foreach(var s in enume.Numerate().Where(i => i.index < transfered.Count))
                     {
                         var @is = get_item(s.item);
-                        @is = @is.HasValue ? new(@is.Value.Count + 1, @is.Value.Item, @is.Value.Type, @is.Value.Meta) :
-                            new(1, transfered.Item, transfered.Type, transfered.Meta);
+                        @is = @is.HasValue ? new(@is.Value.Count + 1, @is.Value) :
+                            new(1, transfered);
                         foreach (var si in get_slot(s.item))
                             (si.ItemStack, si.HardSelected) = (@is, true);
                     }
@@ -595,13 +594,13 @@ public sealed class InventorySlots
                     foreach (var s in enume)
                     {
                         var @is = get_item(s);
-                        @is = @is.HasValue ? new(@is.Value.Count + 1, @is.Value.Item, @is.Value.Type, @is.Value.Meta) :
-                            new(1, transfered.Item, transfered.Type, transfered.Meta);
+                        @is = @is.HasValue ? new(@is.Value.Count + 1, @is.Value) :
+                            new(1, transfered);
                         foreach (var si in get_slot(s))
                             (si.ItemStack, si.HardSelected) = (@is, true);
                         c--;
                     }
-                    transferSlot.ItemStack = c > 0 ? new(c, transfered.Item, transfered.Type, transfered.Meta) : null;
+                    transferSlot.ItemStack = c > 0 ? new(c, transfered) : null;
                 }
             }
         }
