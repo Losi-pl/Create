@@ -84,6 +84,8 @@ public struct ItemStack
     public ItemStack(Block block, byte type) : this(1, block, type) { }
     public ItemStack(Block block, byte type, string meta) : this(1, block, type, meta) { }
 
+    public ItemStack(uint count, ItemStack oldStack) : this(count, oldStack.Item, oldStack.Type, oldStack.Meta) { }
+
     /// <summary>
     /// Test czy Typ itemu jest zarejestrowany w rejestrze
     /// </summary>
