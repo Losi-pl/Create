@@ -1,5 +1,6 @@
 ﻿using Create.Conteiner;
 using Create.Elements;
+using Create.Linq;
 using System.Numerics;
 
 namespace Create.Space;

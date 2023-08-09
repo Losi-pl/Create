@@ -53,9 +53,9 @@ public abstract class Item : Baze
     /// </summary>
     public struct StackData
     {
-        Item item;
-        string meta;
-        byte type;
+        public Item item;
+        public string meta;
+        public byte type;
         public static implicit operator StackData(ItemStack stack) => 
             new() { item = stack.Item, meta = stack.Meta, type = stack.Type };
     }

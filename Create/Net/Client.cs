@@ -95,7 +95,7 @@ public static class Client
         var gam = OpenGL.Engine.Scean as GameView;
         if (gam is null)
             throw new Exception("Game isn't active");
-        return gam.UserInterfaces.Where(i => i.name == name).ConvertAll(i => i.user);
+        return gam.UserInterfaces.Where(i => i.name == name).Select(i => i.user);
     }
 
     /// <summary>
@@ -114,7 +114,7 @@ public static class Client
         var gam = OpenGL.Engine.Scean as GameView;
         if (gam is null)
             throw new Exception("Game isn't active");
-        return gam.UserInterfaces.Where(i => i.name == key.name).ConvertAll(i => (T)i.user);
+        return gam.UserInterfaces.Where(i => i.name == key.name).Select(i => (T)i.user);
     }
 
     /// <summary>

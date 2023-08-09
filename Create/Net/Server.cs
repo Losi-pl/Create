@@ -1,5 +1,6 @@
 ﻿using Create.Conteiner;
 using Create.Elements;
+using Create.Linq;
 using Create.Space;
 using Create.Virtuals;
 using OpenTK.Windowing.Common;
@@ -15,7 +16,7 @@ public static class Server
     /// Załadowane światy
     /// </summary>
     public static VirtualDictionaty<Dimention, DimentionSpace> Dimentions { get; } = VirtualDictionaty.Create<Dimention, DimentionSpace>()
-        .EnumerableMethod(() => ((IEnumerable<DimentionSpace>)dimentions).ConvertAll(d => new KeyValuePair<Dimention, DimentionSpace>(d.Dimention, d)))
+        .EnumerableMethod(() => dimentions.Select(d => new KeyValuePair<Dimention, DimentionSpace>(d.Dimention, d)))
         .GetMethod(n => dimentions.Find(d => d.Dimention == n, new KeyNotFoundException()))
         .IsConteinedMethod(n => dimentions.Find(d => d.Dimention == n) != null)
         .CountMethod(() => dimentions.Count)
@@ -25,7 +26,7 @@ public static class Server
     /// Połączeni gracze
     /// </summary>
     public static VirtualDictionaty<Account, Player> Players { get; } = VirtualDictionaty.Create<Account, Player>()
-        .EnumerableMethod(() => ((IEnumerable<Player>)players).ConvertAll(p => new KeyValuePair<Account, Player>(p.Account, p)))
+        .EnumerableMethod(() => players.Select(p => new KeyValuePair<Account, Player>(p.Account, p)))
         .GetMethod(a => players.Find(p => p.Account.Equals(a), new KeyNotFoundException()))
         .IsConteinedMethod(a => players.Find(p => p.Account.Equals(a)) != null)
         .CountMethod(() => players.Count)
@@ -128,7 +129,7 @@ public static class Server
                     {
                         var dimen = player.Entity!.Dimention!;
                         foreach(var ch in MathC.GetElementsFromCenter(10)
-                            .ConvertAll(ch => player.Entity!.Chunk + new ChunkPoz(ch.x, ch.y)))
+                            .Select(ch => player.Entity!.Chunk + new ChunkPoz(ch.x, ch.y)))
                         {
                             if (dimen.IsChunkLoadetOrLoading(ch))
                                 continue;

@@ -1,4 +1,5 @@
 ﻿using Create.Conteiner;
+using Create.Linq;
 using Create.OpenGL;
 using Create.OpenGL.GUI;
 using Create.Render;
@@ -173,7 +174,7 @@ public sealed class ItemSlot : Element
 
     public static IEnumerable<ItemSlot> GetAllSlots(SpacePoint point)
     {
-        return get_point(point).ConvertAll(p => p.Element as ItemSlot).Where(s => s is not null).Cast<ItemSlot>();
+        return get_point(point).Select(p => p.Element as ItemSlot).Where(s => s is not null).Cast<ItemSlot>();
 
         IEnumerable<SpacePoint> get_point(SpacePoint point)
         {
