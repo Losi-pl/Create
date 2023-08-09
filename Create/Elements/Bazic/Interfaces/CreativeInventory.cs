@@ -85,6 +85,9 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
         ci.creativeSlots = ItemSlot.GetAllSlots(ci.root.Childs.Find("Creative", true)!)
             .Select(s => (s, ((s.ID ?? 0) % 9, (s.ID ?? 0) / 9))).ToArray();
 
+        foreach (var s in ci.creativeSlots)
+            s.slot.Point!.OnClick += ci.CreativeSlot;
+
         ci.SetOfTabs(0);
         return (ci, ci.root);
     }
@@ -144,6 +147,68 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
                     s.slot.ItemStack = items[s.Item2];
                 else
                     s.slot.ItemStack = null;
+        }
+    }
+
+    public void CreativeSlot(SpacePoint point, ClickEventButton args)
+    {
+        var slot_id = creativeSlots.Find(s => s.slot.Point == point, null).index;
+        slot_id = (slot_id.x, slot_id.y + scroll_offset);
+        var i = (slot_id.y * 9) + slot_id.x;
+        ItemStack? itemStack = i < usedTab.Items.Count ? usedTab.Items[i] : null;
+        if (itemStack.HasValue)
+        {
+            if(args == ClickEventButton.Left)
+            {
+                var old = Player.Entity?.Data.Get("transferred_item") as ItemStack?;
+                if(old.HasValue)
+                {
+                    if (old == itemStack)
+                        old = new(old.Value.Count + 1 > old.Value.Item.MaxStackCount(old.Value) ? old.Value.Count : old.Value.Count + 1, old.Value);
+                    else
+                        old = null;
+                    Player.Entity?.Data.Set("transferred_item", old);
+                    return;
+                }
+                else
+                    Player.Entity?.Data.Set("transferred_item", new ItemStack(1, itemStack.Value));
+            }
+            else if(args == ClickEventButton.Scroll)
+            {
+                var old = Player.Entity?.Data.Get("transferred_item") as ItemStack?;
+                if (old.HasValue)
+                    if (old != itemStack)
+                        return;
+                Player.Entity?.Data.Set("transferred_item", new ItemStack(itemStack.Value.Item.MaxStackCount(itemStack.Value), itemStack.Value));
+            }
+            else if(args == ClickEventButton.Right)
+            {
+                var old = Player.Entity?.Data.Get("transferred_item") as ItemStack?;
+                if (!old.HasValue)
+                    return;
+                if (old.Value.Count > 1)
+                    old = new(old.Value.Count - 1, old.Value);
+                else
+                    old = null;
+                Player.Entity?.Data.Set("transferred_item", old);
+            }
+        }
+        else
+        {
+            if (args == ClickEventButton.Left)
+            {
+                Player.Entity?.Data.Set("transferred_item", itemStack);
+                return;
+            }
+            else if (args == ClickEventButton.Right)
+            {
+                var old = Player.Entity?.Data.Get("transferred_item") as ItemStack?;
+                if (!old.HasValue)
+                    return;
+                old = old.Value.Count - 1 > 0 ? new(old.Value.Count - 1, old.Value) : null;
+                Player.Entity?.Data.Set("transferred_item", old);
+                return;
+            }
         }
     }
 
