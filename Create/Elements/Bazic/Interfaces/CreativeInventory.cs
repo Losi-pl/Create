@@ -17,7 +17,6 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
 
     #nullable disable
     SpacePoint root;
-    Net.Player player;
     InventorySlots inventory;
     (ItemSlot slot, (int x, int y) index)[] creativeSlots;
     int scroll_offset = 0, lines_of_items = 5;

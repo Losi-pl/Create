@@ -8,11 +8,10 @@ namespace Create.Elements.Interfaces;
 internal sealed class InformationBars : UserInterface, IUserInterface<InformationBars>
 {
     int slot_ind;
-#nullable disable
-    Net.Player player;
+    #nullable disable
     SpacePoint statusBars;
     (ItemSlot slot, int id)[] slots;
-#nullable restore
+    #nullable restore
 
     static (InformationBars status, SpacePoint point) IUserInterface<InformationBars>.LoadInterface(InterfaceCreatorArgs args)
     {
