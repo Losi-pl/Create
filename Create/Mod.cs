@@ -4,6 +4,7 @@ using Create.Resource;
 using Create.Space;
 using System.Runtime.Versioning;
 using System.Xml.Linq;
+using Create.Linq;
 
 namespace Create;
 

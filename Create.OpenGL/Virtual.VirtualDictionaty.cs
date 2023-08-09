@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics;
 using System.Collections;
+using Create.Linq;
 
 namespace Create.Virtuals;
 
@@ -24,12 +25,12 @@ public struct VirtualDictionaty<TKey, TValue> : IDictionary<TKey, TValue>
     /// <summary>
     /// Przetwarza biblioteke w <see cref="ICollection{T}"/> wartości
     /// </summary>
-    ICollection<TValue> value_list_() => (enumerator != null ? enumerator() : Enumerable.Empty<KeyValuePair<TKey, TValue>>()).ConvertAll(t => t.Value).ToArray();
+    ICollection<TValue> value_list_() => (enumerator != null ? enumerator() : Enumerable.Empty<KeyValuePair<TKey, TValue>>()).Select(t => t.Value).ToArray();
 
     /// <summary>
     /// Przetwarza biblioteke w <see cref="ICollection{T}"/> kluczy
     /// </summary>
-    ICollection<TKey> key_list_() => (enumerator != null ? enumerator() : Enumerable.Empty<KeyValuePair<TKey, TValue>>()).ConvertAll(t => t.Key).ToArray();
+    ICollection<TKey> key_list_() => (enumerator != null ? enumerator() : Enumerable.Empty<KeyValuePair<TKey, TValue>>()).Select(t => t.Key).ToArray();
 
     /// <summary>
     /// <inheritdoc cref="Constructor.IsConteinedMethod(Func{TKey, bool})"/>
@@ -186,9 +187,9 @@ public struct VirtualDictionaty<TKey, TValue> : IDictionary<TKey, TValue>
         {
             try
             {
-#pragma warning disable CS8714
+                #pragma warning disable CS8714
                 dir = o.enumerator_().AsEnumerable().ToDictionary(v => v.Key, kvp => kvp.Value);
-#pragma warning restore CS8714
+                #pragma warning restore CS8714
             }
             catch (Exception ex)
             {

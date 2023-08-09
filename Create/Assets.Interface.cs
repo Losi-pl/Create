@@ -13,6 +13,7 @@ using System;
 using Create.Conteiner;
 using OneOf.Types;
 using static OneOf.Types.TrueFalseOrNull;
+using Create.Linq;
 
 namespace Create;
 
@@ -248,8 +249,8 @@ file static class Static
         return item is not null ? new(count, item, type, meta ?? string.Empty) : (block is not null ? new(count, block, type, meta ?? string.Empty) : null);
     }
 
-    public static readonly (SpacePoint.Anker, string name)[] ankerModes = Enum.GetValues<SpacePoint.Anker>().ConvertAll(a => (a, a.ToString().ToLower()));
-    public static readonly (Color4 color, string name)[] colors = typeof(Color4).GetProperties(BindingFlags.Static | BindingFlags.Public).ConvertAll(c => ((Color4)c.GetValue(null)!, c.Name.ToLower()));
+    public static readonly (SpacePoint.Anker, string name)[] ankerModes = Enum.GetValues<SpacePoint.Anker>().Convert(a => (a, a.ToString().ToLower()));
+    public static readonly (Color4 color, string name)[] colors = typeof(Color4).GetProperties(BindingFlags.Static | BindingFlags.Public).Convert(c => ((Color4)c.GetValue(null)!, c.Name.ToLower()));
     public static readonly (FramebufferAttachment, string name)[] framebufferAttachment = (new[] {
         (FramebufferAttachment.Aux0, "Aux0"),
         (FramebufferAttachment.Aux1, "Aux1"),
@@ -336,7 +337,7 @@ file static class Static
         (FramebufferAttachment.Stencil, "Stencil"),
         (FramebufferAttachment.StencilAttachment, "StencilAttachment"),
         (FramebufferAttachment.StencilAttachmentExt, "StencilAttachmentExt"),
-    }).ConvertAll(a => (a.Item1, a.Item2.ToLower()));
+    }).Convert(a => (a.Item1, a.Item2.ToLower()));
 
 }
 
@@ -375,7 +376,7 @@ file class ChangeEvent
             if (atr is not null)
                 c.anker = ankerModes.Find(a => a.name == atr, new("Invalid variable structure")).Item1;
         }
-        c.subElements = element.Elements("point").ConvertAll(c => Parse(c, false)).ToArray();
+        c.subElements = element.Elements("point").Select(c => Parse(c, false)).ToArray();
         val = element.Element("element");
         if (val is not null)
         {

@@ -10,6 +10,7 @@ using System.Collections;
 using System.Diagnostics;
 using Create.Sceans;
 using System.Runtime.Versioning;
+using Create.Linq;
 
 namespace Create;
 
@@ -122,7 +123,7 @@ public static class Register
     /// <param name="mod_assemblys"></param>
     internal static void load_mods((Assembly? assembly, Resources resource)[] mod_assemblys)
     {
-        var all_mods = ((IEnumerable<(Assembly? assembly, Resources resource)>)mod_assemblys).ConvertAll(z =>
+        var all_mods = ((IEnumerable<(Assembly? assembly, Resources resource)>)mod_assemblys).Select(z =>
         {
             (Assembly assembly, Resources resource) @as = (null!, z.resource);
 
@@ -144,7 +145,7 @@ public static class Register
 
             return @as;
         })
-        .ConvertAll(a =>
+        .Select(a =>
         {
             var main = find_main_class(a.assembly);
             if (!main.HasValue)
@@ -306,7 +307,7 @@ public static class Register
                 .GetMethod(n => list.Find(l => l.CodeName == n, new KeyNotFoundException()))
                 .CountMethod(() => list.Count)
                 .IsConteinedMethod(e => list.FindAny(E => E.CodeName == e))
-                .EnumerableMethod(() => ((IEnumerable<T>)list).ConvertAll(e => new KeyValuePair<string, T>(e.CodeName, e)))
+                .EnumerableMethod(() => list.Select(e => new KeyValuePair<string, T>(e.CodeName, e)))
                 .Finsh();
 
             by_id = new VirtualDictionaty<ushort, T>.Constructor()
@@ -322,7 +323,7 @@ public static class Register
                 {
                     if (!Baze.are_ids_binded)
                         throw new Exception("Id's are not binded");
-                    return ((IEnumerable<T>)list).ConvertAll(e => new KeyValuePair<ushort, T>(e.Id, e));
+                    return list.Select(e => new KeyValuePair<ushort, T>(e.Id, e));
                 })
                 .Finsh();
         }

@@ -1,6 +1,7 @@
 ﻿using Create.OpenGL;
 using Create.Render.ModelCreators.Side;
 using OpenTK.Mathematics;
+using Create.Linq;
 
 namespace Create.Render.ModelCreators.Model;
 

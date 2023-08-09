@@ -1,11 +1,12 @@
-﻿using System.Xml.Linq;
+﻿using Create.Linq;
+using System.Xml.Linq;
 
 namespace Create.OpenGL
 {
     partial class Shader
     {
-        static readonly (BlendingFactor @enum, string name)[] _blendingFactorNames = Enum.GetValues<BlendingFactor>().ConvertAll(e => (e, e.ToString().ToLower()));
-        static readonly (CullFaceMode @enum, string name)[] _cullFaceMode = Enum.GetValues<CullFaceMode>().ConvertAll(e => (e, e.ToString().ToLower()));
+        static readonly (BlendingFactor @enum, string name)[] _blendingFactorNames = Enum.GetValues<BlendingFactor>().Convert(e => (e, e.ToString().ToLower()));
+        static readonly (CullFaceMode @enum, string name)[] _cullFaceMode = Enum.GetValues<CullFaceMode>().Convert(e => (e, e.ToString().ToLower()));
 
         /// <summary>
         /// Ładowanie <see cref="Shader"/>a z <see cref="Stream"/>a

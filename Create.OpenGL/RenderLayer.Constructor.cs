@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using Create.Linq;
+using OpenTK.Mathematics;
 
 namespace Create.OpenGL;
 
@@ -96,7 +97,7 @@ partial class RenderLayer
             foreach (var uniform in uniforms)
                 test_uniform(shader, uniform.uniform);
 
-            return uniforms.ConvertAll(uniforms => (
+            return uniforms.Convert(uniforms => (
                 shader.Uniforms.Find(u => u.Name == uniforms.uniform, null).TextureNumer!.Value,
                 cons.chanels.FindAndWhere(c => c.buffer_chanel == uniforms.chanel)!.Value.index));
 

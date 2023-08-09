@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using Create.Linq;
+using OpenTK.Mathematics;
 
 namespace Create.OpenGL;
 

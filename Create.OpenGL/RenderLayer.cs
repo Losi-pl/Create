@@ -1,4 +1,5 @@
-﻿using Create.OpenGL.Textures;
+﻿using Create.Linq;
+using Create.OpenGL.Textures;
 using Create.Virtuals;
 using OpenTK.Mathematics;
 using System.Diagnostics;
@@ -112,13 +113,13 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
             var cd = buffer_creation_data;
             draw_only = cd.draw_only;
             int frame_buffer = gen_frame_buffer(cd.width, cd.height, draw_only);
-            (FramebufferAttachment chanel, int handle)[] textures = cd.chanels.ConvertAll(c => (c.buffer_chanel, gen_image_atatchment(cd.width, cd.height, draw_only, c)));
+            (FramebufferAttachment chanel, int handle)[] textures = cd.chanels.Convert(c => (c.buffer_chanel, gen_image_atatchment(cd.width, cd.height, draw_only, c)));
             int render_buffer = gen_render_buffer(cd.width, cd.height, frame_buffer);
             {
                 var error = check_status();
                 if (error.HasValue)
                 {
-                    destroy_buffers(frame_buffer, render_buffer, textures.ConvertAll(t => t.handle));
+                    destroy_buffers(frame_buffer, render_buffer, textures.Select(t => t.handle));
                     throw new Exception($"Frame buffer error:\n{error.Value}");
                 }
             }
@@ -126,13 +127,13 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
             handles = (frame_buffer, render_buffer);
             if (this.textures == null)
             {
-                this.textures = textures.ConvertAll(t => (new RenderTexture(t.handle), t.chanel));
+                this.textures = textures.Convert(t => (new RenderTexture(t.handle), t.chanel));
                 frame_buffer_textures = VirtualDictionaty.Create<FramebufferAttachment, RenderTexture>()
                     .GetMethod(c => this.textures.Find(e => e.chanel == c, new KeyNotFoundException()).texture)
                     .CountMethod(() => this.textures.Length)
                     .IsConteinedMethod(c => this.textures.FindAndWhere(e => e.chanel == c).HasValue)
                     .EnumerableMethod(() => ((IEnumerable<(RenderTexture, FramebufferAttachment)>)this.textures)
-                        .ConvertAll(e => new KeyValuePair<FramebufferAttachment, RenderTexture>(e.Item2, e.Item1)))
+                        .Select(e => new KeyValuePair<FramebufferAttachment, RenderTexture>(e.Item2, e.Item1)))
                     .Finsh();
             }
             else
@@ -170,7 +171,7 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
             GL.FramebufferTexture2D(draw_only ? FramebufferTarget.DrawFramebuffer : FramebufferTarget.Framebuffer, data.buffer_chanel, TextureTarget.Texture2D, handle, 0);
             return handle;
         }
-        void destroy_buffers(int frame_buffer, int render_buffer, int[] textures)
+        void destroy_buffers(int frame_buffer, int render_buffer, IEnumerable<int> textures)
         {
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             GL.DeleteFramebuffer(frame_buffer);

@@ -2,6 +2,9 @@ using OpenTK.Mathematics;
 
 namespace Create;
 
+/// <summary>
+/// Dodatkowe specjalne motody do obrubki danych
+/// </summary>
 public static partial class MathC
 {
     #region InSection

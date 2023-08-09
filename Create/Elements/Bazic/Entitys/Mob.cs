@@ -1,4 +1,5 @@
 using Create.Conteiner;
+using Create.Linq;
 using Create.OpenGL;
 using Create.Render;
 using Create.Space;
@@ -167,7 +168,7 @@ public abstract class Mob : Entity
                 new(1, 1, 0),
                 new(1, 1, 1),
                 new(0, 1, 1)
-            }.ConvertAll(v => (v * new Vector3(mob_size.width, mob_size.height, mob_size.width)) - new Vector3(mob_size.width / 2, 0, mob_size.width / 2)))
+            }.Convert(v => (v * new Vector3(mob_size.width, mob_size.height, mob_size.width)) - new Vector3(mob_size.width / 2, 0, mob_size.width / 2)))
             .SetTrangles(new[]
             {
                 1,4,3, 1,3,2,
@@ -176,7 +177,7 @@ public abstract class Mob : Entity
                 //1,5,8, 1,8,4,
                 //2,6,7, 2,3,7,
                 //1,5,6, 1,6,2
-            }.ConvertAll(t => --t))
+            }.Convert(t => --t))
             .Finish();
 
         return new(model);

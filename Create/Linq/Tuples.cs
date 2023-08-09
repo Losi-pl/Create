@@ -1,6 +1,6 @@
 ﻿namespace Create;
 
-partial class Special
+public static class Tuples
 {
     #region Deconstruct
     public static IEnumerable<T> Deconstruct<T>(this IEnumerable<(T, T)> values)

@@ -1,4 +1,5 @@
 ﻿using Create.Elements;
+using Create.Linq;
 using Create.Net;
 using Create.OpenGL;
 using Create.Render;
@@ -33,7 +34,7 @@ partial class GameView
             this.camera = camera;
             binded_world_layer = RenderLayer.Create().Finisch();
             nontransparent_blocks = RenderLayer.Create().Camera(camera).Finisch();
-            nontransparent_blocks.Meshes.AddRange(Client.Me.Entity!.Dimention!.AllEntities.ConvertAll(e => e.Model));
+            nontransparent_blocks.Meshes.AddRange(Client.Me.Entity!.Dimention!.AllEntities.Select(e => e.Model));
             nontransparent_blocks.Meshes.Remove(Client.Me.Entity!.Model);
             binded_world_layer.Meshes.Add(nontransparent_blocks);
             new_chunks.last = new_chunks.query;

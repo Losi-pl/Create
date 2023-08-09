@@ -13,6 +13,7 @@ using Create.OpenGL.Textures;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using System.Drawing;
+using Create.Linq;
 
 namespace Create.Sceans;
 
@@ -312,7 +313,7 @@ internal sealed partial class GameView : Scean
             var cre = Mesh.Create(shader)
                 .DrawingMode(MechDrawingMode.Line)
                 .LineThickness(2);
-            var points = rawModel.Deconstruct().ConvertAll(v => ((v.ToVector() - new Vector3(.5f)) * 1.003f + new Vector3(.5f))).ToArray();
+            var points = rawModel.Deconstruct().Select(v => ((v.ToVector() - new Vector3(.5f)) * 1.003f) + new Vector3(.5f)).ToArray();
             var index = (new Range(0, points.Length - 1)).GetEnumerable().ToArray();
 
             cre.SetVertex("poz", points);

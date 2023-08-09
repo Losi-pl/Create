@@ -1,3 +1,4 @@
+using Create.Linq;
 using Create.Resource;
 using SixLabors.ImageSharp;
 
@@ -22,8 +23,8 @@ public static partial class Assets
         resources = cons.Finish();
 
         //Methods
-        IEnumerable<Resources> all_resources() => (new[] { mod_resources(), resource_packs() }).Combine();
-        IEnumerable<Resources> mod_resources() => ((IEnumerable<Mod>)Mod.All).ConvertAll(m => m.Resources);
+        IEnumerable<Resources> all_resources() => mod_resources().Concat(resource_packs());
+        IEnumerable<Resources> mod_resources() => Mod.All.Select(m => m.Resources);
         IEnumerable<Resources> resource_packs() => Enumerable.Empty<Resources>();
     }
 

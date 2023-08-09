@@ -5,6 +5,7 @@ using Create.Conteiner;
 using Create.Net;
 using OpenTK.Graphics.OpenGL;
 using Create.Input;
+using Create.Linq;
 
 namespace Create.Elements.Interfaces;
 
@@ -41,7 +42,7 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
             ("tab10", OpenTab.Tab10),
             ("tabSearch", OpenTab.SearchTab),
             ("tabInventory", OpenTab.InventoryTab)})
-            .ConvertAll(n =>
+            .Convert(n =>
             {
                 var point = ci.root.Childs.Find(n.Item1, true);
                 point!.OnClick += (p, a) => ci.TabOpenClose(p, n.Item2, a);
