@@ -5,6 +5,7 @@ using Create.Space;
 using System.Runtime.Versioning;
 using System.Xml.Linq;
 using Create.Linq;
+using System.Runtime.InteropServices;
 
 namespace Create;
 
@@ -46,7 +47,7 @@ public sealed class Mod
     /// <summary>
     /// Wszystkie modyfikacje w grze
     /// </summary>
-    public static Mod[] All => mods.ToArray();
+    public static ReadOnlySpan<Mod> All => CollectionsMarshal.AsSpan(mods);
 
     /// <summary>
     /// Metoda dodawanie <paramref name="block"/> do rejestru
