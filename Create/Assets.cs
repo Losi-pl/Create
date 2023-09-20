@@ -24,7 +24,7 @@ public static partial class Assets
 
         //Methods
         IEnumerable<Resources> all_resources() => mod_resources().Concat(resource_packs());
-        IEnumerable<Resources> mod_resources() => Mod.All.Select(m => m.Resources);
+        IEnumerable<Resources> mod_resources() => Mod.All.ToEnumerable().Select(m => m.Resources);
         IEnumerable<Resources> resource_packs() => Enumerable.Empty<Resources>();
     }
 
