@@ -36,7 +36,7 @@ internal sealed class Loading : Scean
         if (loading_task!.IsCompleted)
         {
             if (loading_task.IsFaulted)
-                throw loading_task.Exception!;
+                throw new("Loading error", loading_task.Exception!);
             Client.load_save();
         }
     }
