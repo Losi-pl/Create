@@ -11,7 +11,8 @@ partial class CreativeTabs
             {
                 Blocks.STONE,
                 Blocks.DIRT,
-                Blocks.GRASS_BLOCK
+                Blocks.GRASS_BLOCK,
+                Blocks.BEDROCK
             }).Select(b => new ItemStack(b))
     };
 }
