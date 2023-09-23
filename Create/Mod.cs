@@ -109,7 +109,7 @@ public sealed class Mod
         if(changeEvent is null) throw new ArgumentNullException(nameof(changeEvent));
         if(changeEventParameter is null) throw new ArgumentNullException(nameof(changeEventParameter));
         if(string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
-        if (allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
+        if (!allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
 
         var code_name = $"{Name}:{name}";
         if(Assets.interfaceElementTypes.ContainsKey(code_name))
@@ -129,7 +129,7 @@ public sealed class Mod
     {
         if (parse is null) throw new ArgumentNullException(nameof(parse));
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
-        if (allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
+        if (!allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
 
         var code_name = $"{Name}:{name}";
         if (Assets.interfaceElementTypes.ContainsKey(code_name))
@@ -147,7 +147,7 @@ public sealed class Mod
     public Mod RegisterInterfaceLoadingMethod<T>(string name) where T : Element, IElementLoading<T>
     {
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
-        if (allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
+        if (!allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
 
         var code_name = $"{Name}:{name}";
         if (Assets.interfaceElementTypes.ContainsKey(code_name))
@@ -181,7 +181,7 @@ public sealed class Mod
     {
         if (element is null) throw new ArgumentNullException(nameof(element));
         if (console is null) throw new ArgumentNullException(nameof(console));
-        if (allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
+        if (!allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
         console.RegisterElement(element, name, this);
         return this;
     }
