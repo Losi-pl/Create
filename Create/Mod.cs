@@ -6,9 +6,11 @@ using System.Runtime.Versioning;
 using System.Xml.Linq;
 using Create.Linq;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace Create;
 
+[DebuggerDisplay("{debuggerDisplay, nq}")]
 public sealed class Mod
 {
     private static char[] allowedChars = 
@@ -33,6 +35,8 @@ public sealed class Mod
     /// </summary>
     /// <param name="m"></param>
     internal static void add_to_mod_list(Mod m) => mods.Add(m);
+
+    private string debuggerDisplay => $"{{Name: {mod_name}, Version: {version}}}";
 
     /// <summary>
     /// Nazwa modyfikacji
