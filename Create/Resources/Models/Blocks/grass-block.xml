@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<c:bazic xmlns:c="create">
+  <bottom type="c:single">
+    <texture>create:dirt</texture>
+  </bottom>
+  <top type="c:single-colored">
+    <texture>create:grass_block_top</texture>
+    <color>#419527</color>
+  </top>
+
+  <east type="multiple-colored">
+    <background><texture>create:dirt</texture></background>
+    <top><texture>create:grass_block_side_overlay</texture></top>
+    <color>#419527</color>
+  </east>
+  <west type="multiple-colored">
+    <background><texture>create:dirt</texture></background>
+    <top><texture>create:grass_block_side_overlay</texture></top>
+    <color>#419527</color>
+  </west>
+  <north type="multiple-colored">
+    <background><texture>create:dirt</texture></background>
+    <top><texture>create:grass_block_side_overlay</texture></top>
+    <color>#419527</color>
+  </north>
+  <south type="multiple-colored">
+    <background><texture>create:dirt</texture></background>
+    <top><texture>create:grass_block_side_overlay</texture></top>
+    <color>#419527</color>
+  </south>
+</c:bazic>

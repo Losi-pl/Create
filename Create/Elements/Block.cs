@@ -4,6 +4,7 @@ using Create.Net;
 using Create.OpenGL.GUI;
 using Create.OpenGL.Textures;
 using Create.Render;
+using Create.Render.ModelCreators.BlockModels;
 using Create.Render.ModelCreators.Model;
 using Create.Render.ModelCreators.Side;
 using Create.Space;
@@ -19,20 +20,14 @@ public abstract class Block : Baze
     //Ustawienie bazowego typu elementu na Block
     public sealed override Type ElementBazicType => typeof(Block);
 
-    #region parametry
-    BlockTextureHandle? default_textre;
-    #endregion
-
-    #region
-#pragma warning disable CS8618
-    static BlockTextureHandle null_texture = Assets.BlockAtlas.NoneHandle;
-#pragma warning restore CS8618
-    #endregion
+    static IBlockModel noModel = Assets.LoadBlockModel("create:no-model");
+    IBlockModel? model;
 
     /// <summary>
     /// Tekstura bloku
     /// </summary>
-    public BlockTextureHandle BlockTexture => default_textre ?? null_texture;
+    [Obsolete("Ta metoda jest już nie aktualna i zwraca tylko pustą teksture", true)]
+    public BlockTextureHandle BlockTexture => Assets.BlockAtlas.NoneHandle;
 
     /// <summary>
     /// Ustawia teksture bloku
@@ -40,11 +35,17 @@ public abstract class Block : Baze
     /// <param name="texture"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    protected Block SetTexture(BlockTextureHandle texture)
+    [Obsolete("Ta metoda jest już nie aktualna i nie będzie aktualizować tekstury", true)]
+    protected Block SetTexture(BlockTextureHandle texture) => this;
+
+    /// <summary>
+    /// Ustawia model używany do renderowanie bloku na scenie
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    protected Block SetModel(IBlockModel model)
     {
-        if (IsRegistered)
-            throw new Exception("Element was registered and default method was blocked");
-        default_textre = texture;
+        this.model = model;
         return this;
     }
 
@@ -61,138 +62,7 @@ public abstract class Block : Baze
     /// </summary>
     /// <param name="args">Parametry bloku</param>
     /// <param name="constructor">Konstruktor modelu terenu</param>
-    public virtual void GenerateModel(StandardBlockSet args, ModelConstructor constructor)
-    {
-        SingleTextureModel? con = null;
-        if (test_side(BlockSide.Top))
-            add_side(BlockSide.Top);
-        if (test_side(BlockSide.Bottom))
-            add_side(BlockSide.Bottom);
-        if (test_side(BlockSide.East))
-            add_side(BlockSide.East);
-        if (test_side(BlockSide.West))
-            add_side(BlockSide.West);
-        if (test_side(BlockSide.North))
-            add_side(BlockSide.North);
-        if (test_side(BlockSide.South))
-            add_side(BlockSide.South);
-
-        void add_side(BlockSide side)
-        {
-            con = con ?? constructor.GetModelMekanizm<SingleTextureModel>();
-            SingleTextureSide side_model = new()
-            {
-                pozitions = stackalloc Vector3[4],
-                uvs = stackalloc Vector2[4],
-                trangles = stackalloc int[6],
-                texture_side = args.block.Block.GetSideTexture(args, BlockSide.Top).Handle
-            };
-            side_model.uvs = stackalloc Vector2[]
-            {
-                new Vector2(0, 1),
-                new Vector2(1, 1),
-                new Vector2(0, 0),
-                new Vector2(1, 0)
-            };
-            side_model.trangles = stackalloc int[]
-            {
-                0, 1, 2,
-                3, 2, 1
-            };
-            Vector3 bl_poz = args.pozition.ToVector();
-            switch (side)
-            {
-                case BlockSide.North:
-                    side_model.pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(1, 1, 1),
-                        bl_poz + new Vector3(0, 1, 1),
-                        bl_poz + new Vector3(1, 0, 1),
-                        bl_poz + new Vector3(0, 0, 1)
-                    };
-                    break;
-                case BlockSide.South:
-                    side_model.pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(0, 1, 0),
-                        bl_poz + new Vector3(1, 1, 0),
-                        bl_poz + new Vector3(0, 0, 0),
-                        bl_poz + new Vector3(1, 0, 0)
-                    };
-                    break;
-                case BlockSide.East:
-                    side_model.pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(1, 1, 0),
-                        bl_poz + new Vector3(1, 1, 1),
-                        bl_poz + new Vector3(1, 0, 0),
-                        bl_poz + new Vector3(1, 0, 1)
-                    };
-                    break;
-                case BlockSide.West:
-                    side_model.pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(0, 1, 1),
-                        bl_poz + new Vector3(0, 1, 0),
-                        bl_poz + new Vector3(0, 0, 1),
-                        bl_poz + new Vector3(0, 0, 0)
-                    };
-                    break;
-                case BlockSide.Top:
-                    side_model.pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(0, 1, 1),
-                        bl_poz + new Vector3(1, 1, 1),
-                        bl_poz + new Vector3(0, 1, 0),
-                        bl_poz + new Vector3(1, 1, 0)
-                    };
-                    break;
-                case BlockSide.Bottom:
-                    side_model.pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(0, 0, 0),
-                        bl_poz + new Vector3(1, 0, 0),
-                        bl_poz + new Vector3(0, 0, 1),
-                        bl_poz + new Vector3(1, 0, 1)
-                    };
-                    break;
-            }
-            con.AddSide(side_model);
-        }
-        bool test_side(BlockSide side)
-        {
-            StandardBlockSet block_set = new()
-            {
-                pozition = args.pozition,
-                world = args.world
-            };
-            
-            switch (side)
-            {
-                case BlockSide.Top:
-                    block_set.pozition.y++;
-                    break;
-                case BlockSide.Bottom:
-                    block_set.pozition.y--;
-                    break;
-                case BlockSide.West:
-                    block_set.pozition.x--;
-                    break;
-                case BlockSide.East:
-                    block_set.pozition.x++;
-                    break;
-                case BlockSide.North:
-                    block_set.pozition.z++;
-                    break;
-                case BlockSide.South:
-                    block_set.pozition.z--;
-                    break;
-            }
-            PlacedBlock block = args.world.GetBlock(block_set.pozition);
-            block_set.block = block;
-            return block.Block.IsSideVisible(block_set, side);
-        }
-    }
+    public virtual void GenerateModel(StandardBlockSet args, ModelConstructor constructor) => (model ?? noModel).GenerateModel(args, constructor);
 
     /// <summary>
     /// Zwraca teksture danej ściany
@@ -200,7 +70,7 @@ public abstract class Block : Baze
     /// <param name="sideSet">Parametry bloku</param>
     /// <param name="side">Śtrona bloku</param>
     /// <returns></returns>
-    public virtual BlockTextureHandle GetSideTexture(StandardBlockSet sideSet, BlockSide side) => default_textre ?? null_texture;
+    public virtual IBlockSideModel? GetSideTexture(StandardBlockSet sideSet, BlockSide side) => (model ?? noModel).GetBlockSide(sideSet, side);
     
     /// <summary>
     /// Fizyczne bariery bloku

@@ -7,6 +7,6 @@ internal class Stone : Block
 {
     public override void OnRegistered(Mod mod)
     {
-        SetTexture(Assets.BlockAtlas.Handles["create:stone"]);
+        SetModel(Assets.LoadBlockModel("create:stone"));
     }
 }

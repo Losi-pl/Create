@@ -7,6 +7,6 @@ internal class Dirt : Block
 {
     public override void OnRegistered(Mod mod)
     {
-        SetTexture(Assets.BlockAtlas.Handles["create:dirt"]);
+        SetModel(Assets.LoadBlockModel("create:dirt"));
     }
 }

@@ -5,8 +5,10 @@ using Create.Space;
 using System.Runtime.Versioning;
 using System.Xml.Linq;
 using Create.Linq;
+using Create.Render.ModelCreators.BlockModels;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using Create.Render;
 
 namespace Create;
 
@@ -170,6 +172,28 @@ public sealed class Mod
         if (Register.userinterfaces.ContainsKey(k => k.type == typeof(T)))
             throw new ArgumentException($"Interface type {{{typeof(T)}}} is alredy registered");
         Register.userinterfaces.Add((code_name, typeof(T)), o => T.LoadInterface(o));
+        return this;
+    }
+
+    public Mod BlockModelSystem(string name, Func<XElement, IBlockModel> parse)
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
+        if (parse is null) throw new ArgumentNullException(nameof(parse));
+        if (!allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
+        if (IBlockModel.interpreters.ContainsKey((this, name))) throw new($"Element {name} is alredy registered");
+
+        IBlockModel.interpreters.Add((this, name), parse);
+        return this;
+    }
+
+    public Mod BlockSideSystem(string name, Func<XElement, IBlockSideModel> parse)
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
+        if (parse is null) throw new ArgumentNullException(nameof(parse));
+        if (!allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
+        if (IBlockSideModel.interpreters.ContainsKey((this, name))) throw new($"Element {name} is alredy registered");
+
+        IBlockSideModel.interpreters.Add((this, name), parse);
         return this;
     }
 

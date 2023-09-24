@@ -11,6 +11,8 @@ using System.Diagnostics;
 using Create.Sceans;
 using System.Runtime.Versioning;
 using Create.Linq;
+using Create.Render;
+using Create.Render.ModelCreators.BlockModels;
 
 namespace Create;
 
@@ -224,6 +226,8 @@ public static class Register
     [ModIniter]
     static void load_create(Mod mod)
     {
+        IBlockSideModel.Load(mod);
+        IBlockModel.Load(mod);
         SourceGenerators.Registers.LoadBlocks(mod);
         SourceGenerators.Registers.LoadDimentions(mod);
         SourceGenerators.Registers.LoadEntitys(mod);
