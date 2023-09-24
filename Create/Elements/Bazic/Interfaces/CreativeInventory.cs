@@ -94,6 +94,8 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
 
     public override void Update(UpdateArgs args)
     {
+        if (!args.activeInventory)
+            return;
         inventory.UpdateSlotsContent(args.time);
         if(Mouse.Scroll.Delta != 0)
         {
