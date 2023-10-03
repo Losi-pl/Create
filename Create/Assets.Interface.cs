@@ -49,6 +49,7 @@ partial class Assets
             var poz = float_parse(sizes(value(element.Element("pozition"))));
             var siz = float_parse(sizes(value(element.Element("size"))));
             var act = bool.TryParse(value(element.Element("active")) ?? string.Empty, out var v) ? v : true;
+            var @in = bool.TryParse(value(element.Element("interactable")) ?? string.Empty, out v) ? v : true;
             var nam = (element.Attribute("name")?.Value) ?? string.Empty;
             var evn = element.Element("events");
 
@@ -56,6 +57,7 @@ partial class Assets
             s.Size = (siz.x * 4, siz.y * 4);
             s.Element = elem(element.Element("element"));
             anker(element.Element("anker"));
+            s.Interactable = @in;
             s.Active = act;
             s.Name = nam;
 
