@@ -46,7 +46,7 @@ public static class Client
         var rez = func.Invoke(new() { Player = Me, AditionalParameters = sender });
 
         rez.status.bind_player(Me);
-        gam.Interface.MainElements.Find(rez.status.GetType().GetCustomAttribute<PassiveInterface>() is not null ?
+        gam.Interface.MainElements.Find(rez.status.GetType().GetCustomAttribute<PassiveInterfaceAttribute>() is not null ?
             "Passive Interface" : "Active Interface", false)?.Childs.AddChild(rez.point);
         gam.UserInterfaces.Add((name, rez.status, rez.point));
         return rez.status;
@@ -73,7 +73,7 @@ public static class Client
         var rez = func.Invoke(new() { Player = Me, AditionalParameters = sender });
 
         rez.status.bind_player(Me);
-        gam.Interface.MainElements.Find(typeof(T).GetCustomAttribute<PassiveInterface>() is not null ?
+        gam.Interface.MainElements.Find(typeof(T).GetCustomAttribute<PassiveInterfaceAttribute>() is not null ?
             "Passive Interface" : "Active Interface", false)?.Childs.AddChild(rez.point);
         gam.UserInterfaces.Add((key.name, rez.status, rez.point));
         return (T)rez.status;
