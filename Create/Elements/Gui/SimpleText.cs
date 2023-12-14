@@ -37,6 +37,7 @@ public sealed class SimpleText : Element
         _ => VerticalDirection.Center
     }; }
     public float Size { get => mesh.Size; set => mesh.Size = value; }
+    public (float Width, float Height) Dimentions => (mesh.Dimensions.width * Size, mesh.Dimensions.height * Size);
     public Color4 Color { get => mesh.Color; set => mesh.Color = value; }
     public override void Draw(Matrix4 projection)
     {

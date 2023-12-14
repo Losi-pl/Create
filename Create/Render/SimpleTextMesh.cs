@@ -15,6 +15,7 @@ namespace Create.Render
         string text = string.Empty;
         float size = 50;
         bool use_static_char_width;
+        (float x, float y) result_size;
         Font? used_font;
         Color4 color = Color4.White;
         HorizontalDirection hdir = HorizontalDirection.Rigth;
@@ -73,6 +74,7 @@ namespace Create.Render
         private Font GetFont() => used_font ?? default_font;
         public float Size { get => size; set => size = value; }
         public Color4 Color { get => color; set => color = value; }
+        public (float width, float height) Dimensions => result_size;
         private void recreate_mesh()
         {
             var f = GetFont();
@@ -81,6 +83,7 @@ namespace Create.Render
             else if (meshes.Length != f.Textures.Length)
                 meshes = new Mesh?[f.Textures.Length];
             float offset = 0;
+            float? max_offset = null;
             int line = 1;
             Dictionary<int, (List<Vector2> poz, List<Vector2> uv, List<Vector2> size, List<Vector2> offset, List<int> triangles, int new_letters)> mesh_parts = new();
             foreach (var c in text.Pattern("\n", "\r\n").Replace(C => C == '\r', '\n'))
@@ -129,6 +132,7 @@ namespace Create.Render
                             mesh_parts[i] = p;
                         }
                     }
+                    max_offset = max_offset.HasValue ? MathF.Max(offset, max_offset.Value) : offset;
                     offset = 0;
                     continue;
                 }
@@ -184,6 +188,9 @@ namespace Create.Render
                     yield return m_data.poz.Count - 4; // 1
                 }
             }
+            max_offset = max_offset.HasValue ? MathF.Max(offset, max_offset.Value) : offset;
+            max_offset -= f.Spaceing.Horizontal;
+            result_size = (max_offset.Value, line);
             if (hdir == HorizontalDirection.Left)
             {
                 offset -= f.Spaceing.Horizontal;
@@ -241,10 +248,8 @@ namespace Create.Render
                     }
                 }
             }
-
             for (int i = 0; i < meshes.Length; i++)
             { meshes[i]?.Dispose(); meshes[i] = null; }
-
             foreach (var m in mesh_parts)
             {
                 meshes[m.Key] = Mesh.Create(shader)
