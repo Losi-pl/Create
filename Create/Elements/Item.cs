@@ -40,6 +40,8 @@ public abstract class Item : Baze
     /// </summary>
     public virtual uint MaxStackCount(StackData stackData) => 64;
 
+    public virtual string GetItemName(StackData stackData, Net.Player player) => stackData.Item.CodeName;
+
     /// <summary>
     /// Używany w metodzie <see cref="GetItemModel(ItemStack, Net.Player)"/>
     /// </summary>
