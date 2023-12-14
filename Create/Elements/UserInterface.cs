@@ -34,6 +34,7 @@ public abstract class UserInterface
     {
         mod.RegisterInterface<CreativeInventory>("creativeinventory");
         mod.RegisterInterface<InformationBars>("informationbars");
+        mod.RegisterInterface<ItemDescription>("itemdescription");
     }
 
     public struct InterfaceCreatorArgs

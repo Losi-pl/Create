@@ -1,5 +1,7 @@
 ﻿using Create.Conteiner;
+using Create.Elements.Interfaces;
 using Create.Linq;
+using Create.Net;
 using Create.OpenGL;
 using Create.OpenGL.GUI;
 using Create.Render;
@@ -69,6 +71,22 @@ public sealed class ItemSlot : Element
             itemStack = value?.Item == null || value?.Count == 0 ? null : value;
             itemModel = itemStack?.Item.GetItemModel(itemStack.Value, Net.Client.Me);
             text.Text = (itemStack?.Count > 1 ? itemStack?.Count.ToString() : text.Text) ?? text.Text;
+            if(hoverd)
+            {
+                if (itemStack.HasValue)
+                {
+                    var id = Client.GetUserInterface<ItemDescription>()!;
+                    if (id is null) return;
+                    id.Visible = true;
+                    id.Text = itemStack.Value.Item.CodeName;
+                }
+                else
+                {
+                    var id = Client.GetUserInterface<ItemDescription>()!;
+                    if (id is null) return;
+                    id.Visible = false;
+                }
+            }
         }
     }
     public bool DisplayStatus
@@ -81,10 +99,20 @@ public sealed class ItemSlot : Element
     void OnEnter(SpacePoint point)
     {
         hoverd = true;
+        if (itemStack.HasValue)
+        {
+            var id = Client.GetUserInterface<ItemDescription>()!;
+            if (id is null) return;
+            id.Visible = true;
+            id.Text = itemStack.Value.Item.CodeName;
+        }
     }
     void OnExit(SpacePoint point)
     {
         hoverd = false;
+        var id = Client.GetUserInterface<ItemDescription>()!;
+        if (id is null) return;
+        id.Visible = false;
     }
 
     protected internal override void Bind(SpacePoint point)

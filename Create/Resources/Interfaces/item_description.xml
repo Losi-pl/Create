@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<point>
+  <interactable v="false"/>
+  <size v="0"/>
+  <point name="left-down">
+    <pozition v="1.5; -8.5"/>
+    <size v="3"/>
+    <anker mode="center"/>
+    <element type="create:InterfaceImage">
+      <texture v="create:gui/interface/item_description"/>
+      <pozition offset="0; 0" size="3; 3"/>
+    </element>
+  </point>
+  <point name="right-down">
+    <pozition v="8.5; -8.5"/>
+    <size v="3"/>
+    <anker mode="center"/>
+    <element type="create:InterfaceImage">
+      <texture v="create:gui/interface/item_description"/>
+      <pozition offset="7; 0" size="3; 3"/>
+    </element>
+  </point>
+  <point name="left-up">
+    <pozition v="1.5; -1.5"/>
+    <size v="3"/>
+    <anker mode="center"/>
+    <element type="create:InterfaceImage">
+      <texture v="create:gui/interface/item_description"/>
+      <pozition offset="0; 7" size="3; 3"/>
+    </element>
+  </point>
+  <point name="right-up">
+    <pozition v="8.5; -1.5"/>
+    <size v="3"/>
+    <anker mode="center"/>
+    <element type="create:InterfaceImage">
+      <texture v="create:gui/interface/item_description"/>
+      <pozition offset="7; 7" size="3; 3"/>
+    </element>
+  </point>
+
+  <point name="left">
+    <pozition v="1.5; -5"/>
+    <size v="3; 4"/>
+    <anker mode="center"/>
+    <element type="create:InterfaceImage">
+      <texture v="create:gui/interface/item_description"/>
+      <pozition offset="0; 3" size="3; 4"/>
+    </element>
+  </point>
+  <point name="right">
+    <pozition v="8.5; -5"/>
+    <size v="3; 4"/>
+    <anker mode="center"/>
+    <element type="create:InterfaceImage">
+      <texture v="create:gui/interface/item_description"/>
+      <pozition offset="7; 3" size="3; 4"/>
+    </element>
+  </point>
+  <point name="down">
+    <pozition v="5; -8.5"/>
+    <size v="4; 3"/>
+    <anker mode="center"/>
+    <element type="create:InterfaceImage">
+      <texture v="create:gui/interface/item_description"/>
+      <pozition offset="3; 0" size="4; 3"/>
+    </element>
+  </point>
+  <point name="up">
+    <pozition v="5; -1.5"/>
+    <size v="4; 3"/>
+    <anker mode="center"/>
+    <element type="create:InterfaceImage">
+      <texture v="create:gui/interface/item_description"/>
+      <pozition offset="3; 7" size="4; 3"/>
+    </element>
+  </point>
+
+  <point name="center">
+    <pozition v="5; -5"/>
+    <size v="4; 4"/>
+    <anker mode="center"/>
+    <element type="create:InterfaceImage">
+      <texture v="create:gui/interface/item_description"/>
+      <pozition offset="3; 3" size="4; 4"/>
+    </element>
+    <point>
+      <size v="4; 4"/>
+      <pozition v="0"/>
+      <anker mode="all"/>
+      <element type="create:SimpleText">
+        <text v="="/>
+        <size v="8"/>
+      </element>
+    </point>
+  </point>
+</point>
