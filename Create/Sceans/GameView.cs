@@ -22,13 +22,13 @@ internal sealed partial class GameView : Scean
     Camera camera;
     Terrain terrain;
     Interface _interface;
-    List<(string name, UserInterface user, SpacePoint point)> userInterfaces = new();
+    List<(string name, UserInterface user, SpacePoint point, bool onTop)> userInterfaces = new();
     static Shader shader = Assets.GetShader("create:selector");
     
     internal Camera Camera => camera;
     internal Terrain _Terrain => terrain;
     internal Interface Interface => _interface;
-    internal List<(string name, UserInterface user, SpacePoint point)> UserInterfaces => userInterfaces;
+    internal List<(string name, UserInterface user, SpacePoint point, bool onTop)> UserInterfaces => userInterfaces;
 
     public GameView()
     {
@@ -69,6 +69,15 @@ internal sealed partial class GameView : Scean
             {
                 Color = new Color4(0, 0, 0, .75f)
             }
+        });
+        _interface.MainElements.AddChild(new SpacePoint
+        {
+            Size = (OpenGL.Engine.Size.X + 1, OpenGL.Engine.Size.Y + 1),
+            Pozition = (0, 0),
+            Active = false,
+            Name = "Top Passive Interface",
+            AnkerMode = SpacePoint.Anker.All,
+            Interactable = false
         });
         _interface.MainElements.AddChild(new()
         {
@@ -111,11 +120,13 @@ internal sealed partial class GameView : Scean
             if(inventory)
             {
                 _interface.MainElements.Find("Active Interface")!.Active = false;
+                _interface.MainElements.Find("Top Passive Interface")!.Active = false;
                 inventory = false;
             }
             else
             {
                 _interface.MainElements.Find("Active Interface")!.Active = true;
+                _interface.MainElements.Find("Top Passive Interface")!.Active = true;
                 inventory = true;
                 Client.GetUserInterfaces().Where(i => !i.IsPassive)
                     .ForEvery(i => Client.RemoveUserInterface(i));
@@ -126,6 +137,7 @@ internal sealed partial class GameView : Scean
         {
             inventory = !inventory;
             _interface.MainElements.Find("Active Interface")!.Active = inventory;
+            _interface.MainElements.Find("Top Passive Interface")!.Active = inventory;
             if (inventory)
             {
                 var @int = Client.GetUserInterface<CreativeInventory>() ?? Client.CreateUserInterface<CreativeInventory>();

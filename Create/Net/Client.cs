@@ -47,8 +47,10 @@ public static class Client
 
         rez.status.bind_player(Me);
         gam.Interface.MainElements.Find(rez.status.GetType().GetCustomAttribute<PassiveInterfaceAttribute>() is not null ?
-            "Passive Interface" : "Active Interface", false)?.Childs.AddChild(rez.point);
-        gam.UserInterfaces.Add((name, rez.status, rez.point));
+            "Passive Interface" : 
+            (rez.status.GetType().GetCustomAttribute<OnTopInterfaceAttribute>() is not null ?
+                "Top Passive Interface" : "Active Interface"), false)?.Childs.AddChild(rez.point);
+        gam.UserInterfaces.Add((name, rez.status, rez.point, rez.status.GetType().GetCustomAttribute<OnTopInterfaceAttribute>() is not null));
         return rez.status;
     }
 
@@ -74,8 +76,10 @@ public static class Client
 
         rez.status.bind_player(Me);
         gam.Interface.MainElements.Find(typeof(T).GetCustomAttribute<PassiveInterfaceAttribute>() is not null ?
-            "Passive Interface" : "Active Interface", false)?.Childs.AddChild(rez.point);
-        gam.UserInterfaces.Add((key.name, rez.status, rez.point));
+            "Passive Interface" : 
+            (typeof(T).GetCustomAttribute<OnTopInterfaceAttribute>() is not null ? 
+                "Top Passive Interface" : "Active Interface"), false)?.Childs.AddChild(rez.point);
+        gam.UserInterfaces.Add((key.name, rez.status, rez.point, typeof(T).GetCustomAttribute<OnTopInterfaceAttribute>() is not null));
         return (T)rez.status;
     }
 
