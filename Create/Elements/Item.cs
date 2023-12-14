@@ -53,11 +53,11 @@ public abstract class Item : Baze
     /// </summary>
     public struct StackData
     {
-        public Item item;
-        public string meta;
-        public byte type;
+        public Item Item;
+        public string Meta;
+        public byte Type;
         public static implicit operator StackData(ItemStack stack) => 
-            new() { item = stack.Item, meta = stack.Meta, type = stack.Type };
+            new() { Item = stack.Item, Meta = stack.Meta, Type = stack.Type };
     }
     /// <summary>
     /// Używany w metodzie <see cref="OnClick(OnClickArgs)"/>
