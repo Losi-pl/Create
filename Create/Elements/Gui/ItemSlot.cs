@@ -78,7 +78,7 @@ public sealed class ItemSlot : Element
                     var id = Client.GetUserInterface<ItemDescription>()!;
                     if (id is null) return;
                     id.Visible = true;
-                    id.Text = itemStack.Value.Item.CodeName;
+                    id.Text = itemStack.Value.Item.GetItemName(itemStack.Value, Client.Me);
                 }
                 else
                 {
@@ -104,7 +104,7 @@ public sealed class ItemSlot : Element
             var id = Client.GetUserInterface<ItemDescription>()!;
             if (id is null) return;
             id.Visible = true;
-            id.Text = itemStack.Value.Item.CodeName;
+            id.Text = itemStack.Value.Item.GetItemName(itemStack.Value, Client.Me);
         }
     }
     void OnExit(SpacePoint point)
