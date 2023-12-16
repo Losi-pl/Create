@@ -85,9 +85,8 @@
       <pozition offset="3; 3" size="4; 4"/>
     </element>
     <point>
-      <size v="4; 4"/>
+      <size v="4"/>
       <pozition v="0"/>
-      <anker mode="all"/>
       <element type="create:SimpleText">
         <text v="="/>
         <size v="8"/>

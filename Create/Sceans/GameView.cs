@@ -89,7 +89,7 @@ internal sealed partial class GameView : Scean
             Element = new ItemSlot() { Enable = false }
         });
         Client.CreateUserInterface<InformationBars>();
-        Client.CreateUserInterface<ItemDescription>();
+        Client.CreateUserInterface<ItemDescription>().Padding = 4;
     }
 
     protected override void RenderFrame(FrameEventArgs args)
