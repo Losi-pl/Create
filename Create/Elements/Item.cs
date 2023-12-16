@@ -61,6 +61,8 @@ public abstract class Item : Baze
         public byte Type;
         public static implicit operator StackData(ItemStack stack) => 
             new() { Count = stack.Count, Item = stack.Item, Meta = stack.Meta, Type = stack.Type };
+        public static implicit operator ItemStack(StackData data) =>
+            new(data.Count, data.Item, data.Type, data.Meta);
     }
     /// <summary>
     /// Używany w metodzie <see cref="OnClick(OnClickArgs)"/>
