@@ -9,20 +9,19 @@ namespace Create.Elements.Bazic.Items;
 
 public sealed class BlockItem : Item
 {
-    public override ItemModel GetItemModel(ItemStack itemStack, Player player)
+    static Block GetBlock(StackData itemStack)
     {
-        ReadOnlySpan<char> blockName;
-        {
-            int i = itemStack.Meta.IndexOf(';');
-            blockName = i == -1 ? itemStack.Meta.AsSpan() : itemStack.Meta.AsSpan().Slice(0, i);
-        }
-        Block block;
+        int i = itemStack.Meta.IndexOf(';');
+        ReadOnlySpan<char> blockName = i == -1 ? itemStack.Meta.AsSpan() : itemStack.Meta.AsSpan().Slice(0, i);
         foreach (var b in Register.Blocks)
             if (b.CodeName.AsSpan().Equals(blockName, StringComparison.Ordinal))
-                block = b;
-
+                return b;
+        return Elements.Blocks.STONE;
+    }
+    
+    public override ItemModel GetItemModel(ItemStack itemStack, Player player)
+    {
         var model = ModelConstructor.WorldModel(new SingleBlockWorld(itemStack.AsPlacedBlock()), (0, 0), (0, 0), (0, 0));
-
         return new() { model = new BLockModel() { model = model }, statusBar = null};
     }
 
@@ -34,6 +33,12 @@ public sealed class BlockItem : Item
             return false;
         args.World.SetBlock(args.BlockArgs.Value.BlockOnSide, args.InHand.Stack.AsPlacedBlock());
         return true;
+    }
+
+    public override string GetItemName(StackData stackData, Player player)
+    {
+        var block = GetBlock(stackData);
+        return block.GetItemName(new() { Item = stackData, Player = player });
     }
 }
 

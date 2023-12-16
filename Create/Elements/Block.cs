@@ -130,6 +130,8 @@ public abstract class Block : Baze
         return false;
     }
 
+    public virtual string GetItemName(ItemName args) => CodeName;
+
     /// <summary>
     /// Używany do definiowania stron bloku
     /// </summary>
@@ -183,5 +185,12 @@ public abstract class Block : Baze
     {
         public (float x, float y, float z) pozition;
         public (float x, float y, float z) size;
+    }
+    public struct ItemName
+    {
+        public Player Player;
+        public ItemStack Item;
+        PlacedBlock? block;
+        public PlacedBlock Block { get { block = block ?? Item.AsPlacedBlock(); return block.Value; } }
     }
 }
