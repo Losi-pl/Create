@@ -213,7 +213,7 @@ public class SolidBlock : IBlockModel
             }
         }
 
-        return null;
+        return null!;
 
         Mod? find_mod(string name)
         {

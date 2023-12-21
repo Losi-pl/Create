@@ -52,7 +52,7 @@ public static partial class Assets
             load_package(resors);
             #else
             try
-            { textures(resors); }
+            { load_package(resors); }
             catch (Exception ex)
             { throw new($"Ładowanie pakietu {resors.Name} niepowiodło się", ex); }
             #endif

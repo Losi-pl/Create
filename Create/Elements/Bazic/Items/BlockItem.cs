@@ -9,7 +9,7 @@ namespace Create.Elements.Bazic.Items;
 
 public sealed class BlockItem : Item
 {
-    static Block GetBlock(StackData itemStack)
+    public static Block GetBlock(StackData itemStack)
     {
         int i = itemStack.Meta.IndexOf(';');
         ReadOnlySpan<char> blockName = i == -1 ? itemStack.Meta.AsSpan() : itemStack.Meta.AsSpan().Slice(0, i);
