@@ -14,4 +14,5 @@ public static class Blocks
     public static readonly Block DIRT = new Dirt();
     public static readonly Block GRASS_BLOCK = new GrassBlock();
     public static readonly Block BEDROCK = new Bedrock();
+    public static readonly Block OAK_PLANKS = new OakPlanks();
 }

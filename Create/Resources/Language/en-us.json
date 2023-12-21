@@ -4,7 +4,8 @@
     "stone.name": "Stone",
     "dirt.name": "Dirt",
     "grass-block.name": "Block Of Grass",
-    "bedrock.name": "Bedrock"
+    "bedrock.name": "Bedrock",
+    "oak-planks.name": "Oak Planks"
   },
   "creative-tabs": {
     "name": "Creative Tab",

@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<c:bazic xmlns:c="create">
+  <solid type="c:single">
+    <texture>create:oak_planks</texture>
+  </solid>
+</c:bazic>
