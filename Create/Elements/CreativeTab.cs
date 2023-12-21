@@ -18,4 +18,5 @@ public class CreativeTab : Baze
 
     public ReadOnlyCollection<ItemStack> Items => items!;
     public ItemStack? Icon => icon;
+    public string TabName { get; init; } = "create.creative-tabs.name";
 }

@@ -46,6 +46,14 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
                 var point = ci.root.Childs.Find(n.Item1, true);
                 point!.OnClick += (p, a) => ci.TabOpenClose(p, n.Item2, a);
                 var slot = ItemSlot.GetAllSlots(point).FirstOrDefault();
+                point!.OnEnter += (p) => (Client.GetUserInterface<ItemDescription>()!.Visible, Client.GetUserInterface<ItemDescription>()!.Text) =
+                    (true, Assets.Language.GetFromKey(n.Item2 == OpenTab.InventoryTab ? "create.creative-tabs.inventory.name" : 
+                                                      n.Item2 == OpenTab.SearchTab ? "create.creative-tabs.search-engine.name" : 
+                        Register.CreativeTabs.List[(ci.tabs_set_index * 10) + n.Item2 switch
+                          { OpenTab.Tab1 => 0, OpenTab.Tab2 => 1, OpenTab.Tab3 => 2, OpenTab.Tab4 => 3, OpenTab.Tab5 => 4,
+                            OpenTab.Tab6 => 5, OpenTab.Tab7 => 6, OpenTab.Tab8 => 7, OpenTab.Tab9 => 8, OpenTab.Tab10 => 9, _ => 0
+                          }].TabName));
+                point!.OnExit += (p) => Client.GetUserInterface<ItemDescription>()!.Visible = false;
                 return (point, slot);
             });
 
@@ -122,7 +130,9 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
         }
         else if (tab == OpenTab.SearchTab)
         {
-
+            var title = root.Childs.Find("Title", true)?.Element as SimpleText;
+            if (title is not null)
+                title.Text = Assets.Language.GetFromKey("create.creative-tabs.search-engine.name");
         }
         else
         {
@@ -144,6 +154,9 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
             var items = usedTab.Items;
             lines_of_items = ((items.Count % 9 == 0) ? (items.Count / 9) : (items.Count / 9) + 1) - (creativeSlots.Length / 9);
             lines_of_items = lines_of_items < 0 ? 0 : lines_of_items;
+            var title = root.Childs.Find("Title", true)?.Element as SimpleText;
+            if (title is not null)
+                title.Text = Assets.Language.GetFromKey(usedTab.TabName);
             foreach (var s in creativeSlots.Select(s => (s.slot, (s.index.y * 9) + s.index.x)))
                 if (s.Item2 < items.Count)
                     s.slot.ItemStack = items[s.Item2];

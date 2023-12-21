@@ -5,5 +5,11 @@
     "dirt.name": "Dirt",
     "grass-block.name": "Block Of Grass",
     "bedrock.name": "Bedrock"
+  },
+  "creative-tabs": {
+    "name": "Creative Tab",
+    "inventory.name": "Inventory",
+    "search-engine.name": "Search",
+    "blocks.name": "Building Blocks"
   }
 }

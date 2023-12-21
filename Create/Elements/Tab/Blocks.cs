@@ -13,6 +13,7 @@ partial class CreativeTabs
                 Blocks.DIRT,
                 Blocks.GRASS_BLOCK,
                 Blocks.BEDROCK
-            }).Select(b => new ItemStack(b))
+            }).Select(b => new ItemStack(b)),
+        TabName = "create.creative-tabs.blocks.name"
     };
 }
