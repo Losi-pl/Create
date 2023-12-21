@@ -130,6 +130,12 @@ public abstract class Block : Baze
         return false;
     }
 
+    public virtual bool OnPlaceBlock(PlaceBlock args)
+    {
+        args.World.SetBlock(args.TargetBlockPozition, args.BlockStack.AsPlacedBlock());
+        return true;
+    }
+
     public virtual string GetItemName(ItemName args) => Assets.Language.GetFromKey($"{Mod.Name}.blocks.{CodeElementName}.name");
 
     /// <summary>
@@ -192,5 +198,25 @@ public abstract class Block : Baze
         public ItemStack Item;
         PlacedBlock? block;
         public PlacedBlock Block { get { block = block ?? Item.AsPlacedBlock(); return block.Value; } }
+    }
+
+    public struct PlaceBlock
+    {
+        public (int x, int y, int z) TargetedBlockPozition;
+        public BlockSide TargetSide;
+        public ItemStack BlockStack;
+        public Player Player;
+        public World World;
+        public int HitBoxIndex;
+        public (int x, int y, int z) TargetBlockPozition => (TargetSide switch
+        {
+            BlockSide.Top => new(0, 1, 0),
+            BlockSide.Bottom => new(0, -1, 0),
+            BlockSide.North => new(0, 0, 1),
+            BlockSide.South => new(0, 0, -1),
+            BlockSide.West => new(-1, 0, 0),
+            BlockSide.East => new(1, 0, 0),
+            _ => new Vector3i(0)
+        } + TargetedBlockPozition.ToVector()).ToTumple();
     }
 }

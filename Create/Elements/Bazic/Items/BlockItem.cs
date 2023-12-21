@@ -31,8 +31,14 @@ public sealed class BlockItem : Item
             return base.OnClick(args);
         if (args.Button != OpenGL.GUI.ClickEventButton.Right)
             return false;
-        args.World.SetBlock(args.BlockArgs.Value.BlockOnSide, args.InHand.Stack.AsPlacedBlock());
-        return true;
+        return GetBlock(args.InHand.Stack)?.OnPlaceBlock(new() {
+            HitBoxIndex = args.BlockArgs.Value.HitBoxIndex,
+            BlockStack = args.InHand.Stack,
+            Player = args.Player,
+            TargetedBlockPozition = args.BlockArgs.Value.BlockPozition,
+            TargetSide = args.BlockArgs.Value.TargetSide,
+            World = args.World
+        }) ?? false;
     }
 
     public override string GetItemName(StackData stackData, Player player)
