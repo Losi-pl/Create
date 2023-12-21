@@ -14,5 +14,6 @@ public interface IBlockModel
     internal static void Load(Mod mod)
     {
         mod.BlockModelSystem("bazic", SolidBlock.Interpreter);
+        mod.BlockModelSystem("rotatable", RotatableBlock.Interpreter);
     }
 }
