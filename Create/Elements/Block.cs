@@ -130,7 +130,7 @@ public abstract class Block : Baze
         return false;
     }
 
-    public virtual string GetItemName(ItemName args) => CodeName;
+    public virtual string GetItemName(ItemName args) => Assets.Language.GetFromKey($"{Mod.Name}.blocks.{CodeElementName}.name");
 
     /// <summary>
     /// Używany do definiowania stron bloku

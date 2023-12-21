@@ -1,6 +1,8 @@
 using Create.Linq;
 using Create.Resource;
 using SixLabors.ImageSharp;
+using System.IO;
+using System.Text.Json.Nodes;
 
 namespace Create;
 
@@ -50,9 +52,7 @@ public static partial class Assets
             load_package(resors);
             #else
             try
-            {
-                textures(resors);
-            }
+            { textures(resors); }
             catch (Exception ex)
             { throw new($"Ładowanie pakietu {resors.Name} niepowiodło się", ex); }
             #endif
@@ -83,9 +83,45 @@ public static partial class Assets
                 #endif
             }
         }
+        void words(ResourceDirectory directory, string language)
+        {
+            string pack_name = directory.Name;
+            directory = directory.GetSubPath("language");
+            var @default = directory.GetFile("en-us");
+            var used = directory.IsPathExist(language) ? directory.GetFile(language) : null;
+            foreach (var word in get_keys(JsonNode.Parse(@default.GetStream()) as JsonObject ?? new(), string.Empty))
+                Language.AddWord($"{pack_name}.{word.key}", word.value);
+            if(used is not null)
+                foreach (var word in get_keys(JsonNode.Parse(used.GetStream()) as JsonObject ?? new(), string.Empty))
+                    Language.AddWord($"{pack_name}.{word.key}", word.value);
+
+            //Methods
+            IEnumerable<(string key, string value)> get_keys(JsonObject list, string key_dase)
+            {
+                foreach(var o in list)
+                {
+                    var name = o.Key[0] == '.' ?
+                        (o.Key[^1] == '.' ? o.Key.Substring(1, o.Key.Length - 2) : o.Key.Substring(1)) :
+                        (o.Key[^1] == '.' ? o.Key.Remove(o.Key.Length - 2) : o.Key);
+                    name = name.ToLower();
+
+                    switch (o.Value)
+                    {
+                        case JsonValue v when v.TryGetValue<string>(out var s):
+                            yield return (string.IsNullOrEmpty(key_dase) ? name : $"{key_dase}.{name}", s);
+                            break;
+                        case JsonObject so:
+                            foreach (var k in get_keys(so, string.IsNullOrEmpty(key_dase) ? name : $"{key_dase}.{name}"))
+                                yield return k;
+                            break;
+                    }
+                }
+            }
+        }
         void load_package(ResourceDirectory directory)
         {
             textures(directory);
+            words(directory, "pl-pl");
         }
         void clear_textures()
         {

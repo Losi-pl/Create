@@ -1,0 +1,9 @@
+﻿{
+  "blocks": {
+    "air.name": "Air",
+    "stone.name": "Stone",
+    "dirt.name": "Dirt",
+    "grass-block.name": "Block Of Grass",
+    "bedrock.name": "Bedrock"
+  }
+}
