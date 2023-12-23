@@ -16,4 +16,5 @@ public static class Blocks
     public static readonly Block BEDROCK = new Bedrock();
     public static readonly Block OAK_LOG = new OakLog();
     public static readonly Block OAK_PLANKS = new OakPlanks();
+    public static readonly Block CRAFTING_TABLE = new CraftingTable();
 }

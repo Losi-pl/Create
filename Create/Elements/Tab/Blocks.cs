@@ -14,7 +14,8 @@ partial class CreativeTabs
                 Blocks.GRASS_BLOCK,
                 Blocks.BEDROCK,
                 Blocks.OAK_LOG,
-                Blocks.OAK_PLANKS
+                Blocks.OAK_PLANKS,
+                Blocks.CRAFTING_TABLE
             }).Select(b => new ItemStack(b)),
         TabName = "create.creative-tabs.blocks.name"
     };
