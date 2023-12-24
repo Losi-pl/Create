@@ -2,7 +2,7 @@
 <point>
   <size v="195; 136"/>
   <element type="create:InterfaceImage">
-    <texture v="create:gui/interface/creative_inventory"/>
+    <texture v="create:gui/interface/creative/creative_inventory"/>
     <pozition offset="0; 136" size="195; 136"/>
   </element>
   <events>
@@ -527,7 +527,7 @@
       <size v="12; 15"/>
       <pozition v="0; 0"/>
       <element type="create:InterfaceImage">
-        <texture v="create:gui/interface/creative_inventory"/>
+        <texture v="create:gui/interface/creative/creative_inventory"/>
         <pozition offset="284; 255" size="12; 15"/>
       </element>
     </point>
@@ -540,7 +540,7 @@
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="195; 208" size="28; 32"/>
-        <texture v="create:gui/interface/creative_inventory"/>
+        <texture v="create:gui/interface/creative/creative_inventory"/>
       </element>
       <events>
         <change name="enable">
@@ -566,7 +566,7 @@
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="223; 240" size="28; 32"/>
-        <texture v="create:gui/interface/creative_inventory"/>
+        <texture v="create:gui/interface/creative/creative_inventory"/>
       </element>
       <events>
         <change name="enable">
@@ -592,7 +592,7 @@
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="223; 240" size="28; 32"/>
-        <texture v="create:gui/interface/creative_inventory"/>
+        <texture v="create:gui/interface/creative/creative_inventory"/>
       </element>
       <events>
         <change name="enable">
@@ -618,7 +618,7 @@
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="223; 240" size="28; 32"/>
-        <texture v="create:gui/interface/creative_inventory"/>
+        <texture v="create:gui/interface/creative/creative_inventory"/>
       </element>
       <events>
         <change name="enable">
@@ -644,7 +644,7 @@
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="223; 240" size="28; 32"/>
-        <texture v="create:gui/interface/creative_inventory"/>
+        <texture v="create:gui/interface/creative/creative_inventory"/>
       </element>
       <events>
         <change name="enable">
@@ -670,7 +670,7 @@
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="251; 240" size="28; 32"/>
-        <texture v="create:gui/interface/creative_inventory"/>
+        <texture v="create:gui/interface/creative/creative_inventory"/>
       </element>
       <events>
         <change name="enable">
@@ -699,7 +699,7 @@
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="195; 176" size="28; 32"/>
-        <texture v="create:gui/interface/creative_inventory"/>
+        <texture v="create:gui/interface/creative/creative_inventory"/>
       </element>
       <events>
         <change name="enable">
@@ -725,7 +725,7 @@
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="223; 144" size="28; 32"/>
-        <texture v="create:gui/interface/creative_inventory"/>
+        <texture v="create:gui/interface/creative/creative_inventory"/>
       </element>
       <events>
         <change name="enable">
@@ -751,7 +751,7 @@
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="223; 144" size="28; 32"/>
-        <texture v="create:gui/interface/creative_inventory"/>
+        <texture v="create:gui/interface/creative/creative_inventory"/>
       </element>
       <events>
         <change name="enable">
@@ -777,7 +777,7 @@
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="223; 144" size="28; 32"/>
-        <texture v="create:gui/interface/creative_inventory"/>
+        <texture v="create:gui/interface/creative/creative_inventory"/>
       </element>
       <events>
         <change name="enable">
@@ -803,7 +803,7 @@
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="223; 144" size="28; 32"/>
-        <texture v="create:gui/interface/creative_inventory"/>
+        <texture v="create:gui/interface/creative/creative_inventory"/>
       </element>
       <events>
         <change name="enable">
@@ -829,7 +829,7 @@
       <size v="28; 32"/>
       <element type="create:InterfaceImage">
         <pozition offset="251; 144" size="28; 32"/>
-        <texture v="create:gui/interface/creative_inventory"/>
+        <texture v="create:gui/interface/creative/creative_inventory"/>
       </element>
       <events>
         <change name="enable">

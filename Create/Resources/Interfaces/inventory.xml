@@ -3,7 +3,7 @@
   <size v="176; 166"/>
   <element type="create:InterfaceImage">
     <pozition offset="0; 90" size="176; 166"/>
-    <texture v="create:gui/interface/inventory"/>
+    <texture v="create:gui/interface/container/inventory"/>
   </element>
   <point name="Crafting book">
     <anker mode="rightup"/>
@@ -11,7 +11,7 @@
     <size v="20; 18"/>
     <element type="create:InterfaceImage">
       <pozition offset="178; 238" size="20; 18"/>
-      <texture v="create:gui/interface/inventory"/>
+      <texture v="create:gui/interface/container/inventory"/>
     </element>
   </point>
 
