@@ -13,5 +13,6 @@ internal class CraftingTable : Block
             return true;
         if (args.Button == OpenGL.GUI.ClickEventButton.Right)
             return true;
+        return false;
     }
 }
