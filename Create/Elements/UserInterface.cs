@@ -20,6 +20,7 @@ public abstract class UserInterface
     public virtual void Update(UpdateArgs args) { }
 
     public bool IsPassive => GetType().GetCustomAttribute<PassiveInterfaceAttribute>() is not null;
+    public bool IsOnTop => GetType().GetCustomAttribute<OnTopInterfaceAttribute>() is not null;
 
     public struct UpdateArgs
     {
