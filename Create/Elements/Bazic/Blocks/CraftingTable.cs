@@ -1,4 +1,7 @@
-﻿namespace Create.Elements.Bazic.Blocks;
+﻿using Create.Elements.Interfaces;
+using Create.Net;
+
+namespace Create.Elements.Bazic.Blocks;
 
 internal class CraftingTable : Block
 {
@@ -12,7 +15,13 @@ internal class CraftingTable : Block
         if (base.OnClick(args))
             return true;
         if (args.Button == OpenGL.GUI.ClickEventButton.Right)
+        {
+            foreach (var i in Client.GetUserInterfaces().Where(ui => !(ui.IsPassive || ui.IsOnTop)).ToArray())
+                Client.RemoveUserInterface(i);
+            Client.CreateUserInterface<CraftingTableInterface>((args.BlockPozition, args.World, args.Player));
+            args.Player.Entity!.Data.Set("inventory_open", true);
             return true;
+        }
         return false;
     }
 }
