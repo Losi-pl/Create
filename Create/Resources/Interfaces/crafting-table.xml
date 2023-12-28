@@ -72,6 +72,55 @@
     <point>
         <pozition v="16; 0"/>
         <size v="16"/>
+        <element type="create:Slot" id="0"></element>
+    </point>
+    <point>
+        <pozition v="34; 0"/>
+        <size v="16"/>
+        <element type="create:Slot" id="1"></element>
+    </point>
+    <point>
+        <pozition v="52; 0"/>
+        <size v="16"/>
+        <element type="create:Slot" id="2"></element>
+    </point>
+    <point>
+        <pozition v="70; 0"/>
+        <size v="16"/>
+        <element type="create:Slot" id="3"></element>
+    </point>
+    <point>
+        <pozition v="88; 0"/>
+        <size v="16"/>
+        <element type="create:Slot" id="4"></element>
+    </point>
+    <point>
+        <pozition v="106; 0"/>
+        <size v="16"/>
+        <element type="create:Slot" id="5"></element>
+    </point>
+    <point>
+        <pozition v="124; 0"/>
+        <size v="16"/>
+        <element type="create:Slot" id="6"></element>
+    </point>
+    <point>
+        <pozition v="142; 0"/>
+        <size v="16"/>
+        <element type="create:Slot" id="7"></element>
+    </point>
+    <point>
+        <pozition v="160; 0"/>
+        <size v="16"/>
+        <element type="create:Slot" id="8"></element>
+    </point>
+  </point>
+  <point name="Row 2">
+    <pozition v="0; 56"/>
+    <anker mode="leftdown"/>
+    <point>
+        <pozition v="16; 0"/>
+        <size v="16"/>
         <element type="create:Slot" id="9"></element>
     </point>
     <point>
@@ -115,8 +164,8 @@
         <element type="create:Slot" id="17"></element>
     </point>
   </point>
-  <point name="Row 2">
-    <pozition v="0; 56"/>
+  <point name="Row 3">
+    <pozition v="0; 38"/>
     <anker mode="leftdown"/>
     <point>
         <pozition v="16; 0"/>
@@ -162,55 +211,6 @@
         <pozition v="160; 0"/>
         <size v="16"/>
         <element type="create:Slot" id="26"></element>
-    </point>
-  </point>
-  <point name="Row 3">
-    <pozition v="0; 38"/>
-    <anker mode="leftdown"/>
-    <point>
-        <pozition v="16; 0"/>
-        <size v="16"/>
-        <element type="create:Slot" id="27"></element>
-    </point>
-    <point>
-        <pozition v="34; 0"/>
-        <size v="16"/>
-        <element type="create:Slot" id="28"></element>
-    </point>
-    <point>
-        <pozition v="52; 0"/>
-        <size v="16"/>
-        <element type="create:Slot" id="29"></element>
-    </point>
-    <point>
-        <pozition v="70; 0"/>
-        <size v="16"/>
-        <element type="create:Slot" id="30"></element>
-    </point>
-    <point>
-        <pozition v="88; 0"/>
-        <size v="16"/>
-        <element type="create:Slot" id="31"></element>
-    </point>
-    <point>
-        <pozition v="106; 0"/>
-        <size v="16"/>
-        <element type="create:Slot" id="32"></element>
-    </point>
-    <point>
-        <pozition v="124; 0"/>
-        <size v="16"/>
-        <element type="create:Slot" id="33"></element>
-    </point>
-    <point>
-        <pozition v="142; 0"/>
-        <size v="16"/>
-        <element type="create:Slot" id="34"></element>
-    </point>
-    <point>
-        <pozition v="160; 0"/>
-        <size v="16"/>
-        <element type="create:Slot" id="35"></element>
     </point>
   </point>
 
