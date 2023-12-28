@@ -129,7 +129,7 @@ internal sealed partial class GameView : Scean
                 _interface.MainElements.Find("Active Interface")!.Active = true;
                 _interface.MainElements.Find("Top Passive Interface")!.Active = true;
                 inventory = true;
-                Client.GetUserInterfaces().Where(i => !(ui.IsPassive || ui.IsOnTop))
+                Client.GetUserInterfaces().Where(i => !(i.IsPassive || i.IsOnTop))
                     .ForEvery(i => Client.RemoveUserInterface(i));
             }
             Client.Me.Entity!.Data.Set("inventory_open", inventory);
