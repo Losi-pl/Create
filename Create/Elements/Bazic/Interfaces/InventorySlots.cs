@@ -19,15 +19,20 @@ public sealed class InventorySlots
     public event Func<PlayerInventory>? GetPlayerInventory;
     public event Action<PlayerInventory>? SetPlayerInventory;
 
-    (ItemSlot slot, int id)[] toolBarArray, inventorySlotsArray; ItemSlot transferSlot;
+    public event Func<IItemContainer>? GetContainer;
+    public event Action<IItemContainer>? SetContainer;
+
+    (ItemSlot slot, int id)[] toolBarArray, inventorySlotsArray, conteinerSlotsArray; ItemSlot transferSlot;
     ClickEventButton button = ClickEventButton.Unknown;
-    List<(int id, bool main)> slots = new();
+    List<(int id, byte cont)> slots = new();
     ItemStack transfered;
     double timeSinceClick = 0;
 
     ToolsBar toolBar { get => GetToolBar?.Invoke() ?? new(); set => SetToolBar?.Invoke(value); }
     PlayerInventory playerInventory { get => GetPlayerInventory?.Invoke() ?? new(); set => SetPlayerInventory?.Invoke(value); }
     ItemStack? transferredItem { get => GetTransferredItem?.Invoke(); set => SetTransferredItem?.Invoke(value); }
+    IItemContainer containerItems { get => GetContainer?.Invoke() ?? IItemContainer.Empty; 
+                                    set => SetContainer?.Invoke(value == IItemContainer.Empty ? null! : value); }
 
     public InventorySlots(ItemSlot transfered, IEnumerable<(ItemSlot slot, int id)> toolBarSlots, IEnumerable<(ItemSlot slot, int id)> inventorySlots)
     {
@@ -38,28 +43,61 @@ public sealed class InventorySlots
         transferSlot = transfered;
         toolBarArray = toolBarSlots.ToArray();
         inventorySlotsArray = inventorySlots.ToArray();
+        conteinerSlotsArray = new (ItemSlot slot, int id)[0];
 
         foreach (var s in toolBarArray)
         {
-            s.slot.Point!.OnClick += (p, a) => SlotInteraction(p, (s.id, false), a);
-            s.slot.Point!.OnEnter += p => SlotEnter(p, (s.id, false));
-            s.slot.Point!.OnExit += p => SlotExit(p, (s.id, false));
+            s.slot.Point!.OnClick += (p, a) => SlotInteraction(p, (s.id, 0), a);
+            s.slot.Point!.OnEnter += p => SlotEnter(p, (s.id, 0));
+            s.slot.Point!.OnExit += p => SlotExit(p, (s.id, 0));
         }
         foreach (var s in inventorySlotsArray)
         {
-            s.slot.Point!.OnClick += (p, a) => SlotInteraction(p, (s.id, true), a);
-            s.slot.Point!.OnEnter += p => SlotEnter(p, (s.id, true));
-            s.slot.Point!.OnExit += p => SlotExit(p, (s.id, true));
+            s.slot.Point!.OnClick += (p, a) => SlotInteraction(p, (s.id, 1), a);
+            s.slot.Point!.OnEnter += p => SlotEnter(p, (s.id, 1));
+            s.slot.Point!.OnExit += p => SlotExit(p, (s.id, 1));
         }
     }
 
-    void SlotInteraction(SpacePoint point, (int id, bool main) id, ClickEventButton args)
+    public InventorySlots(ItemSlot transfered, IEnumerable<(ItemSlot slot, int id)> toolBarSlots, IEnumerable<(ItemSlot slot, int id)> inventorySlots, IEnumerable<(ItemSlot slot, int id)> containerSlots)
+    {
+        ArgumentNullException.ThrowIfNull(inventorySlots, nameof(inventorySlots));
+        ArgumentNullException.ThrowIfNull(toolBarSlots, nameof(toolBarSlots));
+        ArgumentNullException.ThrowIfNull(transfered, nameof(transfered));
+
+        transferSlot = transfered;
+        toolBarArray = toolBarSlots.ToArray();
+        inventorySlotsArray = inventorySlots.ToArray();
+        conteinerSlotsArray = containerSlots.ToArray();
+
+        foreach (var s in toolBarArray)
+        {
+            s.slot.Point!.OnClick += (p, a) => SlotInteraction(p, (s.id, 0), a);
+            s.slot.Point!.OnEnter += p => SlotEnter(p, (s.id, 0));
+            s.slot.Point!.OnExit += p => SlotExit(p, (s.id, 0));
+        }
+        foreach (var s in inventorySlotsArray)
+        {
+            s.slot.Point!.OnClick += (p, a) => SlotInteraction(p, (s.id, 1), a);
+            s.slot.Point!.OnEnter += p => SlotEnter(p, (s.id, 1));
+            s.slot.Point!.OnExit += p => SlotExit(p, (s.id, 1));
+        }
+        foreach (var s in conteinerSlotsArray)
+        {
+            s.slot.Point!.OnClick += (p, a) => SlotInteraction(p, (s.id, 2), a);
+            s.slot.Point!.OnEnter += p => SlotEnter(p, (s.id, 2));
+            s.slot.Point!.OnExit += p => SlotExit(p, (s.id, 2));
+        }
+    }
+
+    void SlotInteraction(SpacePoint point, (int id, byte cont) id, ClickEventButton args)
     {
         var slot = point.Element as ItemSlot;
         if (slot is null)
             return;
-        var inv = playerInventory;
-        var tools = toolBar;
+        IItemContainer inv = playerInventory;
+        IItemContainer tools = toolBar;
+        IItemContainer container = containerItems;
         var transfered = transferredItem;
         switch (args)
         {
@@ -72,14 +110,14 @@ public sealed class InventorySlots
                     if (timeSinceClick > 0.17)
                     {
                         button = ClickEventButton.Scroll;
-                        IItemContainer con = id.main ? tools : inv;
+                        var con = id.cont switch { 0 => tools, 1 => inv, 2 => container, _ => inv };
                         sItem = get_item();
                         if (!sItem.HasValue)
                             return;
                         uint count = sItem.Value.Count, maxCount = sItem.Value.Item.MaxStackCount(sItem.Value);
                         for (int i = 0; i < con.Length && count > 0; i++)
                         {
-                            var @is = con.GetItem(i);
+                            var @is = con.Length > i ? con.GetItem(i) : null;
                             if (!@is.HasValue)
                                 continue;
                             if (sItem != @is)
@@ -95,27 +133,23 @@ public sealed class InventorySlots
                         }
                         for (int i = 0; i < con.Length && count > 0; i++)
                         {
-                            if (con.GetItem(i).HasValue)
+                            if (con.Length > i ? con.GetItem(i).HasValue : false)
                                 continue;
                             con.SetItem(i, new(count, sItem.Value));
                             count = 0;
                             break;
                         }
-                        if (con is PlayerInventory pi)
-                            inv = pi;
-                        else if (con is ToolsBar tb)
-                            tools = tb;
                         set_item(count > 0 ? new(count, sItem.Value) : null);
                         this.transfered = sItem.Value;
                     }
                     else if(button == ClickEventButton.Scroll)
                     {
-                        IItemContainer con = id.main ? tools : inv;
-                        IItemContainer src = id.main ? inv : tools;
+                        IItemContainer con = id.cont switch { 0 => tools, 1 => inv, 2 => container, _ => inv };
+                        IItemContainer src = id.cont switch { 0 => inv, 1 => tools, 2 => container, _ => tools };
                         uint count = 0;
                         for(int i = 0; i < src.Length; i++)
                         {
-                            var @is = src.GetItem(i);
+                            var @is = src.Length > i ? src.GetItem(i) : null;
                             if (!@is.HasValue)
                                 continue;
                             if (@is != this.transfered)
@@ -126,7 +160,7 @@ public sealed class InventorySlots
                         var maxCount = this.transfered.Item.MaxStackCount(this.transfered);
                         for (int i = 0; i < con.Length && count > 0; i++)
                         {
-                            var @is = con.GetItem(i);
+                            var @is = con.Length > i ? con.GetItem(i) : null;
                             if (!@is.HasValue)
                                 continue;
                             if (this.transfered != @is)
@@ -142,7 +176,7 @@ public sealed class InventorySlots
                         }
                         for (int i = 0; i < con.Length && count > 0; i++)
                         {
-                            if (con.GetItem(i).HasValue)
+                            if (con.Length > i ? con.GetItem(i).HasValue : false)
                                 continue;
                             if (count > maxCount)
                             {
@@ -160,7 +194,7 @@ public sealed class InventorySlots
                             count = old_count - count;
                             for(int i = src.Length - 1; i > -1 && count > 0; i--)
                             {
-                                var @is = src.GetItem(i);
+                                var @is = src.Length > i ? src.GetItem(i) : null;
                                 if (@is != this.transfered)
                                     continue;
                                 if (count < @is.Value.Count)
@@ -170,15 +204,6 @@ public sealed class InventorySlots
                                 src.SetItem(i, @is);
                             }
                         }
-                        if (src is PlayerInventory pi1)
-                            playerInventory = pi1;
-                        else if (src is ToolsBar tb1)
-                            toolBar = tb1;
-                        if (con is PlayerInventory pi2)
-                            playerInventory = pi2;
-                        else if (con is ToolsBar tb2)
-                            toolBar = tb2;
-
                         button = ClickEventButton.Unknown;
                         return;
                     }
@@ -218,7 +243,7 @@ public sealed class InventorySlots
                         var count = transfered.Value.Count;
                         for (int i = 0; i < inv.Length; i++)
                         {
-                            var @is = inv.GetItem(i);
+                            var @is = inv.Length > i ? inv.GetItem(i) : null;
                             if (@is != transfered)
                                 continue;
                             if (maxCount > @is.Value.Count)
@@ -278,27 +303,30 @@ public sealed class InventorySlots
                 }
                 break;
         }
+        playerInventory = inv as PlayerInventory? ?? new();
+        toolBar = tools as ToolsBar? ?? new();
         transferredItem = transfered;
-        playerInventory = inv;
-        toolBar = tools;
+        containerItems = container;
 
-        ItemStack? get_item()
+        ItemStack? get_item() => id.cont switch
         {
-            if (id.main)
-                return inv.GetItem(id.id);
-            else
-                return tools[id.id];
-        }
+            0 => tools.Length > id.id ? tools.GetItem(id.id) : null,
+            1 => inv.Length > id.id ? inv.GetItem(id.id) : null,
+            2 => container.Length > id.id ? container.GetItem(id.id) : null,
+            _ => throw new()
+        };
         void set_item(ItemStack? item)
         {
-            if (id.main)
-                inv.SetItem(id.id, item);
-            else
-                tools[id.id] = item;
+            switch (id.cont)
+            {
+                case 0: tools.SetItem(id.id, item); break;
+                case 1: inv.SetItem(id.id, item); break;
+                case 2: container.SetItem(id.id, item); break;
+            } 
         }
     }
 
-    void SlotEnter(SpacePoint point, (int id, bool main) id)
+    void SlotEnter(SpacePoint point, (int id, byte cont) id)
     {
         if (!(button == ClickEventButton.Left || button == ClickEventButton.Right))
             return;
@@ -317,24 +345,25 @@ public sealed class InventorySlots
                 slots.Add(id);
         }
 
-        ItemStack? get_item()
+        ItemStack? get_item() => id.cont switch
         {
-            if (id.main)
-                return playerInventory.GetItem(id.id);
-            else
-                return toolBar[id.id];
-        }
+            0 => toolBar.Cast(tb => tb.Length > id.id ? tb.GetItem(id.id) : null),
+            1 => playerInventory.Cast(pi => pi.Length > id.id ? pi.GetItem(id.id) : null),
+            2 => containerItems.Cast(ct => ct.Length > id.id ? ct.GetItem(id.id) : null),
+            _ => throw new()
+        };
     }
 
-    void SlotExit(SpacePoint point, (int id, bool main) id)
+    void SlotExit(SpacePoint point, (int id, byte cont) id)
     {
 
     }
 
     public void UpdateSlotsContent(double time)
     {
-        var tool = toolBar;
-        var inv = playerInventory;
+        IItemContainer tool = toolBar;
+        IItemContainer inv = playerInventory;
+        IItemContainer container = containerItems;
         bool changet = false;
         timeSinceClick += time;
 
@@ -607,36 +636,41 @@ public sealed class InventorySlots
         }
 
         if (changet)
-            (toolBar, playerInventory) = (tool, inv);
+            (toolBar, playerInventory, containerItems) = (tool as ToolsBar? ?? new(), inv as PlayerInventory? ?? new(), container);
 
-        foreach (var s in toolBarArray.Where(s => !slots.Contains((s.id, false))))
-            s.slot.ItemStack = tool[s.id];
+        foreach (var s in toolBarArray.Where(s => !slots.Contains((s.id, 0))))
+            s.slot.ItemStack = tool.Length > s.id ? tool.GetItem(s.id) : null;
 
-        foreach (var s in inventorySlotsArray.Where(s => !slots.Contains((s.id, true))))
-            s.slot.ItemStack = inv.GetItem(s.id);
+        foreach (var s in inventorySlotsArray.Where(s => !slots.Contains((s.id, 1))))
+            s.slot.ItemStack = inv.Length > s.id ? inv.GetItem(s.id) : null;
+
+        foreach (var s in conteinerSlotsArray.Where(s => !slots.Contains((s.id, 2))))
+            s.slot.ItemStack = container.Length > s.id ? container.GetItem(s.id) : null;
         if (button == ClickEventButton.Unknown)
             transferSlot.ItemStack = transferredItem;
 
-        IEnumerable<ItemSlot> get_slot((int id, bool main) id)
+        IEnumerable<ItemSlot> get_slot((int id, byte cont) id) => id.cont switch
         {
-            if (id.main)
-                return inventorySlotsArray.Where(s => s.id == id.id).Select(s => s.slot);
-            else
-                return toolBarArray.Where(s => s.id == id.id).Select(s => s.slot);
-        }
-        ItemStack? get_item((int id, bool main) id)
+            0 => toolBarArray.Where(s => s.id == id.id).Select(s => s.slot),
+            1 => inventorySlotsArray.Where(s => s.id == id.id).Select(s => s.slot),
+            2 => conteinerSlotsArray.Where(s => s.id == id.id).Select(s => s.slot),
+            _ => throw new()
+        };
+        ItemStack? get_item((int id, byte cont) id) => id.cont switch
         {
-            if (id.main)
-                return inv.GetItem(id.id);
-            else
-                return tool.GetItem(id.id);
-        }
-        void set_item((int id, bool main) id, ItemStack? stack)
+            0 => tool.Length > id.id ? tool.GetItem(id.id) : null,
+            1 => inv.Length > id.id ? inv.GetItem(id.id) : null,
+            2 => container.Length > id.id ? container.GetItem(id.id) : null,
+            _ => throw new()
+        };
+        void set_item((int id, byte cont) id, ItemStack? stack)
         {
-            if (id.main)
-                inv.SetItem(id.id, stack);
-            else
-                tool.SetItem(id.id, stack);
+            switch (id.cont)
+            {
+                case 0: tool.SetItem(id.id, stack); break;
+                case 1: inv.SetItem(id.id, stack); break;
+                case 2: container.SetItem(id.id, stack); break;
+            } 
             changet = true;
         }
     }
