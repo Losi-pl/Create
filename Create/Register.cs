@@ -233,7 +233,7 @@ public static class Register
         SourceGenerators.Registers.LoadEntitys(mod);
         SourceGenerators.Registers.LoadItems(mod);
         SourceGenerators.Registers.LoadCreativeTabs(mod);
-        Assets.load_elements(mod);
+        Assets.LoadInterfaceElements(mod);
         UserInterface.LoadInterfaces(mod);
     }
 
