@@ -197,6 +197,22 @@ public sealed class Mod
         return this;
     }
 
+    public Mod RegisterRecipe<T>(string name, T recipe) where T : IRecipe
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
+        if (!allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
+        ArgumentNullException.ThrowIfNull(recipe, nameof(recipe));
+        if (Register.recipes.recipes.ContainsKey((this, name))) throw new($"Element {name} is alredy registered");
+
+        if (!Register.recipes.types.Any(t => t.Item1 == typeof(T) || typeof(T).IsSubclassOf(t.Item1)))
+            Register.recipes.types.Add((typeof(T), T.ProcessRecipeIngredients));
+
+        Register.recipes.recipes.Add((this, name), new() { recipe = recipe, index = 
+            Register.recipes.types.IndexOf(t => t.Item1 == typeof(T) || typeof(T).IsSubclassOf(t.Item1)) });
+        
+        return this;
+    }
+
     /// <summary>
     /// Uniwersalna metoda dodawania elementów wo rejestru
     /// </summary>
