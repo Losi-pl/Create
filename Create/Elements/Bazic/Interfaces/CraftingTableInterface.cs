@@ -57,10 +57,18 @@ internal class CraftingTableInterface : UserInterface, IUserInterface<CraftingTa
 
     class CraftingSlots : IItemContainer
     {
-        StructArray.Count9<ItemStack?> items;
 
-        public ItemStack? GetItem(int index) => items[index];
-        public void SetItem(int index, ItemStack? item) => items[index] = item;
+        public bool AnyChanges()
+        {
+            bool ch = false;
+            for (int i = 0; i < 9 && !ch; i++)
+                if (@new[i] != old[i])
+                    ch = true;
+            old = @new;
+            return ch;
+        }
+        public ItemStack? GetItem(int index) => @new[index];
+        public void SetItem(int index, ItemStack? item) => @new[index] = item;
         public int Length => 9;
     }
 }
