@@ -6,6 +6,7 @@ using Create.Net;
 using OpenTK.Graphics.OpenGL;
 using Create.Input;
 using Create.Linq;
+using Create.Elements.Recipes;
 
 namespace Create.Elements.Interfaces;
 
@@ -14,7 +15,8 @@ internal class CraftingTableInterface : UserInterface, IUserInterface<CraftingTa
     #nullable disable
     SpacePoint root;
     InventorySlots inventory;
-    CraftingSlots slots;
+    internal CraftingSlots slots;
+    (IRecipeBaze recipe, ItemStack rezult)? usedRecipe;
     #nullable restore
 
     static (CraftingTableInterface status, SpacePoint point) IUserInterface<CraftingTableInterface>.LoadInterface(InterfaceCreatorArgs args)
@@ -43,7 +45,7 @@ internal class CraftingTableInterface : UserInterface, IUserInterface<CraftingTa
         cti.inventory.SetPlayerInventory += t => cti.Player.Entity?.Data.Set("inventory", t);
 
         cti.inventory.GetContainer += () => cti.slots;
-        cti.inventory.SetContainer += c => cti.slots = c as CraftingSlots ?? new();
+        cti.inventory.SetContainer += c => { cti.slots = c as CraftingSlots ?? new(); cti.MathRecipe(); };
 
         return (cti, cti.root)!;
     }
@@ -55,8 +57,45 @@ internal class CraftingTableInterface : UserInterface, IUserInterface<CraftingTa
         inventory.UpdateSlotsContent(args.time);
     }
 
-    class CraftingSlots : IItemContainer
+    void MathRecipe()
     {
+        if (!slots.AnyChanges())
+            return;
+
+        var ingridiens = new object?[Register.recipes.types.Count];
+        var ri = new RecipeIngredients(this);
+
+        for (int i = 0; i < Register.recipes.types.Count; i++)
+            ingridiens[i] = Register.recipes.types[i].Item2.Invoke(ri);
+        (IRecipeBaze recipe, ItemStack rezult)? recipe = null;
+        foreach (var rec in Register.recipes.recipes)
+        {
+            ri.SetIngridients(ingridiens[rec.Value.index]);
+            var r = rec.Value.recipe.CheckRecipe(ri);
+            if (!r.HasValue)
+                continue;
+            recipe = (rec.Value.recipe, r.Value);
+            break;
+        }
+        if (recipe.HasValue)
+        {
+            ItemSlot.GetAllSlots(root.Childs.Find("Crafting", true) ?? new()).Find(s => s.ID == 9)
+                .ItemStack = recipe.Value.rezult;
+            usedRecipe = recipe;
+            return;
+        }
+        else
+        {
+            ItemSlot.GetAllSlots(root.Childs.Find("Crafting", true) ?? new()).Find(s => s.ID == 9)
+                .ItemStack = null;
+            usedRecipe = recipe;
+            return;
+        }
+    }
+
+    internal class CraftingSlots : IItemContainer
+    {
+        StructArray.Count9<ItemStack?> @new, old;
 
         public bool AnyChanges()
         {
