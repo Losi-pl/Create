@@ -63,7 +63,7 @@ internal class CraftingTableInterface : UserInterface, IUserInterface<CraftingTa
             return;
 
         var ingridiens = new object?[Register.recipes.types.Count];
-        var ri = new RecipeIngredients(this);
+        var ri = new RecipeIngredients(this, false);
 
         for (int i = 0; i < Register.recipes.types.Count; i++)
             ingridiens[i] = Register.recipes.types[i].Item2.Invoke(ri);
