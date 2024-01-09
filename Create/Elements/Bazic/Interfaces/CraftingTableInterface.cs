@@ -35,6 +35,14 @@ internal class CraftingTableInterface : UserInterface, IUserInterface<CraftingTa
             ItemSlot.GetAllSlots(cti.root.Childs.Find("Crafting", true) ?? new())
                 .Select(s => (s, s.ID ?? 0)).Where(s => s.Item2 < 9));
 
+        {
+            var p = ItemSlot.GetAllSlots(cti.root.Childs.Find("Crafting", true) ?? new())
+                .Find(s => s.ID == 9)?.Point;
+            if (p is not null)
+                p.OnClick += cti.CraftItem;
+        }
+        
+
         cti.inventory.GetToolBar += () => cti.Player.Entity?.Data.Get("tool_slots") as ToolsBar? ?? new();
         cti.inventory.SetToolBar += t => cti.Player.Entity?.Data.Set("tool_slots", t);
 
@@ -91,6 +99,35 @@ internal class CraftingTableInterface : UserInterface, IUserInterface<CraftingTa
             usedRecipe = recipe;
             return;
         }
+    }
+
+    void CraftItem(SpacePoint sp, ClickEventButton ceb)
+    {
+        if (!usedRecipe.HasValue)
+            return;
+        var inhandItem = Player.Entity?.Data.Get("transferred_item") as ItemStack?;
+        if(inhandItem.HasValue)
+        {
+            if (usedRecipe.Value.rezult.Item == inhandItem.Value.Item &&
+                usedRecipe.Value.rezult.Type == inhandItem.Value.Type &&
+                usedRecipe.Value.rezult.Meta == inhandItem.Value.Meta)
+            {
+                if (usedRecipe.Value.rezult.Count + inhandItem.Value.Count > inhandItem.Value.Item.MaxStackCount(inhandItem.Value))
+                    return;
+                Player.Entity?.Data.Set("transferred_item", new ItemStack(
+                    usedRecipe.Value.rezult.Count + inhandItem.Value.Count,
+                    usedRecipe.Value.rezult.Item,
+                    usedRecipe.Value.rezult.Type,
+                    usedRecipe.Value.rezult.Meta));
+            }
+        }
+        else
+            Player.Entity?.Data.Set("transferred_item", usedRecipe.Value.rezult);
+
+        var ri = new RecipeIngredients(this, true);
+        ri.SetIngridients(usedRecipe.Value.details);
+        usedRecipe.Value.recipe.UseRecipe(ri);
+        MathRecipe();
     }
 
     internal class CraftingSlots : IItemContainer
