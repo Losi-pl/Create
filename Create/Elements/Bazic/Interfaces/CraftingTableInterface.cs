@@ -16,7 +16,7 @@ internal class CraftingTableInterface : UserInterface, IUserInterface<CraftingTa
     SpacePoint root;
     InventorySlots inventory;
     internal CraftingSlots slots;
-    (IRecipeBaze recipe, ItemStack rezult)? usedRecipe;
+    (IRecipeBaze recipe, ItemStack rezult, uint uses, object? details)? usedRecipe;
     #nullable restore
 
     static (CraftingTableInterface status, SpacePoint point) IUserInterface<CraftingTableInterface>.LoadInterface(InterfaceCreatorArgs args)
@@ -67,14 +67,14 @@ internal class CraftingTableInterface : UserInterface, IUserInterface<CraftingTa
 
         for (int i = 0; i < Register.recipes.types.Count; i++)
             ingridiens[i] = Register.recipes.types[i].Item2.Invoke(ri);
-        (IRecipeBaze recipe, ItemStack rezult)? recipe = null;
+        (IRecipeBaze recipe, ItemStack rezult, uint uses, object? details)? recipe = null;
         foreach (var rec in Register.recipes.recipes)
         {
             ri.SetIngridients(ingridiens[rec.Value.index]);
             var r = rec.Value.recipe.CheckRecipe(ri);
             if (!r.HasValue)
                 continue;
-            recipe = (rec.Value.recipe, r.Value);
+            recipe = (rec.Value.recipe, r.Value.rezult, r.Value.uses, ingridiens[rec.Value.index]);
             break;
         }
         if (recipe.HasValue)

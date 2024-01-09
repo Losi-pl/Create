@@ -42,6 +42,8 @@ public abstract class Item : Baze
 
     public virtual string GetItemName(StackData stackData, Net.Player player) => stackData.Item.CodeName;
 
+    public virtual uint CraftingUses(CraftingUsesData data) => data.Stack.Count;
+
     /// <summary>
     /// Używany w metodzie <see cref="GetItemModel(ItemStack, Net.Player)"/>
     /// </summary>
@@ -74,5 +76,14 @@ public abstract class Item : Baze
         public Net.Player Player;
         public World World;
         public (int Slot, ItemStack Stack) InHand;
+    }
+    /// <summary>
+    /// Używany w metodzie <see cref="CraftingUses(CraftingUsesData)"/>
+    /// </summary>
+    public struct CraftingUsesData
+    {
+        public Net.Player Player;
+        public World World;
+        public ItemStack Stack;
     }
 }

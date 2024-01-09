@@ -13,7 +13,7 @@ namespace Create.Elements
 
     public interface IRecipeBaze
     {
-        public ItemStack? CheckRecipe(RecipeIngredients ingredients);
+        public (ItemStack rezult, uint uses)? CheckRecipe(RecipeIngredients ingredients);
         public void UseRecipe(RecipeIngredients ingredients);
     }
 }
