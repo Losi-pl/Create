@@ -208,7 +208,7 @@ public sealed class Standard : IRecipe
             if (x.item.Type < y.item.Type)
                 return 1;
 
-            it_ord = x.item.Item.CodeName.CompareTo(y.item.Item.CodeName);
+            it_ord = x.item.Meta.CompareTo(y.item.Meta);
             if (it_ord != 0)
                 return it_ord;
 
