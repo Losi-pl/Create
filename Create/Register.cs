@@ -13,6 +13,7 @@ using System.Runtime.Versioning;
 using Create.Linq;
 using Create.Render;
 using Create.Render.ModelCreators.BlockModels;
+using Create.Elements.Recipes;
 
 namespace Create;
 
@@ -34,6 +35,7 @@ public static class Register
     public static readonly ElementRegister<Item> Items = items_console.Register;
     public static readonly ElementRegister<CreativeTab> CreativeTabs = creativetab_console.Register;
 
+    internal static (Dictionary<(Mod mod, string name), (IRecipeBaze recipe, int index)> recipes, List<(Type, Func<RecipeIngredients, object?>)> types) recipes = (new(), new());
     internal static readonly Dictionary<(string name, Type type), Func<UserInterface.InterfaceCreatorArgs, (UserInterface status, OpenGL.GUI.SpacePoint point)>> userinterfaces = new();
 
     /// <summary>
@@ -233,7 +235,8 @@ public static class Register
         SourceGenerators.Registers.LoadEntitys(mod);
         SourceGenerators.Registers.LoadItems(mod);
         SourceGenerators.Registers.LoadCreativeTabs(mod);
-        Assets.load_elements(mod);
+        IRecipe.Load(mod);
+        Assets.LoadInterfaceElements(mod);
         UserInterface.LoadInterfaces(mod);
     }
 

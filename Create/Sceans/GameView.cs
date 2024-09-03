@@ -129,24 +129,30 @@ internal sealed partial class GameView : Scean
                 _interface.MainElements.Find("Active Interface")!.Active = true;
                 _interface.MainElements.Find("Top Passive Interface")!.Active = true;
                 inventory = true;
-                Client.GetUserInterfaces().Where(i => !i.IsPassive)
+                Client.GetUserInterfaces().Where(i => !(i.IsPassive || i.IsOnTop))
                     .ForEvery(i => Client.RemoveUserInterface(i));
             }
+            Client.Me.Entity!.Data.Set("inventory_open", inventory);
         }
 
         if (Keyboard.E.Down)
         {
             inventory = !inventory;
-            _interface.MainElements.Find("Active Interface")!.Active = inventory;
-            _interface.MainElements.Find("Top Passive Interface")!.Active = inventory;
             if (inventory)
             {
-                var @int = Client.GetUserInterface<CreativeInventory>() ?? Client.CreateUserInterface<CreativeInventory>();
-                @int.Tab = CreativeInventory.OpenTab.InventoryTab;
+                foreach (var i in Client.GetUserInterfaces().Where(ui => !(ui.IsPassive || ui.IsOnTop)).ToArray())
+                    Client.RemoveUserInterface(i);
+                (Client.GetUserInterface<CreativeInventory>() ?? Client.CreateUserInterface<CreativeInventory>()).Tab = 
+                    CreativeInventory.OpenTab.InventoryTab;
             }
+            Client.Me.Entity!.Data.Set("inventory_open", inventory);
+
         }
 
-        if((Mouse.Left.Down || Mouse.Right.Down || Mouse.Scroll.Down) && !inventory)
+        _interface.MainElements.Find("Active Interface")!.Active = inventory;
+        _interface.MainElements.Find("Top Passive Interface")!.Active = inventory;
+
+        if ((Mouse.Left.Down || Mouse.Right.Down || Mouse.Scroll.Down) && !inventory)
         {
             var button = Mouse.Left.Down ? ClickEventButton.Left :
                          Mouse.Right.Down ? ClickEventButton.Right :
@@ -197,6 +203,7 @@ internal sealed partial class GameView : Scean
                     Player = Client.Me,
                     World = world,
                     InHand = (inHand.Item1, inHand.Item2 ?? new(1, Items.BLOCK_ITEM))});
+            inventory = Client.Me.Entity!.Data.Get("inventory_open") as bool? ?? false;
         }
         _interface.Phizic();
         foreach (var i in userInterfaces)

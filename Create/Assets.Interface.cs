@@ -107,7 +107,7 @@ partial class Assets
         }
     }
 
-    internal static void load_elements(Mod mod)
+    internal static void LoadInterfaceElements(Mod mod)
     {
         mod.RegisterInterfaceLoadingMethod("Crosshair", 
             ChangeEventCrosshair.Parse,

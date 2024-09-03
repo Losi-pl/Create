@@ -44,6 +44,8 @@ public static class Client
         if (gam is null)
             throw new Exception("Game isn't active");
         var rez = func.Invoke(new() { Player = Me, AditionalParameters = sender });
+        if (rez.status is null || rez.point is null)
+            throw new ArgumentNullException("One of results of interface creation is not specified");
 
         rez.status.bind_player(Me);
         gam.Interface.MainElements.Find(rez.status.GetType().GetCustomAttribute<PassiveInterfaceAttribute>() is not null ?
@@ -73,6 +75,8 @@ public static class Client
         if (gam is null)
             throw new Exception("Game isn't active");
         var rez = func.Invoke(new() { Player = Me, AditionalParameters = sender });
+        if (rez.status is null || rez.point is null)
+            throw new ArgumentNullException("One of results of interface creation is not specified");
 
         rez.status.bind_player(Me);
         gam.Interface.MainElements.Find(typeof(T).GetCustomAttribute<PassiveInterfaceAttribute>() is not null ?

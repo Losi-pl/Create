@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<c:bazic xmlns:c="create">
+  
+  <bottom type="c:single">
+    <texture>create:oak_planks</texture>
+  </bottom>
+  <top type="c:single">
+    <texture>create:crafting_table_top</texture>
+  </top>
+
+  <east type="single">
+    <texture>create:crafting_table_side</texture>
+  </east>
+  <west type="single">
+    <texture>create:crafting_table_side</texture>
+  </west>
+  <north type="single">
+    <texture>create:crafting_table_side</texture>
+  </north>
+  <south type="single">
+    <texture>create:crafting_table_front</texture>
+  </south>
+</c:bazic>

@@ -6,7 +6,8 @@
     "grass-block.name": "Block Of Grass",
     "bedrock.name": "Bedrock",
     "oak-log.name": "Oak Log",
-    "oak-planks.name": "Oak Planks"
+    "oak-planks.name": "Oak Planks",
+    "crafting-table.name": "Crafting Table"
   },
   "creative-tabs": {
     "name": "Creative Tab",

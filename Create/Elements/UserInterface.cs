@@ -20,6 +20,7 @@ public abstract class UserInterface
     public virtual void Update(UpdateArgs args) { }
 
     public bool IsPassive => GetType().GetCustomAttribute<PassiveInterfaceAttribute>() is not null;
+    public bool IsOnTop => GetType().GetCustomAttribute<OnTopInterfaceAttribute>() is not null;
 
     public struct UpdateArgs
     {
@@ -35,6 +36,7 @@ public abstract class UserInterface
         mod.RegisterInterface<CreativeInventory>("creativeinventory");
         mod.RegisterInterface<InformationBars>("informationbars");
         mod.RegisterInterface<ItemDescription>("itemdescription");
+        mod.RegisterInterface<CraftingTableInterface>("crafting-table");
     }
 
     public struct InterfaceCreatorArgs
