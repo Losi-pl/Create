@@ -7,7 +7,7 @@ partial class CreativeTabs
     public static readonly CreativeTab BLOCKS = new()
     {
         RegisterElements = () =>
-            (new Block[]
+            (new[]
             {
                 Blocks.STONE,
                 Blocks.DIRT,
@@ -17,6 +17,7 @@ partial class CreativeTabs
                 Blocks.OAK_PLANKS,
                 Blocks.CRAFTING_TABLE
             }).Select(b => new ItemStack(b)),
+        CreateIcon = () => new ItemStack(Blocks.STONE),
         TabName = "create.creative-tabs.blocks.name"
     };
 }
