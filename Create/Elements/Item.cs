@@ -41,7 +41,8 @@ public abstract partial class Item : Baze
     /// </summary>
     public virtual uint MaxStackCount(StackData stackData) => 64;
 
-    public virtual string GetItemName(StackData stackData, Net.Player player) => stackData.Item.CodeName;
+    public virtual string GetItemName(StackData stackData, Net.Player player) => 
+        Assets.Language.GetFromKey($"{Mod.Name}.items.{CodeElementName}.name");
 
     public virtual uint CraftingUses(CraftingUsesData data) => data.Stack.Count;
 
