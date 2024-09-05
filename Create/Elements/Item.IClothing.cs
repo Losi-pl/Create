@@ -1,7 +1,7 @@
 ﻿using Create.Conteiner;
 using Create.Space;
 
-namespace Create.Elements.Bazic.Items;
+namespace Create.Elements.Bazic.Item;
 
 public interface IClothing
 {
