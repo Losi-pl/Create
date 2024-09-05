@@ -19,6 +19,7 @@ public interface IClothing
     [Flags]
     public enum Placement
     {
-        Head = 1, Torso = 2, Legs = 4, Feet = 8
+        Head = 1, Torso = 2, Legs = 4, Feet = 8,
+        None = 0
     }
 }
