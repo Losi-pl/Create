@@ -9,7 +9,7 @@ namespace Create.Elements;
 /// <summary>
 /// Baza do budowy itemów
 /// </summary>
-public abstract class Item : Baze
+public abstract partial class Item : Baze
 {
     //Ustawienie bazowego typu elementu na Item
     public sealed override Type ElementBazicType => typeof(Item);
@@ -20,7 +20,8 @@ public abstract class Item : Baze
     /// <param name="itemStack"></param>
     /// <param name="player"></param>
     /// <returns></returns>
-    public virtual ItemModel GetItemModel(ItemStack itemStack, Net.Player player) => new();
+    public virtual ItemModel GetItemModel(ItemStack itemStack, Net.Player player) =>
+        GenerateItemModel(CodeName.Replace('-', '_'));
 
     /// <summary>
     /// Sprawdza czy dane są takie same nie licząc ilości
