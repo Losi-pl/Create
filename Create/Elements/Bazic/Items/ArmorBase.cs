@@ -3,7 +3,7 @@ using Create.Space;
 
 namespace Create.Elements.Bazic.Items;
 
-public class ArmorBase : Item
+public interface IClothing
 {
 
     public virtual Placement GetArmorPlacement(GetArmorPlacementData data) =>
