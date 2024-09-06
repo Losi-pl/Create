@@ -41,16 +41,10 @@ internal class CraftingTableInterface : UserInterface, IUserInterface<CraftingTa
             if (p is not null)
                 p.OnClick += cti.CraftItem;
         }
-        
 
-        cti.inventory.GetToolBar += () => cti.Player.Entity?.Data.Get("tool_slots") as ToolsBar? ?? new();
-        cti.inventory.SetToolBar += t => cti.Player.Entity?.Data.Set("tool_slots", t);
-
-        cti.inventory.GetTransferredItem += () => cti.Player.Entity?.Data.Get("transferred_item") as ItemStack?;
-        cti.inventory.SetTransferredItem += i => cti.Player.Entity?.Data.Set("transferred_item", i);
-
-        cti.inventory.GetPlayerInventory += () => cti.Player.Entity?.Data.Get("inventory") as PlayerInventory? ?? new();
-        cti.inventory.SetPlayerInventory += t => cti.Player.Entity?.Data.Set("inventory", t);
+        cti.inventory.DefaultBindPlayerInventory(cti.Player);
+        cti.inventory.DefaultBindTransferredItem(cti.Player);
+        cti.inventory.DefaultBindToolBar(cti.Player);
 
         cti.inventory.GetContainer += () => cti.slots;
         cti.inventory.SetContainer += c => { cti.slots = c as CraftingSlots ?? new(); cti.MathRecipe(); };

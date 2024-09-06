@@ -81,14 +81,9 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
                 .Select(s => (s, s.ID ?? 0))
                 .Where(s => s.Item2 < 27));
 
-        ci.inventory.GetToolBar += () => ci.Player.Entity?.Data.Get("tool_slots") as ToolsBar? ?? new();
-        ci.inventory.SetToolBar += t  => ci.Player.Entity?.Data.Set("tool_slots", t);
-
-        ci.inventory.GetTransferredItem += () => ci.Player.Entity?.Data.Get("transferred_item") as ItemStack?;
-        ci.inventory.SetTransferredItem += i  => ci.Player.Entity?.Data.Set("transferred_item", i);
-
-        ci.inventory.GetPlayerInventory += () => ci.Player.Entity?.Data.Get("inventory") as PlayerInventory? ?? new();
-        ci.inventory.SetPlayerInventory += t => ci.Player.Entity?.Data.Set("inventory", t);
+        ci.inventory.DefaultBindPlayerInventory(ci.Player);
+        ci.inventory.DefaultBindTransferredItem(ci.Player);
+        ci.inventory.DefaultBindToolBar(ci.Player);
 
         ci.creativeSlots = ItemSlot.GetAllSlots(ci.root.Childs.Find("Creative", true)!)
             .Select(s => (s, ((s.ID ?? 0) % 9, (s.ID ?? 0) / 9))).ToArray();

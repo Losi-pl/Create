@@ -674,4 +674,21 @@ public sealed class InventorySlots
             changet = true;
         }
     }
+
+
+    public void DefaultBindPlayerInventory(Player player, string key = "inventory")
+    {
+        GetPlayerInventory += () => player.Entity?.Data.Get(key) as PlayerInventory? ?? new();
+        SetPlayerInventory += t => player.Entity?.Data.Set(key, t);
+    }
+    public void DefaultBindToolBar(Player player, string key = "tool_slots")
+    {
+        GetToolBar += () => player.Entity?.Data.Get(key) as ToolsBar? ?? new();
+        SetToolBar += t => player.Entity?.Data.Set(key, t);
+    }
+    public void DefaultBindTransferredItem(Player player, string key = "transferred_item")
+    {
+        GetTransferredItem += () => player.Entity?.Data.Get(key) as ItemStack? ?? new();
+        SetTransferredItem += t => player.Entity?.Data.Set(key, t);
+    }
 }
