@@ -678,17 +678,17 @@ public sealed class InventorySlots
 
     public void DefaultBindPlayerInventory(Player player, string key = "inventory")
     {
-        GetPlayerInventory += () => player.Entity?.Data.Get(key) as PlayerInventory? ?? new();
+        GetPlayerInventory += () => player.Entity?.Data.Get(key) as PlayerInventory? ?? default;
         SetPlayerInventory += t => player.Entity?.Data.Set(key, t);
     }
     public void DefaultBindToolBar(Player player, string key = "tool_slots")
     {
-        GetToolBar += () => player.Entity?.Data.Get(key) as ToolsBar? ?? new();
+        GetToolBar += () => player.Entity?.Data.Get(key) as ToolsBar? ?? default;
         SetToolBar += t => player.Entity?.Data.Set(key, t);
     }
     public void DefaultBindTransferredItem(Player player, string key = "transferred_item")
     {
-        GetTransferredItem += () => player.Entity?.Data.Get(key) as ItemStack? ?? new();
+        GetTransferredItem += () => player.Entity?.Data.Get(key) as ItemStack?;
         SetTransferredItem += t => player.Entity?.Data.Set(key, t);
     }
 }
