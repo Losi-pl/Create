@@ -691,4 +691,10 @@ public sealed class InventorySlots
         GetTransferredItem += () => player.Entity?.Data.Get(key) as ItemStack?;
         SetTransferredItem += t => player.Entity?.Data.Set(key, t);
     }
+
+    public void DefaultBindContainer<T>(Player player, string key) where T : struct, IItemContainer
+    {
+        GetContainer += () => player.Entity?.Data.Get(key) as T? ?? default;
+        SetContainer += t => player.Entity?.Data.Set(key, t as T? ?? default);
+    }
 }
