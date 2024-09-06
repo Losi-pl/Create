@@ -41,7 +41,7 @@ public abstract class UserInterface
 
     public struct InterfaceCreatorArgs
     {
-        public object? AditionalParameters;
-        public Net.Player Player;
+        public object? AditionalParameters { get; set; }
+        public Net.Player Player { get; set; }
     }
 }

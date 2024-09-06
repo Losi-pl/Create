@@ -62,10 +62,10 @@ public abstract partial class Item : Baze
     /// </summary>
     public struct StackData
     {
-        public uint Count;
-        public Item Item;
-        public string Meta;
-        public byte Type;
+        public uint Count { get; set; }
+        public Item Item { get; set; }
+        public string Meta { get; set; }
+        public byte Type { get; set; }
         public static implicit operator StackData(ItemStack stack) => 
             new() { Count = stack.Count, Item = stack.Item, Meta = stack.Meta, Type = stack.Type };
         public static implicit operator ItemStack(StackData data) =>
@@ -76,28 +76,28 @@ public abstract partial class Item : Baze
     /// </summary>
     public struct OnClickArgs
     {
-        public ClickEventButton Button;
-        public Block.OnClickArgs? BlockArgs;
-        public Net.Player Player;
-        public World World;
-        public (int Slot, ItemStack Stack) InHand;
+        public ClickEventButton Button { get; set; }
+        public Block.OnClickArgs? BlockArgs { get; set; }
+        public Net.Player Player { get; set; }
+        public World World { get; set; }
+        public (int Slot, ItemStack Stack) InHand { get; set; }
     }
     /// <summary>
     /// Używany w metodzie <see cref="CraftingUses(CraftingUsesData)"/>
     /// </summary>
     public struct CraftingUsesData
     {
-        public Net.Player Player;
-        public World World;
-        public ItemStack Stack;
+        public Net.Player Player { get; set; }
+        public World World { get; set; }
+        public ItemStack Stack { get; set; }
     }
     /// <summary>
     /// Używany w metodzie <see cref="CraftingUses(CraftingUsesData)"/>
     /// </summary>
     public struct UsedInCraftingData
     {
-        public Net.Player Player;
-        public World World;
-        public ItemStack Stack;
+        public Net.Player Player { get; set; }
+        public World World { get; set; }
+        public ItemStack Stack { get; set; }
     }
 }
