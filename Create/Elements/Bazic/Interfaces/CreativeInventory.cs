@@ -81,9 +81,9 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
                 .Select(s => (s, s.ID ?? 0))
                 .Where(s => s.Item2 < 27));
 
-        ci.inventory.DefaultBindPlayerInventory(ci.Player);
-        ci.inventory.DefaultBindTransferredItem(ci.Player);
-        ci.inventory.DefaultBindToolBar(ci.Player);
+        ci.inventory.DefaultBindPlayerInventory(args.Player);
+        ci.inventory.DefaultBindTransferredItem(args.Player);
+        ci.inventory.DefaultBindToolBar(args.Player);
 
         ci.creativeSlots = ItemSlot.GetAllSlots(ci.root.Childs.Find("Creative", true)!)
             .Select(s => (s, ((s.ID ?? 0) % 9, (s.ID ?? 0) / 9))).ToArray();

@@ -42,9 +42,9 @@ internal class CraftingTableInterface : UserInterface, IUserInterface<CraftingTa
                 p.OnClick += cti.CraftItem;
         }
 
-        cti.inventory.DefaultBindPlayerInventory(cti.Player);
-        cti.inventory.DefaultBindTransferredItem(cti.Player);
-        cti.inventory.DefaultBindToolBar(cti.Player);
+        cti.inventory.DefaultBindPlayerInventory(args.Player);
+        cti.inventory.DefaultBindTransferredItem(args.Player);
+        cti.inventory.DefaultBindToolBar(args.Player);
 
         cti.inventory.GetContainer += () => cti.slots;
         cti.inventory.SetContainer += c => { cti.slots = c as CraftingSlots ?? new(); cti.MathRecipe(); };
