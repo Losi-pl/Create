@@ -298,9 +298,11 @@ internal sealed partial class GameView : Scean
                 if (!int_mod_com)
                 {
                     var new_model = generateSelectionModel(int_mod);
+                    terrain.RemoveModel(current.Value.model);
                     current.Value.model.Dispose();
-                    current = (new_model, current.Value.values, (b, collizion.Value.pozition));
+                    current = (new_model, int_mod.ToArray(), (b, collizion.Value.pozition));
                     new_model.Position = collizion.Value.pozition.ToVector().ToVector3();
+                    terrain.AddModel(new_model);
                 }
                 else
                 {
