@@ -17,6 +17,7 @@ partial class CreativeTabs
                 Blocks.OAK_PLANKS,
                 Blocks.CRAFTING_TABLE,
                 Blocks.STONE_SLAB,
+                Blocks.OAK_PLANKS_SLAB,
             }).Select(b => new ItemStack(b)),
         CreateIcon = () => new ItemStack(Blocks.STONE),
         TabName = "create.creative-tabs.blocks.name"
