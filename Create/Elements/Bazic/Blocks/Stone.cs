@@ -3,7 +3,7 @@ using SixLabors.ImageSharp;
 
 namespace Create.Elements.Bazic.Blocks;
 
-internal class Stone : Block
+internal partial class Stone : Block
 {
     public override void OnRegistered(Mod mod)
     {
