@@ -164,6 +164,7 @@ public abstract class Block : Baze
         public World World;
         public int HitBoxIndex;
         public (int Slot, ItemStack? Stack) InHand;
+        public Vector3 InWorldPoint { get; set; }
         public (int x, int y, int z) BlockOnSide => (TargetSide switch
         {
             BlockSide.Top => new(0, 1, 0),

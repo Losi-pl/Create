@@ -171,6 +171,7 @@ internal sealed partial class GameView : Scean
                     HitBoxIndex = interaction.Value.HitBoxIndex,
                     BlockPozition = interaction.Value.BlockPozition,
                     TargetSide = interaction.Value.BlockSide,
+                    InWorldPoint = interaction.Value.HitPoint,
                     Player = Client.Me,
                     Button = button,
                     Block = block,
