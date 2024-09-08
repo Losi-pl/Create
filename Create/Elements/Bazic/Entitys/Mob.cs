@@ -630,7 +630,7 @@ public abstract class Mob : Entity
     /// <param name="entity"></param>
     /// <param name="distance"></param>
     /// <returns></returns>
-    public static ((int x, int y, int z) pozition, int hitBoxNumer, Block.BlockSide side)? ImLookingAt(LivingEntity entity, float distance)
+    public static ImLookingAtRezult? ImLookingAt(LivingEntity entity, float distance)
     {
         if (entity.Dimention == null)
             throw new("Entity need to be in dimention");
@@ -655,7 +655,7 @@ public abstract class Mob : Entity
     /// <param name="lootRotation">Orjentacja promienia dla interakcji</param>
     /// <param name="distance">Odległość na której interakcja będzie sprawdzana</param>
     /// <returns></returns>
-    public static ((int x, int y, int z) pozition, int hitBoxNumer, Block.BlockSide side)? ImLookingAt(World world, Vector3 start, Vector2 lootRotation, float distance)
+    public static ImLookingAtRezult? ImLookingAt(World world, Vector3 start, Vector2 lootRotation, float distance)
     {
         var ray = MathC.CreateRay(start, lootRotation, distance);
         foreach(var bl_poz in MathC.CollidBlocks(start, lootRotation, distance))
@@ -686,9 +686,23 @@ public abstract class Mob : Entity
                 }
             }
             if(collizion.HasValue)
-                return (bl_poz.ToTumple(), collizion.Value.collider.index, collizion.Value.collider.side);
+                return new(bl_poz.ToTumple(), collizion.Value.collider.index, collizion.Value.collider.side);
         }
 
         return null;
+    }
+
+    public struct ImLookingAtRezult
+    {
+        public ImLookingAtRezult((int x, int y, int z) blockPozition, int hitBoxIndex, Block.BlockSide blockSide)
+        {
+            BlockPozition = blockPozition;
+            HitBoxIndex = hitBoxIndex;
+            BlockSide = blockSide;
+        }
+
+        public (int x, int y, int z) BlockPozition { get; set; }
+        public int HitBoxIndex { get; set; }
+        public Block.BlockSide BlockSide { get; set; }
     }
 }
