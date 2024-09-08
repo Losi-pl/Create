@@ -262,7 +262,7 @@ internal sealed partial class GameView : Scean
     }
     Matrix4 Projection => Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, OpenGL.Engine.Size.X / (float)OpenGL.Engine.Size.Y, .01f, 10000f);
 
-    (Mesh model, ((float x, float y, float z) start, (float x, float y, float z) end)[] values, (PlacedBlock block, (int x, int y, int z) poz) block)? current;
+    (Mesh model, ((float x, float y, float z) start, (float x, float y, float z) end)[] values, (PlacedBlock block, (int x, int y, int z) poz, int hitBoxIndex) block)? current;
     void UpdateInteractionPointer(ImLookingAtRezult? collizion)
     {
         if (!current.HasValue && !collizion.HasValue)
@@ -282,7 +282,7 @@ internal sealed partial class GameView : Scean
             var int_mod = b.Block.GetInteractionModel(new() { block = b, pozition = collizion.Value.BlockPozition, world = world, HitBoxIndex = collizion.Value.HitBoxIndex });
             var mesh = generateSelectionModel(int_mod);
             mesh.Position = collizion.Value.BlockPozition.ToVector().ToVector3();
-            current = (mesh, int_mod.ToArray(), (b, collizion.Value.BlockPozition));
+            current = (mesh, int_mod.ToArray(), (b, collizion.Value.BlockPozition, collizion.Value.HitBoxIndex));
             terrain.AddModel(mesh);
         }
         else
@@ -293,16 +293,17 @@ internal sealed partial class GameView : Scean
             var b = world.GetBlock(collizion!.Value.BlockPozition);
             var block_com = current!.Value.block.block == b;
             var poz_com = current.Value.block.poz == collizion!.Value.BlockPozition;
-            if(!block_com || !poz_com)
+            var hit_com = current.Value.block.hitBoxIndex == collizion!.Value.HitBoxIndex;
+            if (!block_com || !poz_com || !hit_com)
             {
-                var int_mod = b.Block.GetInteractionModel(new() { block = b, pozition = collizion.Value.BlockPozition, world = world });
+                var int_mod = b.Block.GetInteractionModel(new() { block = b, pozition = collizion.Value.BlockPozition, world = world, HitBoxIndex = collizion.Value.HitBoxIndex });
                 var int_mod_com = compare(current!.Value.values, int_mod);
                 if (!int_mod_com)
                 {
                     var new_model = generateSelectionModel(int_mod);
                     terrain.RemoveModel(current.Value.model);
                     current.Value.model.Dispose();
-                    current = (new_model, int_mod.ToArray(), (b, collizion.Value.BlockPozition));
+                    current = (new_model, int_mod.ToArray(), (b, collizion.Value.BlockPozition, collizion.Value.HitBoxIndex));
                     new_model.Position = collizion.Value.BlockPozition.ToVector().ToVector3();
                     terrain.AddModel(new_model);
                 }
@@ -310,7 +311,7 @@ internal sealed partial class GameView : Scean
                 {
                     if(!poz_com)
                     {
-                        current = (current.Value.model, current.Value.values, (b, collizion.Value.BlockPozition));
+                        current = (current.Value.model, current.Value.values, (b, collizion.Value.BlockPozition, collizion.Value.HitBoxIndex));
                         current.Value.model.Position = collizion.Value.BlockPozition.ToVector().ToVector3();
                     }
                 }
