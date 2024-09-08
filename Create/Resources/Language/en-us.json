@@ -7,12 +7,15 @@
     "bedrock.name": "Bedrock",
     "oak-log.name": "Oak Log",
     "oak-planks.name": "Oak Planks",
-    "crafting-table.name": "Crafting Table"
+    "crafting-table.name": "Crafting Table",
+    "stone-slab.name": "Stone Slab",
+    "oak-planks-slab.name": "Oak Planks Slab",
+    "name": "Block"
   },
   "creative-tabs": {
-    "name": "Creative Tab",
     "inventory.name": "Inventory",
     "search-engine.name": "Search",
-    "blocks.name": "Building Blocks"
+    "blocks.name": "Building Blocks",
+    "name":  "Creative Tab"
   }
 }
