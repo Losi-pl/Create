@@ -210,6 +210,7 @@ public abstract class Block : Baze
         public Player Player;
         public World World;
         public int HitBoxIndex;
+        public Vector3 InWorldPoint;
         public (int x, int y, int z) TargetBlockPozition => (TargetSide switch
         {
             BlockSide.Top => new(0, 1, 0),

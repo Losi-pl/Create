@@ -37,6 +37,7 @@ public sealed class BlockItem : Item
             Player = args.Player,
             TargetedBlockPozition = args.BlockArgs.Value.BlockPozition,
             TargetSide = args.BlockArgs.Value.TargetSide,
+            InWorldPoint = args.BlockArgs.Value.InWorldPoint,
             World = args.World
         }) ?? false;
     }
