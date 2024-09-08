@@ -662,7 +662,7 @@ public abstract class Mob : Entity
         {
             var block = world.GetBlock(bl_poz);
             var colliders = block.Block.GetInteractionCollision(new() { block = block, pozition = bl_poz.ToTumple(), world = world });
-            ((int index, Block.BlockSide side) collider, float distance)? collizion = null;
+            ((int index, Block.BlockSide side) collider, float distance, Vector3 point)? collizion = null;
             int i = -1;
             foreach(var c in colliders)
             {
@@ -675,18 +675,18 @@ public abstract class Mob : Entity
                     var dis = wyn.Point.Distance(start);
                     if(!collizion.HasValue)
                     {
-                        collizion = ((i, wyn.Side), dis);
+                        collizion = ((i, wyn.Side), dis, wyn.Point);
                         continue;
                     }
                     if(collizion?.distance > dis)
                     {
-                        collizion = ((i, wyn.Side), dis);
+                        collizion = ((i, wyn.Side), dis, wyn.Point);
                         continue;
                     }
                 }
             }
             if(collizion.HasValue)
-                return new(bl_poz.ToTumple(), collizion.Value.collider.index, collizion.Value.collider.side);
+                return new(bl_poz.ToTumple(), collizion.Value.collider.index, collizion.Value.collider.side, collizion.Value.point);
         }
 
         return null;
@@ -694,13 +694,15 @@ public abstract class Mob : Entity
 
     public struct ImLookingAtRezult
     {
-        public ImLookingAtRezult((int x, int y, int z) blockPozition, int hitBoxIndex, Block.BlockSide blockSide)
+        public ImLookingAtRezult((int x, int y, int z) blockPozition, int hitBoxIndex, Block.BlockSide blockSide, Vector3 hitPoint)
         {
             BlockPozition = blockPozition;
             HitBoxIndex = hitBoxIndex;
             BlockSide = blockSide;
+            HitPoint = hitPoint;
         }
 
+        public Vector3 HitPoint { get; set; }
         public (int x, int y, int z) BlockPozition { get; set; }
         public int HitBoxIndex { get; set; }
         public Block.BlockSide BlockSide { get; set; }
