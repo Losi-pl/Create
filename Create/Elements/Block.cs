@@ -180,6 +180,7 @@ public abstract class Block : Baze
     /// </summary>
     public struct StandardBlockSet
     {
+        public int HitBoxIndex { get; set; }
         public (int x, int y, int z) pozition;
         public PlacedBlock block;
         public World world;

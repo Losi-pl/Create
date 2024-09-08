@@ -278,7 +278,7 @@ internal sealed partial class GameView : Scean
             if (world is null)
                 return;
             var b = world.GetBlock(collizion.Value.BlockPozition);
-            var int_mod = b.Block.GetInteractionModel(new() { block = b, pozition = collizion.Value.BlockPozition, world = world });
+            var int_mod = b.Block.GetInteractionModel(new() { block = b, pozition = collizion.Value.BlockPozition, world = world, HitBoxIndex = collizion.Value.HitBoxIndex });
             var mesh = generateSelectionModel(int_mod);
             mesh.Position = collizion.Value.BlockPozition.ToVector().ToVector3();
             current = (mesh, int_mod.ToArray(), (b, collizion.Value.BlockPozition));
