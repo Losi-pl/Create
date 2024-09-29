@@ -502,10 +502,9 @@ public sealed class InventorySlots
             } // Put into alredy partle filles slot
             else if (slot_cont.HasValue && !transfered.HasValue)
             { // Take half of the slot content
-                
                 var half = slot_cont.Value.Count % 2 == 0 ? slot_cont.Value.Count / 2 : (slot_cont.Value.Count / 2) + 1;
-                transfered = new(half, slot_cont.Value);
-                set_item(new(slot_cont!.Value.Count - half, slot_cont.Value));
+                transfered = half > 0 ? new(half, slot_cont.Value) : null;
+                set_item(slot_cont!.Value.Count - half > 0 ? new(slot_cont!.Value.Count - half, slot_cont.Value) : null);
             } // Take half of the slot content
         }
 
