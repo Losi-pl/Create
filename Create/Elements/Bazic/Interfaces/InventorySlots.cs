@@ -212,6 +212,8 @@ public sealed class InventorySlots
             } //Move item from slot to hand
             else if (transfered.HasValue && !slot_cont.HasValue)
             { //Mode item from hand to a slot
+                if (!is_stack_allowed(transfered.Value))
+                    return;
                 unique_events = new ItemPlaceing() { in_hand = transfered.Value, in_slot = null, 
                     slot_id = id, SplitMode = ItemPlaceing.SplitModeEnum.Equally };
                 set_item(transfered);
@@ -243,6 +245,8 @@ public sealed class InventorySlots
                 } //Adding items to the slot
                 else
                 { //Switching items between slot and hand
+                    if (!is_stack_allowed(transfered.Value))
+                        return;
                     set_item(transfered);
                     transfered = slot_cont;
                     unique_events = new OneOf.Types.None();
@@ -283,6 +287,8 @@ public sealed class InventorySlots
                 foreach (var slot_id in slots_in_order())
                 { //Adding new stacks in empty slots
                     if (get_specyfic_item(slot_id).HasValue)
+                        continue;
+                    if (!is_stack_allowed(sour_item.Value, slot_id))
                         continue;
                     if(items_count > maxCount)
                     {
@@ -373,6 +379,8 @@ public sealed class InventorySlots
                 foreach (var slot_id in slots_in_order_dest())
                 { //Adding new stacks to empty slots
                     if (get_specyfic_item(slot_id).HasValue)
+                        continue;
+                    if (!is_stack_allowed(filter, slot_id))
                         continue;
                     if (items_count > maxCount)
                     {
@@ -485,7 +493,7 @@ public sealed class InventorySlots
             if (!slot_cont.HasValue && transfered.HasValue)
             { // Put item into empty slot
                 unique_events = new ItemPlaceing() { in_hand = transfered.Value, in_slot = null,
-                    slot_id = id, SplitMode = ItemPlaceing.SplitModeEnum.OnePerSlot };
+                    slot_id = is_stack_allowed(transfered.Value) ? id : null, SplitMode = ItemPlaceing.SplitModeEnum.OnePerSlot };
             } // Put item into empty slot
             else if (slot_cont.HasValue && transfered.HasValue && slot_cont == transfered)
             { // Put into alredy partle filles slot
@@ -533,6 +541,23 @@ public sealed class InventorySlots
                 case 2: container.SetItem(id.id, item); break;
             } 
         }
+        bool is_stack_allowed(ItemStack itemStack,(int id, byte cont)? id_ = null)
+        {
+            var d = id_ ?? id;
+            switch(d.cont)
+            {
+                case 0: return true;
+                case 1: return true;
+                case 2:
+                    var filter = container as ISlotFilter;
+                    if (filter is null)
+                        return true;
+                    if ((container?.Length ?? 0) <= d.id)
+                        return true;
+                    return filter.IsItemStackAllowed(new() { ItemStack = itemStack, Player = Client.Me, SlotIndex = d.id });
+            }
+            return true;
+        }
     }
 
     void SlotEnter(SpacePoint point, (int id, byte cont) id)
@@ -565,7 +590,8 @@ public sealed class InventorySlots
                 else if (d.used_slots.Contains(id))
                     return;
                 if(d.in_hand == slot_tem || !slot_tem.HasValue)
-                    d.used_slots.Add(id);
+                    if(is_stack_allowed(d.in_hand))
+                        d.used_slots.Add(id);
             }
         if(unique_events.IsT0 || unique_events.IsT4)
         {
@@ -594,6 +620,23 @@ public sealed class InventorySlots
                 case 1: { var pi = playerInventory; pi.SetItem(id.id, stack); playerInventory = pi; } break;
                 case 2: { var ct = containerItems; ct.SetItem(id.id, stack); containerItems = ct; } break;
             }
+        }
+        bool is_stack_allowed(ItemStack itemStack)
+        {
+            switch (id.cont)
+            {
+                case 0: return true;
+                case 1: return true;
+                case 2:
+                    var c = containerItems;
+                    var filter = c as ISlotFilter;
+                    if (filter is null)
+                        return true;
+                    if ((c?.Length ?? 0) <= id.id)
+                        return true;
+                    return filter.IsItemStackAllowed(new() { ItemStack = itemStack, Player = Client.Me, SlotIndex = id.id });
+            }
+            return true;
         }
     }
 
