@@ -84,10 +84,7 @@ internal class CreativeInventory : UserInterface, IUserInterface<CreativeInvento
                 .Select(s => (s, (s.ID ?? 0) - 28))
                 .Where(s => s.s.ID >= 28 && s.s.ID <= 31));
 
-        ci.inventory.DefaultBindPlayerInventory(args.Player);
-        ci.inventory.DefaultBindTransferredItem(args.Player);
-        ci.inventory.DefaultBindToolBar(args.Player);
-
+        ci.inventory.DefaultBinds(args.Player);
         ci.inventory.DefaultBindContainer<ArmorSet>(args.Player, "armor");
 
         ci.creativeSlots = ItemSlot.GetAllSlots(ci.root.Childs.Find("Creative", true)!)
