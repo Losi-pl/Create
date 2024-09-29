@@ -782,7 +782,7 @@ public sealed class InventorySlots
                         span = span.Slice(0, span.Length - 1);
                     }
                 }
-                else
+                else if (eve.SlotCount == 1)
                 {
                     if (Mouse.Left.Up)
                     {
@@ -815,7 +815,7 @@ public sealed class InventorySlots
             }
             else
             {
-                if(eve.SlotCount > 1)
+                if (eve.SlotCount > 1)
                 {
                     var count = eve.in_hand.Count;
                     if(Mouse.Right.Up)
@@ -873,7 +873,7 @@ public sealed class InventorySlots
                     }
                     forced_hand_item = true;
                 }
-                else
+                else if (eve.SlotCount == 1)
                 {
                     if (Mouse.Right.Up)
                     {
