@@ -7,6 +7,7 @@ namespace Create.Elements;
 public static class Items
 {
     public static readonly Item BLOCK_ITEM = new BlockItem();
+    public static readonly Item IRON_CHESTPLATE = new IronChestplate();
     public static readonly Item IRON_LEGGINGS = new IronLeggings();
     public static readonly Item IRON_BOOTS = new IronBoots();
 }
