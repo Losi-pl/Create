@@ -10,6 +10,7 @@
     "crafting-table.name": "Crafting Table"
   },
   "items": {
+    "iron-helmet.name": "Iron Helmet",
     "iron-chestplate.name": "Iron Chestplate",
     "iron-leggings.name": "Iron Leggings",
     "iron-boots.name": "Iron Boots"
