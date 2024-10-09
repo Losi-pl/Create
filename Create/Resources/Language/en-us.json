@@ -19,6 +19,7 @@
     "name": "Creative Tab",
     "inventory.name": "Inventory",
     "search-engine.name": "Search",
+    "weapons-and-armor.name": "Weapons & Armor",
     "blocks.name": "Building Blocks"
   }
 }
