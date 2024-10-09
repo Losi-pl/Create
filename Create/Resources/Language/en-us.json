@@ -9,6 +9,9 @@
     "oak-planks.name": "Oak Planks",
     "crafting-table.name": "Crafting Table"
   },
+  "items": {
+    "iron-boots.name": "Iron Boots"
+  },
   "creative-tabs": {
     "name": "Creative Tab",
     "inventory.name": "Inventory",
