@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="..\Create.Resource.Compiler\bin\Release\net6.0\Create.Resource.Compiler.exe &quot;Create.App.Windows&quot; &quot;$(Configuration)&quot; &quot;win-x64&quot;" />
+    <Exec Command="..\Create.Resource.Compiler\bin\Release\net8.0\Create.Resource.Compiler.exe &quot;Create.App.Windows&quot; &quot;$(Configuration)&quot; &quot;win-x64&quot;" />
   </Target>
 
 </Project>
