@@ -22,7 +22,7 @@ public sealed class Interface
         main_layer = RenderLayer.Create()
             .SetSize(width, height)
             .Finisch();
-        main = new(this);
+        main = SpacePoint.CreateMain(this);
         main.Size = (width, height);
         main_layer.Color = new Color();
     }
