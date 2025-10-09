@@ -57,7 +57,7 @@ public sealed class DimentionSpace
                     lock (loadet_chunks)
                         loadet_chunks.Remove(position);
                     lock (chunks)
-                        chunks.Add(position, task.Result);
+                        chunks.TryAdd(position, task.Result);
                 });
             }
         }
