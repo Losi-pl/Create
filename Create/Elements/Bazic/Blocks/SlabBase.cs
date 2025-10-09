@@ -119,7 +119,7 @@ public abstract class SlabBase : Block
                 if(is_upper)
                     args.World.SetBlock(args.TargetBlockPozition, new(info.AsT0.Bottom!, 0, this.CodeName));
                 else
-                    args.World.SetBlock(args.TargetBlockPozition, new(this, 0, info.AsT0.Bottom!.CodeName));
+                    args.World.SetBlock(args.TargetBlockPozition, new(this, 0, info.AsT0.Top!.CodeName));
                 return true;
             }
             args.World.SetBlock(args.TargetBlockPozition, new(this, 0, is_upper ? "+" : string.Empty));
