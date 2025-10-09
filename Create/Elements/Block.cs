@@ -116,7 +116,7 @@ public abstract class Block : Baze
     }
 
     /// <summary>
-    /// Gdy gracz naciśnie prawym przycieskiem na
+    /// Gdy gracz naciśnie na blok
     /// </summary>
     /// <param name="args"></param>
     /// <returns></returns>
