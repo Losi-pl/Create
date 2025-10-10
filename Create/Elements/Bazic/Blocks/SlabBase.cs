@@ -156,6 +156,32 @@ public abstract class SlabBase : Block
             return true;
         }
     }
+    public override bool OnDestroyBlock(DestroyBlock args)
+    { // TODO - Documentation
+        if (args.Block.Block is not SlabBase)
+            return false;
+        var info = InterpretPlacedBlock(args.Block)!.Value;
+        if(info.IsT0)
+        {
+            if (info.AsT0.Top is null || info.AsT0.Bottom is null)
+                args.World.SetBlock(args.BlockPozition, new());
+            else
+            {
+                if (args.HitBoxIndex == 0)
+                    args.World.SetBlock(args.BlockPozition, new(info.AsT0.Top, 0, "+"));
+                else if (args.HitBoxIndex == 1)
+                    args.World.SetBlock(args.BlockPozition, new(info.AsT0.Bottom));
+                else
+                    return false;
+            }
+        }
+        else
+        {
+            // TODO - Interaction with a vertical slab
+        }
+
+        return true;
+    }
 
     public override sealed IEnumerable<BlockCollider> GetInteractionCollision(StandardBlockSet set)
     { // TODO - Documentation
