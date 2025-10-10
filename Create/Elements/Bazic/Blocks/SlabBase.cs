@@ -9,7 +9,7 @@ namespace Create.Elements.Bazic.Blocks;
 public abstract class SlabBase : Block
 {
     public static SlabInfo? InterpretPlacedBlock(PlacedBlock placedBlock)
-    {
+    { // TODO - Documentation
         if (placedBlock.Block is not SlabBase slab)
             return null;
         if(string.IsNullOrEmpty(placedBlock.Meta))
@@ -23,7 +23,7 @@ public abstract class SlabBase : Block
     }
     
     public override sealed bool IsSideVisible(StandardBlockSet sideSet, BlockSide side)
-    {
+    { // TODO - Documentation
         var info = InterpretPlacedBlock(sideSet.block);
         if (!info.HasValue)
             return true;
@@ -158,7 +158,7 @@ public abstract class SlabBase : Block
     }
 
     public override sealed IEnumerable<BlockCollider> GetInteractionCollision(StandardBlockSet set)
-    {
+    { // TODO - Documentation
         if (string.IsNullOrEmpty(set.block.Meta))
             yield return new() { pozition = (.5f, .25f, .5f), size = (1, .5f, 1) };
         else if (set.block.Meta[0] == '+')
@@ -170,7 +170,7 @@ public abstract class SlabBase : Block
         }
     }
     public override sealed IEnumerable<BlockCollider> GetPhisicCollision(StandardBlockSet set)
-    {
+    { // TODO - Documentation
         if (string.IsNullOrEmpty(set.block.Meta))
             yield return new() { pozition = (.5f, .25f, .5f), size = (1, .5f, 1) };
         else if (set.block.Meta[0] == '+')
@@ -179,8 +179,8 @@ public abstract class SlabBase : Block
             yield return new() { pozition = (.5f, .5f, .5f), size = (1, 1, 1) };
     }
     public override sealed IEnumerable<((float x, float y, float z) start, (float x, float y, float z) end)> GetInteractionModel(StandardBlockSet set)
-    {
-        if(string.IsNullOrEmpty(set.block.Meta))
+    { // TODO - Documentation
+        if (string.IsNullOrEmpty(set.block.Meta))
             foreach (var @base in base.GetInteractionModel(set))
                 yield return ((@base.start.x, @base.start.y / 2, @base.start.z), (@base.end.x, @base.end.y / 2, @base.end.z));
         else if (set.block.Meta[0] == '+')
