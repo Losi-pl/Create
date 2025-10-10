@@ -48,81 +48,111 @@ public abstract class SlabBase : Block
 
     public override sealed bool OnPlaceBlock(PlaceBlock args)
     {
-        {
+        { // Interactions with slabs in the same block
+            // Test if the player is aiming at the inside of a placed slab
             var c_block = args.World.GetBlock(args.TargetedBlockPozition);
-            if(c_block.Block is SlabBase)
+            if (c_block.Block is SlabBase)
             {
+                // Process data of the slabs
                 var info = InterpretPlacedBlock(c_block)!.Value;
-                if(info.IsT0)
+                if (info.IsT0)
                 {
-                    if(info.AsT0.Top is null || info.AsT0.Bottom is null)
+                    // Verify if there is room for a slab in the block
+                    if (info.AsT0.Top is null || info.AsT0.Bottom is null)
                     {
+                        // Test if player clicks on top of a lover slab block
                         if (args.TargetSide == BlockSide.Top)
                             if (info.AsT0.Bottom is not null)
                             {
+                                // Update the slab block
                                 args.World.SetBlock(args.TargetedBlockPozition, new(info.AsT0.Bottom, 0, this.CodeName));
                                 return true;
                             }
+                        // Test if player clicks on the bottom of an upper slab block
                         if (args.TargetSide == BlockSide.Bottom)
                             if (info.AsT0.Top is not null)
                             {
+                                // Update the slab block
                                 args.World.SetBlock(args.TargetedBlockPozition, new(this, 0, info.AsT0.Top!.CodeName));
                                 return true;
                             }
                     }
                 }
             }
-        }
-        if(args.TargetSide == BlockSide.Top)
+        } // Interactions with slabs in the same block
+
+        // Placing a new slab on top of a targeted block
+        if (args.TargetSide == BlockSide.Top)
         {
+            // See if the block above is also a slab
             var target_bl = args.World.GetBlock(args.TargetBlockPozition);
             if (target_bl.Block is SlabBase)
             {
                 var info = InterpretPlacedBlock(target_bl)!.Value;
+                // Check if the block above is not vertical
                 if (info.IsT1)
                     return false;
+                // Check if the lower half of the block is empty
                 if (info.AsT0.Bottom is not null)
                     return false;
+                // Update the new state of the block to a new one
                 args.World.SetBlock(args.TargetBlockPozition, new(this, 0, info.AsT0.Top!.CodeName));
             }
             else
+                // Place a new slab block
                 args.World.SetBlock(args.TargetBlockPozition, new(this));
             return true;
         }
-        if(args.TargetSide == BlockSide.Bottom)
+
+        // Placing a new slab below the targeted block
+        else if (args.TargetSide == BlockSide.Bottom)
         {
+            // See if the block below is also a slab
             var target_bl = args.World.GetBlock(args.TargetBlockPozition);
             if (target_bl.Block is SlabBase)
             {
                 var info = InterpretPlacedBlock(target_bl)!.Value;
+                // Check if the block below is not vertical
                 if (info.IsT1)
                     return false;
+                // Check if the upper half of the block is empty
                 if (info.AsT0.Top is not null)
                     return false;
+                // Update the new state of the block to a new one
                 args.World.SetBlock(args.TargetBlockPozition, new(info.AsT0.Bottom!, 0, this.CodeName));
             }
             else
+                // Place a new slab block
                 args.World.SetBlock(args.TargetBlockPozition, new(this, 0, "+"));
             return true;
         }
+
+        // Placing a new slab to the side of the targeted block
         else
         {
+            // See which half of the block the player is aiming for (false - lower, true - upper)
             var is_upper = args.InWorldPoint.Y % 1 > .5f;
+
+            // See if the block to the side is also a slab
             var target_bl = args.World.GetBlock(args.TargetBlockPozition);
-            if(target_bl.Block is SlabBase)
+            if (target_bl.Block is SlabBase)
             {
                 var info = InterpretPlacedBlock(target_bl)!.Value;
+                // Check if the block below is not vertical
                 if (info.IsT1)
                     return false;
-                if((is_upper ? info.AsT0.Top : info.AsT0.Bottom) is not null)
+                // Check that the targeted half of the block is empty
+                if ((is_upper ? info.AsT0.Top : info.AsT0.Bottom) is not null)
                     return false;
-                if(is_upper)
+
+                if (is_upper) // Update the block with the new one at the bottom
                     args.World.SetBlock(args.TargetBlockPozition, new(info.AsT0.Bottom!, 0, this.CodeName));
-                else
+                else // Update the block with the new one at the top
                     args.World.SetBlock(args.TargetBlockPozition, new(this, 0, info.AsT0.Top!.CodeName));
-                return true;
             }
-            args.World.SetBlock(args.TargetBlockPozition, new(this, 0, is_upper ? "+" : string.Empty));
+            else
+                // Place a new slab block
+                args.World.SetBlock(args.TargetBlockPozition, new(this, 0, is_upper ? "+" : string.Empty));
             return true;
         }
     }
