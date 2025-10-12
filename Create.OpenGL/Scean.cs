@@ -130,8 +130,8 @@ public abstract class Scean
     /// <summary>
     /// Gdy wontek poboczny do renderowania obrazu został stworzony
     /// </summary>
+    [Obsolete("This method is no longer supported", false)]
     protected virtual void RenderThreadStarted() { }
-    internal Action m_RenderThreadStarted => RenderThreadStarted;
 
     /// <summary>
     /// Gdy rozmiar okna gry został zmieniony

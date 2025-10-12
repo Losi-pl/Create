@@ -112,7 +112,8 @@ public sealed partial class Mesh : IDisposable, IDrawable
             GL.Uniform3(shader.RotationVariable.Value.handle, ref vec);
         }
 
-        GL.LineWidth(line_thicknes);
+        if(mode == MechDrawingMode.Line)
+            GL.LineWidth(line_thicknes);
         GL.BindVertexArray(handlers.vertex_array);
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, handlers.index_buffer);
         GL.DrawElements(mode switch
@@ -136,7 +137,7 @@ public sealed partial class Mesh : IDisposable, IDrawable
             else
             {
                 GL.Enable(EnableCap.CullFace);
-                GL.CullFace(shader.CullFace);
+                GL.CullFace((TriangleFace)shader.CullFace);
             }
         }
         void blend_system()

@@ -45,13 +45,13 @@ public static class Engine
         MainTask.set_main_task();
         GameWindowSettings gws = GameWindowSettings.Default;
         gws.UpdateFrequency = 60;
-        gws.RenderFrequency = 60;
 
         NativeWindowSettings nws = new();
         nws.API = ContextAPI.OpenGL;
         nws.StartVisible = s.IsVisible;
         nws.WindowState = s.FullScreen ? WindowState.Fullscreen : WindowState.Normal;
         nws.APIVersion = new(4, 1);
+        nws.Profile = ContextProfile.Compatability;
         nws.Title = s.Title;
 
         settings = s;
@@ -75,7 +75,6 @@ public static class Engine
         gw.Move += w_gl_Move;
         gw.Refresh += w_gl_Refresh;
         gw.RenderFrame += w_gl_RenderFrame;
-        gw.RenderThreadStarted += w_gl_RenderThreadStarted;
         gw.Resize += w_gl_Resize;
         gw.TextInput += w_gl_TextInput;
         gw.Unload += w_gl_Unload;
@@ -297,15 +296,6 @@ public static class Engine
     {
         OnRenderFrame?.Invoke(args);
         Scean?.m_RenderFrame(args);
-    }
-
-    /// <summary>
-    /// <inheritdoc cref="GameWindow.RenderThreadStarted"/>
-    /// </summary>
-    static void w_gl_RenderThreadStarted()
-    {
-        OnRenderThreadStarted?.Invoke();
-        Scean?.m_RenderThreadStarted();
     }
 
     /// <summary>
@@ -534,7 +524,6 @@ public static class Engine
     public static event Action<WindowPositionEventArgs> OnMove;
     public static event Action OnRefresh;
     public static event Action<FrameEventArgs> OnRenderFrame;
-    public static event Action OnRenderThreadStarted;
     public static event Action<ResizeEventArgs> OnResize;
     public static event Action<TextInputEventArgs> OnTextInput;
     public static event Action OnUnload;

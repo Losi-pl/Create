@@ -16,8 +16,8 @@ internal class CraftingTableInterface : UserInterface, IUserInterface<CraftingTa
     SpacePoint root;
     InventorySlots inventory;
     internal CraftingSlots slots;
-    (IRecipeBaze recipe, ItemStack rezult, uint uses, object? details)? usedRecipe;
     #nullable restore
+    (IRecipeBaze recipe, ItemStack rezult, uint uses, object? details)? usedRecipe;
 
     static (CraftingTableInterface status, SpacePoint point) IUserInterface<CraftingTableInterface>.LoadInterface(InterfaceCreatorArgs args)
     {
