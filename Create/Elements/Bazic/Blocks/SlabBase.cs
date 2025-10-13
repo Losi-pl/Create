@@ -1,5 +1,7 @@
 ﻿using Create.Conteiner;
 using Create.Elements.Bazic.Entitys;
+using Create.Elements.Bazic.Items;
+using Create.Elements.Recipes;
 using Create.Linq;
 using Create.Space;
 using OneOf;
@@ -10,7 +12,6 @@ namespace Create.Elements.Bazic.Blocks;
 
 public abstract class SlabBase : Block
 {
-
     /// <summary>
     /// Interpretuje dane bloku aby ułatwić interakcje i modyfikacje tego typu bloków
     /// </summary>
@@ -532,5 +533,16 @@ public abstract class SlabBase : Block
                 foreach (var @base in base.GetInteractionModel(set))
                     yield return ((@base.start.x, (@base.start.y / 2) + .5f, @base.start.z), (@base.end.x, (@base.end.y / 2) + .5f, @base.end.z));
         }
+    }
+
+    internal static void BazicSlabRecipes(Mod mod)
+    {
+        mod.RegisterRecipe("to-vertical-slabs", new ItemAlteration(
+            s => BlockItem.GetBlock(s) is SlabBase && BlockItem.GetBlockMeta(s).Length == 0,
+            s => (new(BlockItem.GetBlock(s), 0, "/+"), s.Count)));
+
+        mod.RegisterRecipe("to-horizontal-slabs", new ItemAlteration(
+            s => BlockItem.GetBlock(s) is SlabBase && BlockItem.GetBlockMeta(s).Equals("/+".AsSpan(), StringComparison.Ordinal),
+            s => (new(BlockItem.GetBlock(s)), s.Count)));
     }
 }

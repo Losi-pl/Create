@@ -17,5 +17,7 @@ partial interface IRecipe
             "sss", ('s', new(Blocks.STONE)) ));
         mod.RegisterRecipe("oak-planks-slab", new Standard(new(6, Blocks.OAK_PLANKS_SLAB),
             "ooo", ('o', new(Blocks.OAK_PLANKS)) ));
+
+        Bazic.Blocks.SlabBase.BazicSlabRecipes(mod);
     }
 }
