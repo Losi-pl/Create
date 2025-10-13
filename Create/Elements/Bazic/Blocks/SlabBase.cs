@@ -2,7 +2,7 @@
 using Create.Space;
 using OneOf;
 using SlabInfo = OneOf.OneOf<(Create.Elements.Block? Bottom, Create.Elements.Block? Top), 
-    (Create.Elements.Block? Column1, Create.Elements.Block? Column2, Create.Elements.Block.BlockSide Direction)>;
+    (Create.Elements.Block? Column1, Create.Elements.Block? Column2, bool IsAlongTheXAxis)>;
 
 namespace Create.Elements.Bazic.Blocks;
 
@@ -16,8 +16,15 @@ public abstract class SlabBase : Block
             return (placedBlock.Block, null);
         if (placedBlock.Meta[0] == '+')
             return (null, placedBlock.Block);
-        else if (placedBlock.Meta[0] == '|')
-            return (placedBlock.Block, null, BlockSide.North);
+        else if (placedBlock.Meta[0] is '|' or '/')
+        {
+            if(placedBlock.Meta.Length == 1)
+                return (placedBlock.Block, null, placedBlock.Meta[0] is '/');
+            if (placedBlock.Meta[1] == '+')
+                return (null, placedBlock.Block, placedBlock.Meta[0] is '/');
+            else
+                return (placedBlock.Block, Register.Blocks.ByName[placedBlock.Meta.Substring(1)], placedBlock.Meta[0] is '/');
+        }
         else
             return (placedBlock.Block, Register.Blocks.ByName[placedBlock.Meta]);
     }
@@ -185,7 +192,12 @@ public abstract class SlabBase : Block
 
     public override sealed IEnumerable<BlockCollider> GetInteractionCollision(StandardBlockSet set)
     { // TODO - Documentation
-        if (string.IsNullOrEmpty(set.block.Meta))
+        if(set.block.Meta[0] is '|' or '/')
+        {
+            // TODO - Interactions for vertical slabs
+            yield break;
+        }
+        else if (string.IsNullOrEmpty(set.block.Meta))
             yield return new() { pozition = (.5f, .25f, .5f), size = (1, .5f, 1) };
         else if (set.block.Meta[0] == '+')
             yield return new() { pozition = (.5f, .75f, .5f), size = (1, .5f, 1) };
@@ -197,7 +209,12 @@ public abstract class SlabBase : Block
     }
     public override sealed IEnumerable<BlockCollider> GetPhisicCollision(StandardBlockSet set)
     { // TODO - Documentation
-        if (string.IsNullOrEmpty(set.block.Meta))
+        if (set.block.Meta[0] is '|' or '/')
+        {
+            // TODO - Interactions for vertical slabs
+            yield break;
+        }
+        else if (string.IsNullOrEmpty(set.block.Meta))
             yield return new() { pozition = (.5f, .25f, .5f), size = (1, .5f, 1) };
         else if (set.block.Meta[0] == '+')
             yield return new() { pozition = (.5f, .75f, .5f), size = (1, .5f, 1) };
