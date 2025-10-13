@@ -192,13 +192,13 @@ public abstract class SlabBase : Block
 
     public override sealed IEnumerable<BlockCollider> GetInteractionCollision(StandardBlockSet set)
     { // TODO - Documentation
-        if(set.block.Meta[0] is '|' or '/')
+        if (string.IsNullOrEmpty(set.block.Meta))
+            yield return new() { pozition = (.5f, .25f, .5f), size = (1, .5f, 1) };
+        else if (set.block.Meta[0] is '|' or '/')
         {
             // TODO - Interactions for vertical slabs
             yield break;
         }
-        else if (string.IsNullOrEmpty(set.block.Meta))
-            yield return new() { pozition = (.5f, .25f, .5f), size = (1, .5f, 1) };
         else if (set.block.Meta[0] == '+')
             yield return new() { pozition = (.5f, .75f, .5f), size = (1, .5f, 1) };
         else if (set.block.Meta.Length > 1)
@@ -209,13 +209,14 @@ public abstract class SlabBase : Block
     }
     public override sealed IEnumerable<BlockCollider> GetPhisicCollision(StandardBlockSet set)
     { // TODO - Documentation
-        if (set.block.Meta[0] is '|' or '/')
+        
+        if (string.IsNullOrEmpty(set.block.Meta))
+            yield return new() { pozition = (.5f, .25f, .5f), size = (1, .5f, 1) };
+        else if (set.block.Meta[0] is '|' or '/')
         {
             // TODO - Interactions for vertical slabs
             yield break;
         }
-        else if (string.IsNullOrEmpty(set.block.Meta))
-            yield return new() { pozition = (.5f, .25f, .5f), size = (1, .5f, 1) };
         else if (set.block.Meta[0] == '+')
             yield return new() { pozition = (.5f, .75f, .5f), size = (1, .5f, 1) };
         else if (set.block.Meta.Length > 1)
