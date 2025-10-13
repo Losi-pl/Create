@@ -247,6 +247,11 @@ internal sealed partial class GameView : Scean
             if (rot.Y > 90f)
                 rot.Y = 90f;
 
+            if (rot.X < 0)
+                rot.X = 360 + rot.X;
+            if (rot.X > 360)
+                rot.X = rot.X - 360;
+
             camera.Rotation = new(rot.Y, rot.X, 0);
             Client.Me.Entity!.Data.Set("camera_rot", rot);
         }
