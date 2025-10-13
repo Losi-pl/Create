@@ -45,7 +45,7 @@ public abstract class SlabBase : Block
                 case BlockSide.Top:
                     return info.Value.AsT0.Top is null;
                 default:
-                    return !(info.Value.AsT0.Top is not null && info.Value.AsT0.Bottom is not null);
+                    return info.Value.AsT0.Top is null || info.Value.AsT0.Bottom is null;
             }
         }
         else if (info.Value.Index == 1)
