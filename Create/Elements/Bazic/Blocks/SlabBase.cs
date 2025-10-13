@@ -286,6 +286,19 @@ public abstract class SlabBase : Block
         return true;
     }
 
+    public override string GetItemName(ItemName args)
+    { // TODO - Documentation
+        if (string.IsNullOrEmpty(args.Item.Meta))
+            return base.GetItemName(args);
+        var nMeta = args.Item.Meta.IndexOf(';').Cast(c => c == -1 || c == args.Item.Meta.Length - 1 ? string.Empty : args.Item.Meta.Substring(c + 1, args.Item.Meta.Length - c - 1));
+        if(string.IsNullOrEmpty(nMeta))
+            return base.GetItemName(args);
+        if (nMeta[0] is '/' or '|')
+            return string.Format(Assets.Language.GetFromKey("create.blocks.format.slab.vertical.name"), base.GetItemName(args));
+
+        return base.GetItemName(args);
+    }
+
     public override sealed IEnumerable<BlockCollider> GetInteractionCollision(StandardBlockSet set)
     { // TODO - Documentation
         if (string.IsNullOrEmpty(set.block.Meta))
