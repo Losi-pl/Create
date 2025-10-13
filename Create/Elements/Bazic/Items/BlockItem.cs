@@ -18,6 +18,13 @@ public sealed class BlockItem : Item
                 return b;
         return Elements.Blocks.STONE;
     }
+
+    public static ReadOnlySpan<char> GetBlockMeta(StackData itemStack)
+    {
+        int i = itemStack.Meta.IndexOf(';');
+        ReadOnlySpan<char> blockName = i == -1 ? new(Array.Empty<char>()) : itemStack.Meta.AsSpan().Slice(i + 1, itemStack.Meta.Length - i - 1);
+        return blockName;
+    }
     
     public override ItemModel GetItemModel(ItemStack itemStack, Player player)
     {
