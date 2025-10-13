@@ -49,10 +49,34 @@ public abstract class SlabBase : Block
             }
         }
         else if (info.Value.Index == 1)
-            //TODO - Cheacking for visibility in vertical slabs
-            return true;
-        
-        return base.IsSideVisible(sideSet, side);
+            switch (side)
+            {
+                case BlockSide.Bottom:
+                    return info.Value.AsT1.Column1 is null || info.Value.AsT1.Column2 is null;
+                case BlockSide.Top:
+                    return info.Value.AsT1.Column1 is null || info.Value.AsT1.Column2 is null;
+                case BlockSide.North:
+                    if (info.Value.AsT1.IsAlongTheXAxis)
+                        return info.Value.AsT1.Column2 is null;
+                    else
+                        return info.Value.AsT1.Column1 is null || info.Value.AsT1.Column2 is null;
+                case BlockSide.South:
+                    if (info.Value.AsT1.IsAlongTheXAxis)
+                        return info.Value.AsT1.Column1 is null;
+                    else
+                        return info.Value.AsT1.Column1 is null || info.Value.AsT1.Column2 is null;
+                case BlockSide.East:
+                    if (!info.Value.AsT1.IsAlongTheXAxis)
+                        return info.Value.AsT1.Column2 is null;
+                    else
+                        return info.Value.AsT1.Column1 is null || info.Value.AsT1.Column2 is null;
+                case BlockSide.West:
+                    if (!info.Value.AsT1.IsAlongTheXAxis)
+                        return info.Value.AsT1.Column1 is null;
+                    else
+                        return info.Value.AsT1.Column1 is null || info.Value.AsT1.Column2 is null;
+            }
+        return true;
     }
 
     public override sealed bool OnPlaceBlock(PlaceBlock args)
