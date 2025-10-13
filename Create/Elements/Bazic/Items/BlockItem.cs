@@ -72,7 +72,7 @@ file class SingleBlockWorld : World
 file struct BLockModel : IDrawable, IDisposable
 {
     static Matrix4 transformMatrix = Matrix4.CreateTranslation(-.5f, -.5f, -.5f) *
-           Matrix4.CreateRotationY((45 / 180f) * MathF.PI) *
+           Matrix4.CreateRotationY(-(45 / 180f) * MathF.PI) *
            Matrix4.CreateRotationX((-30 / 180f) * MathF.PI) *
            Matrix4.CreateScale(1.1851851851851f);
     public WorldModel model;
