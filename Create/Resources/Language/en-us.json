@@ -5,11 +5,13 @@
     "dirt.name": "Dirt",
     "grass-block.name": "Block Of Grass",
     "bedrock.name": "Bedrock",
+    "debug-block.name": "Block for Debugging",
     "oak-log.name": "Oak Log",
     "oak-planks.name": "Oak Planks",
     "crafting-table.name": "Crafting Table",
     "stone-slab.name": "Stone Slab",
     "oak-planks-slab.name": "Oak Planks Slab",
+    "debug-slab.name": "Slab for Debugging",
     "name": "Block"
   },
   "creative-tabs": {
