@@ -16,38 +16,38 @@ public sealed class SlabModel : IBlockModel
 
     public void GenerateModel(StandardBlockSet args, ModelConstructor constructor)
     {
-        var info = SlabBase.InterpretPlacedBlock(args.block);
-        if(info!.Value.Index== 0)
+        var info = SlabBase.InterpretPlacedBlock(args.block)!.Value;
+        if(info.IsT0)
         {
-            if (info.Value.AsT0.Bottom is not null)
+            if (info.AsT0.Bottom is not null)
             {
                 if (test_side(BlockSide.Bottom))
-                    render_side(BlockSide.Bottom, info.Value.AsT0.Bottom, false);
+                    render_side(BlockSide.Bottom, info.AsT0.Bottom, false);
                 if(test_side(BlockSide.North))
-                    render_side(BlockSide.North, info.Value.AsT0.Bottom, false);
+                    render_side(BlockSide.North, info.AsT0.Bottom, false);
                 if (test_side(BlockSide.East))
-                    render_side(BlockSide.East, info.Value.AsT0.Bottom, false);
+                    render_side(BlockSide.East, info.AsT0.Bottom, false);
                 if (test_side(BlockSide.South))
-                    render_side(BlockSide.South, info.Value.AsT0.Bottom, false);
+                    render_side(BlockSide.South, info.AsT0.Bottom, false);
                 if (test_side(BlockSide.West))
-                    render_side(BlockSide.West, info.Value.AsT0.Bottom, false);
-                if (info.Value.AsT0.Top is null)
-                    render_side(BlockSide.Top, info.Value.AsT0.Bottom, false);
+                    render_side(BlockSide.West, info.AsT0.Bottom, false);
+                if (info.AsT0.Top is null)
+                    render_side(BlockSide.Top, info.AsT0.Bottom, false);
             }
-            if (info.Value.AsT0.Top is not null)
+            if (info.AsT0.Top is not null)
             {
-                if (info.Value.AsT0.Bottom is null)
-                    render_side(BlockSide.Bottom, info.Value.AsT0.Top, true);
+                if (info.AsT0.Bottom is null)
+                    render_side(BlockSide.Bottom, info.AsT0.Top, true);
                 if (test_side(BlockSide.North))
-                    render_side(BlockSide.North, info.Value.AsT0.Top, true);
+                    render_side(BlockSide.North, info.AsT0.Top, true);
                 if (test_side(BlockSide.East))
-                    render_side(BlockSide.East, info.Value.AsT0.Top, true);
+                    render_side(BlockSide.East, info.AsT0.Top, true);
                 if (test_side(BlockSide.South))
-                    render_side(BlockSide.South, info.Value.AsT0.Top, true);
+                    render_side(BlockSide.South, info.AsT0.Top, true);
                 if (test_side(BlockSide.West))
-                    render_side(BlockSide.West, info.Value.AsT0.Top, true);
+                    render_side(BlockSide.West, info.AsT0.Top, true);
                 if (test_side(BlockSide.Top))
-                    render_side(BlockSide.Top, info.Value.AsT0.Top, true);
+                    render_side(BlockSide.Top, info.AsT0.Top, true);
             }
         }
 
