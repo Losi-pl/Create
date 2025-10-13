@@ -196,8 +196,18 @@ public abstract class SlabBase : Block
             yield return new() { pozition = (.5f, .25f, .5f), size = (1, .5f, 1) };
         else if (set.block.Meta[0] is '|' or '/')
         {
-            // TODO - Interactions for vertical slabs
-            yield break;
+            if (set.block.Meta.Length == 1)
+                if (set.block.Meta[0] is '/')
+                    yield return new() { pozition = (.5f, .5f, .25f), size = (1, 1, .5f) };
+                else
+                    yield return new() { pozition = (.25f, .5f, .5f), size = (.5f, 1, 1) };
+            else if (set.block.Meta[1] == '+')
+                if (set.block.Meta[0] is '/')
+                    yield return new() { pozition = (.5f, .5f, .75f), size = (1, 1, .5f) };
+                else
+                    yield return new() { pozition = (.75f, .5f, .5f), size = (.5f, 1, 1) };
+            else
+                yield return new() { pozition = (.5f, .5f, .5f), size = (1, 1, 1) };
         }
         else if (set.block.Meta[0] == '+')
             yield return new() { pozition = (.5f, .75f, .5f), size = (1, .5f, 1) };
@@ -214,8 +224,29 @@ public abstract class SlabBase : Block
             yield return new() { pozition = (.5f, .25f, .5f), size = (1, .5f, 1) };
         else if (set.block.Meta[0] is '|' or '/')
         {
-            // TODO - Interactions for vertical slabs
-            yield break;
+            if (set.block.Meta.Length == 1)
+                if (set.block.Meta[0] is '/')
+                    yield return new() { pozition = (.5f, .5f, .25f), size = (1, 1, .5f) };
+                else
+                    yield return new() { pozition = (.25f, .5f, .5f), size = (.5f, 1, 1) };
+            else if (set.block.Meta[1] == '+')
+                if (set.block.Meta[0] is '/')
+                    yield return new() { pozition = (.5f, .5f, .75f), size = (1, 1, .5f) };
+                else
+                    yield return new() { pozition = (.75f, .5f, .5f), size = (.5f, 1, 1) };
+            else
+            {
+                if (set.block.Meta[0] is '/')
+                {
+                    yield return new() { pozition = (.5f, .5f, .25f), size = (1, 1, .5f) };
+                    yield return new() { pozition = (.5f, .5f, .75f), size = (1, 1, .5f) };
+                }
+                else
+                {
+                    yield return new() { pozition = (.25f, .5f, .5f), size = (.5f, 1, 1) };
+                    yield return new() { pozition = (.75f, .5f, .5f), size = (.5f, 1, 1) };
+                }
+            }
         }
         else if (set.block.Meta[0] == '+')
             yield return new() { pozition = (.5f, .75f, .5f), size = (1, .5f, 1) };
@@ -230,10 +261,39 @@ public abstract class SlabBase : Block
         else if (set.block.Meta[0] == '+')
             foreach (var @base in base.GetInteractionModel(set))
                 yield return ((@base.start.x, (@base.start.y / 2) + .5f, @base.start.z), (@base.end.x, (@base.end.y / 2) + .5f, @base.end.z));
-        else if(set.block.Meta[0] == '|')
+        else if(set.block.Meta[0] is '|' or '/')
         {
-            foreach (var @base in base.GetInteractionModel(set))
-                yield return @base;
+            if (set.block.Meta.Length == 1)
+                if (set.block.Meta[0] is '/')
+                    foreach (var @base in base.GetInteractionModel(set))
+                        yield return ((@base.start.x, @base.start.y, @base.start.z / 2), (@base.end.x, @base.end.y, @base.end.z / 2));
+                else
+                    foreach (var @base in base.GetInteractionModel(set))
+                        yield return ((@base.start.x / 2, @base.start.y, @base.start.z), (@base.end.x / 2, @base.end.y, @base.end.z));
+            else if (set.block.Meta[1] == '+')
+                if (set.block.Meta[0] is '/')
+                    foreach (var @base in base.GetInteractionModel(set))
+                        yield return ((@base.start.x, @base.start.y, (@base.start.z / 2) + .5f), (@base.end.x, @base.end.y, (@base.end.z / 2) + .5f));
+                else
+                    foreach (var @base in base.GetInteractionModel(set))
+                        yield return (((@base.start.x / 2) + .5f, @base.start.y, @base.start.z), ((@base.end.x / 2) + .5f, @base.end.y, @base.end.z));
+            else
+            {
+                if(set.HitBoxIndex == 0)
+                    if (set.block.Meta[0] is '/')
+                        foreach (var @base in base.GetInteractionModel(set))
+                            yield return ((@base.start.x, @base.start.y, @base.start.z / 2), (@base.end.x, @base.end.y, @base.end.z / 2));
+                    else
+                        foreach (var @base in base.GetInteractionModel(set))
+                            yield return ((@base.start.x / 2, @base.start.y, @base.start.z), (@base.end.x / 2, @base.end.y, @base.end.z));
+                else
+                    if (set.block.Meta[0] is '/')
+                        foreach (var @base in base.GetInteractionModel(set))
+                            yield return ((@base.start.x, @base.start.y, (@base.start.z / 2) + .5f), (@base.end.x, @base.end.y, (@base.end.z / 2) + .5f));
+                    else
+                        foreach (var @base in base.GetInteractionModel(set))
+                            yield return (((@base.start.x / 2) + .5f, @base.start.y, @base.start.z), ((@base.end.x / 2) + .5f, @base.end.y, @base.end.z));
+            }
         }
         else
         {
