@@ -270,7 +270,17 @@ public abstract class SlabBase : Block
         }
         else
         {
-            // TODO - Interaction with a vertical slab
+            if (info.AsT1.Column1 is null || info.AsT1.Column2 is null)
+                args.World.SetBlock(args.BlockPozition, new());
+            else
+            {
+                if (args.HitBoxIndex == 0)
+                    args.World.SetBlock(args.BlockPozition, new(info.AsT1.Column2, 0,  (info.AsT1.IsAlongTheXAxis ? "/" : "|") + "+"));
+                else if (args.HitBoxIndex == 1)
+                    args.World.SetBlock(args.BlockPozition, new(info.AsT1.Column1, 0, info.AsT1.IsAlongTheXAxis ? "/" : "|"));
+                else
+                    return false;
+            }
         }
 
         return true;
