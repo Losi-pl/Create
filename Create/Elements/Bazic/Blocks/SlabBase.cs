@@ -10,40 +10,68 @@ namespace Create.Elements.Bazic.Blocks;
 
 public abstract class SlabBase : Block
 {
+
+    /// <summary>
+    /// Interpretuje dane bloku aby ułatwić interakcje i modyfikacje tego typu bloków
+    /// </summary>
+    /// <param name="placedBlock"></param>
+    /// <returns></returns>
     public static SlabInfo? InterpretPlacedBlock(PlacedBlock placedBlock)
-    { // TODO - Documentation
+    {
+        // Checks if the PlacedBlock is a slab
         if (placedBlock.Block is not SlabBase slab)
             return null;
-        if(string.IsNullOrEmpty(placedBlock.Meta))
+
+        // If there is no meta, then it's a default configuration of a slab (lower horizontal)
+        if (string.IsNullOrEmpty(placedBlock.Meta))
             return (placedBlock.Block, null);
+
+        // If meta only consists of '+', it means that it's an upper horizontal slab
         if (placedBlock.Meta[0] == '+')
             return (null, placedBlock.Block);
+
+        // If meta starts with '\' or '|' that means that the slab/s are vertical
         else if (placedBlock.Meta[0] is '|' or '/')
         {
-            if(placedBlock.Meta.Length == 1)
+            // If Meta only specifies that the slab is vertical then it will be placed on the: '/' - Soulth, '|' - West
+            if (placedBlock.Meta.Length == 1)
                 return (placedBlock.Block, null, placedBlock.Meta[0] is '/');
+
+            // The additional character '+' after specifying that slab is vertical means that the slab is on the opposite side. '/' - North, '|' - East
             if (placedBlock.Meta[1] == '+')
                 return (null, placedBlock.Block, placedBlock.Meta[0] is '/');
+
+            // If Meta contains only a marker of a vertical slab and a code name that means that there are two slabs in the same block '/' - South>North, '|' - West>East
             else
                 return (placedBlock.Block, Register.Blocks.ByName[placedBlock.Meta.Substring(1)], placedBlock.Meta[0] is '/');
         }
+
+        // If Meta only contains a code name, it means that there are two slabs lying on top of each other: the placedBlock.Block specifying one on the bottom and the Meta one on the top
         else
             return (placedBlock.Block, Register.Blocks.ByName[placedBlock.Meta]);
     }
     
     public override sealed bool IsSideVisible(StandardBlockSet sideSet, BlockSide side)
-    { // TODO - Documentation
+    {
+        // Confirm that this block is a slab
         var info = InterpretPlacedBlock(sideSet.block);
         if (!info.HasValue)
             return true;
+        
+        // If the slab is horizontal
         if (info.Value.Index == 0)
         {
             switch (side)
             {
+                // Lower slab will hide the bottom
                 case BlockSide.Bottom:
                     return info.Value.AsT0.Bottom is null;
+
+                // Upper slab will hide the top
                 case BlockSide.Top:
                     return info.Value.AsT0.Top is null;
+
+                // If there is at least one free space in the block, the side is considered to be visible
                 default:
                     return info.Value.AsT0.Top is null || info.Value.AsT0.Bottom is null;
             }
@@ -51,10 +79,17 @@ public abstract class SlabBase : Block
         else if (info.Value.Index == 1)
             switch (side)
             {
+                // If there is at least one free space in the block, the side is considered to be visible
                 case BlockSide.Bottom:
                     return info.Value.AsT1.Column1 is null || info.Value.AsT1.Column2 is null;
+
+                // If there is at least one free space in the block, the side is considered to be visible
                 case BlockSide.Top:
                     return info.Value.AsT1.Column1 is null || info.Value.AsT1.Column2 is null;
+
+                    // The rest is the same way, but it also includes a check of the alignment of the vertical slabs
+                    // If aligned, then just check if the slab on that side is taken.
+                    // Otherwise, check if either side is empty.
                 case BlockSide.North:
                     if (info.Value.AsT1.IsAlongTheXAxis)
                         return info.Value.AsT1.Column2 is null;
@@ -93,7 +128,7 @@ public abstract class SlabBase : Block
                     // Verify if there is room for a slab in the block
                     if (info.AsT0.Top is null || info.AsT0.Bottom is null)
                     {
-                        // Test if player clicks on top of a lover slab block
+                        // Test if player clicks on top of a lower slab block
                         if (args.TargetSide == BlockSide.Top)
                             if (info.AsT0.Bottom is not null)
                             {
@@ -274,34 +309,47 @@ public abstract class SlabBase : Block
         }
     }
     public override bool OnDestroyBlock(DestroyBlock args)
-    { // TODO - Documentation
+    {
+        // Check if the block interacted with is a slab
         if (args.Block.Block is not SlabBase)
             return false;
+
+        // If the slab/s are horizontal
         var info = InterpretPlacedBlock(args.Block)!.Value;
         if(info.IsT0)
         {
+            // If there is only one slab just remove it
             if (info.AsT0.Top is null || info.AsT0.Bottom is null)
                 args.World.SetBlock(args.BlockPozition, new());
             else
             {
+                // Replace a slab block but with the specified part removed
                 if (args.HitBoxIndex == 0)
                     args.World.SetBlock(args.BlockPozition, new(info.AsT0.Top, 0, "+"));
                 else if (args.HitBoxIndex == 1)
                     args.World.SetBlock(args.BlockPozition, new(info.AsT0.Bottom));
+
+                // Something is wrong
                 else
                     return false;
             }
         }
+
+        // If the slab/s are vertical
         else
         {
+            // If there is only one slab just remove it
             if (info.AsT1.Column1 is null || info.AsT1.Column2 is null)
                 args.World.SetBlock(args.BlockPozition, new());
             else
             {
+                // Replace a slab block but with the specified part removed
                 if (args.HitBoxIndex == 0)
                     args.World.SetBlock(args.BlockPozition, new(info.AsT1.Column2, 0,  (info.AsT1.IsAlongTheXAxis ? "/" : "|") + "+"));
                 else if (args.HitBoxIndex == 1)
                     args.World.SetBlock(args.BlockPozition, new(info.AsT1.Column1, 0, info.AsT1.IsAlongTheXAxis ? "/" : "|"));
+
+                // Something is wrong
                 else
                     return false;
             }
@@ -311,34 +359,50 @@ public abstract class SlabBase : Block
     }
 
     public override string GetItemName(ItemName args)
-    { // TODO - Documentation
+    {
+        // If there is no meta then it's I don't even know
         if (string.IsNullOrEmpty(args.Item.Meta))
             return base.GetItemName(args);
+
+        // Directly get the meta of the slab from the item
         var nMeta = args.Item.Meta.IndexOf(';').Cast(c => c == -1 || c == args.Item.Meta.Length - 1 ? string.Empty : args.Item.Meta.Substring(c + 1, args.Item.Meta.Length - c - 1));
+        
+        // If the block has no meta then its just a normal default slab
         if(string.IsNullOrEmpty(nMeta))
             return base.GetItemName(args);
+
+        // Check if it's a vertical slab and if so, add a vertical prefix
         if (nMeta[0] is '/' or '|')
             return string.Format(Assets.Language.GetFromKey("create.blocks.format.slab.vertical.name"), base.GetItemName(args));
 
+        // Whatever else is happening
         return base.GetItemName(args);
     }
 
     public override sealed IEnumerable<BlockCollider> GetInteractionCollision(StandardBlockSet set)
-    { // TODO - Documentation
+    {
+        // No extra meta so a default slab (lower horizontal)
         if (string.IsNullOrEmpty(set.block.Meta))
             yield return new() { pozition = (.5f, .25f, .5f), size = (1, .5f, 1) };
+
+        // If it's a vertical slab/s
         else if (set.block.Meta[0] is '|' or '/')
         {
+            // If it's a single slab in the first column
             if (set.block.Meta.Length == 1)
                 if (set.block.Meta[0] is '/')
                     yield return new() { pozition = (.5f, .5f, .25f), size = (1, 1, .5f) };
                 else
                     yield return new() { pozition = (.25f, .5f, .5f), size = (.5f, 1, 1) };
+
+            // If it's a single slab in the secound column
             else if (set.block.Meta[1] == '+')
                 if (set.block.Meta[0] is '/')
                     yield return new() { pozition = (.5f, .5f, .75f), size = (1, 1, .5f) };
                 else
                     yield return new() { pozition = (.75f, .5f, .5f), size = (.5f, 1, 1) };
+
+            // If there are two slabs
             else
             {
                 if (set.block.Meta[0] is '/')
@@ -353,8 +417,12 @@ public abstract class SlabBase : Block
                 }
             }
         }
+
+        // If it's an upper slab
         else if (set.block.Meta[0] == '+')
             yield return new() { pozition = (.5f, .75f, .5f), size = (1, .5f, 1) };
+
+        // Two horizontal slabs
         else if (set.block.Meta.Length > 1)
         {
             yield return new() { pozition = (.5f, .25f, .5f), size = (1, .5f, 1) };
@@ -362,17 +430,22 @@ public abstract class SlabBase : Block
         }
     }
     public override sealed IEnumerable<BlockCollider> GetPhisicCollision(StandardBlockSet set)
-    { // TODO - Documentation
-        
+    {
+        // No extra meta so a default slab (lower horizontal)
         if (string.IsNullOrEmpty(set.block.Meta))
             yield return new() { pozition = (.5f, .25f, .5f), size = (1, .5f, 1) };
+
+        // If it's a vertical slab/s
         else if (set.block.Meta[0] is '|' or '/')
         {
+            // If it's a single slab in the first column
             if (set.block.Meta.Length == 1)
                 if (set.block.Meta[0] is '/')
                     yield return new() { pozition = (.5f, .5f, .25f), size = (1, 1, .5f) };
                 else
                     yield return new() { pozition = (.25f, .5f, .5f), size = (.5f, 1, 1) };
+
+            // If it's a single slab in the secound column
             else if (set.block.Meta[1] == '+')
                 if (set.block.Meta[0] is '/')
                     yield return new() { pozition = (.5f, .5f, .75f), size = (1, 1, .5f) };
@@ -381,21 +454,31 @@ public abstract class SlabBase : Block
             else
                 yield return new() { pozition = (.5f, .5f, .5f), size = (1, 1, 1) };
         }
+
+        // If it's an upper slab
         else if (set.block.Meta[0] == '+')
             yield return new() { pozition = (.5f, .75f, .5f), size = (1, .5f, 1) };
+
+        // Two horizontal slabs
         else if (set.block.Meta.Length > 1)
             yield return new() { pozition = (.5f, .5f, .5f), size = (1, 1, 1) };
     }
     public override sealed IEnumerable<((float x, float y, float z) start, (float x, float y, float z) end)> GetInteractionModel(StandardBlockSet set)
-    { // TODO - Documentation
+    {
+        // No extra meta so a default slab (single lower horizontal)
         if (string.IsNullOrEmpty(set.block.Meta))
             foreach (var @base in base.GetInteractionModel(set))
                 yield return ((@base.start.x, @base.start.y / 2, @base.start.z), (@base.end.x, @base.end.y / 2, @base.end.z));
+
+        // If it's an upper slab
         else if (set.block.Meta[0] == '+')
             foreach (var @base in base.GetInteractionModel(set))
                 yield return ((@base.start.x, (@base.start.y / 2) + .5f, @base.start.z), (@base.end.x, (@base.end.y / 2) + .5f, @base.end.z));
-        else if(set.block.Meta[0] is '|' or '/')
+
+        // If it's a vertical slab/s
+        else if (set.block.Meta[0] is '|' or '/')
         {
+            // If it's a single slab in the first column
             if (set.block.Meta.Length == 1)
                 if (set.block.Meta[0] is '/')
                     foreach (var @base in base.GetInteractionModel(set))
@@ -403,6 +486,8 @@ public abstract class SlabBase : Block
                 else
                     foreach (var @base in base.GetInteractionModel(set))
                         yield return ((@base.start.x / 2, @base.start.y, @base.start.z), (@base.end.x / 2, @base.end.y, @base.end.z));
+
+            // If it's a single slab in the secound column
             else if (set.block.Meta[1] == '+')
                 if (set.block.Meta[0] is '/')
                     foreach (var @base in base.GetInteractionModel(set))
@@ -410,8 +495,11 @@ public abstract class SlabBase : Block
                 else
                     foreach (var @base in base.GetInteractionModel(set))
                         yield return (((@base.start.x / 2) + .5f, @base.start.y, @base.start.z), ((@base.end.x / 2) + .5f, @base.end.y, @base.end.z));
+
+            // There are two vertical slabs to choose from
             else
             {
+                // A slab in the first column
                 if(set.HitBoxIndex == 0)
                     if (set.block.Meta[0] is '/')
                         foreach (var @base in base.GetInteractionModel(set))
@@ -419,6 +507,8 @@ public abstract class SlabBase : Block
                     else
                         foreach (var @base in base.GetInteractionModel(set))
                             yield return ((@base.start.x / 2, @base.start.y, @base.start.z), (@base.end.x / 2, @base.end.y, @base.end.z));
+
+                // A slab in the secound column
                 else
                     if (set.block.Meta[0] is '/')
                         foreach (var @base in base.GetInteractionModel(set))
@@ -428,11 +518,16 @@ public abstract class SlabBase : Block
                             yield return (((@base.start.x / 2) + .5f, @base.start.y, @base.start.z), ((@base.end.x / 2) + .5f, @base.end.y, @base.end.z));
             }
         }
+
+        // There are two horizontal slabs to choose from
         else
         {
-            if(set.HitBoxIndex == 0)
+            // A lower slab
+            if (set.HitBoxIndex == 0)
                 foreach (var @base in base.GetInteractionModel(set))
                     yield return ((@base.start.x, @base.start.y / 2, @base.start.z), (@base.end.x, @base.end.y / 2, @base.end.z));
+
+            // An upper slab
             else
                 foreach (var @base in base.GetInteractionModel(set))
                     yield return ((@base.start.x, (@base.start.y / 2) + .5f, @base.start.z), (@base.end.x, (@base.end.y / 2) + .5f, @base.end.z));
