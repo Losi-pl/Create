@@ -293,7 +293,18 @@ public abstract class SlabBase : Block
                 else
                     yield return new() { pozition = (.75f, .5f, .5f), size = (.5f, 1, 1) };
             else
-                yield return new() { pozition = (.5f, .5f, .5f), size = (1, 1, 1) };
+            {
+                if (set.block.Meta[0] is '/')
+                {
+                    yield return new() { pozition = (.5f, .5f, .25f), size = (1, 1, .5f) };
+                    yield return new() { pozition = (.5f, .5f, .75f), size = (1, 1, .5f) };
+                }
+                else
+                {
+                    yield return new() { pozition = (.25f, .5f, .5f), size = (.5f, 1, 1) };
+                    yield return new() { pozition = (.75f, .5f, .5f), size = (.5f, 1, 1) };
+                }
+            }
         }
         else if (set.block.Meta[0] == '+')
             yield return new() { pozition = (.5f, .75f, .5f), size = (1, .5f, 1) };
@@ -321,18 +332,7 @@ public abstract class SlabBase : Block
                 else
                     yield return new() { pozition = (.75f, .5f, .5f), size = (.5f, 1, 1) };
             else
-            {
-                if (set.block.Meta[0] is '/')
-                {
-                    yield return new() { pozition = (.5f, .5f, .25f), size = (1, 1, .5f) };
-                    yield return new() { pozition = (.5f, .5f, .75f), size = (1, 1, .5f) };
-                }
-                else
-                {
-                    yield return new() { pozition = (.25f, .5f, .5f), size = (.5f, 1, 1) };
-                    yield return new() { pozition = (.75f, .5f, .5f), size = (.5f, 1, 1) };
-                }
-            }
+                yield return new() { pozition = (.5f, .5f, .5f), size = (1, 1, 1) };
         }
         else if (set.block.Meta[0] == '+')
             yield return new() { pozition = (.5f, .75f, .5f), size = (1, .5f, 1) };
