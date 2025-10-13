@@ -624,6 +624,44 @@ public abstract class Mob : Entity
         return false;
     }
     
+    public static Block.BlockSide RouthDirection(LivingEntity entity, bool onlyHorizontal = false)
+    {
+        var rotat = (Vector2?)entity.Data.Get("camera_rot") ?? throw new ArgumentException("This enetity does't have set orientation");
+        rotat.X = rotat.X % 360;
+
+        if(!onlyHorizontal)
+        {
+            if (rotat.Y > 45)
+                return Block.BlockSide.Top;
+            else if(rotat.Y < -45)
+                return Block.BlockSide.Top;
+        }
+
+        if (rotat.X >= 0 && rotat.X <= 45)
+            return Block.BlockSide.North;
+        else if (rotat.X > 45 && rotat.X <= 135)
+            return Block.BlockSide.East;
+        else if (rotat.X > 135 && rotat.X <= 225)
+            return Block.BlockSide.South;
+        else if (rotat.X > 225 && rotat.X <= 315)
+            return Block.BlockSide.West;
+        if (rotat.X > 315 && rotat.X <= 360)
+            return Block.BlockSide.North;
+
+        else if (rotat.X >= -45 && rotat.X < 0)
+            return Block.BlockSide.North;
+        else if (rotat.X >= -135 && rotat.X < -45)
+            return Block.BlockSide.West;
+        else if (rotat.X >= -225 && rotat.X < -135)
+            return Block.BlockSide.South;
+        else if (rotat.X >= -315 && rotat.X < -225)
+            return Block.BlockSide.East;
+        else if (rotat.X >= -360 && rotat.X < -315)
+            return Block.BlockSide.North;
+
+        throw new IndexOutOfRangeException();
+    }
+
     /// <summary>
     /// Gdzie instancja się patrzy
     /// </summary>
