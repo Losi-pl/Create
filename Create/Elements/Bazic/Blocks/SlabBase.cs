@@ -1,4 +1,6 @@
 ﻿using Create.Conteiner;
+using Create.Elements.Bazic.Entitys;
+using Create.Linq;
 using Create.Space;
 using OneOf;
 using SlabInfo = OneOf.OneOf<(Create.Elements.Block? Bottom, Create.Elements.Block? Top), 
@@ -87,6 +89,90 @@ public abstract class SlabBase : Block
                 }
             }
         } // Interactions with slabs in the same block
+
+        // See if slab used by the player is vertical
+        if(string.IsNullOrEmpty(args.BlockStack.AsPlacedBlock().Meta) ? false : args.BlockStack.AsPlacedBlock().Meta[0] is '|' or '/')
+        {
+            if(args.TargetSide is BlockSide.Top or BlockSide.Bottom)
+            {
+                // Calculate potential slab orientation
+                var along_the_X = Mob.RouthDirection(args.Player.Entity!, true) is BlockSide.North or BlockSide.South;
+                var is_upper = along_the_X ? args.InWorldPoint.Z % 1 > .5f : args.InWorldPoint.X % 1 > .5f;
+
+                // Check if the targeted location alredy has a slab present
+                var info_ = InterpretPlacedBlock(args.World.GetBlock(args.TargetBlockPozition));
+                if (info_ is not null)
+                {
+                    var info = info_.Value;
+
+                    // Check if the slab/s in that place is vertical
+                    if (!info.IsT1)
+                        return false;
+
+                    // Check if the slab/s in that place are in the same orientation as intended
+                    if (along_the_X != info.AsT1.IsAlongTheXAxis)
+                        return false;
+
+                    // Check if the place if free
+                    if ((is_upper ? info.AsT1.Column2 : info.AsT1.Column1) is not null)
+                        return false;
+
+                    // Update the block placed in the world
+                    if(is_upper)
+                        args.World.SetBlock(args.TargetBlockPozition, new(info.AsT1.Column1!, 0, (along_the_X ? "/" : "|") + this.CodeName));
+                    else
+                        args.World.SetBlock(args.TargetBlockPozition, new(this, 0, (along_the_X ? "/" : "|") + info.AsT1.Column2!.CodeName));
+                }
+                
+                // If the location is empty then just set the block
+                else if (args.World.GetBlock(args.TargetBlockPozition).Block == Elements.Blocks.AIR)
+                    args.World.SetBlock(args.TargetBlockPozition, new(this, 0, (along_the_X ? "/" : "|") + (is_upper ? "+" : string.Empty)));
+                
+                // The location is alredy taken by something else
+                else
+                    return false;
+            }
+            else
+            {
+                var is_upper = args.TargetSide is BlockSide.South or BlockSide.West;
+                var along_the_X = args.TargetSide is BlockSide.North or BlockSide.South;
+
+                // Check if the targeted location alredy has a slab present
+                var info_ = InterpretPlacedBlock(args.World.GetBlock(args.TargetBlockPozition));
+                if (info_ is not null)
+                {
+                    var info = info_.Value;
+
+                    // Check if the slab/s in that place is vertical
+                    if (!info.IsT1)
+                        return false;
+
+                    // Check if the slab/s in that place are in the same orientation as intended
+                    if (along_the_X != info.AsT1.IsAlongTheXAxis)
+                        return false;
+
+                    // Check if the place if free
+                    if ((is_upper ? info.AsT1.Column2 : info.AsT1.Column1) is not null)
+                        return false;
+
+                    // Update the block placed in the world
+                    if (is_upper)
+                        args.World.SetBlock(args.TargetBlockPozition, new(info.AsT1.Column1!, 0, (along_the_X ? "/" : "|") + this.CodeName));
+                    else
+                        args.World.SetBlock(args.TargetBlockPozition, new(this, 0, (along_the_X ? "/" : "|") + info.AsT1.Column2!.CodeName));
+                }
+
+                // If the location is empty then just set the block
+                else if (args.World.GetBlock(args.TargetBlockPozition).Block == Elements.Blocks.AIR)
+                    args.World.SetBlock(args.TargetBlockPozition, new(this, 0, (along_the_X ? "/" : "|") + (is_upper ? "+" : string.Empty)));
+
+                // The location is alredy taken by something else
+                else
+                    return false;
+            }
+
+            return true;
+        }
 
         // Placing a new slab on top of a targeted block
         if (args.TargetSide == BlockSide.Top)
