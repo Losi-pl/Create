@@ -155,7 +155,8 @@ public abstract class SlabBase : Block
             {
                 // Calculate potential slab orientation
                 var along_the_X = Mob.RouthDirection(args.Player.Entity!, true) is BlockSide.North or BlockSide.South;
-                var is_upper = along_the_X ? args.InWorldPoint.Z % 1 > .5f : args.InWorldPoint.X % 1 > .5f;
+                var slide = along_the_X ? args.InWorldPoint.Z % 1 : args.InWorldPoint.X % 1;
+                var is_upper = (slide >= 0 ? slide : 1 + slide) > .5f;
 
                 // Check if the targeted location alredy has a slab present
                 if (InterpretPlacedBlock(args.World.GetBlock(args.TargetBlockPozition)).IsNotNull(out var info))
