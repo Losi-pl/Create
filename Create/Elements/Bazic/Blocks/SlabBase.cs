@@ -55,62 +55,61 @@ public abstract class SlabBase : Block
     public override sealed bool IsSideVisible(StandardBlockSet sideSet, BlockSide side)
     {
         // Confirm that this block is a slab
-        var info = InterpretPlacedBlock(sideSet.block);
-        if (!info.HasValue)
+        if (!InterpretPlacedBlock(sideSet.block).IsNotNull(out var info))
             return true;
         
         // If the slab is horizontal
-        if (info.Value.Index == 0)
+        if (info.Index == 0)
         {
             switch (side)
             {
                 // Lower slab will hide the bottom
                 case BlockSide.Bottom:
-                    return info.Value.AsT0.Bottom is null;
+                    return info.AsT0.Bottom is null;
 
                 // Upper slab will hide the top
                 case BlockSide.Top:
-                    return info.Value.AsT0.Top is null;
+                    return info.AsT0.Top is null;
 
                 // If there is at least one free space in the block, the side is considered to be visible
                 default:
-                    return info.Value.AsT0.Top is null || info.Value.AsT0.Bottom is null;
+                    return info.AsT0.Top is null || info.AsT0.Bottom is null;
             }
         }
-        else if (info.Value.Index == 1)
+        else if (info.Index == 1)
             switch (side)
             {
                 // If there is at least one free space in the block, the side is considered to be visible
                 case BlockSide.Bottom:
-                    return info.Value.AsT1.Column1 is null || info.Value.AsT1.Column2 is null;
+                    return info.AsT1.Column1 is null || info.AsT1.Column2 is null;
 
                 // If there is at least one free space in the block, the side is considered to be visible
                 case BlockSide.Top:
-                    return info.Value.AsT1.Column1 is null || info.Value.AsT1.Column2 is null;
+                    return info.AsT1.Column1 is null || info.AsT1.Column2 is null;
 
                     // The rest is the same way, but it also includes a check of the alignment of the vertical slabs
                     // If aligned, then just check if the slab on that side is taken.
                     // Otherwise, check if either side is empty.
                 case BlockSide.North:
-                    if (info.Value.AsT1.IsAlongTheXAxis)
-                        return info.Value.AsT1.Column2 is null;
+                    if (info.AsT1.IsAlongTheXAxis)
+                        return info.AsT1.Column2 is null;
                     else
-                        return info.Value.AsT1.Column1 is null || info.Value.AsT1.Column2 is null;
+                        return info.AsT1.Column1 is null || info.AsT1.Column2 is null;
                 case BlockSide.South:
-                    if (info.Value.AsT1.IsAlongTheXAxis)
-                        return info.Value.AsT1.Column1 is null;
+                    if (info.AsT1.IsAlongTheXAxis)
+                        return info.AsT1.Column1 is null;
                     else
-                        return info.Value.AsT1.Column1 is null || info.Value.AsT1.Column2 is null;
+                        return info.AsT1.Column1 is null || info.AsT1.Column2 is null;
                 case BlockSide.East:
-                    if (!info.Value.AsT1.IsAlongTheXAxis)
-                        return info.Value.AsT1.Column2 is null;
+                    if (!info.AsT1.IsAlongTheXAxis)
+                        return info.AsT1.Column2 is null;
                     else
-                        return info.Value.AsT1.Column1 is null || info.Value.AsT1.Column2 is null;
+                        return info.AsT1.Column1 is null || info.AsT1.Column2 is null;
                 case BlockSide.West:
-                    if (!info.Value.AsT1.IsAlongTheXAxis)
-                        return info.Value.AsT1.Column1 is null;
+                    if (!info.AsT1.IsAlongTheXAxis)
+                        return info.AsT1.Column1 is null;
                     else
-                        return info.Value.AsT1.Column1 is null || info.Value.AsT1.Column2 is null;
+                        return info.AsT1.Column1 is null || info.AsT1.Column2 is null;
             }
         return true;
     }
@@ -118,12 +117,11 @@ public abstract class SlabBase : Block
     public override sealed bool OnPlaceBlock(PlaceBlock args)
     {
         { // Interactions with slabs in the same block
+
             // Test if the player is aiming at the inside of a placed slab
             var c_block = args.World.GetBlock(args.TargetedBlockPozition);
-            if (c_block.Block is SlabBase)
+            if (InterpretPlacedBlock(c_block).IsNotNull(out var info))
             {
-                // Process data of the slabs
-                var info = InterpretPlacedBlock(c_block)!.Value;
                 if (info.IsT0)
                 {
                     // Verify if there is room for a slab in the block
@@ -160,11 +158,8 @@ public abstract class SlabBase : Block
                 var is_upper = along_the_X ? args.InWorldPoint.Z % 1 > .5f : args.InWorldPoint.X % 1 > .5f;
 
                 // Check if the targeted location alredy has a slab present
-                var info_ = InterpretPlacedBlock(args.World.GetBlock(args.TargetBlockPozition));
-                if (info_ is not null)
+                if (InterpretPlacedBlock(args.World.GetBlock(args.TargetBlockPozition)).IsNotNull(out var info))
                 {
-                    var info = info_.Value;
-
                     // Check if the slab/s in that place is vertical
                     if (!info.IsT1)
                         return false;
@@ -198,11 +193,8 @@ public abstract class SlabBase : Block
                 var along_the_X = args.TargetSide is BlockSide.North or BlockSide.South;
 
                 // Check if the targeted location alredy has a slab present
-                var info_ = InterpretPlacedBlock(args.World.GetBlock(args.TargetBlockPozition));
-                if (info_ is not null)
+                if (InterpretPlacedBlock(args.World.GetBlock(args.TargetBlockPozition)).IsNotNull(out var info))
                 {
-                    var info = info_.Value;
-
                     // Check if the slab/s in that place is vertical
                     if (!info.IsT1)
                         return false;
@@ -239,9 +231,8 @@ public abstract class SlabBase : Block
         {
             // See if the block above is also a slab
             var target_bl = args.World.GetBlock(args.TargetBlockPozition);
-            if (target_bl.Block is SlabBase)
+            if (InterpretPlacedBlock(target_bl).IsNotNull(out var info))
             {
-                var info = InterpretPlacedBlock(target_bl)!.Value;
                 // Check if the block above is not vertical
                 if (info.IsT1)
                     return false;
@@ -262,9 +253,8 @@ public abstract class SlabBase : Block
         {
             // See if the block below is also a slab
             var target_bl = args.World.GetBlock(args.TargetBlockPozition);
-            if (target_bl.Block is SlabBase)
+            if (InterpretPlacedBlock(target_bl).IsNotNull(out var info))
             {
-                var info = InterpretPlacedBlock(target_bl)!.Value;
                 // Check if the block below is not vertical
                 if (info.IsT1)
                     return false;
@@ -288,9 +278,8 @@ public abstract class SlabBase : Block
 
             // See if the block to the side is also a slab
             var target_bl = args.World.GetBlock(args.TargetBlockPozition);
-            if (target_bl.Block is SlabBase)
+            if (InterpretPlacedBlock(target_bl).IsNotNull(out var info))
             {
-                var info = InterpretPlacedBlock(target_bl)!.Value;
                 // Check if the block below is not vertical
                 if (info.IsT1)
                     return false;
@@ -312,11 +301,10 @@ public abstract class SlabBase : Block
     public override bool OnDestroyBlock(DestroyBlock args)
     {
         // Check if the block interacted with is a slab
-        if (args.Block.Block is not SlabBase)
+        if (!InterpretPlacedBlock(args.Block).IsNotNull(out var info))
             return false;
 
         // If the slab/s are horizontal
-        var info = InterpretPlacedBlock(args.Block)!.Value;
         if(info.IsT0)
         {
             // If there is only one slab just remove it
@@ -366,10 +354,10 @@ public abstract class SlabBase : Block
             return base.GetItemName(args);
 
         // Directly get the meta of the slab from the item
-        var nMeta = args.Item.Meta.IndexOf(';').Cast(c => c == -1 || c == args.Item.Meta.Length - 1 ? string.Empty : args.Item.Meta.Substring(c + 1, args.Item.Meta.Length - c - 1));
+        var nMeta = BlockItem.GetBlockMeta(args.Item);
         
         // If the block has no meta then its just a normal default slab
-        if(string.IsNullOrEmpty(nMeta))
+        if(nMeta.Length == 0)
             return base.GetItemName(args);
 
         // Check if it's a vertical slab and if so, add a vertical prefix
