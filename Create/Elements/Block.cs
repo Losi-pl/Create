@@ -146,7 +146,10 @@ public abstract class Block : Baze
 
     public virtual bool OnPlaceBlock(PlaceBlock args)
     {
-        args.World.SetBlock(args.TargetBlockPozition, args.BlockStack.AsPlacedBlock());
+        if (args.World.GetBlock(args.TargetBlockPozition).Block == Blocks.AIR)
+            args.World.SetBlock(args.TargetBlockPozition, args.BlockStack.AsPlacedBlock());
+        else
+            return false;
         return true;
     }
 
