@@ -18,6 +18,7 @@ public static class Blocks
     public static readonly Block OAK_PLANKS = new OakPlanks();
     public static readonly Block CRAFTING_TABLE = new CraftingTable();
     public static readonly Block STONE_SLAB = new Stone.Slab();
+    public static readonly Block STONE_STAIRS = new Stone.Stairs();
     public static readonly Block OAK_PLANKS_SLAB = new OakPlanks.Slab();
     public static readonly Block DEBUG_BLOCK = new DebugBlock();
     public static readonly Block DEBUG_SLAB = new DebugBlock.Slab();

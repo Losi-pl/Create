@@ -16,6 +16,7 @@ partial class CreativeTabs
                 Blocks.OAK_LOG,
                 Blocks.OAK_PLANKS,
                 Blocks.CRAFTING_TABLE,
+                Blocks.STONE_STAIRS,
                 Blocks.STONE_SLAB,
                 Blocks.OAK_PLANKS_SLAB,
                 Blocks.DEBUG_BLOCK,
