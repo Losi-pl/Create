@@ -21,6 +21,7 @@ partial class CreativeTabs
                 Blocks.STONE_STAIRS,
                 Blocks.STONE_SLAB,
                 Blocks.DEBUG_BLOCK,
+                Blocks.DEBUG_STAIRS,
                 Blocks.DEBUG_SLAB,
             }).Select(b => new ItemStack(b)),
         CreateIcon = () => new ItemStack(Blocks.STONE),

@@ -15,6 +15,7 @@
     "debug-slab.name": "Slab for Debugging",
     "stone-stairs.name": "Stone Stairs",
     "oak-planks-stairs.name": "Oak Plank Stairs",
+    "debug-stairs.name": "Stairs for Debugging",
     "name": "Block"
   },
   "creative-tabs": {

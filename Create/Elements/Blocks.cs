@@ -23,4 +23,5 @@ public static class Blocks
     public static readonly Block OAK_PLANKS_STAIRS = new OakPlanks.Stairs();
     public static readonly Block DEBUG_BLOCK = new DebugBlock();
     public static readonly Block DEBUG_SLAB = new DebugBlock.Slab();
+    public static readonly Block DEBUG_STAIRS = new DebugBlock.Stairs();
 }
