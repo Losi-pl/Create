@@ -53,7 +53,7 @@ public class StairsModel : IBlockModel
                 add_side_s(BlockSide.West, info.isUpper, true, true);
             if (test_side(BlockSide.North))
                 add_side_s(BlockSide.North, info.isUpper, true, true);
-            if (!info.StepPrezs.SW)
+            if (!info.StepPrezs.SE)
                 add_side_s(BlockSide.South, info.isUpper, true, true);
         }
         if (info.StepPrezs.SW)
