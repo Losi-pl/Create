@@ -197,4 +197,25 @@ public abstract class StairsBase : Block
             return false;
         return true;
     }
+
+    public override bool IsSideVisible(StandardBlockSet sideSet, BlockSide side)
+    {
+        if (!InterpretPlacedBlock(sideSet).IsNotNull(out var info))
+            return base.IsSideVisible(sideSet, side);
+        if (side == BlockSide.Bottom)
+            return info.isUpper;
+        else if (side == BlockSide.Top)
+            return !info.isUpper;
+
+        else if (side == BlockSide.North)
+            return !(info.StepPrezs.NW && info.StepPrezs.NE);
+        else if (side == BlockSide.South)
+            return !(info.StepPrezs.SW && info.StepPrezs.SE);
+        else if (side == BlockSide.East)
+            return !(info.StepPrezs.SE && info.StepPrezs.NE);
+        else if (side == BlockSide.West)
+            return !(info.StepPrezs.SW && info.StepPrezs.NW);
+        
+        return base.IsSideVisible(sideSet, side);
+    }
 }
