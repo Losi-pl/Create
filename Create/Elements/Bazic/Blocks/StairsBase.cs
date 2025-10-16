@@ -292,4 +292,34 @@ public abstract class StairsBase : Block
         yield break;
         //return base.GetInteractionModel(set);
     }
+
+    public override IEnumerable<BlockCollider> GetPhisicCollision(StandardBlockSet set)
+    {
+        if (!InterpretPlacedBlock(set).IsNotNull(out var info))
+        {
+            yield return new() { pozition = new(.5f, .5f, .5f), size = new(1, 1, 1) };
+            yield break;
+        }
+
+        yield return new() { pozition = new(.5f, info.isUpper ? .75f : .25f, .5f), size = new(1, .5f, 1) };
+
+        float Y = info.isUpper ? .25f : .75f;
+
+        if(!(info.StepPrezs.SE ^ info.StepPrezs.NE) && !(info.StepPrezs.SW ^ info.StepPrezs.NW) && info.StepPrezs.NW != info.StepPrezs.NE)
+            yield return new() { pozition = new(info.StepPrezs.NW ? .25f : .75f, Y, .5f), size = new(.5f, .5f, 1) };
+        else
+        {
+            if (info.StepPrezs.NW && info.StepPrezs.NE)
+                yield return new() { pozition = new(.5f, Y, .75f), size = new(1, .5f, .5f) };
+            else if (info.StepPrezs.NW ^ info.StepPrezs.NE)
+                yield return new() { pozition = new(info.StepPrezs.NE ? .75f : .25f, Y, .75f), size = new(.5f, .5f, .5f) };
+
+            if (info.StepPrezs.SW && info.StepPrezs.SE)
+                yield return new() { pozition = new(.5f, Y, .25f), size = new(1, .5f, .5f) };
+            else if (info.StepPrezs.SW ^ info.StepPrezs.SE)
+                yield return new() { pozition = new(info.StepPrezs.SW ? .25f : .75f, Y, .25f), size = new(.5f, .5f, .5f) };
+        }
+    }
+
+    public override IEnumerable<BlockCollider> GetInteractionCollision(StandardBlockSet set) => GetPhisicCollision(set);
 }
