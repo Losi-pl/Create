@@ -6,7 +6,7 @@ try
     if (args[1] != "Release")
         return;
 
-    var compilation_path = Path.GetFullPath($"{Assembly.GetExecutingAssembly().Location}../../../../../../{args[0]}/bin/Release/net6.0/{args[2]}/create.resources");
+    var compilation_path = Path.GetFullPath($"{Assembly.GetExecutingAssembly().Location}../../../../../../{args[0]}/bin/Release/net8.0/{args[2]}/create.resources");
     var resource_path = Path.GetFullPath($"{Assembly.GetExecutingAssembly().Location}../../../../../../Create/Resources/");
 
     Stream s;
