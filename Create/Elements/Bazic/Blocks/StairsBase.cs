@@ -53,4 +53,76 @@ public abstract class StairsBase : Block
         return ((StairsBase)placedBlock.Block, isUpper, steps, side);
     }
     public static StairsInfo? InterpretPlacedBlock(StandardBlockSet placedBlock) => InterpretPlacedBlock(placedBlock.block);
+
+    public static BlockSide? WhereIsFaceing(PlacedBlock block) => block.Block is not StairsBase ? null :
+        (string.IsNullOrEmpty(block.Meta) ? '▀' : block.Meta[0]) switch
+            {
+                '▄' => BlockSide.North,
+                '▌' => BlockSide.East,
+                '▀' => BlockSide.South,
+                '▐' => BlockSide.West,
+                _ => BlockSide.South,
+            };
+
+    public static BlockSide? WhereIsFaceing(PlacedBlock block, bool asumeIsUpper)
+    {
+        if (GetOrientation(block).IsNotNull(out var info))
+            if (info.isUpper == asumeIsUpper)
+                return info.side;
+        return null;
+    }
+    public static bool? IsUpper(PlacedBlock block, BlockSide asumeSide)
+    {
+        if (GetOrientation(block).IsNotNull(out var info))
+            if (info.side == asumeSide)
+                return info.isUpper;
+        return null;
+    }
+
+    public static bool? IsUpper(PlacedBlock block) => block.Block is not StairsBase ? null : (block.Meta.Length >= 2 ? block.Meta[1] == '^' : false);
+
+    public static (BlockSide side, bool isUpper)? GetOrientation(PlacedBlock block)
+    {
+        if (block.Block is not StairsBase)
+            return null;
+
+        var side = (string.IsNullOrEmpty(block.Meta) ? '▀' : block.Meta[0]) switch
+        {
+            '▄' => BlockSide.North,
+            '▌' => BlockSide.East,
+            '▀' => BlockSide.South,
+            '▐' => BlockSide.West,
+            _ => BlockSide.South,
+        };
+
+        var isUp = (block.Meta.Length >= 2 ? block.Meta[1] == '^' : false);
+
+        return (side, isUp);
+    }
+
+    public override bool OnPlaceBlock(PlaceBlock args)
+    {
+        var rough = Entitys.Mob.RouthDirection(args.Player.Entity!, true);
+
+        if (args.World.GetBlock(args.TargetBlockPozition).Block == Elements.Blocks.AIR)
+        {
+            bool is_upper = false;
+            if (args.TargetSide == BlockSide.Bottom)
+                is_upper = true;
+            else if (args.TargetSide != BlockSide.Top)
+                is_upper = args.InWorldPoint.Y % 1 > .5f;
+
+            args.World.SetBlock(args.TargetBlockPozition, new(this, 0, rough switch
+            {
+                BlockSide.North => "▀",
+                BlockSide.East => "▐",
+                BlockSide.South => "▄",
+                BlockSide.West => "▌",
+                _ => "▀"
+            } + (is_upper ? "^" : string.Empty)));
+        }
+        else
+            return false;
+        return true;
+    }
 }
