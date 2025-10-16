@@ -20,9 +20,12 @@ partial class CreativeTabs
                 Blocks.CRAFTING_TABLE,
                 Blocks.STONE_STAIRS,
                 Blocks.STONE_SLAB,
+
+                #if DEBUG
                 Blocks.DEBUG_BLOCK,
                 Blocks.DEBUG_STAIRS,
                 Blocks.DEBUG_SLAB,
+                #endif
             }).Select(b => new ItemStack(b)),
         CreateIcon = () => new ItemStack(Blocks.STONE),
         TabName = "create.creative-tabs.blocks.name"
