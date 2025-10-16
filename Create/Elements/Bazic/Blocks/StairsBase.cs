@@ -2,6 +2,7 @@
 
 using Create.Conteiner;
 using Create.Linq;
+using System.Collections.Generic;
 using StairsInfo = (StairsBase @base, bool isUpper, (bool NW, bool NE, bool SW, bool SE) StepPrezs, Block.BlockSide MainDirection);
 
 public abstract class StairsBase : Block
@@ -150,9 +151,7 @@ public abstract class StairsBase : Block
                 return info.isUpper;
         return null;
     }
-
     public static bool? IsUpper(PlacedBlock block) => block.Block is not StairsBase ? null : (block.Meta.Length >= 2 ? block.Meta[1] == '^' : false);
-
     public static (BlockSide side, bool isUpper)? GetOrientation(PlacedBlock block)
     {
         if (block.Block is not StairsBase)
@@ -217,5 +216,80 @@ public abstract class StairsBase : Block
             return !(info.StepPrezs.SW && info.StepPrezs.NW);
         
         return base.IsSideVisible(sideSet, side);
+    }
+
+    public override IEnumerable<((float x, float y, float z) start, (float x, float y, float z) end)> GetInteractionModel(StandardBlockSet set)
+    {
+        if(!InterpretPlacedBlock(set).IsNotNull(out var info))
+        {
+            foreach (var line in base.GetInteractionModel(set))
+                yield return line;
+            yield break;
+        }
+
+        if(info.isUpper)
+        {
+            yield return ((0, 1, 0), (1, 1, 0));
+            yield return ((0, 1, 1), (1, 1, 1));
+            yield return ((1, 1, 1), (1, 1, 0));
+            yield return ((0, 1, 1), (0, 1, 0));
+
+            yield return ((0, 1, 0), (0, info.StepPrezs.SW ? 0 : .5f, 0));
+            yield return ((0, 1, 1), (0, info.StepPrezs.NW ? 0 : .5f, 1));
+            yield return ((1, 1, 0), (1, info.StepPrezs.SE ? 0 : .5f, 0));
+            yield return ((1, 1, 1), (1, info.StepPrezs.NE ? 0 : .5f, 1));
+        }
+        else
+        {
+            yield return ((0, 0, 0), (1, 0, 0));
+            yield return ((0, 0, 1), (1, 0, 1));
+            yield return ((1, 0, 1), (1, 0, 0));
+            yield return ((0, 0, 1), (0, 0, 0));
+
+            yield return ((0, 0, 0), (0, info.StepPrezs.SW ? 1 : .5f, 0));
+            yield return ((0, 0, 1), (0, info.StepPrezs.NW ? 1 : .5f, 1));
+            yield return ((1, 0, 0), (1, info.StepPrezs.SE ? 1 : .5f, 0));
+            yield return ((1, 0, 1), (1, info.StepPrezs.NE ? 1 : .5f, 1));
+        }
+
+        if(!info.StepPrezs.NE || !info.StepPrezs.NW)
+            yield return (((info.StepPrezs.NW ? .5f : 0), .5f, 1), ((info.StepPrezs.NE ? .5f : 1), .5f, 1));
+        if (!info.StepPrezs.SE || !info.StepPrezs.SW)
+            yield return (((info.StepPrezs.SW ? .5f : 0), .5f, 0), ((info.StepPrezs.SE ? .5f : 1), .5f, 0));
+        if (!info.StepPrezs.NE || !info.StepPrezs.SE)
+            yield return ((1, .5f, (info.StepPrezs.SE ? .5f : 0)), (1, .5f, (info.StepPrezs.NE ? .5f : 1)));
+        if (!info.StepPrezs.SW || !info.StepPrezs.NW)
+            yield return ((0, .5f, (info.StepPrezs.SW ? .5f : 0)), (0, .5f, (info.StepPrezs.NW ? .5f : 1)));
+
+        var Y = (info.isUpper ? 0 : 1);
+        if (info.StepPrezs.NE || info.StepPrezs.NW)
+            yield return (((info.StepPrezs.NW ? 0 : .5f), Y, 1), ((info.StepPrezs.NE ? 1 : .5f), Y, 1));
+        if (info.StepPrezs.SE || info.StepPrezs.SW)
+            yield return (((info.StepPrezs.SW ? 0 : .5f), Y, 0), ((info.StepPrezs.SE ? 1 : .5f), Y, 0));
+        if (info.StepPrezs.NE || info.StepPrezs.SE)
+            yield return ((1, Y, (info.StepPrezs.SE ? 0 : .5f)), (1, Y, (info.StepPrezs.NE ? 1 : .5f)));
+        if (info.StepPrezs.SW || info.StepPrezs.NW)
+            yield return ((0, Y, (info.StepPrezs.SW ? 0 : .5f)), (0, Y, (info.StepPrezs.NW ? 1 : .5f)));
+
+        if (info.StepPrezs.NE ^ info.StepPrezs.NW)
+            yield return ((.5f, .5f, 1), (.5f, Y, 1));
+        if (info.StepPrezs.SE ^ info.StepPrezs.SW)
+            yield return ((.5f, .5f, 0), (.5f, Y, 0));
+        if (info.StepPrezs.NE ^ info.StepPrezs.SE)
+            yield return ((1, .5f, .5f), (1, Y, .5f));
+        if (info.StepPrezs.NW ^ info.StepPrezs.SW)
+            yield return ((0, .5f, .5f), (0, Y, .5f));
+
+        if((info.StepPrezs.NE ^ info.StepPrezs.NW) || (info.StepPrezs.SE ^ info.StepPrezs.SW)) {
+            bool n = info.StepPrezs.NE ^ info.StepPrezs.NW, s = info.StepPrezs.SE ^ info.StepPrezs.SW;
+            yield return ((.5f, .5f, (s ? 0 : .5f)), (.5f, .5f, (n ? 1 : .5f)));
+            yield return ((.5f, Y, (s ? 0 : .5f)), (.5f, Y, (n ? 1 : .5f))); }
+        if ((info.StepPrezs.NE ^ info.StepPrezs.SE) || (info.StepPrezs.SE ^ info.StepPrezs.SW)) {
+            bool e = info.StepPrezs.NE ^ info.StepPrezs.SE, w = info.StepPrezs.NW ^ info.StepPrezs.SW;
+            yield return (((w ? 0 : .5f), .5f, .5f), ((e ? 1 : .5f), .5f, .5f));
+            yield return (((w ? 0 : .5f), Y, .5f), ((e ? 1 : .5f), Y, .5f)); }
+
+        yield break;
+        //return base.GetInteractionModel(set);
     }
 }
