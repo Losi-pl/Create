@@ -1,6 +1,7 @@
 ﻿namespace Create.Elements.Bazic.Blocks;
 
 using Create.Conteiner;
+using Create.Linq;
 using StairsInfo = (StairsBase @base, bool isUpper, (bool NW, bool NE, bool SW, bool SE) StepPrezs, Block.BlockSide MainDirection);
 
 public abstract class StairsBase : Block
@@ -52,7 +53,78 @@ public abstract class StairsBase : Block
 
         return ((StairsBase)placedBlock.Block, isUpper, steps, side);
     }
-    public static StairsInfo? InterpretPlacedBlock(StandardBlockSet placedBlock) => InterpretPlacedBlock(placedBlock.block);
+    public static StairsInfo? InterpretPlacedBlock(StandardBlockSet placedBlock)
+    {
+        if (!InterpretPlacedBlock(placedBlock.block).IsNotNull(out var info))
+            return null;
+
+        if(info.MainDirection is BlockSide.North or BlockSide.South)
+        {
+            var n = WhereIsFaceing(placedBlock.world.GetBlock(placedBlock.pozition.ToVector() + new OpenTK.Mathematics.Vector3i(0, 0, 1)), info.isUpper);
+            var s = WhereIsFaceing(placedBlock.world.GetBlock(placedBlock.pozition.ToVector() + new OpenTK.Mathematics.Vector3i(0, 0, -1)), info.isUpper);
+
+            if (info.MainDirection == BlockSide.North)
+            {
+                if (n.IsNotNull(out var N) ? N is BlockSide.East or BlockSide.West : false)
+                    if (N == BlockSide.East)
+                        info.StepPrezs.NW = true;
+                    else
+                        info.StepPrezs.NE = true;
+                else if (s.IsNotNull(out var S) ? S is BlockSide.East or BlockSide.West : false)
+                    if (S == BlockSide.East)
+                        info.StepPrezs.SE = false;
+                    else
+                        info.StepPrezs.SW = false;
+            }
+            else
+            {
+                if (s.IsNotNull(out var S) ? S is BlockSide.East or BlockSide.West : false)
+                    if (S == BlockSide.East)
+                        info.StepPrezs.SW = true;
+                    else
+                        info.StepPrezs.SE = true;
+                else if (n.IsNotNull(out var N) ? N is BlockSide.East or BlockSide.West : false)
+                    if (N == BlockSide.East)
+                        info.StepPrezs.NE = false;
+                    else
+                        info.StepPrezs.NW = false;
+            }
+        }
+        else if (info.MainDirection is BlockSide.East or BlockSide.West)
+        {
+            var e = WhereIsFaceing(placedBlock.world.GetBlock(placedBlock.pozition.ToVector() + new OpenTK.Mathematics.Vector3i(1, 0, 0)), info.isUpper);
+            var w = WhereIsFaceing(placedBlock.world.GetBlock(placedBlock.pozition.ToVector() + new OpenTK.Mathematics.Vector3i(-1, 0, 0)), info.isUpper);
+
+            if(info.MainDirection == BlockSide.West)
+            {
+                if (w.IsNotNull(out var W) ? W is BlockSide.North or BlockSide.South : false)
+                    if (W == BlockSide.North)
+                        info.StepPrezs.SW = true;
+                    else
+                        info.StepPrezs.NW = true;
+                else if (e.IsNotNull(out var E) ? E is BlockSide.North or BlockSide.South : false)
+                    if (E == BlockSide.North)
+                        info.StepPrezs.NE = false;
+                    else
+                        info.StepPrezs.SE = false;
+            }
+            else
+            {
+                if (e.IsNotNull(out var E) ? E is BlockSide.North or BlockSide.South : false)
+                    if (E == BlockSide.North)
+                        info.StepPrezs.SE = true;
+                    else
+                        info.StepPrezs.NE = true;
+                else if (w.IsNotNull(out var W) ? W is BlockSide.North or BlockSide.South : false)
+                    if (W == BlockSide.North)
+                        info.StepPrezs.NW = false;
+                    else
+                        info.StepPrezs.SW = false;
+            }
+        }
+
+        return info;
+    }
 
     public static BlockSide? WhereIsFaceing(PlacedBlock block) => block.Block is not StairsBase ? null :
         (string.IsNullOrEmpty(block.Meta) ? '▀' : block.Meta[0]) switch
