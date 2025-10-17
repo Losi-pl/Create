@@ -581,7 +581,7 @@ public abstract class Mob : Entity
             }
         }
     }
-    
+
     /// <summary>
     /// Czy byt stoji na ziemi
     /// </summary>
@@ -624,6 +624,12 @@ public abstract class Mob : Entity
         return false;
     }
     
+    /// <summary>
+    /// Pozwala zdeterminować w którym kardynalnym kierunku byt jest skierowany
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="onlyHorizontal"></param>
+    /// <returns></returns>
     public static Block.BlockSide RouthDirection(LivingEntity entity, bool onlyHorizontal = false)
     {
         var rotat = (Vector2?)entity.Data.Get("camera_rot") ?? throw new ArgumentException("This enetity does't have set orientation");
