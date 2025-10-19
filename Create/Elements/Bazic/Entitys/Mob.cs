@@ -39,28 +39,28 @@ public abstract class Mob : Entity
         else
             mob_control(entity, delta);
 
-        Vector3 move_delta;
-        {
-            var wyn = entity.Data.Get("move_delta");
-            if (wyn != null)
-                move_delta = (Vector3)wyn;
-            else
-                move_delta = new();
-        }
+        (entity.Data.Get("move_delta") as Vector3?).IsNotNull(out var move_delta);
         {
             if (MoveByY(entity, move_delta.Y * delta))
                 move_delta.Y = 0;
-
+            bool isOnGround = IsOnGround(entity);
+            float stepUp;
             if (move_delta.X < move_delta.Z)
             {
-                MoveByX(entity, move_delta.X * delta);
-                MoveByZ(entity, move_delta.Z * delta);
+                float sx, sz;
+                MoveByX(entity, move_delta.X * delta, isOnGround ? .5f : 0, out sx);
+                MoveByZ(entity, move_delta.Z * delta, isOnGround ? .5f : 0, out sz);
+                stepUp = Math.Max(sx, sz);
             }
             else
             {
-                MoveByZ(entity, move_delta.Z * delta);
-                MoveByX(entity, move_delta.X * delta);
+                float sx, sz;
+                MoveByZ(entity, move_delta.Z * delta, isOnGround ? .5f : 0, out sz);
+                MoveByX(entity, move_delta.X * delta, isOnGround ? .5f : 0, out sx);
+                stepUp = Math.Max(sx, sz);
             }
+            if (stepUp > 0)
+                MoveByY(entity, stepUp);
         }
         move_delta -= new Vector3(0, 20 * delta, 0);
 
@@ -341,10 +341,16 @@ public abstract class Mob : Entity
     /// <param name="move"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
-    public static bool MoveByX(LivingEntity entity, float move)
+    public static bool MoveByX(LivingEntity entity, float move) => MoveByX(entity, move, 0, out _);
+
+    /// <summary>
+    /// <inheritdoc cref="MoveByX(LivingEntity, float)"/>
+    /// </summary>
+    public static bool MoveByX(LivingEntity entity, float move, float stepUpMargin, out float stepUp)
     {
+         float? stepUp_ = null;
         if (move == 0)
-            return false;
+        { stepUp = 0; return false; }
         var world = entity.Dimention!.World;
         var entity_size = ((Mob)entity.Entity).GetMobSize(entity);
         var entity_pozition = entity.PozitionByCenter;
@@ -376,10 +382,39 @@ public abstract class Mob : Entity
                             b.Block.GetPhisicCollision(new() { pozition = (x, y, z), block = b, world = world }));
                         foreach (var c in colliders)
                         {
-                            var dist = (MathF.Abs(entity_center.Z - (z + c.pozition.z)), MathF.Abs(entity_center.Y - (y + c.pozition.y)));
-                            if (dist.Item1 < (c.size.z / 2) + (entity_size.width / 2) && dist.Item2 < (c.size.y / 2) + (entity_size.height / 2))
+                            var dist = (z: MathF.Abs(entity_center.Z - (z + c.pozition.z)), y: MathF.Abs(entity_center.Y - (y + c.pozition.y)));
+                            if (dist.z < (c.size.z / 2) + (entity_size.width / 2) && dist.y < (c.size.y / 2) + (entity_size.height / 2))
                             {
                                 var poz = x + c.pozition.x + (c.size.x / 2);
+                                if (stepUp_ != 0)
+                                    if (entity_center.Y > (y + c.pozition.y))
+                                    {
+                                        if (poz > entity_side)
+                                        {
+                                            var overlap_Y = ((c.size.y / 2) + (entity_size.height / 2)) - dist.y;
+                                            if (stepUpMargin >= overlap_Y)
+                                            {
+                                                var des = y + c.pozition.y + (c.size.y / 2);
+                                                stepUp_ = Math.Max(des - entity.PozitionByCenter.Y, stepUp_ ?? 0);
+                                                continue;
+                                            }
+                                        }
+                                        else if (poz == entity_side)
+                                        {
+                                            var overlap_Y = ((c.size.y / 2) + (entity_size.height / 2)) - dist.y;
+                                            var des = y + c.pozition.y + (c.size.y / 2);
+                                            if (stepUpMargin >= overlap_Y)
+                                            {
+                                                stepUp_ = Math.Max(des - entity.PozitionByCenter.Y, stepUp_ ?? 0);
+                                                continue;
+                                            }
+                                            else
+                                                stepUp_ = 0;
+                                        }
+                                    }
+                                    else
+                                        stepUp_ = 0;
+
                                 if (poz <= entity_side)
                                 {
                                     if (!min.HasValue)
@@ -393,6 +428,7 @@ public abstract class Mob : Entity
             if (!min.HasValue)
             {
                 entity.Pozition += new Vector3(move, 0, 0);
+                stepUp = stepUp_ ?? 0;
                 return false;
             }
             min += entity_size.width / 2;
@@ -400,11 +436,13 @@ public abstract class Mob : Entity
             {
                 entity_pozition.X = min.Value;
                 entity.PozitionByCenter = entity_pozition;
+                stepUp = stepUp_ ?? 0;
                 return true;
             }
             else
             {
                 entity.Pozition += new Vector3(move, 0, 0);
+                stepUp = stepUp_ ?? 0;
                 return false;
             }
         }
@@ -424,10 +462,39 @@ public abstract class Mob : Entity
                             b.Block.GetPhisicCollision(new() { pozition = (x, y, z), block = b, world = world }));
                         foreach (var c in colliders)
                         {
-                            var dist = (MathF.Abs(entity_center.Z - (z + c.pozition.z)), MathF.Abs(entity_center.Y - (y + c.pozition.y)));
-                            if (dist.Item1 < (c.size.z / 2) + (entity_size.width / 2) && dist.Item2 < (c.size.y / 2) + (entity_size.height / 2))
+                            var dist = (z: MathF.Abs(entity_center.Z - (z + c.pozition.z)), y: MathF.Abs(entity_center.Y - (y + c.pozition.y)));
+                            if (dist.z < (c.size.z / 2) + (entity_size.width / 2) && dist.y < (c.size.y / 2) + (entity_size.height / 2))
                             {
                                 var poz = x + c.pozition.x - (c.size.x / 2);
+                                if (stepUp_ != 0)
+                                    if (entity_center.Y > (y + c.pozition.y))
+                                    {
+                                        if (poz < entity_side)
+                                        {
+                                            var overlap_Y = ((c.size.y / 2) + (entity_size.height / 2)) - dist.y;
+                                            if (stepUpMargin >= overlap_Y)
+                                            {
+                                                var des = y + c.pozition.y + (c.size.y / 2);
+                                                stepUp_ = Math.Max(des - entity.PozitionByCenter.Y, stepUp_ ?? 0);
+                                                continue;
+                                            }
+                                        }
+                                        else if (poz == entity_side)
+                                        {
+                                            var overlap_Y = ((c.size.y / 2) + (entity_size.height / 2)) - dist.y;
+                                            var des = y + c.pozition.y + (c.size.y / 2);
+                                            if (stepUpMargin >= overlap_Y)
+                                            {
+                                                stepUp_ = Math.Max(des - entity.PozitionByCenter.Y, stepUp_ ?? 0);
+                                                continue;
+                                            }
+                                            else
+                                                stepUp_ = 0;
+                                        }
+                                    }
+                                    else
+                                        stepUp_ = 0;
+
                                 if (poz >= entity_side)
                                 {
                                     if (!max.HasValue)
@@ -441,6 +508,7 @@ public abstract class Mob : Entity
             if (!max.HasValue)
             {
                 entity.Pozition += new Vector3(move, 0, 0);
+                stepUp = stepUp_ ?? 0;
                 return false;
             }
             max -= entity_size.width / 2;
@@ -448,11 +516,13 @@ public abstract class Mob : Entity
             {
                 entity_pozition.X = max.Value;
                 entity.PozitionByCenter = entity_pozition;
+                stepUp = stepUp_ ?? 0;
                 return true;
             }
             else
             {
                 entity.Pozition += new Vector3(move, 0, 0);
+                stepUp = stepUp_ ?? 0;
                 return false;
             }
         }
@@ -465,10 +535,16 @@ public abstract class Mob : Entity
     /// <param name="move"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
-    public static bool MoveByZ(LivingEntity entity, float move)
+    public static bool MoveByZ(LivingEntity entity, float move) => MoveByZ(entity, move, 0, out _);
+
+    /// <summary>
+    /// <inheritdoc cref="MoveByZ(LivingEntity, float)"/>
+    /// </summary>
+    public static bool MoveByZ(LivingEntity entity, float move, float stepUpMargin, out float stepUp)
     {
+        float? stepUp_ = null;
         if (move == 0)
-            return false;
+        { stepUp = 0; return false; }
         var world = entity.Dimention!.World;
         var entity_size = ((Mob)entity.Entity).GetMobSize(entity);
         var entity_pozition = entity.PozitionByCenter;
@@ -500,10 +576,41 @@ public abstract class Mob : Entity
                             b.Block.GetPhisicCollision(new() { pozition = (x, y, z), block = b, world = world }));
                         foreach (var c in colliders)
                         {
-                            var dist = (MathF.Abs(entity_center.X - (x + c.pozition.x)), MathF.Abs(entity_center.Y - (y + c.pozition.y)));
-                            if (dist.Item1 < (c.size.x / 2) + (entity_size.width / 2) && dist.Item2 < (c.size.y / 2) + (entity_size.height / 2))
+                            var dist = (x: MathF.Abs(entity_center.X - (x + c.pozition.x)), y: MathF.Abs(entity_center.Y - (y + c.pozition.y)));
+                            
+                            
+                            if (dist.x < (c.size.x / 2) + (entity_size.width / 2) && dist.y < (c.size.y / 2) + (entity_size.height / 2))
                             {
                                 var poz = z + c.pozition.z + (c.size.z / 2);
+                                if (stepUp_ != 0)
+                                    if (entity_center.Y > (y + c.pozition.y))
+                                    {
+                                        if (poz > entity_side)
+                                        {
+                                            var overlap_Y = ((c.size.y / 2) + (entity_size.height / 2)) - dist.y;
+                                            if (stepUpMargin >= overlap_Y)
+                                            {
+                                                var des = y + c.pozition.y + (c.size.y / 2);
+                                                stepUp_ = Math.Max(des - entity.PozitionByCenter.Y, stepUp_ ?? 0);
+                                                continue;
+                                            }
+                                        }
+                                        else if (poz == entity_side)
+                                        {
+                                            var overlap_Y = ((c.size.y / 2) + (entity_size.height / 2)) - dist.y;
+                                            var des = y + c.pozition.y + (c.size.y / 2);
+                                            if (stepUpMargin >= overlap_Y)
+                                            {
+                                                stepUp_ = Math.Max(des - entity.PozitionByCenter.Y, stepUp_ ?? 0);
+                                                continue;
+                                            }
+                                            else
+                                                stepUp_ = 0;
+                                        }
+                                    }
+                                    else
+                                        stepUp_ = 0;
+
                                 if (poz <= entity_side)
                                 {
                                     if (!min.HasValue)
@@ -517,6 +624,7 @@ public abstract class Mob : Entity
             if (!min.HasValue)
             {
                 entity.Pozition += new Vector3(0, 0, move);
+                stepUp = stepUp_ ?? 0;
                 return false;
             }
             min += entity_size.width / 2;
@@ -524,11 +632,13 @@ public abstract class Mob : Entity
             {
                 entity_pozition.Z = min.Value;
                 entity.PozitionByCenter = entity_pozition;
+                stepUp = stepUp_ ?? 0;
                 return true;
             }
             else
             {
                 entity.Pozition += new Vector3(0, 0, move);
+                stepUp = stepUp_ ?? 0;
                 return false;
             }
         }
@@ -548,10 +658,39 @@ public abstract class Mob : Entity
                             b.Block.GetPhisicCollision(new() { pozition = (x, y, z), block = b, world = world }));
                         foreach (var c in colliders)
                         {
-                            var dist = (MathF.Abs(entity_center.X - (x + c.pozition.x)), MathF.Abs(entity_center.Y - (y + c.pozition.y)));
-                            if (dist.Item1 < (c.size.x / 2) + (entity_size.width / 2) && dist.Item2 < (c.size.y / 2) + (entity_size.height / 2))
+                            var dist = (x: MathF.Abs(entity_center.X - (x + c.pozition.x)), y: MathF.Abs(entity_center.Y - (y + c.pozition.y)));
+                            if (dist.x < (c.size.x / 2) + (entity_size.width / 2) && dist.y < (c.size.y / 2) + (entity_size.height / 2))
                             {
                                 var poz = z + c.pozition.z - (c.size.z / 2);
+                                if (stepUp_ != 0)
+                                    if (entity_center.Y > (y + c.pozition.y))
+                                    {
+                                        if (poz < entity_side)
+                                        {
+                                            var overlap_Y = ((c.size.y / 2) + (entity_size.height / 2)) - dist.y;
+                                            if (stepUpMargin >= overlap_Y)
+                                            {
+                                                var des = y + c.pozition.y + (c.size.y / 2);
+                                                stepUp_ = Math.Max(des - entity.PozitionByCenter.Y, stepUp_ ?? 0);
+                                                continue;
+                                            }
+                                        }
+                                        else if (poz == entity_side)
+                                        {
+                                            var overlap_Y = ((c.size.y / 2) + (entity_size.height / 2)) - dist.y;
+                                            var des = y + c.pozition.y + (c.size.y / 2);
+                                            if (stepUpMargin >= overlap_Y)
+                                            {
+                                                stepUp_ = Math.Max(des - entity.PozitionByCenter.Y, stepUp_ ?? 0);
+                                                continue;
+                                            }
+                                            else
+                                                stepUp_ = 0;
+                                        }
+                                    }
+                                    else
+                                        stepUp_ = 0;
+
                                 if (poz >= entity_side)
                                 {
                                     if (!max.HasValue)
@@ -565,6 +704,7 @@ public abstract class Mob : Entity
             if (!max.HasValue)
             {
                 entity.Pozition += new Vector3(0, 0, move);
+                stepUp = stepUp_ ?? 0;
                 return false;
             }
             max -= entity_size.width / 2;
@@ -572,11 +712,13 @@ public abstract class Mob : Entity
             {
                 entity_pozition.Z = max.Value;
                 entity.PozitionByCenter = entity_pozition;
+                stepUp = stepUp_ ?? 0;
                 return true;
             }
             else
             {
                 entity.Pozition += new Vector3(0, 0, move);
+                stepUp = stepUp_ ?? 0;
                 return false;
             }
         }
