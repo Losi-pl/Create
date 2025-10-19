@@ -242,13 +242,13 @@ public abstract class Block : Baze
 
     public struct DestroyBlock
     {
-        public (int x, int y, int z) BlockPozition { get; set; };
-        public BlockSide TargetSide { get; set; };
-        public PlacedBlock Block { get; set; };
-        public Player Player { get; set; };
-        public World World { get; set; };
-        public int HitBoxIndex { get; set; };
-        public (int Slot, ItemStack? Stack) InHand { get; set; };
+        public (int x, int y, int z) BlockPozition { get; set; }
+        public BlockSide TargetSide { get; set; }
+        public PlacedBlock Block { get; set; }
+        public Player Player { get; set; }
+        public World World { get; set; }
+        public int HitBoxIndex { get; set; }
+        public (int Slot, ItemStack? Stack) InHand { get; set; }
         public Vector3 InWorldPoint { get; set; }
     }
 }
