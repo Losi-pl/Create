@@ -36,13 +36,21 @@ public sealed class SpacePoint
 
     public SpacePoint() { }
 
-    [DebuggerNonUserCode]
     public SpacePoint(Interface @interface)
     {
         if (@interface is null) throw new ArgumentNullException(nameof(@interface));
         (poz_x, poz_y) = (0, 0);
         try { @interface.MainElements.AddChild(this); }
         catch (NullReferenceException) { this.@interface = @interface; }
+    }
+
+    internal static SpacePoint CreateMain(Interface @interface)
+    {
+        SpacePoint sp = new();
+        if (@interface is null) throw new ArgumentNullException(nameof(@interface));
+        (sp.poz_x, sp.poz_y) = (0, 0);
+        sp.@interface = @interface;
+        return sp;
     }
 
     public SpacePoint(SpacePoint point)

@@ -85,6 +85,7 @@ public sealed class Standard : IRecipe
                     (margin.left < margins[i]!.Value.left ? margin.left : margins[i]!.Value.left,
                      margin.right < margins[i]!.Value.right ? margin.right : margins[i]!.Value.right);
 
+        this.margin = margin;
         ingridients = new ItemStack?[rows[0].Length - margin.left - margin.right, margins.Length - margin.top - margin.bottom];
         for (int y = 0; y < ingridients.GetLength(1); y++)
             for (int x = 0; x < ingridients.GetLength(0); x++)

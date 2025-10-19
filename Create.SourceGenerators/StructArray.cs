@@ -4,21 +4,11 @@ using System.Text;
 
 namespace Create.SourceGenerators
 {
-    [Generator]
-    public class StructArray : ISourceGenerator
+    [Generator(LanguageNames.CSharp)]
+    public class StructArray : IIncrementalGenerator
     {
         static string generated = generate();
         
-        public void Execute(GeneratorExecutionContext context)
-        {
-            context.AddSource("StructArray.g.cs", generated);
-        }
-
-        public void Initialize(GeneratorInitializationContext context)
-        {
-            
-        }
-
         internal static string generate()
         {
             StringBuilder arrays = new StringBuilder();
@@ -146,6 +136,11 @@ public static class StructArray
 }}";
             
             return source;
+        }
+
+        public void Initialize(IncrementalGeneratorInitializationContext context)
+        {
+            context.RegisterPostInitializationOutput(contex => contex.AddSource("StructArray.g.cs", generated) );
         }
     }
 }

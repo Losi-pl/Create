@@ -80,4 +80,10 @@ public abstract class Baze
 
         registered = true;
     }
+
+    /// <summary>
+    /// Przypisuje adres numeryczny elementu
+    /// </summary>
+    /// <param name="id"></param>
+    internal void set_id(ushort id) => this.id = id;
 }

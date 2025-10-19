@@ -116,7 +116,7 @@ public abstract class Block : Baze
     }
 
     /// <summary>
-    /// Gdy gracz naciśnie prawym przycieskiem na
+    /// Gdy gracz naciśnie na blok
     /// </summary>
     /// <param name="args"></param>
     /// <returns></returns>
@@ -124,15 +124,32 @@ public abstract class Block : Baze
     {
         if(args.Button == ClickEventButton.Left)
         {
-            args.World.SetBlock(args.BlockPozition, new(Blocks.AIR));
-            return true;
+            DestroyBlock des_args = new();
+            des_args.BlockPozition = args.BlockPozition;
+            des_args.TargetSide = args.TargetSide;
+            des_args.Block = args.Block;
+            des_args.Player = args.Player;
+            des_args.World = args.World;
+            des_args.HitBoxIndex = args.HitBoxIndex;
+            des_args.InHand = args.InHand;
+            des_args.InWorldPoint = args.InWorldPoint;
+            return args.Block.Block.OnDestroyBlock(des_args);
         }
         return false;
     }
 
+    public virtual bool OnDestroyBlock(DestroyBlock args)
+    {
+        args.World.SetBlock(args.BlockPozition, new(Blocks.AIR));
+        return true;
+    }
+
     public virtual bool OnPlaceBlock(PlaceBlock args)
     {
-        args.World.SetBlock(args.TargetBlockPozition, args.BlockStack.AsPlacedBlock());
+        if (args.World.GetBlock(args.TargetBlockPozition).Block == Blocks.AIR)
+            args.World.SetBlock(args.TargetBlockPozition, args.BlockStack.AsPlacedBlock());
+        else
+            return false;
         return true;
     }
 
@@ -164,6 +181,7 @@ public abstract class Block : Baze
         public World World { get; set; }
         public int HitBoxIndex { get; set; }
         public (int Slot, ItemStack? Stack) InHand { get; set; }
+        public Vector3 InWorldPoint { get; set; }
         public (int x, int y, int z) BlockOnSide => (TargetSide switch
         {
             BlockSide.Top => new(0, 1, 0),
@@ -180,6 +198,7 @@ public abstract class Block : Baze
     /// </summary>
     public struct StandardBlockSet
     {
+        public int HitBoxIndex { get; set; }
         public (int x, int y, int z) pozition { get; set; }
         public PlacedBlock block { get; set; }
         public World world { get; set; }
@@ -208,6 +227,7 @@ public abstract class Block : Baze
         public Player Player { get; set; }
         public World World { get; set; }
         public int HitBoxIndex { get; set; }
+        public Vector3 InWorldPoint { get; set; }
         public (int x, int y, int z) TargetBlockPozition => (TargetSide switch
         {
             BlockSide.Top => new(0, 1, 0),
@@ -218,5 +238,17 @@ public abstract class Block : Baze
             BlockSide.East => new(1, 0, 0),
             _ => new Vector3i(0)
         } + TargetedBlockPozition.ToVector()).ToTumple();
+    }
+
+    public struct DestroyBlock
+    {
+        public (int x, int y, int z) BlockPozition { get; set; };
+        public BlockSide TargetSide { get; set; };
+        public PlacedBlock Block { get; set; };
+        public Player Player { get; set; };
+        public World World { get; set; };
+        public int HitBoxIndex { get; set; };
+        public (int Slot, ItemStack? Stack) InHand { get; set; };
+        public Vector3 InWorldPoint { get; set; }
     }
 }

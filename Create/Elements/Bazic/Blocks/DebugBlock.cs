@@ -3,10 +3,10 @@ using SixLabors.ImageSharp;
 
 namespace Create.Elements.Bazic.Blocks;
 
-internal partial class Stone : Block
+internal partial class DebugBlock : Block
 {
     public override void OnRegistered(Mod mod)
     {
-        SetModel(Assets.LoadBlockModel("create:stone"));
+        SetModel(Assets.LoadBlockModel("create:debug-block"));
     }
 }

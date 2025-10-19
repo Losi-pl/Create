@@ -15,5 +15,7 @@ public interface IBlockModel
     {
         mod.BlockModelSystem("bazic", SolidBlock.Interpreter);
         mod.BlockModelSystem("rotatable", RotatableBlock.Interpreter);
+        mod.BlockModelSystem("slab", SlabModel.Interpreter);
+        mod.BlockModelSystem("stairs", StairsModel.Interpreter);
     }
 }
