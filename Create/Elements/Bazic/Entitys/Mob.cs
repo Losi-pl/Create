@@ -39,28 +39,28 @@ public abstract class Mob : Entity
         else
             mob_control(entity, delta);
 
-        Vector3 move_delta;
-        {
-            var wyn = entity.Data.Get("move_delta");
-            if (wyn != null)
-                move_delta = (Vector3)wyn;
-            else
-                move_delta = new();
-        }
+        (entity.Data.Get("move_delta") as Vector3?).IsNotNull(out var move_delta);
         {
             if (MoveByY(entity, move_delta.Y * delta))
                 move_delta.Y = 0;
-
+            bool isOnGround = IsOnGround(entity);
+            float stepUp;
             if (move_delta.X < move_delta.Z)
             {
-                MoveByX(entity, move_delta.X * delta);
-                MoveByZ(entity, move_delta.Z * delta);
+                float sx, sz;
+                MoveByX(entity, move_delta.X * delta, isOnGround ? .5f : 0, out sx);
+                MoveByZ(entity, move_delta.Z * delta, isOnGround ? .5f : 0, out sz);
+                stepUp = Math.Max(sx, sz);
             }
             else
             {
-                MoveByZ(entity, move_delta.Z * delta);
-                MoveByX(entity, move_delta.X * delta);
+                float sx, sz;
+                MoveByZ(entity, move_delta.Z * delta, isOnGround ? .5f : 0, out sz);
+                MoveByX(entity, move_delta.X * delta, isOnGround ? .5f : 0, out sx);
+                stepUp = Math.Max(sx, sz);
             }
+            if (stepUp > 0)
+                MoveByY(entity, stepUp);
         }
         move_delta -= new Vector3(0, 20 * delta, 0);
 
@@ -341,10 +341,16 @@ public abstract class Mob : Entity
     /// <param name="move"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
-    public static bool MoveByX(LivingEntity entity, float move)
+    public static bool MoveByX(LivingEntity entity, float move) => MoveByX(entity, move, 0, out _);
+
+    /// <summary>
+    /// <inheritdoc cref="MoveByX(LivingEntity, float)"/>
+    /// </summary>
+    public static bool MoveByX(LivingEntity entity, float move, float stepUpMargin, out float stepUp)
     {
+         float? stepUp_ = null;
         if (move == 0)
-            return false;
+        { stepUp = 0; return false; }
         var world = entity.Dimention!.World;
         var entity_size = ((Mob)entity.Entity).GetMobSize(entity);
         var entity_pozition = entity.PozitionByCenter;
@@ -376,10 +382,39 @@ public abstract class Mob : Entity
                             b.Block.GetPhisicCollision(new() { pozition = (x, y, z), block = b, world = world }));
                         foreach (var c in colliders)
                         {
-                            var dist = (MathF.Abs(entity_center.Z - (z + c.pozition.z)), MathF.Abs(entity_center.Y - (y + c.pozition.y)));
-                            if (dist.Item1 < (c.size.z / 2) + (entity_size.width / 2) && dist.Item2 < (c.size.y / 2) + (entity_size.height / 2))
+                            var dist = (z: MathF.Abs(entity_center.Z - (z + c.pozition.z)), y: MathF.Abs(entity_center.Y - (y + c.pozition.y)));
+                            if (dist.z < (c.size.z / 2) + (entity_size.width / 2) && dist.y < (c.size.y / 2) + (entity_size.height / 2))
                             {
                                 var poz = x + c.pozition.x + (c.size.x / 2);
+                                if (stepUp_ != 0)
+                                    if (entity_center.Y > (y + c.pozition.y))
+                                    {
+                                        if (poz > entity_side)
+                                        {
+                                            var overlap_Y = ((c.size.y / 2) + (entity_size.height / 2)) - dist.y;
+                                            if (stepUpMargin >= overlap_Y)
+                                            {
+                                                var des = y + c.pozition.y + (c.size.y / 2);
+                                                stepUp_ = Math.Max(des - entity.PozitionByCenter.Y, stepUp_ ?? 0);
+                                                continue;
+                                            }
+                                        }
+                                        else if (poz == entity_side)
+                                        {
+                                            var overlap_Y = ((c.size.y / 2) + (entity_size.height / 2)) - dist.y;
+                                            var des = y + c.pozition.y + (c.size.y / 2);
+                                            if (stepUpMargin >= overlap_Y)
+                                            {
+                                                stepUp_ = Math.Max(des - entity.PozitionByCenter.Y, stepUp_ ?? 0);
+                                                continue;
+                                            }
+                                            else
+                                                stepUp_ = 0;
+                                        }
+                                    }
+                                    else
+                                        stepUp_ = 0;
+
                                 if (poz <= entity_side)
                                 {
                                     if (!min.HasValue)
@@ -393,6 +428,7 @@ public abstract class Mob : Entity
             if (!min.HasValue)
             {
                 entity.Pozition += new Vector3(move, 0, 0);
+                stepUp = stepUp_ ?? 0;
                 return false;
             }
             min += entity_size.width / 2;
@@ -400,11 +436,13 @@ public abstract class Mob : Entity
             {
                 entity_pozition.X = min.Value;
                 entity.PozitionByCenter = entity_pozition;
+                stepUp = stepUp_ ?? 0;
                 return true;
             }
             else
             {
                 entity.Pozition += new Vector3(move, 0, 0);
+                stepUp = stepUp_ ?? 0;
                 return false;
             }
         }
@@ -424,10 +462,39 @@ public abstract class Mob : Entity
                             b.Block.GetPhisicCollision(new() { pozition = (x, y, z), block = b, world = world }));
                         foreach (var c in colliders)
                         {
-                            var dist = (MathF.Abs(entity_center.Z - (z + c.pozition.z)), MathF.Abs(entity_center.Y - (y + c.pozition.y)));
-                            if (dist.Item1 < (c.size.z / 2) + (entity_size.width / 2) && dist.Item2 < (c.size.y / 2) + (entity_size.height / 2))
+                            var dist = (z: MathF.Abs(entity_center.Z - (z + c.pozition.z)), y: MathF.Abs(entity_center.Y - (y + c.pozition.y)));
+                            if (dist.z < (c.size.z / 2) + (entity_size.width / 2) && dist.y < (c.size.y / 2) + (entity_size.height / 2))
                             {
                                 var poz = x + c.pozition.x - (c.size.x / 2);
+                                if (stepUp_ != 0)
+                                    if (entity_center.Y > (y + c.pozition.y))
+                                    {
+                                        if (poz < entity_side)
+                                        {
+                                            var overlap_Y = ((c.size.y / 2) + (entity_size.height / 2)) - dist.y;
+                                            if (stepUpMargin >= overlap_Y)
+                                            {
+                                                var des = y + c.pozition.y + (c.size.y / 2);
+                                                stepUp_ = Math.Max(des - entity.PozitionByCenter.Y, stepUp_ ?? 0);
+                                                continue;
+                                            }
+                                        }
+                                        else if (poz == entity_side)
+                                        {
+                                            var overlap_Y = ((c.size.y / 2) + (entity_size.height / 2)) - dist.y;
+                                            var des = y + c.pozition.y + (c.size.y / 2);
+                                            if (stepUpMargin >= overlap_Y)
+                                            {
+                                                stepUp_ = Math.Max(des - entity.PozitionByCenter.Y, stepUp_ ?? 0);
+                                                continue;
+                                            }
+                                            else
+                                                stepUp_ = 0;
+                                        }
+                                    }
+                                    else
+                                        stepUp_ = 0;
+
                                 if (poz >= entity_side)
                                 {
                                     if (!max.HasValue)
@@ -441,6 +508,7 @@ public abstract class Mob : Entity
             if (!max.HasValue)
             {
                 entity.Pozition += new Vector3(move, 0, 0);
+                stepUp = stepUp_ ?? 0;
                 return false;
             }
             max -= entity_size.width / 2;
@@ -448,11 +516,13 @@ public abstract class Mob : Entity
             {
                 entity_pozition.X = max.Value;
                 entity.PozitionByCenter = entity_pozition;
+                stepUp = stepUp_ ?? 0;
                 return true;
             }
             else
             {
                 entity.Pozition += new Vector3(move, 0, 0);
+                stepUp = stepUp_ ?? 0;
                 return false;
             }
         }
@@ -465,10 +535,16 @@ public abstract class Mob : Entity
     /// <param name="move"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
-    public static bool MoveByZ(LivingEntity entity, float move)
+    public static bool MoveByZ(LivingEntity entity, float move) => MoveByZ(entity, move, 0, out _);
+
+    /// <summary>
+    /// <inheritdoc cref="MoveByZ(LivingEntity, float)"/>
+    /// </summary>
+    public static bool MoveByZ(LivingEntity entity, float move, float stepUpMargin, out float stepUp)
     {
+        float? stepUp_ = null;
         if (move == 0)
-            return false;
+        { stepUp = 0; return false; }
         var world = entity.Dimention!.World;
         var entity_size = ((Mob)entity.Entity).GetMobSize(entity);
         var entity_pozition = entity.PozitionByCenter;
@@ -500,10 +576,41 @@ public abstract class Mob : Entity
                             b.Block.GetPhisicCollision(new() { pozition = (x, y, z), block = b, world = world }));
                         foreach (var c in colliders)
                         {
-                            var dist = (MathF.Abs(entity_center.X - (x + c.pozition.x)), MathF.Abs(entity_center.Y - (y + c.pozition.y)));
-                            if (dist.Item1 < (c.size.x / 2) + (entity_size.width / 2) && dist.Item2 < (c.size.y / 2) + (entity_size.height / 2))
+                            var dist = (x: MathF.Abs(entity_center.X - (x + c.pozition.x)), y: MathF.Abs(entity_center.Y - (y + c.pozition.y)));
+                            
+                            
+                            if (dist.x < (c.size.x / 2) + (entity_size.width / 2) && dist.y < (c.size.y / 2) + (entity_size.height / 2))
                             {
                                 var poz = z + c.pozition.z + (c.size.z / 2);
+                                if (stepUp_ != 0)
+                                    if (entity_center.Y > (y + c.pozition.y))
+                                    {
+                                        if (poz > entity_side)
+                                        {
+                                            var overlap_Y = ((c.size.y / 2) + (entity_size.height / 2)) - dist.y;
+                                            if (stepUpMargin >= overlap_Y)
+                                            {
+                                                var des = y + c.pozition.y + (c.size.y / 2);
+                                                stepUp_ = Math.Max(des - entity.PozitionByCenter.Y, stepUp_ ?? 0);
+                                                continue;
+                                            }
+                                        }
+                                        else if (poz == entity_side)
+                                        {
+                                            var overlap_Y = ((c.size.y / 2) + (entity_size.height / 2)) - dist.y;
+                                            var des = y + c.pozition.y + (c.size.y / 2);
+                                            if (stepUpMargin >= overlap_Y)
+                                            {
+                                                stepUp_ = Math.Max(des - entity.PozitionByCenter.Y, stepUp_ ?? 0);
+                                                continue;
+                                            }
+                                            else
+                                                stepUp_ = 0;
+                                        }
+                                    }
+                                    else
+                                        stepUp_ = 0;
+
                                 if (poz <= entity_side)
                                 {
                                     if (!min.HasValue)
@@ -517,6 +624,7 @@ public abstract class Mob : Entity
             if (!min.HasValue)
             {
                 entity.Pozition += new Vector3(0, 0, move);
+                stepUp = stepUp_ ?? 0;
                 return false;
             }
             min += entity_size.width / 2;
@@ -524,11 +632,13 @@ public abstract class Mob : Entity
             {
                 entity_pozition.Z = min.Value;
                 entity.PozitionByCenter = entity_pozition;
+                stepUp = stepUp_ ?? 0;
                 return true;
             }
             else
             {
                 entity.Pozition += new Vector3(0, 0, move);
+                stepUp = stepUp_ ?? 0;
                 return false;
             }
         }
@@ -548,10 +658,39 @@ public abstract class Mob : Entity
                             b.Block.GetPhisicCollision(new() { pozition = (x, y, z), block = b, world = world }));
                         foreach (var c in colliders)
                         {
-                            var dist = (MathF.Abs(entity_center.X - (x + c.pozition.x)), MathF.Abs(entity_center.Y - (y + c.pozition.y)));
-                            if (dist.Item1 < (c.size.x / 2) + (entity_size.width / 2) && dist.Item2 < (c.size.y / 2) + (entity_size.height / 2))
+                            var dist = (x: MathF.Abs(entity_center.X - (x + c.pozition.x)), y: MathF.Abs(entity_center.Y - (y + c.pozition.y)));
+                            if (dist.x < (c.size.x / 2) + (entity_size.width / 2) && dist.y < (c.size.y / 2) + (entity_size.height / 2))
                             {
                                 var poz = z + c.pozition.z - (c.size.z / 2);
+                                if (stepUp_ != 0)
+                                    if (entity_center.Y > (y + c.pozition.y))
+                                    {
+                                        if (poz < entity_side)
+                                        {
+                                            var overlap_Y = ((c.size.y / 2) + (entity_size.height / 2)) - dist.y;
+                                            if (stepUpMargin >= overlap_Y)
+                                            {
+                                                var des = y + c.pozition.y + (c.size.y / 2);
+                                                stepUp_ = Math.Max(des - entity.PozitionByCenter.Y, stepUp_ ?? 0);
+                                                continue;
+                                            }
+                                        }
+                                        else if (poz == entity_side)
+                                        {
+                                            var overlap_Y = ((c.size.y / 2) + (entity_size.height / 2)) - dist.y;
+                                            var des = y + c.pozition.y + (c.size.y / 2);
+                                            if (stepUpMargin >= overlap_Y)
+                                            {
+                                                stepUp_ = Math.Max(des - entity.PozitionByCenter.Y, stepUp_ ?? 0);
+                                                continue;
+                                            }
+                                            else
+                                                stepUp_ = 0;
+                                        }
+                                    }
+                                    else
+                                        stepUp_ = 0;
+
                                 if (poz >= entity_side)
                                 {
                                     if (!max.HasValue)
@@ -565,6 +704,7 @@ public abstract class Mob : Entity
             if (!max.HasValue)
             {
                 entity.Pozition += new Vector3(0, 0, move);
+                stepUp = stepUp_ ?? 0;
                 return false;
             }
             max -= entity_size.width / 2;
@@ -572,16 +712,18 @@ public abstract class Mob : Entity
             {
                 entity_pozition.Z = max.Value;
                 entity.PozitionByCenter = entity_pozition;
+                stepUp = stepUp_ ?? 0;
                 return true;
             }
             else
             {
                 entity.Pozition += new Vector3(0, 0, move);
+                stepUp = stepUp_ ?? 0;
                 return false;
             }
         }
     }
-    
+
     /// <summary>
     /// Czy byt stoji na ziemi
     /// </summary>
@@ -625,12 +767,56 @@ public abstract class Mob : Entity
     }
     
     /// <summary>
+    /// Pozwala zdeterminować w którym kardynalnym kierunku byt jest skierowany
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="onlyHorizontal"></param>
+    /// <returns></returns>
+    public static Block.BlockSide RouthDirection(LivingEntity entity, bool onlyHorizontal = false)
+    {
+        var rotat = (Vector2?)entity.Data.Get("camera_rot") ?? throw new ArgumentException("This enetity does't have set orientation");
+        rotat.X = rotat.X % 360;
+
+        if(!onlyHorizontal)
+        {
+            if (rotat.Y > 45)
+                return Block.BlockSide.Top;
+            else if(rotat.Y < -45)
+                return Block.BlockSide.Top;
+        }
+
+        if (rotat.X >= 0 && rotat.X <= 45)
+            return Block.BlockSide.North;
+        else if (rotat.X > 45 && rotat.X <= 135)
+            return Block.BlockSide.East;
+        else if (rotat.X > 135 && rotat.X <= 225)
+            return Block.BlockSide.South;
+        else if (rotat.X > 225 && rotat.X <= 315)
+            return Block.BlockSide.West;
+        if (rotat.X > 315 && rotat.X <= 360)
+            return Block.BlockSide.North;
+
+        else if (rotat.X >= -45 && rotat.X < 0)
+            return Block.BlockSide.North;
+        else if (rotat.X >= -135 && rotat.X < -45)
+            return Block.BlockSide.West;
+        else if (rotat.X >= -225 && rotat.X < -135)
+            return Block.BlockSide.South;
+        else if (rotat.X >= -315 && rotat.X < -225)
+            return Block.BlockSide.East;
+        else if (rotat.X >= -360 && rotat.X < -315)
+            return Block.BlockSide.North;
+
+        throw new IndexOutOfRangeException();
+    }
+
+    /// <summary>
     /// Gdzie instancja się patrzy
     /// </summary>
     /// <param name="entity"></param>
     /// <param name="distance"></param>
     /// <returns></returns>
-    public static ((int x, int y, int z) pozition, int hitBoxNumer, Block.BlockSide side)? ImLookingAt(LivingEntity entity, float distance)
+    public static ImLookingAtRezult? ImLookingAt(LivingEntity entity, float distance)
     {
         if (entity.Dimention == null)
             throw new("Entity need to be in dimention");
@@ -655,14 +841,14 @@ public abstract class Mob : Entity
     /// <param name="lootRotation">Orjentacja promienia dla interakcji</param>
     /// <param name="distance">Odległość na której interakcja będzie sprawdzana</param>
     /// <returns></returns>
-    public static ((int x, int y, int z) pozition, int hitBoxNumer, Block.BlockSide side)? ImLookingAt(World world, Vector3 start, Vector2 lootRotation, float distance)
+    public static ImLookingAtRezult? ImLookingAt(World world, Vector3 start, Vector2 lootRotation, float distance)
     {
         var ray = MathC.CreateRay(start, lootRotation, distance);
         foreach(var bl_poz in MathC.CollidBlocks(start, lootRotation, distance))
         {
             var block = world.GetBlock(bl_poz);
             var colliders = block.Block.GetInteractionCollision(new() { block = block, pozition = bl_poz.ToTumple(), world = world });
-            ((int index, Block.BlockSide side) collider, float distance)? collizion = null;
+            ((int index, Block.BlockSide side) collider, float distance, Vector3 point)? collizion = null;
             int i = -1;
             foreach(var c in colliders)
             {
@@ -675,20 +861,36 @@ public abstract class Mob : Entity
                     var dis = wyn.Point.Distance(start);
                     if(!collizion.HasValue)
                     {
-                        collizion = ((i, wyn.Side), dis);
+                        collizion = ((i, wyn.Side), dis, wyn.Point);
                         continue;
                     }
                     if(collizion?.distance > dis)
                     {
-                        collizion = ((i, wyn.Side), dis);
+                        collizion = ((i, wyn.Side), dis, wyn.Point);
                         continue;
                     }
                 }
             }
             if(collizion.HasValue)
-                return (bl_poz.ToTumple(), collizion.Value.collider.index, collizion.Value.collider.side);
+                return new(bl_poz.ToTumple(), collizion.Value.collider.index, collizion.Value.collider.side, collizion.Value.point);
         }
 
         return null;
+    }
+
+    public struct ImLookingAtRezult
+    {
+        public ImLookingAtRezult((int x, int y, int z) blockPozition, int hitBoxIndex, Block.BlockSide blockSide, Vector3 hitPoint)
+        {
+            BlockPozition = blockPozition;
+            HitBoxIndex = hitBoxIndex;
+            BlockSide = blockSide;
+            HitPoint = hitPoint;
+        }
+
+        public Vector3 HitPoint { get; set; }
+        public (int x, int y, int z) BlockPozition { get; set; }
+        public int HitBoxIndex { get; set; }
+        public Block.BlockSide BlockSide { get; set; }
     }
 }

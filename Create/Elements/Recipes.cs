@@ -13,5 +13,21 @@ partial interface IRecipe
             "pp",
             ('p', new(Blocks.OAK_PLANKS))
           ));
+
+        mod.RegisterRecipe("stone-slab", new Standard(new(6, Blocks.STONE_SLAB),
+            "sss", ('s', new(Blocks.STONE)) ));
+        mod.RegisterRecipe("oak-planks-slab", new Standard(new(6, Blocks.OAK_PLANKS_SLAB),
+            "ooo", ('o', new(Blocks.OAK_PLANKS)) ));
+        mod.RegisterRecipe("debug-slab", new Standard(new(6, Blocks.DEBUG_SLAB),
+            "ddd", ('d', new(Blocks.DEBUG_BLOCK))));
+
+        mod.RegisterRecipe("stone-stairs", new Standard(new(8, Blocks.STONE_STAIRS),
+            "s  ", "ss ", "sss", ('s', new(Blocks.STONE))));
+        mod.RegisterRecipe("oak-planks-stairs", new Standard(new(8, Blocks.OAK_PLANKS_STAIRS),
+            "o  ", "oo ", "ooo", ('o', new(Blocks.OAK_PLANKS))));
+        mod.RegisterRecipe("debug-stairs", new Standard(new(8, Blocks.DEBUG_STAIRS),
+            "d  ", "dd ", "ddd", ('d', new(Blocks.DEBUG_BLOCK))));
+
+        Bazic.Blocks.SlabBase.BazicSlabRecipes(mod);
     }
 }

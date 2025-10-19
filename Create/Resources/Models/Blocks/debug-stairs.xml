@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<c:stairs xmlns:c="create">
+  <main type="c:single">
+    <texture>create:debug</texture>
+  </main>
+</c:stairs>

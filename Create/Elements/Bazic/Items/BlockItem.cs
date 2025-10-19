@@ -18,6 +18,13 @@ public sealed class BlockItem : Item
                 return b;
         return Elements.Blocks.STONE;
     }
+
+    public static ReadOnlySpan<char> GetBlockMeta(StackData itemStack)
+    {
+        int i = itemStack.Meta.IndexOf(';');
+        ReadOnlySpan<char> blockName = i == -1 ? new(Array.Empty<char>()) : itemStack.Meta.AsSpan().Slice(i + 1, itemStack.Meta.Length - i - 1);
+        return blockName;
+    }
     
     public override ItemModel GetItemModel(ItemStack itemStack, Player player)
     {
@@ -37,6 +44,7 @@ public sealed class BlockItem : Item
             Player = args.Player,
             TargetedBlockPozition = args.BlockArgs.Value.BlockPozition,
             TargetSide = args.BlockArgs.Value.TargetSide,
+            InWorldPoint = args.BlockArgs.Value.InWorldPoint,
             World = args.World
         }) ?? false;
     }
@@ -71,7 +79,7 @@ file class SingleBlockWorld : World
 file struct BLockModel : IDrawable, IDisposable
 {
     static Matrix4 transformMatrix = Matrix4.CreateTranslation(-.5f, -.5f, -.5f) *
-           Matrix4.CreateRotationY((45 / 180f) * MathF.PI) *
+           Matrix4.CreateRotationY(-(45 / 180f) * MathF.PI) *
            Matrix4.CreateRotationX((-30 / 180f) * MathF.PI) *
            Matrix4.CreateScale(1.1851851851851f);
     public WorldModel model;

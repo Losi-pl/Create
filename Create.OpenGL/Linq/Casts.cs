@@ -220,6 +220,34 @@ public static class Casts
     public static TOut Cast<TIn, TOut>(this TIn @in, Func<TIn, TOut> func) => func(@in);
 
     /// <summary>
+    /// Zapewnia szybkie narzędzia do zweryfikowania wartości nullowalnej wartości i zwrócenie jej w jednej lini
+    /// </summary>
+    public static bool IsNotNull<T>(this T? @null, out T notNull) where T : struct
+    {
+        if(@null.HasValue)
+        {
+            notNull = @null.Value;
+            return true;
+        }
+        else
+        {
+            notNull = default;
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// <inheritdoc cref="IsNotNull{T}(T?, out T)"/>
+    /// </summary>
+    public static T IsNotNull<T>(this T? @null, Exception? exception = null) where T : struct
+    {
+        if (IsNotNull(@null, out var @out))
+            return @out;
+        else
+            throw exception ?? new ArgumentNullException();
+    }
+
+    /// <summary>
     /// Konwertuje Enumerator w Enumerowalny (Kolekcje)
     /// </summary>
     public static IEnumerable<T> AsEnumerable<T>(this IEnumerator<T> enume)

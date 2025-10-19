@@ -5,14 +5,23 @@
     "dirt.name": "Dirt",
     "grass-block.name": "Block Of Grass",
     "bedrock.name": "Bedrock",
+    "debug-block.name": "Block for Debugging",
     "oak-log.name": "Oak Log",
     "oak-planks.name": "Oak Planks",
-    "crafting-table.name": "Crafting Table"
+    "crafting-table.name": "Crafting Table",
+    "format.slab.vertical.name": "Vertical {0}",
+    "stone-slab.name": "Stone Slab",
+    "oak-planks-slab.name": "Oak Planks Slab",
+    "debug-slab.name": "Slab for Debugging",
+    "stone-stairs.name": "Stone Stairs",
+    "oak-planks-stairs.name": "Oak Plank Stairs",
+    "debug-stairs.name": "Stairs for Debugging",
+    "name": "Block"
   },
   "creative-tabs": {
-    "name": "Creative Tab",
     "inventory.name": "Inventory",
     "search-engine.name": "Search",
-    "blocks.name": "Building Blocks"
+    "blocks.name": "Building Blocks",
+    "name":  "Creative Tab"
   }
 }

@@ -183,7 +183,7 @@ public sealed class RotatableBlock : IBlockModel
             }
             PlacedBlock block = args.world.GetBlock(block_set.pozition);
             block_set.block = block;
-            return block.Block.IsSideVisible(block_set, side);
+            return block.Block.IsSideVisible(block_set, side.Invert());
         }
     }
 

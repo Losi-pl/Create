@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/Create.App.Windows/bin/Debug/net6.0/win-x64/Create.App.Windows.dll",
+            "program": "${workspaceFolder}/Create.App.Windows/bin/Debug/net8.0/win-x64/Create.App.Windows.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Create.App.Windows",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console

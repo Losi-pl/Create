@@ -16,11 +16,7 @@ public static class Engine
     /// <summary>
     /// Wersja gry
     /// </summary>
-    public static Version Version { get; } =
-        Version.Parse(Assembly
-        .GetCallingAssembly()!
-        .GetCustomAttribute<AssemblyInformationalVersionAttribute>()!
-        .InformationalVersion);
+    public static Version Version { get; } = Assembly.GetEntryAssembly()?.GetName().Version ?? new(1, 0, 0);
 
     /// <summary>
     /// <inheritdoc cref="get_files_path"/>

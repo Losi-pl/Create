@@ -3,7 +3,7 @@ using SixLabors.ImageSharp;
 
 namespace Create.Elements.Bazic.Blocks;
 
-internal class OakPlanks : Block
+internal partial class OakPlanks : Block
 {
     public override void OnRegistered(Mod mod)
     {
