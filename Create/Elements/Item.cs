@@ -9,7 +9,7 @@ namespace Create.Elements;
 /// <summary>
 /// Baza do budowy itemów
 /// </summary>
-public abstract class Item : Baze
+public abstract partial class Item : Baze
 {
     //Ustawienie bazowego typu elementu na Item
     public sealed override Type ElementBazicType => typeof(Item);
@@ -20,7 +20,8 @@ public abstract class Item : Baze
     /// <param name="itemStack"></param>
     /// <param name="player"></param>
     /// <returns></returns>
-    public virtual ItemModel GetItemModel(ItemStack itemStack, Net.Player player) => new();
+    public virtual ItemModel GetItemModel(ItemStack itemStack, Net.Player player) =>
+        GenerateItemModel(CodeName.Replace('-', '_'));
 
     /// <summary>
     /// Sprawdza czy dane są takie same nie licząc ilości
@@ -40,7 +41,8 @@ public abstract class Item : Baze
     /// </summary>
     public virtual uint MaxStackCount(StackData stackData) => 64;
 
-    public virtual string GetItemName(StackData stackData, Net.Player player) => stackData.Item.CodeName;
+    public virtual string GetItemName(StackData stackData, Net.Player player) => 
+        Assets.Language.GetFromKey($"{Mod.Name}.items.{CodeElementName}.name");
 
     public virtual uint CraftingUses(CraftingUsesData data) => data.Stack.Count;
 
@@ -60,10 +62,10 @@ public abstract class Item : Baze
     /// </summary>
     public struct StackData
     {
-        public uint Count;
-        public Item Item;
-        public string Meta;
-        public byte Type;
+        public uint Count { get; set; }
+        public Item Item { get; set; }
+        public string Meta { get; set; }
+        public byte Type { get; set; }
         public static implicit operator StackData(ItemStack stack) => 
             new() { Count = stack.Count, Item = stack.Item, Meta = stack.Meta, Type = stack.Type };
         public static implicit operator ItemStack(StackData data) =>
@@ -74,28 +76,28 @@ public abstract class Item : Baze
     /// </summary>
     public struct OnClickArgs
     {
-        public ClickEventButton Button;
-        public Block.OnClickArgs? BlockArgs;
-        public Net.Player Player;
-        public World World;
-        public (int Slot, ItemStack Stack) InHand;
+        public ClickEventButton Button { get; set; }
+        public Block.OnClickArgs? BlockArgs { get; set; }
+        public Net.Player Player { get; set; }
+        public World World { get; set; }
+        public (int Slot, ItemStack Stack) InHand { get; set; }
     }
     /// <summary>
     /// Używany w metodzie <see cref="CraftingUses(CraftingUsesData)"/>
     /// </summary>
     public struct CraftingUsesData
     {
-        public Net.Player Player;
-        public World World;
-        public ItemStack Stack;
+        public Net.Player Player { get; set; }
+        public World World { get; set; }
+        public ItemStack Stack { get; set; }
     }
     /// <summary>
     /// Używany w metodzie <see cref="CraftingUses(CraftingUsesData)"/>
     /// </summary>
     public struct UsedInCraftingData
     {
-        public Net.Player Player;
-        public World World;
-        public ItemStack Stack;
+        public Net.Player Player { get; set; }
+        public World World { get; set; }
+        public ItemStack Stack { get; set; }
     }
 }

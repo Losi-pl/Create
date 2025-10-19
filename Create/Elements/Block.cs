@@ -173,14 +173,14 @@ public abstract class Block : Baze
     /// </summary>
     public struct OnClickArgs
     {
-        public (int x, int y, int z) BlockPozition;
-        public BlockSide TargetSide;
-        public ClickEventButton Button;
-        public PlacedBlock Block;
-        public Player Player;
-        public World World;
-        public int HitBoxIndex;
-        public (int Slot, ItemStack? Stack) InHand;
+        public (int x, int y, int z) BlockPozition { get; set; }
+        public BlockSide TargetSide { get; set; }
+        public ClickEventButton Button { get; set; }
+        public PlacedBlock Block { get; set; }
+        public Player Player { get; set; }
+        public World World { get; set; }
+        public int HitBoxIndex { get; set; }
+        public (int Slot, ItemStack? Stack) InHand { get; set; }
         public Vector3 InWorldPoint { get; set; }
         public (int x, int y, int z) BlockOnSide => (TargetSide switch
         {
@@ -199,35 +199,35 @@ public abstract class Block : Baze
     public struct StandardBlockSet
     {
         public int HitBoxIndex { get; set; }
-        public (int x, int y, int z) pozition;
-        public PlacedBlock block;
-        public World world;
+        public (int x, int y, int z) pozition { get; set; }
+        public PlacedBlock block { get; set; }
+        public World world { get; set; }
     }
     /// <summary>
     /// Parametry granic bloku
     /// </summary>
     public struct BlockCollider
     {
-        public (float x, float y, float z) pozition;
-        public (float x, float y, float z) size;
+        public (float x, float y, float z) pozition { get; set; }
+        public (float x, float y, float z) size { get; set; }
     }
     public struct ItemName
     {
-        public Player Player;
-        public ItemStack Item;
+        public Player Player { get; set; }
+        public ItemStack Item { get; set; }
         PlacedBlock? block;
         public PlacedBlock Block { get { block = block ?? Item.AsPlacedBlock(); return block.Value; } }
     }
 
     public struct PlaceBlock
     {
-        public (int x, int y, int z) TargetedBlockPozition;
-        public BlockSide TargetSide;
-        public ItemStack BlockStack;
-        public Player Player;
-        public World World;
-        public int HitBoxIndex;
-        public Vector3 InWorldPoint;
+        public (int x, int y, int z) TargetedBlockPozition { get; set; }
+        public BlockSide TargetSide { get; set; }
+        public ItemStack BlockStack { get; set; }
+        public Player Player { get; set; }
+        public World World { get; set; }
+        public int HitBoxIndex { get; set; }
+        public Vector3 InWorldPoint { get; set; }
         public (int x, int y, int z) TargetBlockPozition => (TargetSide switch
         {
             BlockSide.Top => new(0, 1, 0),
@@ -242,13 +242,13 @@ public abstract class Block : Baze
 
     public struct DestroyBlock
     {
-        public (int x, int y, int z) BlockPozition;
-        public BlockSide TargetSide;
-        public PlacedBlock Block;
-        public Player Player;
-        public World World;
-        public int HitBoxIndex;
-        public (int Slot, ItemStack? Stack) InHand;
+        public (int x, int y, int z) BlockPozition { get; set; };
+        public BlockSide TargetSide { get; set; };
+        public PlacedBlock Block { get; set; };
+        public Player Player { get; set; };
+        public World World { get; set; };
+        public int HitBoxIndex { get; set; };
+        public (int Slot, ItemStack? Stack) InHand { get; set; };
         public Vector3 InWorldPoint { get; set; }
     }
 }
