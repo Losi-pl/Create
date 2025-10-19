@@ -259,22 +259,22 @@ public class StairsModel : IBlockModel
             switch (side)
             {
                 case BlockSide.Top:
-                    block_set.pozition.y++;
+                    block_set.pozition = block_set.pozition with { y = block_set.pozition.y + 1 };
                     break;
                 case BlockSide.Bottom:
-                    block_set.pozition.y--;
+                    block_set.pozition = block_set.pozition with { y = block_set.pozition.y - 1 };
                     break;
                 case BlockSide.West:
-                    block_set.pozition.x--;
+                    block_set.pozition = block_set.pozition with { x = block_set.pozition.x - 1 };
                     break;
                 case BlockSide.East:
-                    block_set.pozition.x++;
+                    block_set.pozition = block_set.pozition with { x = block_set.pozition.x + 1 };
                     break;
                 case BlockSide.North:
-                    block_set.pozition.z++;
+                    block_set.pozition = block_set.pozition with { z = block_set.pozition.z + 1 };
                     break;
                 case BlockSide.South:
-                    block_set.pozition.z--;
+                    block_set.pozition = block_set.pozition with { z = block_set.pozition.z - 1 };
                     break;
             }
             PlacedBlock block = args.world.GetBlock(block_set.pozition);
