@@ -101,7 +101,7 @@ public class StairsModel : IBlockModel
                     IBlockModel.MoveVectors(uvs, new(.5f, 0));
             }
 
-            Span<int> trangles = stackalloc int[4];
+            Span<int> trangles = stackalloc int[6];
             IBlockModel.SetFastDefault(trangles);
 
             Span<Vector3> pozitions = stackalloc Vector3[4];
@@ -124,7 +124,7 @@ public class StairsModel : IBlockModel
                     IBlockModel.MoveVectors(uvs, new Vector2(0, 0.5f));
             }
             
-            Span<int> trangles = stackalloc int[4];
+            Span<int> trangles = stackalloc int[6];
             IBlockModel.SetFastDefault(trangles);
 
             Span<Vector3> pozitions = stackalloc Vector3[4];
