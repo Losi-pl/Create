@@ -181,9 +181,9 @@ public sealed class SlabModel : IBlockModel
             Vector3 bl_poz = args.pozition.ToVector();
             IBlockModel.SetDefault(pozitions, side);
             if (upper)
-                IBlockModel.MoveVectors(pozitions, bl_poz + new Vector3(0, .5f, 0));
+                IBlockModel.ScaleAndMoveVector(pozitions, new Vector3(1, .5f, 1), bl_poz + new Vector3(0, .5f, 0));
             else
-                IBlockModel.MoveVectors(pozitions, bl_poz);
+                IBlockModel.ScaleAndMoveVector(pozitions, new Vector3(1, .5f, 1), bl_poz);
         }
         void get_face_pozitions_v(Span<Vector3> pozitions, BlockSide side, bool upper, bool along_the_x)
         {
