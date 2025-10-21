@@ -21,17 +21,17 @@ public class SolidBlock : IBlockModel
 
     public void GenerateModel(StandardBlockSet args, ModelConstructor constructor)
     {
-        if (test_side(BlockSide.Top))
+        if (IBlockModel.SideVisibilityTest(args, BlockSide.Top))
             add_side(BlockSide.Top);
-        if (test_side(BlockSide.Bottom))
+        if (IBlockModel.SideVisibilityTest(args, BlockSide.Bottom))
             add_side(BlockSide.Bottom);
-        if (test_side(BlockSide.East))
+        if (IBlockModel.SideVisibilityTest(args, BlockSide.East))
             add_side(BlockSide.East);
-        if (test_side(BlockSide.West))
+        if (IBlockModel.SideVisibilityTest(args, BlockSide.West))
             add_side(BlockSide.West);
-        if (test_side(BlockSide.North))
+        if (IBlockModel.SideVisibilityTest(args, BlockSide.North))
             add_side(BlockSide.North);
-        if (test_side(BlockSide.South))
+        if (IBlockModel.SideVisibilityTest(args, BlockSide.South))
             add_side(BlockSide.South);
 
         void add_side(BlockSide side)
@@ -124,39 +124,6 @@ public class SolidBlock : IBlockModel
                     _ => a.South
                 });
             sideT.RenderSide(constructor, pozitions, uvs, trangles);
-        }
-        bool test_side(BlockSide side)
-        {
-            StandardBlockSet block_set = new()
-            {
-                pozition = args.pozition,
-                world = args.world
-            };
-
-            switch (side)
-            {
-                case BlockSide.Top:
-                    block_set.pozition = (block_set.pozition.x, block_set.pozition.y + 1, block_set.pozition.z);
-                    break;
-                case BlockSide.Bottom:
-                    block_set.pozition = (block_set.pozition.x, block_set.pozition.y - 1, block_set.pozition.z);
-                    break;
-                case BlockSide.West:
-                    block_set.pozition = (block_set.pozition.x - 1, block_set.pozition.y, block_set.pozition.z);
-                    break;
-                case BlockSide.East:
-                    block_set.pozition = (block_set.pozition.x + 1, block_set.pozition.y, block_set.pozition.z);
-                    break;
-                case BlockSide.North:
-                    block_set.pozition = (block_set.pozition.x, block_set.pozition.y, block_set.pozition.z + 1);
-                    break;
-                case BlockSide.South:
-                    block_set.pozition = (block_set.pozition.x, block_set.pozition.y, block_set.pozition.z - 1);
-                    break;
-            }
-            PlacedBlock block = args.world.GetBlock(block_set.pozition);
-            block_set.block = block;
-            return block.Block.IsSideVisible(block_set, side.Invert());
         }
     }
 

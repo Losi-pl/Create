@@ -21,15 +21,15 @@ public sealed class SlabModel : IBlockModel
         {
             if (info.AsT0.Bottom is not null)
             {
-                if (test_side(BlockSide.Bottom))
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.Bottom))
                     render_side(BlockSide.Bottom, info.AsT0.Bottom, false);
-                if(test_side(BlockSide.North))
+                if(IBlockModel.SideVisibilityTest(args, BlockSide.North))
                     render_side(BlockSide.North, info.AsT0.Bottom, false);
-                if (test_side(BlockSide.East))
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.East))
                     render_side(BlockSide.East, info.AsT0.Bottom, false);
-                if (test_side(BlockSide.South))
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.South))
                     render_side(BlockSide.South, info.AsT0.Bottom, false);
-                if (test_side(BlockSide.West))
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.West))
                     render_side(BlockSide.West, info.AsT0.Bottom, false);
                 if (info.AsT0.Top is null)
                     render_side(BlockSide.Top, info.AsT0.Bottom, false);
@@ -38,15 +38,15 @@ public sealed class SlabModel : IBlockModel
             {
                 if (info.AsT0.Bottom is null)
                     render_side(BlockSide.Bottom, info.AsT0.Top, true);
-                if (test_side(BlockSide.North))
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.North))
                     render_side(BlockSide.North, info.AsT0.Top, true);
-                if (test_side(BlockSide.East))
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.East))
                     render_side(BlockSide.East, info.AsT0.Top, true);
-                if (test_side(BlockSide.South))
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.South))
                     render_side(BlockSide.South, info.AsT0.Top, true);
-                if (test_side(BlockSide.West))
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.West))
                     render_side(BlockSide.West, info.AsT0.Top, true);
-                if (test_side(BlockSide.Top))
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.Top))
                     render_side(BlockSide.Top, info.AsT0.Top, true);
             }
         }
@@ -54,51 +54,51 @@ public sealed class SlabModel : IBlockModel
         {
             if (info.AsT1.Column1 is not null)
             {
-                if (test_side(BlockSide.Bottom))
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.Bottom))
                     render_side_v(BlockSide.Bottom, info.AsT1.Column1, false, info.AsT1.IsAlongTheXAxis);
-                if (test_side(BlockSide.Top))
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.Top))
                     render_side_v(BlockSide.Top, info.AsT1.Column1, false, info.AsT1.IsAlongTheXAxis);
-                if (test_side(BlockSide.West))
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.West))
                     render_side_v(BlockSide.West, info.AsT1.Column1, false, info.AsT1.IsAlongTheXAxis);
-                if (test_side(BlockSide.South))
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.South))
                     render_side_v(BlockSide.South, info.AsT1.Column1, false, info.AsT1.IsAlongTheXAxis);
                 if (info.AsT1.IsAlongTheXAxis)
                 {
                     if (info.AsT1.Column2 is null)
                         render_side_v(BlockSide.North, info.AsT1.Column1, false, info.AsT1.IsAlongTheXAxis);
-                    if (test_side(BlockSide.East))
+                    if (IBlockModel.SideVisibilityTest(args, BlockSide.East))
                         render_side_v(BlockSide.East, info.AsT1.Column1, false, info.AsT1.IsAlongTheXAxis);
                 }
                 else
                 {
                     if (info.AsT1.Column2 is null)
                         render_side_v(BlockSide.East, info.AsT1.Column1, false, info.AsT1.IsAlongTheXAxis);
-                    if (test_side(BlockSide.North))
+                    if (IBlockModel.SideVisibilityTest(args, BlockSide.North))
                         render_side_v(BlockSide.North, info.AsT1.Column1, false, info.AsT1.IsAlongTheXAxis);
                 }
             }
             if (info.AsT1.Column2 is not null)
             {
-                if (test_side(BlockSide.Bottom))
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.Bottom))
                     render_side_v(BlockSide.Bottom, info.AsT1.Column2, true, info.AsT1.IsAlongTheXAxis);
-                if (test_side(BlockSide.Top))
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.Top))
                     render_side_v(BlockSide.Top, info.AsT1.Column2, true, info.AsT1.IsAlongTheXAxis);
-                if (test_side(BlockSide.East))
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.East))
                     render_side_v(BlockSide.East, info.AsT1.Column2, true, info.AsT1.IsAlongTheXAxis);
-                if (test_side(BlockSide.North))
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.North))
                     render_side_v(BlockSide.North, info.AsT1.Column2, true, info.AsT1.IsAlongTheXAxis);
                 if (info.AsT1.IsAlongTheXAxis)
                 {
                     if (info.AsT1.Column1 is null)
                         render_side_v(BlockSide.South, info.AsT1.Column2, true, info.AsT1.IsAlongTheXAxis);
-                    if (test_side(BlockSide.West))
+                    if (IBlockModel.SideVisibilityTest(args, BlockSide.West))
                         render_side_v(BlockSide.West, info.AsT1.Column2, true, info.AsT1.IsAlongTheXAxis);
                 }
                 else
                 {
                     if (info.AsT1.Column1 is null)
                         render_side_v(BlockSide.West, info.AsT1.Column2, true, info.AsT1.IsAlongTheXAxis);
-                    if (test_side(BlockSide.South))
+                    if (IBlockModel.SideVisibilityTest(args, BlockSide.South))
                         render_side_v(BlockSide.South, info.AsT1.Column2, true, info.AsT1.IsAlongTheXAxis);
                 }
             }
@@ -293,39 +293,6 @@ public sealed class SlabModel : IBlockModel
                 else
                     for (int i = 0; i < 4; i++)
                         pozitions[i] = pozitions[i] + new Vector3(.5f, 0, 0);
-        }
-        bool test_side(BlockSide side)
-        {
-            StandardBlockSet block_set = new()
-            {
-                pozition = args.pozition,
-                world = args.world
-            };
-
-            switch (side)
-            {
-                case BlockSide.Top:
-                    block_set.pozition = block_set.pozition with { y = block_set.pozition.y + 1 };
-                    break;
-                case BlockSide.Bottom:
-                    block_set.pozition = block_set.pozition with { y = block_set.pozition.y - 1 };
-                    break;
-                case BlockSide.West:
-                    block_set.pozition = block_set.pozition with { x = block_set.pozition.x - 1 };
-                    break;
-                case BlockSide.East:
-                    block_set.pozition = block_set.pozition with { x = block_set.pozition.x + 1 };
-                    break;
-                case BlockSide.North:
-                    block_set.pozition = block_set.pozition with { z = block_set.pozition.z + 1 };
-                    break;
-                case BlockSide.South:
-                    block_set.pozition = block_set.pozition with { z = block_set.pozition.z - 1 };
-                    break;
-            }
-            PlacedBlock block = args.world.GetBlock(block_set.pozition);
-            block_set.block = block;
-            return block.Block.IsSideVisible(block_set, side.Invert());
         }
     }
 
