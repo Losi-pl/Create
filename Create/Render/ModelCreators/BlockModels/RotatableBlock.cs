@@ -86,64 +86,9 @@ public sealed class RotatableBlock : IBlockModel
             IBlockModel.SetFastDefault(trangles);
 
             Span<Vector3> pozitions = stackalloc Vector3[4];
-            Vector3 bl_poz = args.pozition.ToVector();
-            switch (side)
-            {
-                case BlockSide.North:
-                    pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(1, 1, 1),
-                        bl_poz + new Vector3(0, 1, 1),
-                        bl_poz + new Vector3(1, 0, 1),
-                        bl_poz + new Vector3(0, 0, 1)
-                    };
-                    break;
-                case BlockSide.South:
-                    pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(0, 1, 0),
-                        bl_poz + new Vector3(1, 1, 0),
-                        bl_poz + new Vector3(0, 0, 0),
-                        bl_poz + new Vector3(1, 0, 0)
-                    };
-                    break;
-                case BlockSide.East:
-                    pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(1, 1, 0),
-                        bl_poz + new Vector3(1, 1, 1),
-                        bl_poz + new Vector3(1, 0, 0),
-                        bl_poz + new Vector3(1, 0, 1)
-                    };
-                    break;
-                case BlockSide.West:
-                    pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(0, 1, 1),
-                        bl_poz + new Vector3(0, 1, 0),
-                        bl_poz + new Vector3(0, 0, 1),
-                        bl_poz + new Vector3(0, 0, 0)
-                    };
-                    break;
-                case BlockSide.Top:
-                    pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(0, 1, 1),
-                        bl_poz + new Vector3(1, 1, 1),
-                        bl_poz + new Vector3(0, 1, 0),
-                        bl_poz + new Vector3(1, 1, 0)
-                    };
-                    break;
-                case BlockSide.Bottom:
-                    pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(0, 0, 0),
-                        bl_poz + new Vector3(1, 0, 0),
-                        bl_poz + new Vector3(0, 0, 1),
-                        bl_poz + new Vector3(1, 0, 1)
-                    };
-                    break;
-            }
+            IBlockModel.SetDefault(pozitions, side);
+            IBlockModel.MoveVectors(pozitions, args.pozition.ToVector());
+            
             var sideT = GetBlockSide(args, side);
             sideT?.RenderSide(constructor, pozitions, uvs, trangles);
         }

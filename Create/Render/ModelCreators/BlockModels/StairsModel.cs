@@ -85,166 +85,56 @@ public class StairsModel : IBlockModel
 
         void add_side_s(BlockSide side, bool isUpper, bool move_byX, bool move_byZ)
         {
-            Span<Vector2> uvs = stackalloc[]
-            {
-                new Vector2(0, .5f),
-                new Vector2(.5f, .5f),
-                new Vector2(0, 0),
-                new Vector2(.5f, 0)
-            };
+            Span<Vector2> uvs = stackalloc Vector2[4];
+            IBlockModel.SetFastDefault(uvs);
+            IBlockModel.ScaleVectors(uvs, .5f);
+
             if (side is BlockSide.Top)
-            {
-                for (int i = 0; i < 4; i++)
-                    uvs[i] = new(
-                        x: move_byX ? uvs[i].X + .5f : uvs[i].X,
-                        y: move_byZ ? uvs[i].Y + .5f : uvs[i].Y);
-            }
+                IBlockModel.MoveVectors(uvs, new(move_byX ? .5f : 0, move_byZ ? .5f : 0));
             else if (side is BlockSide.Bottom)
-            {
-                for (int i = 0; i < 4; i++)
-                    uvs[i] = new(
-                        x: move_byX ? uvs[i].X + .5f : uvs[i].X,
-                        y: move_byZ ? uvs[i].Y : uvs[i].Y + .5f);
-            }
+                IBlockModel.MoveVectors(uvs, new(move_byX ? .5f : 0, move_byZ ? 0 : .5f));
             else
             {
-                for (int i = 0; i < 4; i++)
-                    uvs[i] = uvs[i] with { Y = uvs[i].Y + .5f };
+                IBlockModel.MoveVectors(uvs, new(0, .5f));
 
-                if ((side == BlockSide.South && move_byX) ||
-                    (side == BlockSide.North && !move_byX) ||
-                    (side == BlockSide.West && !move_byZ) ||
-                    (side == BlockSide.East && move_byZ))
-                    for (int i = 0; i < 4; i++)
-                        uvs[i] = uvs[i] with { X = uvs[i].X + .5f };
+                if (side switch { BlockSide.North => !move_byX, BlockSide.South => move_byX, BlockSide.West => !move_byZ,  BlockSide.East => move_byZ, _ => false})
+                    IBlockModel.MoveVectors(uvs, new(.5f, 0));
             }
 
-            Span<int> trangles = stackalloc[]
-            {
-                0, 1, 2,
-                3, 2, 1
-            };
+            Span<int> trangles = stackalloc int[4];
+            IBlockModel.SetFastDefault(trangles);
+
             Span<Vector3> pozitions = stackalloc Vector3[4];
+            IBlockModel.SetDefault(pozitions, side);
+            
             Vector3 bl_poz = args.pozition.ToVector();
-            switch (side)
-            {
-                case BlockSide.North:
-                    pozitions[0] = bl_poz + new Vector3(.5f, .5f, .5f);
-                    pozitions[1] = bl_poz + new Vector3(0, .5f, .5f);
-                    pozitions[2] = bl_poz + new Vector3(.5f, 0, .5f);
-                    pozitions[3] = bl_poz + new Vector3(0, 0, .5f);
-                    break;
-                case BlockSide.South:
-                    pozitions[0] = bl_poz + new Vector3(0, .5f, 0);
-                    pozitions[1] = bl_poz + new Vector3(.5f, .5f, 0);
-                    pozitions[2] = bl_poz + new Vector3(0, 0, 0);
-                    pozitions[3] = bl_poz + new Vector3(.5f, 0, 0);
-                    break;
-                case BlockSide.East:
-                    pozitions[0] = bl_poz + new Vector3(.5f, .5f, 0);
-                    pozitions[1] = bl_poz + new Vector3(.5f, .5f, .5f);
-                    pozitions[2] = bl_poz + new Vector3(.5f, 0, 0);
-                    pozitions[3] = bl_poz + new Vector3(.5f, 0, .5f);
-                    break;
-                case BlockSide.West:
-                    pozitions[0] = bl_poz + new Vector3(0, .5f, .5f);
-                    pozitions[1] = bl_poz + new Vector3(0, .5f, 0);
-                    pozitions[2] = bl_poz + new Vector3(0, 0, .5f);
-                    pozitions[3] = bl_poz + new Vector3(0, 0, 0);
-                    break;
-                case BlockSide.Top:
-                    pozitions[0] = bl_poz + new Vector3(0, .5f, .5f);
-                    pozitions[1] = bl_poz + new Vector3(.5f, .5f, .5f);
-                    pozitions[2] = bl_poz + new Vector3(0, .5f, 0);
-                    pozitions[3] = bl_poz + new Vector3(.5f, .5f, 0);
-                    break;
-                case BlockSide.Bottom:
-                    pozitions[0] = bl_poz + new Vector3(0, 0, 0);
-                    pozitions[1] = bl_poz + new Vector3(.5f, 0, 0);
-                    pozitions[2] = bl_poz + new Vector3(0, 0, .5f);
-                    pozitions[3] = bl_poz + new Vector3(.5f, 0, .5f);
-                    break;
-            }
-
-            for (int i = 0; i < 4; i++)
-                pozitions[i] = new(
-                    y: isUpper ? pozitions[i].Y : pozitions[i].Y + .5f,
-                    x: move_byX ? pozitions[i].X + .5f : pozitions[i].X,
-                    z: move_byZ ? pozitions[i].Z + .5f : pozitions[i].Z);
+            IBlockModel.ScaleAndMoveVector(pozitions, .5f, bl_poz);
+            IBlockModel.MoveVectors(pozitions, new Vector3(y: isUpper ? 0 : .5f, x: move_byX ? .5f : 0, z: move_byZ ? .5f : 0));
 
             texture.RenderSide(constructor, pozitions, uvs, trangles);
         }
         void add_side_b(BlockSide side, bool upper)
         {
-            Span<Vector2> uvs = side is BlockSide.Top or BlockSide.Bottom ? stackalloc Vector2[]
+            Span<Vector2> uvs = stackalloc Vector2[4];
+            IBlockModel.SetFastDefault(uvs);
+            if (side is not BlockSide.Top or BlockSide.Bottom)
             {
-                new Vector2(0, 1),
-                new Vector2(1, 1),
-                new Vector2(0, 0),
-                new Vector2(1, 0)
-            } : (upper ? stackalloc Vector2[]
-            {
-                new Vector2(0, 1),
-                new Vector2(1, 1),
-                new Vector2(0, .5f),
-                new Vector2(1, .5f)
-            } : stackalloc Vector2[]
-            {
-                new Vector2(0, .5f),
-                new Vector2(1, .5f),
-                new Vector2(0, 0),
-                new Vector2(1, 0)
-            });
-            Span<int> trangles = stackalloc int[]
-            {
-                0, 1, 2,
-                3, 2, 1
-            };
-            Span<Vector3> pozitions = stackalloc Vector3[4];
-            Vector3 bl_poz = args.pozition.ToVector();
-            switch (side)
-            {
-                case BlockSide.North:
-                    pozitions[0] = bl_poz + new Vector3(1, .5f, 1);
-                    pozitions[1] = bl_poz + new Vector3(0, .5f, 1);
-                    pozitions[2] = bl_poz + new Vector3(1, 0, 1);
-                    pozitions[3] = bl_poz + new Vector3(0, 0, 1);
-                    break;
-                case BlockSide.South:
-                    pozitions[0] = bl_poz + new Vector3(0, .5f, 0);
-                    pozitions[1] = bl_poz + new Vector3(1, .5f, 0);
-                    pozitions[2] = bl_poz + new Vector3(0, 0, 0);
-                    pozitions[3] = bl_poz + new Vector3(1, 0, 0);
-                    break;
-                case BlockSide.East:
-                    pozitions[0] = bl_poz + new Vector3(1, .5f, 0);
-                    pozitions[1] = bl_poz + new Vector3(1, .5f, 1);
-                    pozitions[2] = bl_poz + new Vector3(1, 0, 0);
-                    pozitions[3] = bl_poz + new Vector3(1, 0, 1);
-                    break;
-                case BlockSide.West:
-                    pozitions[0] = bl_poz + new Vector3(0, .5f, 1);
-                    pozitions[1] = bl_poz + new Vector3(0, .5f, 0);
-                    pozitions[2] = bl_poz + new Vector3(0, 0, 1);
-                    pozitions[3] = bl_poz + new Vector3(0, 0, 0);
-                    break;
-                case BlockSide.Top:
-                    pozitions[0] = bl_poz + new Vector3(0, .5f, 1);
-                    pozitions[1] = bl_poz + new Vector3(1, .5f, 1);
-                    pozitions[2] = bl_poz + new Vector3(0, .5f, 0);
-                    pozitions[3] = bl_poz + new Vector3(1, .5f, 0);
-                    break;
-                case BlockSide.Bottom:
-                    pozitions[0] = bl_poz + new Vector3(0, 0, 0);
-                    pozitions[1] = bl_poz + new Vector3(1, 0, 0);
-                    pozitions[2] = bl_poz + new Vector3(0, 0, 1);
-                    pozitions[3] = bl_poz + new Vector3(1, 0, 1);
-                    break;
+                IBlockModel.ScaleVectors(uvs, new Vector2(1, 0.5f));
+                if (upper)
+                    IBlockModel.MoveVectors(uvs, new Vector2(0, 0.5f));
             }
+            
+            Span<int> trangles = stackalloc int[4];
+            IBlockModel.SetFastDefault(trangles);
+
+            Span<Vector3> pozitions = stackalloc Vector3[4];
+            IBlockModel.SetDefault(pozitions, side);
+
+            Vector3 bl_poz = args.pozition.ToVector();
+            IBlockModel.ScaleAndMoveVector(pozitions, new Vector3(1, 0.5f, 1), bl_poz);
 
             if (upper)
-                for (int i = 0; i < 4; i++)
-                    pozitions[i] = pozitions[i] with { Y = pozitions[i].Y + .5f };
+                IBlockModel.MoveVectors(pozitions, new Vector3(0, 0.5f, 0));
 
             texture.RenderSide(constructor, pozitions, uvs, trangles);
         }

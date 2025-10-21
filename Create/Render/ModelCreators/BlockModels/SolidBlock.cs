@@ -36,77 +36,18 @@ public class SolidBlock : IBlockModel
 
         void add_side(BlockSide side)
         {
-            Span<Vector2> uvs = stackalloc Vector2[]
-            {
-                new Vector2(0, 1),
-                new Vector2(1, 1),
-                new Vector2(0, 0),
-                new Vector2(1, 0)
-            };
-            Span<int> trangles = stackalloc int[]
-            {
-                0, 1, 2,
-                3, 2, 1
-            };
+            Span<Vector2> uvs = stackalloc Vector2[4];
+            IBlockModel.SetFastDefault(uvs);
+
+            Span<int> triangles = stackalloc int[6];
+            IBlockModel.SetFastDefault(triangles);
+
             Span<Vector3> pozitions = stackalloc Vector3[4];
+            IBlockModel.SetDefault(pozitions, side);
+            
             Vector3 bl_poz = args.pozition.ToVector();
-            switch (side)
-            {
-                case BlockSide.North:
-                    pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(1, 1, 1),
-                        bl_poz + new Vector3(0, 1, 1),
-                        bl_poz + new Vector3(1, 0, 1),
-                        bl_poz + new Vector3(0, 0, 1)
-                    };
-                    break;
-                case BlockSide.South:
-                    pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(0, 1, 0),
-                        bl_poz + new Vector3(1, 1, 0),
-                        bl_poz + new Vector3(0, 0, 0),
-                        bl_poz + new Vector3(1, 0, 0)
-                    };
-                    break;
-                case BlockSide.East:
-                    pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(1, 1, 0),
-                        bl_poz + new Vector3(1, 1, 1),
-                        bl_poz + new Vector3(1, 0, 0),
-                        bl_poz + new Vector3(1, 0, 1)
-                    };
-                    break;
-                case BlockSide.West:
-                    pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(0, 1, 1),
-                        bl_poz + new Vector3(0, 1, 0),
-                        bl_poz + new Vector3(0, 0, 1),
-                        bl_poz + new Vector3(0, 0, 0)
-                    };
-                    break;
-                case BlockSide.Top:
-                    pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(0, 1, 1),
-                        bl_poz + new Vector3(1, 1, 1),
-                        bl_poz + new Vector3(0, 1, 0),
-                        bl_poz + new Vector3(1, 1, 0)
-                    };
-                    break;
-                case BlockSide.Bottom:
-                    pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(0, 0, 0),
-                        bl_poz + new Vector3(1, 0, 0),
-                        bl_poz + new Vector3(0, 0, 1),
-                        bl_poz + new Vector3(1, 0, 1)
-                    };
-                    break;
-            }
+            IBlockModel.MoveVectors(pozitions, bl_poz);
+
             var sideT = textures.Match(s => s.t,
                 k => side switch
                 {
@@ -123,7 +64,7 @@ public class SolidBlock : IBlockModel
                     BlockSide.North => a.North,
                     _ => a.South
                 });
-            sideT.RenderSide(constructor, pozitions, uvs, trangles);
+            sideT.RenderSide(constructor, pozitions, uvs, triangles);
         }
     }
 
