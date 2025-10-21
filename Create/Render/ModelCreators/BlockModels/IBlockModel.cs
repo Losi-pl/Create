@@ -1,6 +1,7 @@
 ﻿using System.Xml.Linq;
 using static Create.Elements.Block;
 using Create.Linq;
+using OpenTK.Mathematics;
 
 namespace Create.Render.ModelCreators.BlockModels;
 
@@ -58,6 +59,16 @@ public interface IBlockModel
         return block.Block.IsSideVisible(block_set, side.Invert());
     }
 
+    /// <summary>
+    /// Wypełnia tablice z pozycjami tekstury pierwszej ściany
+    /// </summary>
+    protected internal static void SetFastDefault(Span<Vector2> uvs)
+    {
+        uvs[0] = new Vector2(0, 1);
+        uvs[1] = new Vector2(1, 1);
+        uvs[2] = new Vector2(0, 0);
+        uvs[3] = new Vector2(1, 0);
+    }
 
     /// <summary>
     /// Wypełnia tablice z indeksami punktów pierwszej ściany
