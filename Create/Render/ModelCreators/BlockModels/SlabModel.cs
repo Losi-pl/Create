@@ -187,20 +187,19 @@ public sealed class SlabModel : IBlockModel
         }
         void get_face_pozitions_v(Span<Vector3> pozitions, BlockSide side, bool upper, bool along_the_x)
         {
-            Span<Vector3> poz = stackalloc Vector3[4];
-            IBlockModel.SetDefault(poz, side);
+            IBlockModel.SetDefault(pozitions, side);
 
             Vector3 bl_poz = args.pozition.ToVector();
             if (along_the_x)
-                IBlockModel.ScaleAndMoveVector(poz, new Vector3(1, 1, .5f), bl_poz);
+                IBlockModel.ScaleAndMoveVector(pozitions, new Vector3(1, 1, .5f), bl_poz);
             else
-                IBlockModel.ScaleAndMoveVector(poz, new Vector3(.5f, 1, 1), bl_poz);
+                IBlockModel.ScaleAndMoveVector(pozitions, new Vector3(.5f, 1, 1), bl_poz);
 
             if (upper)
                 if(along_the_x)
-                    IBlockModel.MoveVectors(poz, new Vector3(0, 0, .5f));
+                    IBlockModel.MoveVectors(pozitions, new Vector3(0, 0, .5f));
                 else
-                    IBlockModel.MoveVectors(poz, new Vector3(.5f, 0, 0));
+                    IBlockModel.MoveVectors(pozitions, new Vector3(.5f, 0, 0));
         }
     }
 
