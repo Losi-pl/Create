@@ -1,4 +1,5 @@
 ﻿using Create.Space;
+using OpenTK.Mathematics;
 
 namespace Create.Linq;
 
@@ -31,4 +32,9 @@ public static class MathsC
         if (range.End.Value < value) return false;
         return true;
     }
+
+    public static (int x, int y, int z) Add(this (int x, int y, int z) a, Vector3i b)
+    {
+        return (a.x + b.X, a.y + b.Y, a.z + b.Z);
+    } 
 }
