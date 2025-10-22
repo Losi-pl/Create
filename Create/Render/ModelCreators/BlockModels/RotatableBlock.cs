@@ -22,49 +22,49 @@ public sealed class RotatableBlock : IBlockModel
             case "0":
             default:
                 if (IBlockModel.SideVisibilityTest(args, BlockSide.Top))
-                    add_side(BlockSide.Top, false);
+                    RenderBlockSide(BlockSide.Top, false);
                 if (IBlockModel.SideVisibilityTest(args, BlockSide.Bottom))
-                    add_side(BlockSide.Bottom, false);
+                    RenderBlockSide(BlockSide.Bottom, false);
                 if (IBlockModel.SideVisibilityTest(args, BlockSide.East))
-                    add_side(BlockSide.East, false);
+                    RenderBlockSide(BlockSide.East, false);
                 if (IBlockModel.SideVisibilityTest(args, BlockSide.West))
-                    add_side(BlockSide.West, false);
+                    RenderBlockSide(BlockSide.West, false);
                 if (IBlockModel.SideVisibilityTest(args, BlockSide.North))
-                    add_side(BlockSide.North, false);
+                    RenderBlockSide(BlockSide.North, false);
                 if (IBlockModel.SideVisibilityTest(args, BlockSide.South))
-                    add_side(BlockSide.South, false);
+                    RenderBlockSide(BlockSide.South, false);
                 break;
             case "1":
                 if (IBlockModel.SideVisibilityTest(args, BlockSide.Top))
-                    add_side(BlockSide.Top, true);
+                    RenderBlockSide(BlockSide.Top, true);
                 if (IBlockModel.SideVisibilityTest(args, BlockSide.Bottom))
-                    add_side(BlockSide.Bottom, true);
+                    RenderBlockSide(BlockSide.Bottom, true);
                 if (IBlockModel.SideVisibilityTest(args, BlockSide.East))
-                    add_side(BlockSide.East, false);
+                    RenderBlockSide(BlockSide.East, false);
                 if (IBlockModel.SideVisibilityTest(args, BlockSide.West))
-                    add_side(BlockSide.West, false);
+                    RenderBlockSide(BlockSide.West, false);
                 if (IBlockModel.SideVisibilityTest(args, BlockSide.North))
-                    add_side(BlockSide.North, true);
+                    RenderBlockSide(BlockSide.North, true);
                 if (IBlockModel.SideVisibilityTest(args, BlockSide.South))
-                    add_side(BlockSide.South, true);
+                    RenderBlockSide(BlockSide.South, true);
                 break;
             case "2":
                 if (IBlockModel.SideVisibilityTest(args, BlockSide.Top))
-                    add_side(BlockSide.Top, false);
+                    RenderBlockSide(BlockSide.Top, false);
                 if (IBlockModel.SideVisibilityTest(args, BlockSide.Bottom))
-                    add_side(BlockSide.Bottom, false);
+                    RenderBlockSide(BlockSide.Bottom, false);
                 if (IBlockModel.SideVisibilityTest(args, BlockSide.East))
-                    add_side(BlockSide.East, true);
+                    RenderBlockSide(BlockSide.East, true);
                 if (IBlockModel.SideVisibilityTest(args, BlockSide.West))
-                    add_side(BlockSide.West, true);
+                    RenderBlockSide(BlockSide.West, true);
                 if (IBlockModel.SideVisibilityTest(args, BlockSide.North))
-                    add_side(BlockSide.North, false);
+                    RenderBlockSide(BlockSide.North, false);
                 if (IBlockModel.SideVisibilityTest(args, BlockSide.South))
-                    add_side(BlockSide.South, false);
+                    RenderBlockSide(BlockSide.South, false);
                 break;
         }
         
-        void add_side(BlockSide side, bool rotated)
+        void RenderBlockSide(BlockSide side, bool rotated)
         {
             Span<Vector2> uvs = stackalloc Vector2[4];
             if(rotated)
@@ -85,12 +85,12 @@ public sealed class RotatableBlock : IBlockModel
             Span<int> trangles = stackalloc int[6];
             IBlockModel.SetFastDefault(trangles);
 
-            Span<Vector3> pozitions = stackalloc Vector3[4];
-            IBlockModel.SetDefault(pozitions, side);
-            IBlockModel.MoveVectors(pozitions, args.pozition.ToVector());
+            Span<Vector3> positions = stackalloc Vector3[4];
+            IBlockModel.SetDefault(positions, side);
+            IBlockModel.MoveVectors(positions, args.pozition.ToVector());
             
             var sideT = GetBlockSide(args, side);
-            sideT?.RenderSide(constructor, pozitions, uvs, trangles);
+            sideT?.RenderSide(constructor, positions, uvs, trangles);
         }
     }
 

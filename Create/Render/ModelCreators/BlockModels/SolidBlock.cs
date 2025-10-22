@@ -22,19 +22,19 @@ public class SolidBlock : IBlockModel
     public void GenerateModel(StandardBlockSet args, ModelConstructor constructor)
     {
         if (IBlockModel.SideVisibilityTest(args, BlockSide.Top))
-            add_side(BlockSide.Top);
+            RenderBlockSide(BlockSide.Top);
         if (IBlockModel.SideVisibilityTest(args, BlockSide.Bottom))
-            add_side(BlockSide.Bottom);
+            RenderBlockSide(BlockSide.Bottom);
         if (IBlockModel.SideVisibilityTest(args, BlockSide.East))
-            add_side(BlockSide.East);
+            RenderBlockSide(BlockSide.East);
         if (IBlockModel.SideVisibilityTest(args, BlockSide.West))
-            add_side(BlockSide.West);
+            RenderBlockSide(BlockSide.West);
         if (IBlockModel.SideVisibilityTest(args, BlockSide.North))
-            add_side(BlockSide.North);
+            RenderBlockSide(BlockSide.North);
         if (IBlockModel.SideVisibilityTest(args, BlockSide.South))
-            add_side(BlockSide.South);
+            RenderBlockSide(BlockSide.South);
 
-        void add_side(BlockSide side)
+        void RenderBlockSide(BlockSide side)
         {
             Span<Vector2> uvs = stackalloc Vector2[4];
             IBlockModel.SetFastDefault(uvs);
@@ -42,11 +42,11 @@ public class SolidBlock : IBlockModel
             Span<int> triangles = stackalloc int[6];
             IBlockModel.SetFastDefault(triangles);
 
-            Span<Vector3> pozitions = stackalloc Vector3[4];
-            IBlockModel.SetDefault(pozitions, side);
+            Span<Vector3> positions = stackalloc Vector3[4];
+            IBlockModel.SetDefault(positions, side);
             
-            Vector3 bl_poz = args.pozition.ToVector();
-            IBlockModel.MoveVectors(pozitions, bl_poz);
+            Vector3 bl_pos = args.pozition.ToVector();
+            IBlockModel.MoveVectors(positions, bl_pos);
 
             var sideT = textures.Match(s => s.t,
                 k => side switch
@@ -64,7 +64,7 @@ public class SolidBlock : IBlockModel
                     BlockSide.North => a.North,
                     _ => a.South
                 });
-            sideT.RenderSide(constructor, pozitions, uvs, triangles);
+            sideT.RenderSide(constructor, positions, uvs, triangles);
         }
     }
 

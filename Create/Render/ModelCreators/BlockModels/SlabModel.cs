@@ -178,12 +178,12 @@ public sealed class SlabModel : IBlockModel
         }
         void HorizontalSlabSidePositions(Span<Vector3> positions, BlockSide side, bool upper)
         {
-            Vector3 bl_poz = args.pozition.ToVector();
+            Vector3 bl_pos = args.pozition.ToVector();
             IBlockModel.SetDefault(positions, side);
             if (upper)
-                IBlockModel.ScaleAndMoveVector(positions, new Vector3(1, .5f, 1), bl_poz + new Vector3(0, .5f, 0));
+                IBlockModel.ScaleAndMoveVector(positions, new Vector3(1, .5f, 1), bl_pos + new Vector3(0, .5f, 0));
             else
-                IBlockModel.ScaleAndMoveVector(positions, new Vector3(1, .5f, 1), bl_poz);
+                IBlockModel.ScaleAndMoveVector(positions, new Vector3(1, .5f, 1), bl_pos);
         }
         void VerticalSlabSidePositions(Span<Vector3> positions, BlockSide side, bool upper, bool along_the_x)
         {
