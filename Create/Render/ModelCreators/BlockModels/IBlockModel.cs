@@ -245,4 +245,41 @@ public interface IBlockModel
     /// <summary><inheritdoc cref="ScaleAndMoveVector(Span{Vector3}, Vector3, Vector3)"/></summary>
     protected internal static void ScaleAndMoveVector(Span<Vector2> positions, float scale, float offset) =>
         ScaleAndMoveVector(positions, new Vector2(scale), new Vector2(offset));
+
+    protected internal static void RotateVectors(Span<Vector2> positions, int rotation)
+    {
+        if (rotation == 0)
+            return;
+        rotation = rotation % 4;
+        if (rotation == 3)
+            rotation = -1;
+        if (rotation == -3)
+            rotation = 1;
+
+        if (rotation is 2 or -2)
+        {
+            for (int i = 0; i < positions.Length; i++)
+                positions[i] = new Vector2(1 - positions[i].X, 1 - positions[i].Y);
+            return;
+        }
+        else if (rotation is 1)
+        {
+            for (int i = 0; i < positions.Length; i++)
+                positions[i] = new Vector2(positions[i].Y, 1 - positions[i].X);
+            return;
+        }
+        else if (rotation is -1)
+        {
+            for (int i = 0; i < positions.Length; i++)
+                positions[i] = new Vector2(1 - positions[i].Y, positions[i].X);
+            return;
+        }
+    }
+    
+    protected internal void RotateVectors(Span<Vector2> vectors, float angle)
+    {
+        var mat = Matrix4.CreateRotationZ(angle);
+            for (int i = 0; i < vectors.Length; i++)
+                vectors[i] = (new Vector4(vectors[i]) * mat).Xy;
+    }
 }

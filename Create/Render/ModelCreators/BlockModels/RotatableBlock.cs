@@ -67,21 +67,10 @@ public sealed class RotatableBlock : IBlockModel
         void RenderBlockSide(BlockSide side, bool rotated)
         {
             Span<Vector2> uvs = stackalloc Vector2[4];
+            IBlockModel.SetFastDefault(uvs);
             if(rotated)
-            {
-                uvs[0] = new Vector2(0, 0);
-                uvs[1] = new Vector2(0, 1);
-                uvs[2] = new Vector2(1, 0);
-                uvs[3] = new Vector2(1, 1);
-            }
-            else
-            {
-                uvs[0] = new Vector2(0, 1);
-                uvs[1] = new Vector2(1, 1);
-                uvs[2] = new Vector2(0, 0);
-                uvs[3] = new Vector2(1, 0);
-            }
-
+                IBlockModel.RotateVectors(uvs, 1);
+            
             Span<int> trangles = stackalloc int[6];
             IBlockModel.SetFastDefault(trangles);
 
