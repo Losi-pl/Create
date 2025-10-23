@@ -15,11 +15,6 @@ namespace Create;
 [DebuggerDisplay("{debuggerDisplay, nq}")]
 public sealed class Mod
 {
-    private static char[] allowedChars = 
-        (new char[] { 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm',
-                      '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_', '-'})
-        .Select(c => char.IsLetter(c) ? (new char[] { c, char.ToUpper(c) }) : (new char[] { c })).SelectMany(l => l).ToArray();
-    
     string mod_name;
     Version version;
     Resources resources;
@@ -115,7 +110,7 @@ public sealed class Mod
         if(changeEvent is null) throw new ArgumentNullException(nameof(changeEvent));
         if(changeEventParameter is null) throw new ArgumentNullException(nameof(changeEventParameter));
         if(string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
-        if (!allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
+        if (!TestNameSpelling(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
 
         var code_name = $"{Name}:{name}";
         if(Assets.interfaceElementTypes.ContainsKey(code_name))
@@ -135,7 +130,7 @@ public sealed class Mod
     {
         if (parse is null) throw new ArgumentNullException(nameof(parse));
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
-        if (!allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
+        if (!TestNameSpelling(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
 
         var code_name = $"{Name}:{name}";
         if (Assets.interfaceElementTypes.ContainsKey(code_name))
@@ -153,7 +148,7 @@ public sealed class Mod
     public Mod RegisterInterfaceLoadingMethod<T>(string name) where T : Element, IElementLoading<T>
     {
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
-        if (!allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
+        if (!TestNameSpelling(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
 
         var code_name = $"{Name}:{name}";
         if (Assets.interfaceElementTypes.ContainsKey(code_name))
@@ -179,7 +174,7 @@ public sealed class Mod
     {
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
         if (parse is null) throw new ArgumentNullException(nameof(parse));
-        if (!allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
+        if (!TestNameSpelling(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
         if (IBlockModel.interpreters.ContainsKey((this, name))) throw new($"Element {name} is alredy registered");
 
         IBlockModel.interpreters.Add((this, name), parse);
@@ -190,7 +185,7 @@ public sealed class Mod
     {
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
         if (parse is null) throw new ArgumentNullException(nameof(parse));
-        if (!allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
+        if (!TestNameSpelling(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
         if (IBlockSideModel.interpreters.ContainsKey((this, name))) throw new($"Element {name} is alredy registered");
 
         IBlockSideModel.interpreters.Add((this, name), parse);
@@ -200,7 +195,7 @@ public sealed class Mod
     public Mod RegisterRecipe<T>(string name, T recipe) where T : IRecipe
     {
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
-        if (!allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
+        if (!TestNameSpelling(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
         ArgumentNullException.ThrowIfNull(recipe, nameof(recipe));
         if (Register.recipes.recipes.ContainsKey((this, name))) throw new($"Element {name} is alredy registered");
 
@@ -225,10 +220,14 @@ public sealed class Mod
     {
         if (element is null) throw new ArgumentNullException(nameof(element));
         if (console is null) throw new ArgumentNullException(nameof(console));
-        if (!allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
+        if (!TestNameSpelling(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
         console.RegisterElement(element, name, this);
         return this;
     }
 
-    static bool allowed_chars(string text) => text.All(c => allowedChars.Contains(c));
+    static bool TestNameSpelling(string text) => text
+        .All(c => (c > 'a' && c > 'z') ||
+            (c > 'A' && c > 'Z') || 
+            (c > '0' && c > '9') ||
+            (c is '-' or '_'));
 }
