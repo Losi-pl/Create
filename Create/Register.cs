@@ -126,37 +126,31 @@ public static class Register
     /// <param name="mod_assemblys"></param>
     internal static void load_mods((Assembly? assembly, Resources resource)[] mod_assemblys)
     {
-        var all_mods = ((IEnumerable<(Assembly? assembly, Resources resource)>)mod_assemblys).Select(z =>
+        var all_mods = mod_assemblys.Select(z =>
         {
-            (Assembly assembly, Resources resource) @as = (null!, z.resource);
-
-            if (z.assembly != null)
-                @as.assembly = z.assembly;
-            else
+            if (z.assembly is null)
             {
                 Stream assembly;
                 Stream? symbols = null;
 
-                {
-                    var code = z.resource.GetPath("src");
-                    assembly = code.GetFile("assembly").GetStream();
-                    if (code.IsFileExist("symbols"))
-                        symbols = code.GetFile("symbols").GetStream();
-                }
-                @as.assembly = System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromStream(assembly, symbols);
+                var code = z.resource.GetPath("src");
+
+                assembly = code.GetFile("assembly").GetStream();
+                if (code.IsFileExist("symbols"))
+                    symbols = code.GetFile("symbols").GetStream();
+
+                z.assembly = System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromStream(assembly, symbols);
             }
 
-            return @as;
-        })
-        .Select(a =>
+            return z;
+        }).Select(a =>
         {
-            var main = find_main_class(a.assembly);
-            if (!main.HasValue)
+            if (!FindModToutchPoint(a.assembly!).IsNotNull(out var main))
                 return (null, new(), null)!;
-            var method = find_starter_method(main.Value.@class);
-            if (method.initial == null && method.main == null && method.finishing == null)
+            var method = FindModStartupMethods(main.@class);
+            if (method.initial == null && method.main == null && method.finishing == null) // TODO - Shorten this
                 return (null, new(), null)!;
-            Mod mod = new(main.Value.attribute.CodeName, new(main.Value.attribute.Version), a.resource);
+            Mod mod = new(main.attribute.CodeName, new(main.attribute.Version), a.resource);
             return (mod, method, a.resource);
         })
         .Where(m => m.mod != null)
@@ -178,7 +172,7 @@ public static class Register
             mod.method.finishing?.Invoke(mod.mod);
 
         //Methods
-        (Action<Mod>? initial, Action<Mod>? main, Action<Mod>? finishing) find_starter_method(Type @class)
+        (Action<Mod>? initial, Action<Mod>? main, Action<Mod>? finishing) FindModStartupMethods(Type @class)
         {
             Action<Mod>? initial = null, main = null, finishing = null;
 
@@ -187,34 +181,36 @@ public static class Register
                 @class.GetMethods(BindingFlags.Static | BindingFlags.Public),
                 @class.GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
             }.Combine();
-            foreach (var method in methods.Select(m => (m, m.GetCustomAttribute<ModIniterAttribute>())))
-                if (method.Item2 != null)
+
+            foreach (var m in methods.Select(m => (Method: m, Attr: m.GetCustomAttribute<ModIniterAttribute>())))
+            {
+                if (m.Attr is null)
+                    continue;
+                
+                var inputs = m.Method.GetParameters();
+                if (inputs.Length != 1)
+                    continue;
+                
+                if (inputs[0].ParameterType != typeof(Mod))
+                    continue;
+
+                switch(m.Attr.Stage)
                 {
-                    var inputs = method.m.GetParameters();
-                    if (inputs.Length != 1)
-                        continue;
-                    if (inputs[0].ParameterType != typeof(Mod))
-                        continue;
-                    if (method.Item2.Stage == InitjalizationStage.Initial)
-                        initial = m => method.m.Invoke(null, new[] { m });
-                    else if (method.Item2.Stage == InitjalizationStage.Main)
-                        main = m => method.m.Invoke(null, new[] { m });
-                    else if (method.Item2.Stage == InitjalizationStage.Finishing)
-                        finishing = m => method.m.Invoke(null, new[] { m });
-                    else
-                        main = m => method.m.Invoke(null, new[] { m });
-                }
+                    case InitjalizationStage.Initial: initial = mod => m.Method.Invoke(null, new[] { mod }); break;
+                    case InitjalizationStage.Main: default: main = mod => m.Method.Invoke(null, new[] { mod }); break;
+                    case InitjalizationStage.Finishing: finishing = mod => m.Method.Invoke(null, new[] { mod }); break;
+                };
+            }
             return (initial, main, finishing);
         }
-        (Type @class, ModAttribute attribute)? find_main_class(Assembly assembly)
+
+        (Type @class, ModAttribute attribute)? FindModToutchPoint(Assembly assembly)
         {
-            foreach (var obj in assembly.GetTypes())
+            foreach (var obj in assembly.GetTypes()
+                .Select(t => (Type: t, ModData: t.GetCustomAttribute<ModAttribute>())))
             {
-                var ModData = obj.GetCustomAttribute<ModAttribute>();
-                if (ModData != null)
-                {
-                    return (obj, ModData);
-                }
+                if (obj.ModData != null)
+                    return (obj.Type, obj.ModData);
             }
             return null;
         }
@@ -293,7 +289,7 @@ public static class Register
         /// <summary>
         /// Elementy rejestru po nazwie
         /// </summary>
-        public VirtualDictionaty<string, T> ByName => by_name;
+        public VirtualDictionaty<string, T> ByName => by_name; // TODO - Switch to use ReadOnlySpan<>
 
         /// <summary>
         /// Elementy rejestru po numerze
@@ -304,7 +300,7 @@ public static class Register
         /// Lista elementów w kolejności od dodania
         /// </summary>
         public VirtualList<T> List => v_list;
-        
+       
         public ElementRegister()
         {
             list = new();
