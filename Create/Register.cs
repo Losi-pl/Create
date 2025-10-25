@@ -45,40 +45,34 @@ public static class Register
     internal static Resources create_resource()
     {
         #if DEBUG
+        
+        // Get path to the resources folder
         var resource_path = Assembly.GetExecutingAssembly().Location;
-        {
-            int rem_from = 0;
-            for (int i = 0; i < resource_path.Length; i++)
-                if (resource_path[i] is '\\')
-                    rem_from = i;
-            resource_path = resource_path?.Remove(rem_from);
-            resource_path = Path.GetFullPath($"{resource_path}/../../../../../Create/Resources/");
-        }
+        resource_path = resource_path.Remove(resource_path.LastIndexOf('\\'));
+        resource_path = Path.GetFullPath($"{resource_path}/../../../../../Create/Resources/");
 
+        // Load resources from the folder
         var resources = Resources.CreateFromDirectory().AddFolder(resource_path, "assets/create/", path =>
         {
             string pat = path.RegisterPath.ToLower();
-
             string root, file;
 
+            // Seperating root path and file
+            if (pat.LastIndexOfAny(out var poz, '/', '\\'))
             {
-                int last = 0;
-                for (int i = 0; i < pat.Length; i++)
-                    if (pat[i] is '\\' or '/')
-                        last = i;
-                root = pat.Remove(last + 1);
-                file = pat.Substring(last + 1);
+                root = pat.Remove(poz + 1);
+                file = pat.Substring(poz + 1);
             }
+            else
             {
-                if (file[0] != '.')
-                {
-                    int last = 0;
-                    for (int i = 0; i < file.Length; i++)
-                        if (file[i] is '.')
-                            last = i;
-                    file = file.Remove(last);
-                }
+                root = "";
+                file = pat;
             }
+
+            // Removing extension
+            if (file[0] != '.')
+                file = file.Remove(file.LastIndexOf('.'));
+
             path.SubPath($"{root}{file}");
         }).Finish();
         #else
@@ -99,11 +93,16 @@ public static class Register
 
         return resources;
 
-        //Metohds
+        // Load data components
         void load_icon()
         {
+            // Accessing icon file
             var icon_file = resources.GetPath("assets/create/textures/create").GetFile("icon");
+
+            // Load icon
             var icon = Image.Load(icon_file.GetStream());
+
+            // Set icon
             OpenGL.Engine.SetIcon(icon);
         }
         void load_main_shaders()
