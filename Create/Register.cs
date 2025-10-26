@@ -159,7 +159,7 @@ public static class Register
         foreach (var mod in all_mods)
             Mod.add_to_mod_list(mod.mod);
 
-        Assets.load_resources();
+        Assets.LoadGlobalResources();
         Assets.first_proces_resources();
 
         foreach (var mod in all_mods)

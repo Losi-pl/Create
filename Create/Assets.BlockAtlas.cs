@@ -56,7 +56,7 @@ partial class Assets
         /// <summary>
         /// <inheritdoc cref="atlas"/>
         /// </summary>
-        public static Texture2DArray Attlas => atlas ?? throw new Exception("Attlas not complited");
+        public static Texture2DArray Attlas => atlas ?? throw new NullReferenceException("Attlas not complited");
 
         /// <summary>
         /// Dodanie teksture do <see cref="texture"/> i znacznik odwołania do <see cref="block_atlas_handles"/> albo jeżeli znacznik już istnieje zastępuje ją w <see cref="texture"/>
@@ -80,11 +80,11 @@ partial class Assets
         /// <summary>
         /// Generuje gotowy atlas na podstawie <see cref="texture"/> i gdy atlas jest gotowy <see cref="texture"/> jest czyszczony
         /// </summary>
-        internal static void finish_attlas()
+        internal static void FinishTextureAttlas()
         {
             {
                 var cons = Texture2DArray.Create();
-                var null_tex = null_texture();
+                var null_tex = GenerateNullTexture();
                 cons.Add(null_tex);
                 int at = 0;
                 foreach (var texture in texture)
@@ -105,20 +105,20 @@ partial class Assets
         /// Generuje teksture braku tekstury
         /// </summary>
         /// <returns>Tablica kolorów braku tekstury</returns>
-        static Rgba32[,] null_texture()
+        static Rgba32[,] GenerateNullTexture()
         {
             Rgba32[,] tex = new Rgba32[16, 16];
             Rgba32 p = new(172, 29, 129, 255);
             Rgba32 b = new(0, 0, 0, 225);
 
-            print(0, 0, 8, 8, b);
-            print(8, 8, 8, 8, b);
-            print(0, 8, 8, 8, p);
-            print(8, 0, 8, 8, p);
+            FillPixels(0, 0, 8, 8, b);
+            FillPixels(8, 8, 8, 8, b);
+            FillPixels(0, 8, 8, 8, p);
+            FillPixels(8, 0, 8, 8, p);
 
             return tex;
             //Methods
-            void print(int start_x, int start_y, int len_x, int len_y, Rgba32 color)
+            void FillPixels(int start_x, int start_y, int len_x, int len_y, Rgba32 color)
             {
                 for (int x = 0; x < len_x; x++)
                     for (int y = 0; y < len_y; y++)
