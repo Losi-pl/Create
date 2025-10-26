@@ -450,14 +450,14 @@ public static partial class MathC
     /// <summary>
     /// Zmienia kąty podane w stopniach na podane w π
     /// </summary>
-    /// <param name="angle"></param>
+    /// <param name="degr"></param>
     /// <returns></returns>
-    internal static float cast_angle_to_pi(float angle) => angle / 180f * MathF.PI;
+    internal static float DegToAngle(float degr) => degr / 180f * MathF.PI;
 
     /// <summary>
     /// Zmienia kąty podane w π na kąty podane w stopniach
     /// </summary>
     /// <param name="angle"></param>
     /// <returns></returns>
-    internal static float cast_angle_to_normal(float angle) => angle / MathF.PI * 180f;
+    internal static float AngleToDeg(float angle) => angle / MathF.PI * 180f;
 }

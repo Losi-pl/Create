@@ -15,7 +15,7 @@ namespace Create
         /// <returns></returns>
         public static IEnumerable<Vector3i> CollidBlocks(Vector3 camera_poz, Vector2 camera_rotation, float distance)
         {
-            var start_block = MathC.Section(camera_poz, 1);
+            var start_block = Section(camera_poz, 1);
             var ray = CreateRay(camera_poz, camera_rotation, distance);
             yield return start_block;
             Ray.BoxHit? hit = null;
@@ -73,12 +73,12 @@ namespace Create
             {
                 if (_disposed)
                     return;
-                GC.SuppressFinalize(this);
                 _start = (0, 0, 0);
                 _delta = (0, 0, 0);
                 _lenght = null;
                 _orientaction = (0, 0);
                 _disposed = true;
+                GC.SuppressFinalize(this);
             }
 
             /// <summary>
@@ -94,8 +94,8 @@ namespace Create
                 _lenght = distance;
                 _disposed = false;
                 { // _delta
-                    var xz = new Vector2(MathF.Sin(cast_angle_to_pi(rotation.X)), MathF.Cos(cast_angle_to_pi(rotation.X))) * MathF.Cos(cast_angle_to_pi(rotation.Y));
-                    _delta = (xz.X, MathF.Sin(cast_angle_to_pi(rotation.Y)), xz.Y);
+                    var xz = new Vector2(MathF.Sin(DegToAngle(rotation.X)), MathF.Cos(DegToAngle(rotation.X))) * MathF.Cos(DegToAngle(rotation.Y));
+                    _delta = (xz.X, MathF.Sin(DegToAngle(rotation.Y)), xz.Y);
                 } // _delta
             }
 
