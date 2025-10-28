@@ -40,7 +40,7 @@ internal sealed class InformationBars : UserInterface, IUserInterface<Informatio
         if (Mouse.Scroll.Delta != 0 && !args.activeInventory)
         {
             slot_ind -= Mouse.Scroll.Delta;
-            slot_ind = MathC.InSection(slot_ind, 0, 8);
+            slot_ind = MathC.InSection(slot_ind, 9);
             statusBars.RunEvent(slot_ind.ToString());
         }
 
