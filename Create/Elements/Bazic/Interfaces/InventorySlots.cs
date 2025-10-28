@@ -264,7 +264,7 @@ public sealed class InventorySlots
             unique_events = new MassTransfer() { focus = sour_item.Value, slot_id = id};
             var items_count = sour_item.Value.Count;
             var maxCount = sour_item.Value.Item.MaxStackCount(sour_item.Value);
-            foreach (var slot_id in slots_in_order())
+            foreach (var slot_id in EnumeOfSlotsInOrder())
             { //Adding items to alredy existing stacks
                 var dest_slot = get_specyfic_item(slot_id);
                 if (dest_slot != sour_item)
@@ -284,7 +284,7 @@ public sealed class InventorySlots
                 }
             } //Adding items to alredy existing stacks
             if (items_count > 0)
-                foreach (var slot_id in slots_in_order())
+                foreach (var slot_id in EnumeOfSlotsInOrder())
                 { //Adding new stacks in empty slots
                     if (get_specyfic_item(slot_id).HasValue)
                         continue;
@@ -308,7 +308,7 @@ public sealed class InventorySlots
             else
                 set_item(null);
 
-            IEnumerable<(int index, byte cont)> slots_in_order()
+            IEnumerable<(int index, byte cont)> EnumeOfSlotsInOrder()
             {
                 if (id.cont == 0)
                 {
