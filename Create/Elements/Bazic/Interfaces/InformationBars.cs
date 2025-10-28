@@ -51,6 +51,6 @@ internal sealed class InformationBars : UserInterface, IUserInterface<Informatio
 
     public int UsedSlot => slot_ind;
 
-    public (int Sloat, Conteiner.ItemStack? Stack) GetStackInHand(Net.Player player) =>
+    public (int Slot, Conteiner.ItemStack? Stack) GetStackInHand(Net.Player player) =>
         (slot_ind, (player.Entity?.Data.Get("tool_slots") as Conteiner.Items.ToolsBar? ?? new())[slot_ind]);
 }
