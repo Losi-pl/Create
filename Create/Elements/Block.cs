@@ -97,22 +97,30 @@ public abstract class Block : Baze
     /// </summary>
     /// <param name="set">Parametry bloku</param>
     /// <returns></returns>
-    public virtual IEnumerable<((float x, float y, float z) start, (float x, float y, float z) end)> GetInteractionModel(StandardBlockSet set)
+    public virtual IEnumerable<((float x, float y, float z) start, (float x, float y, float z) end)> GetInteractionModel(StandardBlockSet set) =>
+        GetInteractionModel(new Vector3(.5f), new(1));
+
+    /// <summary>
+    /// <inheritdoc cref="GetInteractionModel(StandardBlockSet)"/>
+    /// </summary>
+    public IEnumerable<((float x, float y, float z) start, (float x, float y, float z) end)> GetInteractionModel(Vector3 pos, Vector3 size)
     {
-        yield return ((0, 0, 0), (1, 0, 0));
-        yield return ((0, 0, 1), (1, 0, 1));
-        yield return ((1, 0, 1), (1, 0, 0));
-        yield return ((0, 0, 1), (0, 0, 0));
+        size = size.Abs() / 2;
 
-        yield return ((0, 1, 0), (1, 1, 0));
-        yield return ((0, 1, 1), (1, 1, 1));
-        yield return ((1, 1, 1), (1, 1, 0));
-        yield return ((0, 1, 1), (0, 1, 0));
+        yield return ((pos.X - size.X, pos.Y - size.Y, pos.Z - size.Z), (pos.X + size.X, pos.Y - size.Y, pos.Z - size.Z));
+        yield return ((pos.X - size.X, pos.Y - size.Y, pos.Z + size.Z), (pos.X + size.X, pos.Y - size.Y, pos.Z + size.Z));
+        yield return ((pos.X + size.X, pos.Y - size.Y, pos.Z + size.Z), (pos.X + size.X, pos.Y - size.Y, pos.Z - size.Z));
+        yield return ((pos.X - size.X, pos.Y - size.Y, pos.Z + size.Z), (pos.X - size.X, pos.Y - size.Y, pos.Z - size.Z));
 
-        yield return ((0, 0, 0), (0, 1, 0));
-        yield return ((0, 0, 1), (0, 1, 1));
-        yield return ((1, 0, 0), (1, 1, 0));
-        yield return ((1, 0, 1), (1, 1, 1));
+        yield return ((pos.X - size.X, pos.Y + size.Y, pos.Z - size.Z), (pos.X + size.X, pos.Y + size.Y, pos.Z - size.Z));
+        yield return ((pos.X - size.X, pos.Y + size.Y, pos.Z + size.Z), (pos.X + size.X, pos.Y + size.Y, pos.Z + size.Z));
+        yield return ((pos.X + size.X, pos.Y + size.Y, pos.Z + size.Z), (pos.X + size.X, pos.Y + size.Y, pos.Z - size.Z));
+        yield return ((pos.X - size.X, pos.Y + size.Y, pos.Z + size.Z), (pos.X - size.X, pos.Y + size.Y, pos.Z - size.Z));
+
+        yield return ((pos.X - size.X, pos.Y - size.Y, pos.Z - size.Z), (pos.X - size.X, pos.Y + size.Y, pos.Z - size.Z));
+        yield return ((pos.X - size.X, pos.Y - size.Y, pos.Z + size.Z), (pos.X - size.X, pos.Y + size.Y, pos.Z + size.Z));
+        yield return ((pos.X + size.X, pos.Y - size.Y, pos.Z - size.Z), (pos.X + size.X, pos.Y + size.Y, pos.Z - size.Z));
+        yield return ((pos.X + size.X, pos.Y - size.Y, pos.Z + size.Z), (pos.X + size.X, pos.Y + size.Y, pos.Z + size.Z));
     }
 
     /// <summary>
