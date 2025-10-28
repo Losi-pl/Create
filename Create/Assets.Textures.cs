@@ -32,7 +32,8 @@ partial class Assets
             var tex = Texture2D.Create(img);
 
             // Store texture in cache
-            textures.Add(name, new(tex));
+            if(!textures.TryAdd(name, new(tex)));
+                textures[name] = new(tex);
             return tex;
         }
     }
