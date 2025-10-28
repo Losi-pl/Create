@@ -182,16 +182,8 @@ public abstract class Block : Baze
         public int HitBoxIndex { get; set; }
         public (int Slot, ItemStack? Stack) InHand { get; set; }
         public Vector3 InWorldPoint { get; set; }
-        public (int x, int y, int z) BlockOnSide => (TargetSide switch
-        {
-            BlockSide.Top => new(0, 1, 0),
-            BlockSide.Bottom => new(0, -1, 0),
-            BlockSide.North => new(0, 0, 1),
-            BlockSide.South => new(0, 0, -1),
-            BlockSide.West => new(-1, 0, 0),
-            BlockSide.East => new(1, 0, 0),
-            _ => new Vector3i(0)
-        } + BlockPozition.ToVector()).ToTumple();
+        public (int x, int y, int z) BlockOnSide =>
+            (BlockPozition.ToVector() + TargetSide.ToVectorI()).ToTumple();
 
         public OnClickArgs(Player player, ClickEventButton button,
             (int Slot, ItemStack? Stack) inHand,
