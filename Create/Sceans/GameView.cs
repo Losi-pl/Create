@@ -165,46 +165,22 @@ internal sealed partial class GameView : Scean
                 (t.Item1?.UsedSlot ?? 0, (t.Me.Entity?.Data.Get("tool_slots") as ToolsBar? ?? new())[t.Item1?.UsedSlot ?? 0]));
             if(interaction.HasValue)
             {
-                var block = world.GetBlock(interaction!.Value.BlockPozition);
-                var blockArgs = new Block.OnClickArgs()
-                {
-                    HitBoxIndex = interaction.Value.HitBoxIndex,
-                    BlockPozition = interaction.Value.BlockPozition,
-                    TargetSide = interaction.Value.BlockSide,
-                    InWorldPoint = interaction.Value.HitPoint,
-                    Player = Client.Me,
-                    Button = button,
-                    Block = block,
-                    World = world,
-                    InHand = inHand
-                };
-                var itemArgs = new Item.OnClickArgs()
-                {
-                    BlockArgs = blockArgs,
-                    Player = Client.Me,
-                    Button = button,
-                    World = world,
-                    InHand = (inHand.Item1, inHand.Item2 ?? new(1, Items.BLOCK_ITEM))
-                };
+                var blockArgs = new Block.OnClickArgs(Client.Me, button, inHand, interaction.Value);
+                var itemArgs = new Item.OnClickArgs(blockArgs);
 
                 if (Keyboard.LeftShift.Status || Keyboard.RightShift.Status)
                 {
                     if ((!inHand.Item2?.Item.OnClick(itemArgs)) ?? true)
-                        block.Block.OnClick(blockArgs);
+                        blockArgs.Block.Block.OnClick(blockArgs);
                 }
                 else
                 {
-                    if (!block.Block.OnClick(blockArgs))
+                    if (!blockArgs.Block.Block.OnClick(blockArgs))
                         inHand.Item2?.Item.OnClick(itemArgs);
                 }
             }
             else
-                inHand.Item2?.Item.OnClick(new() { 
-                    BlockArgs = null,
-                    Button = button,
-                    Player = Client.Me,
-                    World = world,
-                    InHand = (inHand.Item1, inHand.Item2 ?? new(1, Items.BLOCK_ITEM))});
+                inHand.Item2?.Item.OnClick(new(Client.Me, button, inHand));
             inventory = Client.Me.Entity!.Data.Get("inventory_open") as bool? ?? false;
         }
         _interface.Phizic();

@@ -1,4 +1,5 @@
 using Create.Conteiner;
+using Create.Elements.Bazic.Entitys;
 using Create.OpenGL;
 using Create.OpenGL.GUI;
 using Create.Space;
@@ -81,6 +82,29 @@ public abstract partial class Item : Baze
         public Net.Player Player { get; set; }
         public World World { get; set; }
         public (int Slot, ItemStack Stack) InHand { get; set; }
+
+        public OnClickArgs(Block.OnClickArgs blockArgs)
+        {
+            BlockArgs = blockArgs;
+            Button = blockArgs.Button;
+            Player = blockArgs.Player;
+            World = blockArgs.World;
+            InHand = (blockArgs.InHand.Slot, blockArgs.InHand.Stack ?? new(1, Blocks.STONE));
+        }
+
+        public OnClickArgs(Net.Player player, ClickEventButton button,
+            (int Slot, ItemStack? Stack) inHand)
+        {
+            ArgumentNullException.ThrowIfNull(player, nameof(player));
+            if (player?.Entity?.Dimention?.World is null)
+                throw new ArgumentNullException(nameof(player), "Player needs to be bound to a entity in a world.");
+
+            Player = player;
+            World = player.Entity.Dimention.World;
+            Button = button;
+            InHand = (inHand.Slot, inHand.Stack ?? new(1, Blocks.STONE));
+            BlockArgs = null;
+        }
     }
     /// <summary>
     /// Używany w metodzie <see cref="CraftingUses(CraftingUsesData)"/>

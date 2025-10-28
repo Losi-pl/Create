@@ -192,6 +192,25 @@ public abstract class Block : Baze
             BlockSide.East => new(1, 0, 0),
             _ => new Vector3i(0)
         } + BlockPozition.ToVector()).ToTumple();
+
+        public OnClickArgs(Player player, ClickEventButton button,
+            (int Slot, ItemStack? Stack) inHand,
+            Bazic.Entitys.Mob.ImLookingAtRezult lookingAt)
+        {
+            ArgumentNullException.ThrowIfNull(player, nameof(player));
+            if (player?.Entity?.Dimention?.World is null)
+                throw new ArgumentNullException(nameof(player), "Player needs to be bound to a entity in a world.");
+
+            Player = player;
+            Button = button;
+            InHand = inHand;
+            World = player.Entity.Dimention.World;
+            TargetSide = lookingAt.BlockSide;
+            BlockPozition = lookingAt.BlockPozition;
+            HitBoxIndex = lookingAt.HitBoxIndex;
+            InWorldPoint = lookingAt.HitPoint;
+            Block = World.GetBlock(BlockPozition);
+        }
     }
     /// <summary>
     /// Standardowe parametry bloku
