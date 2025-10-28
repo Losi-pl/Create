@@ -36,5 +36,10 @@ public static class MathsC
     public static (int x, int y, int z) Add(this (int x, int y, int z) a, Vector3i b)
     {
         return (a.x + b.X, a.y + b.Y, a.z + b.Z);
-    } 
+    }
+
+    public static float DeNaN(this float v1) => v1 == float.NaN ? 0f : v1;
+    public static Vector2 DeNaN(this Vector2 v2) => new(DeNaN(v2.X), DeNaN(v2.Y));
+    public static Vector3 DeNaN(this Vector3 v3) => new(DeNaN(v3.X), DeNaN(v3.Y), DeNaN(v3.Z));
+    public static Vector4 DeNaN(this Vector4 v4) => new(DeNaN(v4.X), DeNaN(v4.Y), DeNaN(v4.Z), DeNaN(v4.W));
 }

@@ -213,7 +213,8 @@ internal sealed partial class GameView : Scean
             rot.Y -= (float)(rota_d.y * args.Time) * 3;
 
             rot.Y = Math.Clamp(rot.Y, -90f, 90f);
-            rot.X = MathC.InSection(rot.X, 0, 360);
+            rot.X = MathC.InSection(rot.X, 360);
+            rot = rot.DeNaN();
 
             camera.Rotation = new(rot.Y, rot.X, 0);
             Client.Me.Entity!.Data.Set("camera_rot", rot);
