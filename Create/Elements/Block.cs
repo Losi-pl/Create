@@ -125,7 +125,7 @@ public abstract class Block : Baze
         if(args.Button == ClickEventButton.Left)
         {
             DestroyBlock des_args = new();
-            des_args.BlockPozition = args.BlockPozition;
+            des_args.BlockPozition = args.BlockPosition;
             des_args.TargetSide = args.TargetSide;
             des_args.Block = args.Block;
             des_args.Player = args.Player;
@@ -173,7 +173,7 @@ public abstract class Block : Baze
     /// </summary>
     public struct OnClickArgs
     {
-        public (int x, int y, int z) BlockPozition { get; set; }
+        public (int x, int y, int z) BlockPosition { get; set; }
         public BlockSide TargetSide { get; set; }
         public ClickEventButton Button { get; set; }
         public PlacedBlock Block { get; set; }
@@ -183,7 +183,7 @@ public abstract class Block : Baze
         public (int Slot, ItemStack? Stack) InHand { get; set; }
         public Vector3 InWorldPoint { get; set; }
         public (int x, int y, int z) BlockOnSide =>
-            (BlockPozition.ToVector() + TargetSide.ToVectorI()).ToTumple();
+            (BlockPosition.ToVector() + TargetSide.ToVectorI()).ToTumple();
 
         public OnClickArgs(Player player, ClickEventButton button,
             (int Slot, ItemStack? Stack) inHand,
@@ -198,10 +198,10 @@ public abstract class Block : Baze
             InHand = inHand;
             World = player.Entity.Dimention.World;
             TargetSide = lookingAt.BlockSide;
-            BlockPozition = lookingAt.BlockPozition;
+            BlockPosition = lookingAt.BlockPozition;
             HitBoxIndex = lookingAt.HitBoxIndex;
             InWorldPoint = lookingAt.HitPoint;
-            Block = World.GetBlock(BlockPozition);
+            Block = World.GetBlock(BlockPosition);
         }
     }
     /// <summary>

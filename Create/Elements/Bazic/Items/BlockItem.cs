@@ -42,7 +42,7 @@ public sealed class BlockItem : Item
             HitBoxIndex = args.BlockArgs.Value.HitBoxIndex,
             BlockStack = args.InHand.Stack,
             Player = args.Player,
-            TargetedBlockPozition = args.BlockArgs.Value.BlockPozition,
+            TargetedBlockPozition = args.BlockArgs.Value.BlockPosition,
             TargetSide = args.BlockArgs.Value.TargetSide,
             InWorldPoint = args.BlockArgs.Value.InWorldPoint,
             World = args.World

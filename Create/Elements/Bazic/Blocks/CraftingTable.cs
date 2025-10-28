@@ -18,7 +18,7 @@ internal class CraftingTable : Block
         {
             foreach (var i in Client.GetUserInterfaces().Where(ui => !(ui.IsPassive || ui.IsOnTop)).ToArray())
                 Client.RemoveUserInterface(i);
-            Client.CreateUserInterface<CraftingTableInterface>((args.BlockPozition, args.World, args.Player));
+            Client.CreateUserInterface<CraftingTableInterface>((args.BlockPosition, args.World, args.Player));
             args.Player.Entity!.Data.Set("inventory_open", true);
             return true;
         }
