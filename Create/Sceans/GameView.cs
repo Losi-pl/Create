@@ -160,9 +160,7 @@ internal sealed partial class GameView : Scean
                          Mouse.Scroll.Down ? ClickEventButton.Scroll :
                          ClickEventButton.Unknown;
 
-            var world = Client.Me.Entity!.Dimention!.World;
-            (int, ItemStack?) inHand = (Client.GetUserInterface<InformationBars>(), Client.Me).Cast(t =>
-                (t.Item1?.UsedSlot ?? 0, (t.Me.Entity?.Data.Get("tool_slots") as ToolsBar? ?? new())[t.Item1?.UsedSlot ?? 0]));
+            var inHand = Client.GetUserInterface<InformationBars>()!.GetStackInHand(Client.Me);
             if(interaction.HasValue)
             {
                 var blockArgs = new Block.OnClickArgs(Client.Me, button, inHand, interaction.Value);
