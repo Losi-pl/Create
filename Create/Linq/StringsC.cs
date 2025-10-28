@@ -7,18 +7,17 @@ public static class StringsC
 {
     public static int LastIndexOfAny(this string str, params Span<char> anyOf)
     {
-        int _out = -1;
         for (int i = str.Length - 1; i >= 0; i--)
-            foreach (var c in anyOf)
-                _out = i;
-        return _out;
+            if (anyOf.Contains(str[i]))
+                return i;
+        return -1;
     }
 
     public static bool LastIndexOfAny(this string str, out int lasPos, params Span<char> anyOf)
     {
         lasPos = -1;
-        for (int i = str.Length - 1; i >= 0; i--)
-            foreach (var c in anyOf)
+        for (int i = str.Length - 1; i >= 0 && lasPos == -1; i--)
+            if (anyOf.Contains(str[i]))
                 lasPos = i;
         return lasPos != -1;
     }
