@@ -124,16 +124,7 @@ public abstract class Block : Baze
     {
         if(args.Button == ClickEventButton.Left)
         {
-            DestroyBlock des_args = new();
-            des_args.BlockPozition = args.BlockPosition;
-            des_args.TargetSide = args.TargetSide;
-            des_args.Block = args.Block;
-            des_args.Player = args.Player;
-            des_args.World = args.World;
-            des_args.HitBoxIndex = args.HitBoxIndex;
-            des_args.InHand = args.InHand;
-            des_args.InWorldPoint = args.InWorldPoint;
-            return args.Block.Block.OnDestroyBlock(des_args);
+            return args.Block.Block.OnDestroyBlock(new(args));
         }
         return false;
     }
@@ -261,5 +252,17 @@ public abstract class Block : Baze
         public int HitBoxIndex { get; set; }
         public (int Slot, ItemStack? Stack) InHand { get; set; }
         public Vector3 InWorldPoint { get; set; }
+
+        public DestroyBlock(OnClickArgs args)
+        {
+            BlockPozition = args.BlockPosition;
+            TargetSide = args.TargetSide;
+            Block = args.Block;
+            Player = args.Player;
+            World = args.World;
+            HitBoxIndex = args.HitBoxIndex;
+            InHand = args.InHand;
+            InWorldPoint = args.InWorldPoint;
+        }
     }
 }
