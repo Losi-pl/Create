@@ -29,7 +29,13 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="..\Create.Resource.Compiler\bin\Release\net8.0\Create.Resource.Compiler.exe &quot;Create.App.Windows&quot; &quot;$(Configuration)&quot; &quot;win-x64&quot;" />
+  <PropertyGroup>
+    <ResourceCompilerDll>../Create.Resource.Compiler/bin/$(Configuration)/net8.0/Create.Resource.Compiler.dll</ResourceCompilerDll>
+  </PropertyGroup>
+
+  <!-- Only run if the compiler DLL exists -->
+  <Exec Condition="Exists('$(ResourceCompilerDll)')"
+        Command="dotnet &quot;$(ResourceCompilerDll)&quot; &quot;Create.App.Windows&quot; &quot;$(Configuration)&quot; &quot;win-x64&quot;" />
   </Target>
 
 </Project>
