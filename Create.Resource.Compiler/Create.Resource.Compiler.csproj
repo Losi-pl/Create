@@ -7,8 +7,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Create.Resource\Create.Resource.csproj" />
-  </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+  <PropertyGroup>
+    <ResourceCompilerDll>../Create.Resource.Compiler/bin/$(Configuration)/net8.0/Create.Resource.Compiler.dll</ResourceCompilerDll>
+  </PropertyGroup>
+
+  <!-- Only run if the compiler DLL exists -->
+  <Exec Condition="Exists('$(ResourceCompilerDll)')"
+        Command="dotnet &quot;$(ResourceCompilerDll)&quot; &quot;Create.App.Windows&quot; &quot;$(Configuration)&quot; &quot;win-x64&quot;" />
+</Target>
 
 </Project>
