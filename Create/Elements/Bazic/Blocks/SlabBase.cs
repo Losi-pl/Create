@@ -2,6 +2,7 @@
 using Create.Elements.Bazic.Entitys;
 using Create.Elements.Bazic.Items;
 using Create.Elements.Recipes;
+using OpenTK.Mathematics;
 using Create.Linq;
 using Create.Space;
 using OneOf;
@@ -457,13 +458,11 @@ public abstract class SlabBase : Block
     {
         // No extra meta so a default slab (single lower horizontal)
         if (string.IsNullOrEmpty(set.block.Meta))
-            foreach (var @base in base.GetInteractionModel(set))
-                yield return ((@base.start.x, @base.start.y / 2, @base.start.z), (@base.end.x, @base.end.y / 2, @base.end.z));
+            return GetInteractionModel(new Vector3(.5f, .25f, .5f), new(1, .5f, 1));
 
         // If it's an upper slab
         else if (set.block.Meta[0] == '+')
-            foreach (var @base in base.GetInteractionModel(set))
-                yield return ((@base.start.x, (@base.start.y / 2) + .5f, @base.start.z), (@base.end.x, (@base.end.y / 2) + .5f, @base.end.z));
+            return GetInteractionModel(new Vector3(.5f, .75f, .5f), new(1, .5f, 1));
 
         // If it's a vertical slab/s
         else if (set.block.Meta[0] is '|' or '/')
@@ -471,20 +470,16 @@ public abstract class SlabBase : Block
             // If it's a single slab in the first column
             if (set.block.Meta.Length == 1)
                 if (set.block.Meta[0] is '/')
-                    foreach (var @base in base.GetInteractionModel(set))
-                        yield return ((@base.start.x, @base.start.y, @base.start.z / 2), (@base.end.x, @base.end.y, @base.end.z / 2));
+                    return GetInteractionModel(new Vector3(.5f, .5f, .25f), new(1, 1, .5f));
                 else
-                    foreach (var @base in base.GetInteractionModel(set))
-                        yield return ((@base.start.x / 2, @base.start.y, @base.start.z), (@base.end.x / 2, @base.end.y, @base.end.z));
+                    return GetInteractionModel(new Vector3(.25f, .5f, .5f), new(.5f, 1, 1));
 
             // If it's a single slab in the secound column
             else if (set.block.Meta[1] == '+')
                 if (set.block.Meta[0] is '/')
-                    foreach (var @base in base.GetInteractionModel(set))
-                        yield return ((@base.start.x, @base.start.y, (@base.start.z / 2) + .5f), (@base.end.x, @base.end.y, (@base.end.z / 2) + .5f));
+                    return GetInteractionModel(new Vector3(.5f, .5f, .75f), new(1, 1, .5f));
                 else
-                    foreach (var @base in base.GetInteractionModel(set))
-                        yield return (((@base.start.x / 2) + .5f, @base.start.y, @base.start.z), ((@base.end.x / 2) + .5f, @base.end.y, @base.end.z));
+                    return GetInteractionModel(new Vector3(.75f, .5f, .5f), new(.5f, 1, 1));
 
             // There are two vertical slabs to choose from
             else
@@ -492,20 +487,16 @@ public abstract class SlabBase : Block
                 // A slab in the first column
                 if(set.HitBoxIndex == 0)
                     if (set.block.Meta[0] is '/')
-                        foreach (var @base in base.GetInteractionModel(set))
-                            yield return ((@base.start.x, @base.start.y, @base.start.z / 2), (@base.end.x, @base.end.y, @base.end.z / 2));
+                        return GetInteractionModel(new Vector3(.5f, .5f, .25f), new(1, 1, .5f));
                     else
-                        foreach (var @base in base.GetInteractionModel(set))
-                            yield return ((@base.start.x / 2, @base.start.y, @base.start.z), (@base.end.x / 2, @base.end.y, @base.end.z));
+                        return GetInteractionModel(new Vector3(.25f, .5f, .5f), new(.5f, 1, 1));
 
                 // A slab in the secound column
                 else
                     if (set.block.Meta[0] is '/')
-                        foreach (var @base in base.GetInteractionModel(set))
-                            yield return ((@base.start.x, @base.start.y, (@base.start.z / 2) + .5f), (@base.end.x, @base.end.y, (@base.end.z / 2) + .5f));
+                        return GetInteractionModel(new Vector3(.5f, .5f, .75f), new(1, 1, .5f));
                     else
-                        foreach (var @base in base.GetInteractionModel(set))
-                            yield return (((@base.start.x / 2) + .5f, @base.start.y, @base.start.z), ((@base.end.x / 2) + .5f, @base.end.y, @base.end.z));
+                        return GetInteractionModel(new Vector3(.75f, .5f, .5f), new(.5f, 1, 1));
             }
         }
 
@@ -514,13 +505,11 @@ public abstract class SlabBase : Block
         {
             // A lower slab
             if (set.HitBoxIndex == 0)
-                foreach (var @base in base.GetInteractionModel(set))
-                    yield return ((@base.start.x, @base.start.y / 2, @base.start.z), (@base.end.x, @base.end.y / 2, @base.end.z));
+                return GetInteractionModel(new Vector3(.5f, .25f, .5f), new(1, .5f, 1));
 
             // An upper slab
             else
-                foreach (var @base in base.GetInteractionModel(set))
-                    yield return ((@base.start.x, (@base.start.y / 2) + .5f, @base.start.z), (@base.end.x, (@base.end.y / 2) + .5f, @base.end.z));
+                return GetInteractionModel(new Vector3(.5f, .75f, .5f), new(1, .5f, 1));
         }
     }
 

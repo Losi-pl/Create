@@ -115,7 +115,7 @@ internal sealed partial class GameView : Scean
         }
 
         if (Mouse.Lock)
-            camera_rotation();
+            RotateCameraUpdate();
 
         if (Keyboard.Escape.Down)
         {
@@ -160,51 +160,25 @@ internal sealed partial class GameView : Scean
                          Mouse.Scroll.Down ? ClickEventButton.Scroll :
                          ClickEventButton.Unknown;
 
-            var world = Client.Me.Entity!.Dimention!.World;
-            (int, ItemStack?) inHand = (Client.GetUserInterface<InformationBars>(), Client.Me).Cast(t =>
-                (t.Item1?.UsedSlot ?? 0, (t.Me.Entity?.Data.Get("tool_slots") as ToolsBar? ?? new())[t.Item1?.UsedSlot ?? 0]));
+            var inHand = Client.GetUserInterface<InformationBars>()!.GetStackInHand(Client.Me);
             if(interaction.HasValue)
             {
-                var block = world.GetBlock(interaction!.Value.BlockPozition);
-                var blockArgs = new Block.OnClickArgs()
-                {
-                    HitBoxIndex = interaction.Value.HitBoxIndex,
-                    BlockPozition = interaction.Value.BlockPozition,
-                    TargetSide = interaction.Value.BlockSide,
-                    InWorldPoint = interaction.Value.HitPoint,
-                    Player = Client.Me,
-                    Button = button,
-                    Block = block,
-                    World = world,
-                    InHand = inHand
-                };
-                var itemArgs = new Item.OnClickArgs()
-                {
-                    BlockArgs = blockArgs,
-                    Player = Client.Me,
-                    Button = button,
-                    World = world,
-                    InHand = (inHand.Item1, inHand.Item2 ?? new(1, Items.BLOCK_ITEM))
-                };
+                var blockArgs = new Block.OnClickArgs(Client.Me, button, inHand, interaction.Value);
+                var itemArgs = new Item.OnClickArgs(blockArgs);
 
                 if (Keyboard.LeftShift.Status || Keyboard.RightShift.Status)
                 {
                     if ((!inHand.Item2?.Item.OnClick(itemArgs)) ?? true)
-                        block.Block.OnClick(blockArgs);
+                        blockArgs.Block.Block.OnClick(blockArgs);
                 }
                 else
                 {
-                    if (!block.Block.OnClick(blockArgs))
+                    if (!blockArgs.Block.Block.OnClick(blockArgs))
                         inHand.Item2?.Item.OnClick(itemArgs);
                 }
             }
             else
-                inHand.Item2?.Item.OnClick(new() { 
-                    BlockArgs = null,
-                    Button = button,
-                    Player = Client.Me,
-                    World = world,
-                    InHand = (inHand.Item1, inHand.Item2 ?? new(1, Items.BLOCK_ITEM))});
+                inHand.Item2?.Item.OnClick(new(Client.Me, button, inHand));
             inventory = Client.Me.Entity!.Data.Get("inventory_open") as bool? ?? false;
         }
         _interface.Phizic();
@@ -230,27 +204,17 @@ internal sealed partial class GameView : Scean
         terrain.ChunkUpdate(args.Time);
         Client.Me.Entity!.Data.Set("inventory_open", inventory);
         
-        void camera_rotation()
+        void RotateCameraUpdate()
         {
-            Vector2 rot;
-            {
-                var rot_v = Client.Me.Entity!.Data.Get("camera_rot");
-                rot = rot_v != null ? (Vector2)rot_v : new();
-            }
+            var rot = Client.Me.Entity!.Data.Get("camera_rot") as Vector2? ?? new();
             
             var rota_d = Mouse.Delta;
             rot.X += (float)(rota_d.x * args.Time) * 3;
             rot.Y -= (float)(rota_d.y * args.Time) * 3;
 
-            if (rot.Y < -90f)
-                rot.Y = -90f;
-            if (rot.Y > 90f)
-                rot.Y = 90f;
-
-            if (rot.X < 0)
-                rot.X = 360 + rot.X;
-            if (rot.X > 360)
-                rot.X = rot.X - 360;
+            rot.Y = Math.Clamp(rot.Y, -90f, 90f);
+            rot.X = MathC.InSection(rot.X, 360);
+            rot = rot.DeNaN();
 
             camera.Rotation = new(rot.Y, rot.X, 0);
             Client.Me.Entity!.Data.Set("camera_rot", rot);

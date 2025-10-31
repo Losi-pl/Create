@@ -97,22 +97,30 @@ public abstract class Block : Baze
     /// </summary>
     /// <param name="set">Parametry bloku</param>
     /// <returns></returns>
-    public virtual IEnumerable<((float x, float y, float z) start, (float x, float y, float z) end)> GetInteractionModel(StandardBlockSet set)
+    public virtual IEnumerable<((float x, float y, float z) start, (float x, float y, float z) end)> GetInteractionModel(StandardBlockSet set) =>
+        GetInteractionModel(new Vector3(.5f), new(1));
+
+    /// <summary>
+    /// <inheritdoc cref="GetInteractionModel(StandardBlockSet)"/>
+    /// </summary>
+    public IEnumerable<((float x, float y, float z) start, (float x, float y, float z) end)> GetInteractionModel(Vector3 pos, Vector3 size)
     {
-        yield return ((0, 0, 0), (1, 0, 0));
-        yield return ((0, 0, 1), (1, 0, 1));
-        yield return ((1, 0, 1), (1, 0, 0));
-        yield return ((0, 0, 1), (0, 0, 0));
+        size = size.Abs() / 2;
 
-        yield return ((0, 1, 0), (1, 1, 0));
-        yield return ((0, 1, 1), (1, 1, 1));
-        yield return ((1, 1, 1), (1, 1, 0));
-        yield return ((0, 1, 1), (0, 1, 0));
+        yield return ((pos.X - size.X, pos.Y - size.Y, pos.Z - size.Z), (pos.X + size.X, pos.Y - size.Y, pos.Z - size.Z));
+        yield return ((pos.X - size.X, pos.Y - size.Y, pos.Z + size.Z), (pos.X + size.X, pos.Y - size.Y, pos.Z + size.Z));
+        yield return ((pos.X + size.X, pos.Y - size.Y, pos.Z + size.Z), (pos.X + size.X, pos.Y - size.Y, pos.Z - size.Z));
+        yield return ((pos.X - size.X, pos.Y - size.Y, pos.Z + size.Z), (pos.X - size.X, pos.Y - size.Y, pos.Z - size.Z));
 
-        yield return ((0, 0, 0), (0, 1, 0));
-        yield return ((0, 0, 1), (0, 1, 1));
-        yield return ((1, 0, 0), (1, 1, 0));
-        yield return ((1, 0, 1), (1, 1, 1));
+        yield return ((pos.X - size.X, pos.Y + size.Y, pos.Z - size.Z), (pos.X + size.X, pos.Y + size.Y, pos.Z - size.Z));
+        yield return ((pos.X - size.X, pos.Y + size.Y, pos.Z + size.Z), (pos.X + size.X, pos.Y + size.Y, pos.Z + size.Z));
+        yield return ((pos.X + size.X, pos.Y + size.Y, pos.Z + size.Z), (pos.X + size.X, pos.Y + size.Y, pos.Z - size.Z));
+        yield return ((pos.X - size.X, pos.Y + size.Y, pos.Z + size.Z), (pos.X - size.X, pos.Y + size.Y, pos.Z - size.Z));
+
+        yield return ((pos.X - size.X, pos.Y - size.Y, pos.Z - size.Z), (pos.X - size.X, pos.Y + size.Y, pos.Z - size.Z));
+        yield return ((pos.X - size.X, pos.Y - size.Y, pos.Z + size.Z), (pos.X - size.X, pos.Y + size.Y, pos.Z + size.Z));
+        yield return ((pos.X + size.X, pos.Y - size.Y, pos.Z - size.Z), (pos.X + size.X, pos.Y + size.Y, pos.Z - size.Z));
+        yield return ((pos.X + size.X, pos.Y - size.Y, pos.Z + size.Z), (pos.X + size.X, pos.Y + size.Y, pos.Z + size.Z));
     }
 
     /// <summary>
@@ -124,16 +132,7 @@ public abstract class Block : Baze
     {
         if(args.Button == ClickEventButton.Left)
         {
-            DestroyBlock des_args = new();
-            des_args.BlockPozition = args.BlockPozition;
-            des_args.TargetSide = args.TargetSide;
-            des_args.Block = args.Block;
-            des_args.Player = args.Player;
-            des_args.World = args.World;
-            des_args.HitBoxIndex = args.HitBoxIndex;
-            des_args.InHand = args.InHand;
-            des_args.InWorldPoint = args.InWorldPoint;
-            return args.Block.Block.OnDestroyBlock(des_args);
+            return args.Block.Block.OnDestroyBlock(new(args));
         }
         return false;
     }
@@ -173,7 +172,7 @@ public abstract class Block : Baze
     /// </summary>
     public struct OnClickArgs
     {
-        public (int x, int y, int z) BlockPozition { get; set; }
+        public (int x, int y, int z) BlockPosition { get; set; }
         public BlockSide TargetSide { get; set; }
         public ClickEventButton Button { get; set; }
         public PlacedBlock Block { get; set; }
@@ -182,16 +181,27 @@ public abstract class Block : Baze
         public int HitBoxIndex { get; set; }
         public (int Slot, ItemStack? Stack) InHand { get; set; }
         public Vector3 InWorldPoint { get; set; }
-        public (int x, int y, int z) BlockOnSide => (TargetSide switch
+        public (int x, int y, int z) BlockOnSide =>
+            (BlockPosition.ToVector() + TargetSide.ToVectorI()).ToTumple();
+
+        public OnClickArgs(Player player, ClickEventButton button,
+            (int Slot, ItemStack? Stack) inHand,
+            Bazic.Entitys.Mob.ImLookingAtRezult lookingAt)
         {
-            BlockSide.Top => new(0, 1, 0),
-            BlockSide.Bottom => new(0, -1, 0),
-            BlockSide.North => new(0, 0, 1),
-            BlockSide.South => new(0, 0, -1),
-            BlockSide.West => new(-1, 0, 0),
-            BlockSide.East => new(1, 0, 0),
-            _ => new Vector3i(0)
-        } + BlockPozition.ToVector()).ToTumple();
+            ArgumentNullException.ThrowIfNull(player, nameof(player));
+            if (player?.Entity?.Dimention?.World is null)
+                throw new ArgumentNullException(nameof(player), "Player needs to be bound to a entity in a world.");
+
+            Player = player;
+            Button = button;
+            InHand = inHand;
+            World = player.Entity.Dimention.World;
+            TargetSide = lookingAt.BlockSide;
+            BlockPosition = lookingAt.BlockPozition;
+            HitBoxIndex = lookingAt.HitBoxIndex;
+            InWorldPoint = lookingAt.HitPoint;
+            Block = World.GetBlock(BlockPosition);
+        }
     }
     /// <summary>
     /// Standardowe parametry bloku
@@ -250,5 +260,17 @@ public abstract class Block : Baze
         public int HitBoxIndex { get; set; }
         public (int Slot, ItemStack? Stack) InHand { get; set; }
         public Vector3 InWorldPoint { get; set; }
+
+        public DestroyBlock(OnClickArgs args)
+        {
+            BlockPozition = args.BlockPosition;
+            TargetSide = args.TargetSide;
+            Block = args.Block;
+            Player = args.Player;
+            World = args.World;
+            HitBoxIndex = args.HitBoxIndex;
+            InHand = args.InHand;
+            InWorldPoint = args.InWorldPoint;
+        }
     }
 }

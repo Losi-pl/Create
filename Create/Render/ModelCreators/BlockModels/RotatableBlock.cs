@@ -1,6 +1,7 @@
 ﻿using Create.Conteiner;
 using Create.Elements;
 using Create.Linq;
+using OpenTK.Graphics.ES11;
 using OpenTK.Mathematics;
 using System.Xml.Linq;
 using BlockSide = Create.Elements.Block.BlockSide;
@@ -20,170 +21,65 @@ public sealed class RotatableBlock : IBlockModel
         {
             case "0":
             default:
-                if (test_side(BlockSide.Top))
-                    add_side(BlockSide.Top, false);
-                if (test_side(BlockSide.Bottom))
-                    add_side(BlockSide.Bottom, false);
-                if (test_side(BlockSide.East))
-                    add_side(BlockSide.East, false);
-                if (test_side(BlockSide.West))
-                    add_side(BlockSide.West, false);
-                if (test_side(BlockSide.North))
-                    add_side(BlockSide.North, false);
-                if (test_side(BlockSide.South))
-                    add_side(BlockSide.South, false);
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.Top))
+                    RenderBlockSide(BlockSide.Top, false);
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.Bottom))
+                    RenderBlockSide(BlockSide.Bottom, false);
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.East))
+                    RenderBlockSide(BlockSide.East, false);
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.West))
+                    RenderBlockSide(BlockSide.West, false);
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.North))
+                    RenderBlockSide(BlockSide.North, false);
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.South))
+                    RenderBlockSide(BlockSide.South, false);
                 break;
             case "1":
-                if (test_side(BlockSide.Top))
-                    add_side(BlockSide.Top, true);
-                if (test_side(BlockSide.Bottom))
-                    add_side(BlockSide.Bottom, true);
-                if (test_side(BlockSide.East))
-                    add_side(BlockSide.East, false);
-                if (test_side(BlockSide.West))
-                    add_side(BlockSide.West, false);
-                if (test_side(BlockSide.North))
-                    add_side(BlockSide.North, true);
-                if (test_side(BlockSide.South))
-                    add_side(BlockSide.South, true);
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.Top))
+                    RenderBlockSide(BlockSide.Top, true);
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.Bottom))
+                    RenderBlockSide(BlockSide.Bottom, true);
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.East))
+                    RenderBlockSide(BlockSide.East, false);
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.West))
+                    RenderBlockSide(BlockSide.West, false);
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.North))
+                    RenderBlockSide(BlockSide.North, true);
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.South))
+                    RenderBlockSide(BlockSide.South, true);
                 break;
             case "2":
-                if (test_side(BlockSide.Top))
-                    add_side(BlockSide.Top, false);
-                if (test_side(BlockSide.Bottom))
-                    add_side(BlockSide.Bottom, false);
-                if (test_side(BlockSide.East))
-                    add_side(BlockSide.East, true);
-                if (test_side(BlockSide.West))
-                    add_side(BlockSide.West, true);
-                if (test_side(BlockSide.North))
-                    add_side(BlockSide.North, false);
-                if (test_side(BlockSide.South))
-                    add_side(BlockSide.South, false);
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.Top))
+                    RenderBlockSide(BlockSide.Top, false);
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.Bottom))
+                    RenderBlockSide(BlockSide.Bottom, false);
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.East))
+                    RenderBlockSide(BlockSide.East, true);
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.West))
+                    RenderBlockSide(BlockSide.West, true);
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.North))
+                    RenderBlockSide(BlockSide.North, false);
+                if (IBlockModel.SideVisibilityTest(args, BlockSide.South))
+                    RenderBlockSide(BlockSide.South, false);
                 break;
         }
         
-        void add_side(BlockSide side, bool rotated)
+        void RenderBlockSide(BlockSide side, bool rotated)
         {
             Span<Vector2> uvs = stackalloc Vector2[4];
+            IBlockModel.SetFastDefault(uvs);
             if(rotated)
-            {
-                uvs[0] = new Vector2(0, 0);
-                uvs[1] = new Vector2(0, 1);
-                uvs[2] = new Vector2(1, 0);
-                uvs[3] = new Vector2(1, 1);
-            }
-            else
-            {
-                uvs[0] = new Vector2(0, 1);
-                uvs[1] = new Vector2(1, 1);
-                uvs[2] = new Vector2(0, 0);
-                uvs[3] = new Vector2(1, 0);
-            }
+                IBlockModel.RotateVectors(uvs, 1);
+            
+            Span<int> trangles = stackalloc int[6];
+            IBlockModel.SetFastDefault(trangles);
 
-            Span<int> trangles = stackalloc int[]
-            {
-                0,
-                1,
-                2,
-                3,
-                2,
-                1
-            };
-            Span<Vector3> pozitions = stackalloc Vector3[4];
-            Vector3 bl_poz = args.pozition.ToVector();
-            switch (side)
-            {
-                case BlockSide.North:
-                    pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(1, 1, 1),
-                        bl_poz + new Vector3(0, 1, 1),
-                        bl_poz + new Vector3(1, 0, 1),
-                        bl_poz + new Vector3(0, 0, 1)
-                    };
-                    break;
-                case BlockSide.South:
-                    pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(0, 1, 0),
-                        bl_poz + new Vector3(1, 1, 0),
-                        bl_poz + new Vector3(0, 0, 0),
-                        bl_poz + new Vector3(1, 0, 0)
-                    };
-                    break;
-                case BlockSide.East:
-                    pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(1, 1, 0),
-                        bl_poz + new Vector3(1, 1, 1),
-                        bl_poz + new Vector3(1, 0, 0),
-                        bl_poz + new Vector3(1, 0, 1)
-                    };
-                    break;
-                case BlockSide.West:
-                    pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(0, 1, 1),
-                        bl_poz + new Vector3(0, 1, 0),
-                        bl_poz + new Vector3(0, 0, 1),
-                        bl_poz + new Vector3(0, 0, 0)
-                    };
-                    break;
-                case BlockSide.Top:
-                    pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(0, 1, 1),
-                        bl_poz + new Vector3(1, 1, 1),
-                        bl_poz + new Vector3(0, 1, 0),
-                        bl_poz + new Vector3(1, 1, 0)
-                    };
-                    break;
-                case BlockSide.Bottom:
-                    pozitions = stackalloc Vector3[]
-                    {
-                        bl_poz + new Vector3(0, 0, 0),
-                        bl_poz + new Vector3(1, 0, 0),
-                        bl_poz + new Vector3(0, 0, 1),
-                        bl_poz + new Vector3(1, 0, 1)
-                    };
-                    break;
-            }
+            Span<Vector3> positions = stackalloc Vector3[4];
+            IBlockModel.SetDefault(positions, side);
+            IBlockModel.MoveVectors(positions, args.pozition.ToVector());
+            
             var sideT = GetBlockSide(args, side);
-            sideT.RenderSide(constructor, pozitions, uvs, trangles);
-        }
-        bool test_side(BlockSide side)
-        {
-            StandardBlockSet block_set = new()
-            {
-                pozition = args.pozition,
-                world = args.world
-            };
-
-            switch (side)
-            {
-                case BlockSide.Top:
-                    block_set.pozition = (block_set.pozition.x, block_set.pozition.y + 1, block_set.pozition.z);
-                    break;
-                case BlockSide.Bottom:
-                    block_set.pozition = (block_set.pozition.x, block_set.pozition.y - 1, block_set.pozition.z);
-                    break;
-                case BlockSide.West:
-                    block_set.pozition = (block_set.pozition.x - 1, block_set.pozition.y, block_set.pozition.z);
-                    break;
-                case BlockSide.East:
-                    block_set.pozition = (block_set.pozition.x + 1, block_set.pozition.y, block_set.pozition.z);
-                    break;
-                case BlockSide.North:
-                    block_set.pozition = (block_set.pozition.x, block_set.pozition.y, block_set.pozition.z + 1);
-                    break;
-                case BlockSide.South:
-                    block_set.pozition = (block_set.pozition.x, block_set.pozition.y, block_set.pozition.z - 1);
-                    break;
-            }
-            PlacedBlock block = args.world.GetBlock(block_set.pozition);
-            block_set.block = block;
-            return block.Block.IsSideVisible(block_set, side.Invert());
+            sideT?.RenderSide(constructor, positions, uvs, trangles);
         }
     }
 

@@ -16,18 +16,18 @@ public static partial class Assets
     /// <summary>
     /// Ładuje wszystkie pakiety zasobów i łączy je w jeden globalny pakiet
     /// </summary>
-    internal static void load_resources()
+    internal static void LoadGlobalResources()
     {
         var cons = Resources.FromOthers();
-        foreach (var r in all_resources())
+        foreach (var r in LoadAllResources())
             cons.MargeFiles(r, "assets", "");
 
         resources = cons.Finish();
 
         //Methods
-        IEnumerable<Resources> all_resources() => mod_resources().Concat(resource_packs());
-        IEnumerable<Resources> mod_resources() => Mod.All.ToEnumerable().Select(m => m.Resources);
-        IEnumerable<Resources> resource_packs() => Enumerable.Empty<Resources>();
+        IEnumerable<Resources> LoadAllResources() => LoadModResources().Concat(LoadExternalResources());
+        IEnumerable<Resources> LoadModResources() => Mod.All.ToEnumerable().Select(m => m.Resources);
+        IEnumerable<Resources> LoadExternalResources() => Enumerable.Empty<Resources>();
     }
 
     /// <summary>
@@ -49,17 +49,17 @@ public static partial class Assets
         foreach (var resors in resources.MainDirectories)
         {
             #if DEBUG
-            load_package(resors);
+            OnLoadPackage(resors);
             #else
             try
-            { load_package(resors); }
+            { OnLoadPackage(resors); }
             catch (Exception ex)
             { throw new($"Ładowanie pakietu {resors.Name} niepowiodło się", ex); }
             #endif
         }
 
-        clear_textures();
-        BlockAtlas.finish_attlas();
+        ClearTextures();
+        BlockAtlas.FinishTextureAttlas();
 
 
         //Methods
@@ -83,47 +83,61 @@ public static partial class Assets
                 #endif
             }
         }
-        void words(ResourceDirectory directory, string language)
+        void ProcessLanguage(ResourceDirectory directory, string language)
         {
+            // Name of the loadet package
             string pack_name = directory.Name;
             directory = directory.GetSubPath("language");
+
+            // Load default (en-us) language file
             var @default = directory.GetFile("en-us");
+
+            // Load used language file
             var used = directory.IsPathExist(language) ? directory.GetFile(language) : null;
-            foreach (var word in get_keys(JsonNode.Parse(@default.GetStream()) as JsonObject ?? new(), string.Empty))
+
+            // Process words from the default language file
+            foreach (var word in LoadAllKeys(JsonNode.Parse(@default.GetStream()) as JsonObject ?? new(), string.Empty))
                 Language.AddWord($"{pack_name}.{word.key}", word.value);
+
+            // Process words from the used language file
             if(used is not null)
-                foreach (var word in get_keys(JsonNode.Parse(used.GetStream()) as JsonObject ?? new(), string.Empty))
+                foreach (var word in LoadAllKeys(JsonNode.Parse(used.GetStream()) as JsonObject ?? new(), string.Empty))
                     Language.AddWord($"{pack_name}.{word.key}", word.value);
 
             //Methods
-            IEnumerable<(string key, string value)> get_keys(JsonObject list, string key_dase)
+            IEnumerable<(string key, string value)> LoadAllKeys(JsonObject list, string key_dase)
             {
                 foreach(var o in list)
                 {
+                    // Clean name. Remove dot's[.] from start and end. Convert name to lowwer case
                     var name = o.Key[0] == '.' ?
                         (o.Key[^1] == '.' ? o.Key.Substring(1, o.Key.Length - 2) : o.Key.Substring(1)) :
                         (o.Key[^1] == '.' ? o.Key.Remove(o.Key.Length - 2) : o.Key);
                     name = name.ToLower();
 
+                    // Go through all keys
                     switch (o.Value)
                     {
+                        // Hangle a single string value
                         case JsonValue v when v.TryGetValue<string>(out var s):
                             yield return (string.IsNullOrEmpty(key_dase) ? name : $"{key_dase}.{name}", s);
                             break;
+
+                        // Hangle a sub-object with more keys
                         case JsonObject so:
-                            foreach (var k in get_keys(so, string.IsNullOrEmpty(key_dase) ? name : $"{key_dase}.{name}"))
+                            foreach (var k in LoadAllKeys(so, string.IsNullOrEmpty(key_dase) ? name : $"{key_dase}.{name}"))
                                 yield return k;
                             break;
                     }
                 }
             }
         }
-        void load_package(ResourceDirectory directory)
+        void OnLoadPackage(ResourceDirectory directory)
         {
             textures(directory);
-            words(directory, "pl-pl");
+            ProcessLanguage(directory, "pl-pl");
         }
-        void clear_textures()
+        void ClearTextures()
         {
             foreach(var kvp in Assets.textures)
                 if(kvp.Value.TryGetTarget(out var tex))

@@ -1,5 +1,6 @@
 ﻿using Create.OpenGL;
 using Create.OpenGL.Textures;
+using Create.Linq;
 
 namespace Create;
 
@@ -22,7 +23,7 @@ partial class Assets
 
             string group = name.Remove(name.IndexOf(':'));
             string path = name.Substring(name.IndexOf(':') + 1);
-            string file = name.Substring(name.LastIndexOfAny(new[] { ':', '\\' }) + 1);
+            string file = name.Substring(name.LastIndexOfAny(':', '\\') + 1);
             path = path.Length - file.Length - 1 < 0 ? string.Empty : path.Remove(path.Length - file.Length - 1);
 
             var stream = resources!.GetPath($"{group}/shaders/{path}").GetFile(file).GetStream();

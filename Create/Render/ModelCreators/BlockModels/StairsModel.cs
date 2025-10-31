@@ -17,269 +17,126 @@ public class StairsModel : IBlockModel
     {
         if (!StairsBase.InterpretPlacedBlock(args).IsNotNull(out var info))
             return;
-        
-        add_side_b(info.isUpper ? BlockSide.Bottom : BlockSide.Top, info.isUpper);
-        if (test_side(info.isUpper ? BlockSide.Top : BlockSide.Bottom))
-            add_side_b(info.isUpper ? BlockSide.Top : BlockSide.Bottom, info.isUpper);
-        if (test_side(BlockSide.East))
-            add_side_b(BlockSide.East, info.isUpper);
-        if (test_side(BlockSide.West))
-            add_side_b(BlockSide.West, info.isUpper);
-        if (test_side(BlockSide.North))
-            add_side_b(BlockSide.North, info.isUpper);
-        if (test_side(BlockSide.South))
-            add_side_b(BlockSide.South, info.isUpper);
 
-        if(info.StepPrezs.NW)
+        StairsBaseSide(info.isUpper ? BlockSide.Bottom : BlockSide.Top, info.isUpper);
+        if (IBlockModel.SideVisibilityTest(args, info.isUpper ? BlockSide.Top : BlockSide.Bottom))
+            StairsBaseSide(info.isUpper ? BlockSide.Top : BlockSide.Bottom, info.isUpper);
+        if (IBlockModel.SideVisibilityTest(args, BlockSide.East))
+            StairsBaseSide(BlockSide.East, info.isUpper);
+        if (IBlockModel.SideVisibilityTest(args, BlockSide.West))
+            StairsBaseSide(BlockSide.West, info.isUpper);
+        if (IBlockModel.SideVisibilityTest(args, BlockSide.North))
+            StairsBaseSide(BlockSide.North, info.isUpper);
+        if (IBlockModel.SideVisibilityTest(args, BlockSide.South))
+            StairsBaseSide(BlockSide.South, info.isUpper);
+
+        if (info.StepPrezs.NW)
         {
-            if (test_side(info.isUpper ? BlockSide.Bottom : BlockSide.Top))
-                add_side_s(info.isUpper ? BlockSide.Bottom : BlockSide.Top, info.isUpper, false, true);
+            if (IBlockModel.SideVisibilityTest(args, info.isUpper ? BlockSide.Bottom : BlockSide.Top))
+                StairsStepSide(info.isUpper ? BlockSide.Bottom : BlockSide.Top, info.isUpper, false, true);
             if (!info.StepPrezs.NE)
-                add_side_s(BlockSide.East, info.isUpper, false, true);
-            if (test_side(BlockSide.West))
-                add_side_s(BlockSide.West, info.isUpper, false, true);
-            if (test_side(BlockSide.North))
-                add_side_s(BlockSide.North, info.isUpper, false, true);
+                StairsStepSide(BlockSide.East, info.isUpper, false, true);
+            if (IBlockModel.SideVisibilityTest(args, BlockSide.West))
+                StairsStepSide(BlockSide.West, info.isUpper, false, true);
+            if (IBlockModel.SideVisibilityTest(args, BlockSide.North))
+                StairsStepSide(BlockSide.North, info.isUpper, false, true);
             if (!info.StepPrezs.SW)
-                add_side_s(BlockSide.South, info.isUpper, false, true);
+                StairsStepSide(BlockSide.South, info.isUpper, false, true);
         }
         if (info.StepPrezs.NE)
         {
-            if (test_side(info.isUpper ? BlockSide.Bottom : BlockSide.Top))
-                add_side_s(info.isUpper ? BlockSide.Bottom : BlockSide.Top, info.isUpper, true, true);
-            if (test_side(BlockSide.East))
-                add_side_s(BlockSide.East, info.isUpper, true, true);
+            if (IBlockModel.SideVisibilityTest(args, info.isUpper ? BlockSide.Bottom : BlockSide.Top))
+                StairsStepSide(info.isUpper ? BlockSide.Bottom : BlockSide.Top, info.isUpper, true, true);
+            if (IBlockModel.SideVisibilityTest(args, BlockSide.East))
+                StairsStepSide(BlockSide.East, info.isUpper, true, true);
             if (!info.StepPrezs.NW)
-                add_side_s(BlockSide.West, info.isUpper, true, true);
-            if (test_side(BlockSide.North))
-                add_side_s(BlockSide.North, info.isUpper, true, true);
+                StairsStepSide(BlockSide.West, info.isUpper, true, true);
+            if (IBlockModel.SideVisibilityTest(args, BlockSide.North))
+                StairsStepSide(BlockSide.North, info.isUpper, true, true);
             if (!info.StepPrezs.SE)
-                add_side_s(BlockSide.South, info.isUpper, true, true);
+                StairsStepSide(BlockSide.South, info.isUpper, true, true);
         }
         if (info.StepPrezs.SW)
         {
-            if (test_side(info.isUpper ? BlockSide.Bottom : BlockSide.Top))
-                add_side_s(info.isUpper ? BlockSide.Bottom : BlockSide.Top, info.isUpper, false, false);
+            if (IBlockModel.SideVisibilityTest(args, info.isUpper ? BlockSide.Bottom : BlockSide.Top))
+                StairsStepSide(info.isUpper ? BlockSide.Bottom : BlockSide.Top, info.isUpper, false, false);
             if (!info.StepPrezs.SE)
-                add_side_s(BlockSide.East, info.isUpper, false, false);
-            if (test_side(BlockSide.West))
-                add_side_s(BlockSide.West, info.isUpper, false, false);
+                StairsStepSide(BlockSide.East, info.isUpper, false, false);
+            if (IBlockModel.SideVisibilityTest(args, BlockSide.West))
+                StairsStepSide(BlockSide.West, info.isUpper, false, false);
             if (!info.StepPrezs.NW)
-                add_side_s(BlockSide.North, info.isUpper, false, false);
-            if (test_side(BlockSide.South))
-                add_side_s(BlockSide.South, info.isUpper, false, false);
+                StairsStepSide(BlockSide.North, info.isUpper, false, false);
+            if (IBlockModel.SideVisibilityTest(args, BlockSide.South))
+                StairsStepSide(BlockSide.South, info.isUpper, false, false);
         }
         if (info.StepPrezs.SE)
         {
-            if (test_side(info.isUpper ? BlockSide.Bottom : BlockSide.Top))
-                add_side_s(info.isUpper ? BlockSide.Bottom : BlockSide.Top, info.isUpper, true, false);
-            if (test_side(BlockSide.East))
-                add_side_s(BlockSide.East, info.isUpper, true, false);
+            if (IBlockModel.SideVisibilityTest(args, info.isUpper ? BlockSide.Bottom : BlockSide.Top))
+                StairsStepSide(info.isUpper ? BlockSide.Bottom : BlockSide.Top, info.isUpper, true, false);
+            if (IBlockModel.SideVisibilityTest(args, BlockSide.East))
+                StairsStepSide(BlockSide.East, info.isUpper, true, false);
             if (!info.StepPrezs.SW)
-                add_side_s(BlockSide.West, info.isUpper, true, false);
+                StairsStepSide(BlockSide.West, info.isUpper, true, false);
             if (!info.StepPrezs.NE)
-                add_side_s(BlockSide.North, info.isUpper, true, false);
-            if (test_side(BlockSide.South))
-                add_side_s(BlockSide.South, info.isUpper, true, false);
+                StairsStepSide(BlockSide.North, info.isUpper, true, false);
+            if (IBlockModel.SideVisibilityTest(args, BlockSide.South))
+                StairsStepSide(BlockSide.South, info.isUpper, true, false);
         }
 
-        void add_side_s(BlockSide side, bool isUpper, bool move_byX, bool move_byZ)
+        void StairsStepSide(BlockSide side, bool isUpper, bool move_byX, bool move_byZ)
         {
-            Span<Vector2> uvs = stackalloc[]
-            {
-                new Vector2(0, .5f),
-                new Vector2(.5f, .5f),
-                new Vector2(0, 0),
-                new Vector2(.5f, 0)
-            };
-            if(side is BlockSide.Top)
-            {
-                for (int i = 0; i < 4; i++)
-                    uvs[i] = new(
-                        x: move_byX ? uvs[i].X + .5f : uvs[i].X,
-                        y: move_byZ ? uvs[i].Y + .5f : uvs[i].Y);
-            }
+            Span<Vector2> uvs = stackalloc Vector2[4];
+            IBlockModel.SetFastDefault(uvs);
+            IBlockModel.ScaleVectors(uvs, .5f);
+
+            if (side is BlockSide.Top)
+                IBlockModel.MoveVectors(uvs, new(move_byX ? .5f : 0, move_byZ ? .5f : 0));
             else if (side is BlockSide.Bottom)
-            {
-                for (int i = 0; i < 4; i++)
-                    uvs[i] = new(
-                        x: move_byX ? uvs[i].X + .5f : uvs[i].X,
-                        y: move_byZ ? uvs[i].Y : uvs[i].Y + .5f);
-            }
+                IBlockModel.MoveVectors(uvs, new(move_byX ? .5f : 0, move_byZ ? 0 : .5f));
             else
             {
-                for (int i = 0; i < 4; i++)
-                    uvs[i] = uvs[i] with { Y = uvs[i].Y + .5f };
+                IBlockModel.MoveVectors(uvs, new(0, .5f));
 
-                if ((side == BlockSide.South && move_byX) || 
-                    (side == BlockSide.North && !move_byX) || 
-                    (side == BlockSide.West && !move_byZ) || 
-                    (side == BlockSide.East && move_byZ))
-                    for (int i = 0; i < 4; i++)
-                        uvs[i] = uvs[i] with { X = uvs[i].X + .5f };
+                if (side switch { BlockSide.North => !move_byX, BlockSide.South => move_byX, BlockSide.West => !move_byZ,  BlockSide.East => move_byZ, _ => false})
+                    IBlockModel.MoveVectors(uvs, new(.5f, 0));
             }
 
-            Span<int> trangles = stackalloc[]
-            {
-                0, 1, 2,
-                3, 2, 1
-            };
-            Span<Vector3> pozitions = stackalloc Vector3[4];
-            Vector3 bl_poz = args.pozition.ToVector();
-            switch (side)
-            {
-                case BlockSide.North:
-                    pozitions[0] = bl_poz + new Vector3(.5f, .5f, .5f);
-                    pozitions[1] = bl_poz + new Vector3(0, .5f, .5f);
-                    pozitions[2] = bl_poz + new Vector3(.5f, 0, .5f);
-                    pozitions[3] = bl_poz + new Vector3(0, 0, .5f);
-                    break;
-                case BlockSide.South:
-                    pozitions[0] = bl_poz + new Vector3(0, .5f, 0);
-                    pozitions[1] = bl_poz + new Vector3(.5f, .5f, 0);
-                    pozitions[2] = bl_poz + new Vector3(0, 0, 0);
-                    pozitions[3] = bl_poz + new Vector3(.5f, 0, 0);
-                    break;
-                case BlockSide.East:
-                    pozitions[0] = bl_poz + new Vector3(.5f, .5f, 0);
-                    pozitions[1] = bl_poz + new Vector3(.5f, .5f, .5f);
-                    pozitions[2] = bl_poz + new Vector3(.5f, 0, 0);
-                    pozitions[3] = bl_poz + new Vector3(.5f, 0, .5f);
-                    break;
-                case BlockSide.West:
-                    pozitions[0] = bl_poz + new Vector3(0, .5f, .5f);
-                    pozitions[1] = bl_poz + new Vector3(0, .5f, 0);
-                    pozitions[2] = bl_poz + new Vector3(0, 0, .5f);
-                    pozitions[3] = bl_poz + new Vector3(0, 0, 0);
-                    break;
-                case BlockSide.Top:
-                    pozitions[0] = bl_poz + new Vector3(0, .5f, .5f);
-                    pozitions[1] = bl_poz + new Vector3(.5f, .5f, .5f);
-                    pozitions[2] = bl_poz + new Vector3(0, .5f, 0);
-                    pozitions[3] = bl_poz + new Vector3(.5f, .5f, 0);
-                    break;
-                case BlockSide.Bottom:
-                    pozitions[0] = bl_poz + new Vector3(0, 0, 0);
-                    pozitions[1] = bl_poz + new Vector3(.5f, 0, 0);
-                    pozitions[2] = bl_poz + new Vector3(0, 0, .5f);
-                    pozitions[3] = bl_poz + new Vector3(.5f, 0, .5f);
-                    break;
-            }
+            Span<int> trangles = stackalloc int[6];
+            IBlockModel.SetFastDefault(trangles);
 
-            for (int i = 0; i < 4; i++)
-                pozitions[i] = new(
-                    y: isUpper ? pozitions[i].Y : pozitions[i].Y + .5f,
-                    x: move_byX ? pozitions[i].X + .5f : pozitions[i].X,
-                    z: move_byZ ? pozitions[i].Z + .5f : pozitions[i].Z);
+            Span<Vector3> positions = stackalloc Vector3[4];
+            IBlockModel.SetDefault(positions, side);
+            
+            Vector3 bl_pos = args.pozition.ToVector();
+            IBlockModel.ScaleAndMoveVector(positions, .5f, bl_pos);
+            IBlockModel.MoveVectors(positions, new Vector3(y: isUpper ? 0 : .5f, x: move_byX ? .5f : 0, z: move_byZ ? .5f : 0));
 
-            texture.RenderSide(constructor, pozitions, uvs, trangles);
+            texture.RenderSide(constructor, positions, uvs, trangles);
         }
-        void add_side_b(BlockSide side, bool upper)
+        void StairsBaseSide(BlockSide side, bool upper)
         {
-            Span<Vector2> uvs = side is BlockSide.Top or BlockSide.Bottom ? stackalloc Vector2[]
+            Span<Vector2> uvs = stackalloc Vector2[4];
+            IBlockModel.SetFastDefault(uvs);
+            if (side is not BlockSide.Top or BlockSide.Bottom)
             {
-                new Vector2(0, 1),
-                new Vector2(1, 1),
-                new Vector2(0, 0),
-                new Vector2(1, 0)
-            } :  (upper ? stackalloc Vector2[]
-            {
-                new Vector2(0, 1),
-                new Vector2(1, 1),
-                new Vector2(0, .5f),
-                new Vector2(1, .5f)
-            } : stackalloc Vector2[]
-            {
-                new Vector2(0, .5f),
-                new Vector2(1, .5f),
-                new Vector2(0, 0),
-                new Vector2(1, 0)
-            });
-            Span<int> trangles = stackalloc int[]
-            {
-                0, 1, 2,
-                3, 2, 1
-            };
-            Span<Vector3> pozitions = stackalloc Vector3[4];
-            Vector3 bl_poz = args.pozition.ToVector();
-            switch (side)
-            {
-                case BlockSide.North:
-                    pozitions[0] = bl_poz + new Vector3(1, .5f, 1);
-                    pozitions[1] = bl_poz + new Vector3(0, .5f, 1);
-                    pozitions[2] = bl_poz + new Vector3(1, 0, 1);
-                    pozitions[3] = bl_poz + new Vector3(0, 0, 1);
-                    break;
-                case BlockSide.South:
-                    pozitions[0] = bl_poz + new Vector3(0, .5f, 0);
-                    pozitions[1] = bl_poz + new Vector3(1, .5f, 0);
-                    pozitions[2] = bl_poz + new Vector3(0, 0, 0);
-                    pozitions[3] = bl_poz + new Vector3(1, 0, 0);
-                    break;
-                case BlockSide.East:
-                    pozitions[0] = bl_poz + new Vector3(1, .5f, 0);
-                    pozitions[1] = bl_poz + new Vector3(1, .5f, 1);
-                    pozitions[2] = bl_poz + new Vector3(1, 0, 0);
-                    pozitions[3] = bl_poz + new Vector3(1, 0, 1);
-                    break;
-                case BlockSide.West:
-                    pozitions[0] = bl_poz + new Vector3(0, .5f, 1);
-                    pozitions[1] = bl_poz + new Vector3(0, .5f, 0);
-                    pozitions[2] = bl_poz + new Vector3(0, 0, 1);
-                    pozitions[3] = bl_poz + new Vector3(0, 0, 0);
-                    break;
-                case BlockSide.Top:
-                    pozitions[0] = bl_poz + new Vector3(0, .5f, 1);
-                    pozitions[1] = bl_poz + new Vector3(1, .5f, 1);
-                    pozitions[2] = bl_poz + new Vector3(0, .5f, 0);
-                    pozitions[3] = bl_poz + new Vector3(1, .5f, 0);
-                    break;
-                case BlockSide.Bottom:
-                    pozitions[0] = bl_poz + new Vector3(0, 0, 0);
-                    pozitions[1] = bl_poz + new Vector3(1, 0, 0);
-                    pozitions[2] = bl_poz + new Vector3(0, 0, 1);
-                    pozitions[3] = bl_poz + new Vector3(1, 0, 1);
-                    break;
+                IBlockModel.ScaleVectors(uvs, new Vector2(1, 0.5f));
+                if (upper)
+                    IBlockModel.MoveVectors(uvs, new Vector2(0, 0.5f));
             }
+            
+            Span<int> trangles = stackalloc int[6];
+            IBlockModel.SetFastDefault(trangles);
+
+            Span<Vector3> positions = stackalloc Vector3[4];
+            IBlockModel.SetDefault(positions, side);
+
+            Vector3 bl_pos = args.pozition.ToVector();
+            IBlockModel.ScaleAndMoveVector(positions, new Vector3(1, 0.5f, 1), bl_pos);
 
             if (upper)
-                for (int i = 0; i < 4; i++)
-                    pozitions[i] = pozitions[i] with { Y = pozitions[i].Y + .5f };
+                IBlockModel.MoveVectors(positions, new Vector3(0, 0.5f, 0));
 
-            texture.RenderSide(constructor, pozitions, uvs, trangles);
-        }
-        bool test_side(BlockSide side)
-        {
-            StandardBlockSet block_set = new()
-            {
-                pozition = args.pozition,
-                world = args.world
-            };
-
-            switch (side)
-            {
-                case BlockSide.Top:
-                    block_set.pozition = block_set.pozition with { y = block_set.pozition.y + 1 };
-                    break;
-                case BlockSide.Bottom:
-                    block_set.pozition = block_set.pozition with { y = block_set.pozition.y - 1 };
-                    break;
-                case BlockSide.West:
-                    block_set.pozition = block_set.pozition with { x = block_set.pozition.x - 1 };
-                    break;
-                case BlockSide.East:
-                    block_set.pozition = block_set.pozition with { x = block_set.pozition.x + 1 };
-                    break;
-                case BlockSide.North:
-                    block_set.pozition = block_set.pozition with { z = block_set.pozition.z + 1 };
-                    break;
-                case BlockSide.South:
-                    block_set.pozition = block_set.pozition with { z = block_set.pozition.z - 1 };
-                    break;
-            }
-            PlacedBlock block = args.world.GetBlock(block_set.pozition);
-            block_set.block = block;
-            return block.Block.IsSideVisible(block_set, side.Invert());
+            texture.RenderSide(constructor, positions, uvs, trangles);
         }
     }
 

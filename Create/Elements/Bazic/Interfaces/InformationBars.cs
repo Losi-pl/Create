@@ -40,10 +40,7 @@ internal sealed class InformationBars : UserInterface, IUserInterface<Informatio
         if (Mouse.Scroll.Delta != 0 && !args.activeInventory)
         {
             slot_ind -= Mouse.Scroll.Delta;
-            if (slot_ind < 0)
-                slot_ind = 8;
-            if (slot_ind > 8)
-                slot_ind = 0;
+            slot_ind = MathC.InSection(slot_ind, 9);
             statusBars.RunEvent(slot_ind.ToString());
         }
 
@@ -53,4 +50,7 @@ internal sealed class InformationBars : UserInterface, IUserInterface<Informatio
     }
 
     public int UsedSlot => slot_ind;
+
+    public (int Slot, Conteiner.ItemStack? Stack) GetStackInHand(Net.Player player) =>
+        (slot_ind, (player.Entity?.Data.Get("tool_slots") as Conteiner.Items.ToolsBar? ?? new())[slot_ind]);
 }

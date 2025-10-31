@@ -15,11 +15,6 @@ namespace Create;
 [DebuggerDisplay("{debuggerDisplay, nq}")]
 public sealed class Mod
 {
-    private static char[] allowedChars = 
-        (new char[] { 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm',
-                      '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_', '-'})
-        .Select(c => char.IsLetter(c) ? (new char[] { c, char.ToUpper(c) }) : (new char[] { c })).SelectMany(l => l).ToArray();
-    
     string mod_name;
     Version version;
     Resources resources;
@@ -109,16 +104,15 @@ public sealed class Mod
     /// <param name="changeEventParameter">Operacja urzywana do konwertowania danych dla <paramref name="changeEvent"/> aby oszczędzać dane</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    public Mod RegisterInterfaceLoadingMethod(string name, Func<XElement ,Element> parse, Action<Element, object> changeEvent, Func<XElement, object> changeEventParameter)
+    public Mod RegisterInterfaceLoadingMethod(string name, Func<XElement, Element> parse, Action<Element, object> changeEvent, Func<XElement, object> changeEventParameter)
     {
-        if(parse is null) throw new ArgumentNullException(nameof(parse));
-        if(changeEvent is null) throw new ArgumentNullException(nameof(changeEvent));
-        if(changeEventParameter is null) throw new ArgumentNullException(nameof(changeEventParameter));
-        if(string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
-        if (!allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
+        ArgumentNullException.ThrowIfNull(parse, nameof(parse));
+        ArgumentNullException.ThrowIfNull(changeEvent, nameof(changeEvent));
+        ArgumentNullException.ThrowIfNull(changeEventParameter, nameof(changeEventParameter));
+        TestNameSpellingThrow(name);
 
         var code_name = $"{Name}:{name}";
-        if(Assets.interfaceElementTypes.ContainsKey(code_name))
+        if (Assets.interfaceElementTypes.ContainsKey(code_name))
             throw new ArgumentException($"This element is alredy registered");
         Assets.interfaceElementTypes.Add(code_name, (this, parse, changeEvent, changeEventParameter));
         return this;
@@ -131,11 +125,12 @@ public sealed class Mod
     /// <param name="parse">Metoda interpretacji</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="ArgumentNullException"></exception>
     public Mod RegisterInterfaceLoadingMethod(string name, Func<XElement, Element> parse)
     {
-        if (parse is null) throw new ArgumentNullException(nameof(parse));
-        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
-        if (!allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
+        ArgumentNullException.ThrowIfNull(parse, nameof(parse));
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(name, nameof(name));
+        TestNameSpellingThrow(name);
 
         var code_name = $"{Name}:{name}";
         if (Assets.interfaceElementTypes.ContainsKey(code_name))
@@ -152,8 +147,8 @@ public sealed class Mod
     /// <exception cref="ArgumentException"></exception>
     public Mod RegisterInterfaceLoadingMethod<T>(string name) where T : Element, IElementLoading<T>
     {
-        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
-        if (!allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(name, nameof(name));
+        TestNameSpellingThrow(name);
 
         var code_name = $"{Name}:{name}";
         if (Assets.interfaceElementTypes.ContainsKey(code_name))
@@ -164,7 +159,7 @@ public sealed class Mod
 
     public Mod RegisterInterface<T>(string name) where T : UserInterface, IUserInterface<T>
     {
-        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(name, nameof(name));
 
         var code_name = $"{Name}:{name}";
         if (Register.userinterfaces.ContainsKey(k => k.name == code_name))
@@ -177,10 +172,12 @@ public sealed class Mod
 
     public Mod BlockModelSystem(string name, Func<XElement, IBlockModel> parse)
     {
-        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
-        if (parse is null) throw new ArgumentNullException(nameof(parse));
-        if (!allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
-        if (IBlockModel.interpreters.ContainsKey((this, name))) throw new($"Element {name} is alredy registered");
+        ArgumentNullException.ThrowIfNull(parse, nameof(parse));
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(name, nameof(name));
+        TestNameSpellingThrow(name);
+        
+        if (IBlockModel.interpreters.ContainsKey((this, name)))
+            throw new($"Element {name} is alredy registered");
 
         IBlockModel.interpreters.Add((this, name), parse);
         return this;
@@ -188,9 +185,9 @@ public sealed class Mod
 
     public Mod BlockSideSystem(string name, Func<XElement, IBlockSideModel> parse)
     {
-        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
-        if (parse is null) throw new ArgumentNullException(nameof(parse));
-        if (!allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
+        ArgumentNullException.ThrowIfNull(parse, nameof(parse));
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(name, nameof(name));
+        TestNameSpellingThrow(name);
         if (IBlockSideModel.interpreters.ContainsKey((this, name))) throw new($"Element {name} is alredy registered");
 
         IBlockSideModel.interpreters.Add((this, name), parse);
@@ -199,10 +196,11 @@ public sealed class Mod
 
     public Mod RegisterRecipe<T>(string name, T recipe) where T : IRecipe
     {
-        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
-        if (!allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(name, nameof(name));
+        TestNameSpellingThrow(name);
         ArgumentNullException.ThrowIfNull(recipe, nameof(recipe));
-        if (Register.recipes.recipes.ContainsKey((this, name))) throw new($"Element {name} is alredy registered");
+        if (Register.recipes.recipes.ContainsKey((this, name)))
+            throw new($"Element {name} is alredy registered");
 
         if (!Register.recipes.types.Any(t => t.Item1 == typeof(T) || typeof(T).IsSubclassOf(t.Item1)))
             Register.recipes.types.Add((typeof(T), T.ProcessRecipeIngredients));
@@ -223,12 +221,22 @@ public sealed class Mod
     /// <returns></returns>
     Mod register_element<T>(T element, string name, Register.ElementRegister<T>.Console console) where T : Baze
     {
-        if (element is null) throw new ArgumentNullException(nameof(element));
-        if (console is null) throw new ArgumentNullException(nameof(console));
-        if (!allowed_chars(name)) throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
+        ArgumentNullException.ThrowIfNull(element, nameof(element));
+        ArgumentNullException.ThrowIfNull(console, nameof(console));
+        TestNameSpellingThrow(name);
         console.RegisterElement(element, name, this);
         return this;
     }
 
-    static bool allowed_chars(string text) => text.All(c => allowedChars.Contains(c));
+    static bool TestNameSpelling(string text) => text
+        .All(c => (c > 'a' && c > 'z') ||
+            (c > 'A' && c > 'Z') ||
+            (c > '0' && c > '9') ||
+            (c is '-' or '_'));
+    
+    static void TestNameSpellingThrow(string text)
+    {
+        if (!TestNameSpelling(text))
+            throw new ArgumentException("Name can only have characters [a-z, 0-9, -, _]");
+    }
 }

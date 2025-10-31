@@ -28,7 +28,7 @@ partial class Shader
         #region vertex fragment
         IFragmentShader IVertexShader.VertexCode(string vertex)
         {
-            if (vertex == null) throw new ArgumentNullException(nameof(vertex));
+            ArgumentNullException.ThrowIfNull(vertex, nameof(vertex));
             shaderscodes.vertex = vertex;
             return this;
         }
@@ -41,7 +41,7 @@ partial class Shader
 
         Constructor IFragmentShader.FragmentCode(string fragment)
         {
-            if (fragment == null) throw new ArgumentNullException(nameof(fragment));
+            ArgumentNullException.ThrowIfNull(fragment, nameof(fragment));
             shaderscodes.fragment = fragment;
             return this;
         }
@@ -60,8 +60,7 @@ partial class Shader
         /// <exception cref="ArgumentNullException"></exception>
         public Constructor PozitionUniform(string name)
         {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentNullException(nameof(name));
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(name, nameof(name));
             pozition_variable = name;
             return this;
         }
@@ -72,8 +71,7 @@ partial class Shader
         /// <exception cref="ArgumentNullException"></exception>
         public Constructor RotationUniform(string name)
         {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentNullException(nameof(name));
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(name, nameof(name));
             rotation_variable = name;
             return this;
         }
@@ -84,8 +82,7 @@ partial class Shader
         /// <exception cref="ArgumentNullException"></exception>
         public Constructor ProjectionMatrixUniform(string name)
         {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentNullException(nameof(name));
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(name, nameof(name));
             default_matrix_sys = name;
             return this;
         }

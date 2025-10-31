@@ -9,5 +9,6 @@ partial class MathC
     {
         var chun = projection * new Vector4(cube.pozition.ToVector(), 1);
         return true;
+        // TODO - Do that anoying part of testing chunk visibility
     }
 }

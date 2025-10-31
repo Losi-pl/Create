@@ -19,22 +19,18 @@ public static class Engine
     public static Version Version { get; } = Assembly.GetEntryAssembly()?.GetName().Version ?? new(1, 0, 0);
 
     /// <summary>
-    /// <inheritdoc cref="get_files_path"/>
+    /// <inheritdoc cref="GatPathToGameFolder"/>
     /// </summary>
-    public static string FilesPath { get; } = get_files_path();
+    public static string FilesPath { get; } = GatPathToGameFolder();
 
     /// <summary>
     /// Ścieżka z której gra jest aktywowana
     /// </summary>
     /// <returns>Ścieżka</returns>
-    static string get_files_path()
+    static string GatPathToGameFolder()
     {
         var files = Assembly.GetExecutingAssembly().Location;
-        int rem_from = 0;
-        for (int i = 0; i < files.Length; i++)
-            if (files[i] is '\\')
-                rem_from = i;
-        files = files?.Remove(rem_from + 1);
+        files = files?.Remove(files.IndexOf('\\') + 1);
         return files!;
     }
 
