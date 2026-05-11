@@ -41,10 +41,6 @@ switch (OperatingSystem.current()) {
         break
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     // ---------- Default ----------
     testImplementation platform('org.junit:junit-bom:6.0.0')
@@ -143,7 +139,6 @@ dependencies {
     // Steam
     implementation "com.code-disaster.steamworks4j:steamworks4j:${steamworks4jVersion}"
     implementation "com.code-disaster.steamworks4j:steamworks4j-server:${project.ext['steamworks4j-serverVersion']}"
-
 }
 
 tasks.register('createProperties') {
