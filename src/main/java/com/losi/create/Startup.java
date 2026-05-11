@@ -1,10 +1,15 @@
 package com.losi.create;
 
-import org.lwjgl.Version;
-
 public class Startup {
     static void main() {
-        IO.println("Hello and welcome!, LWJGL: " + Version.getVersion());
+        IO.println("Welcome to Create!");
+
+        IO.println("Create: " + Version.getVersion());
+        IO.println("LWJGL: " + Version.GetLWJGLVersion());
+        IO.println("JOML: " + Version.GetJOMLVersion());
+        IO.println("JOML Primitives: " + Version.GetJOMLPrimVersion());
+        IO.println("Steamworks: " + Version.GetSteamworksVersion());
+        IO.println("Steamworks Server: " + Version.GetSteamworksServerVersion());
 
         for (int i = 1; i <= 5; i++) {
             IO.println("i = " + i);
