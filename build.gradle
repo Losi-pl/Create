@@ -14,6 +14,7 @@ project.ext.jomlVersion = "1.10.8"
 project.ext['joml-primitivesVersion'] = "1.10.0"
 project.ext.steamworks4jVersion = "1.10.0"
 project.ext['steamworks4j-serverVersion'] = "1.10.0"
+project.ext['querz-NBTversion'] = "6.1"
 
 switch (OperatingSystem.current()) {
     case OperatingSystem.LINUX:
@@ -139,6 +140,9 @@ dependencies {
     // Steam
     implementation "com.code-disaster.steamworks4j:steamworks4j:${steamworks4jVersion}"
     implementation "com.code-disaster.steamworks4j:steamworks4j-server:${project.ext['steamworks4j-serverVersion']}"
+
+    //NBT
+    implementation "com.github.Querz:NBT:${project.ext['querz-NBTversion']}"
 }
 
 tasks.register('createProperties') {
