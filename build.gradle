@@ -145,6 +145,13 @@ dependencies {
 
     //NBT
     implementation "com.github.Querz:NBT:${project.ext['querz-NBTversion']}"
+
+    //Annotations
+    compileOnly 'org.jetbrains:annotations:26.0.2'
+
+    //Koloboke
+    compileOnly 'com.koloboke:koloboke-api-jdk8:1.0.0'
+    runtimeOnly 'com.koloboke:koloboke-impl-jdk8:1.0.0'
 }
 
 tasks.register('createProperties') {
@@ -183,6 +190,12 @@ tasks.withType(JavaCompile).configureEach {
 extraJavaModuleInfo {
     failOnMissingModuleInfo = false
     automaticModule("com.github.Querz:NBT", 'nbt.querz')
+    automaticModule("com.koloboke:koloboke-api-jdk8", 'koloboke.api.jdk8')
+    module("org.jetbrains:annotations", "org.jetbrains.annotations") {
+        patchRealModule()
+        preserveExisting()
+        exports 'org.jetbrains.annotations'
+    }
     automaticModule('com.code-disaster.steamworks4j:steamworks4j', 'steamworks4j') {
         mergeJar("com.code-disaster.steamworks4j:steamworks4j-server")
     }
