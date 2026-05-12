@@ -151,30 +151,30 @@ tasks.register('createProperties') {
     def propsFileProvider = layout.buildDirectory.file("resources/main/version.properties")
     outputs.file(propsFileProvider)
 
-    // Capture values at configuration time (safe for configuration cache)
-    def versionValue = project.version.toString()
-    def steamworksValue = project.ext['steamworks4j-serverVersion'] as String
-
     // Declare inputs so Gradle knows when to rerun
-    inputs.property("version", versionValue)
-    inputs.property("steamworksVersion", steamworksValue)
+    inputs.property("create", project.version.toString())
+    inputs.property("lwjgl", project.ext['lwjglVersion'] as String)
+    inputs.property("joml", project.ext['steamworks4j-serverVersion'] as String)
+    inputs.property("joml-primitives", project.ext['joml-primitivesVersion'] as String)
+    inputs.property("steamworks", project.ext['steamworks4jVersion'] as String)
+    inputs.property("steamworks-server", project.ext['steamworks4j-serverVersion'] as String)
+    inputs.property("querz-NBT", project.ext['querz-NBTversion'] as String)
 
     doLast {
         def propsFile = propsFileProvider.get().asFile
         propsFile.parentFile.mkdirs()
         Properties p = new Properties()
-        p['create-version'] = inputs.properties['version']
-        p['lwjgl-version'] = project.properties['lwjglVersion']
-        p['joml-version'] = project.properties['jomlVersion']
-        p['joml-primitives-version'] = project.properties['joml-primitivesVersion']
-        p['steamworks4j-version'] = project.properties['steamworks4jVersion']
-        p['steamworks4j-server-version'] = project.properties['steamworks4j-serverVersion']
-        p['querz-NBT-version'] = project.properties['querz-NBTversion']
+        p['create-version'] = inputs.properties['create']
+        p['lwjgl-version'] = inputs.properties['lwjgl']
+        p['joml-version'] = inputs.properties['joml']
+        p['joml-primitives-version'] = inputs.properties['joml-primitives']
+        p['steamworks4j-version'] = inputs.properties['steamworks']
+        p['steamworks4j-server-version'] = inputs.properties['steamworks-server']
+        p['querz-NBT-version'] = inputs.properties['querz-NBT']
         propsFile.withWriter { w -> p.store(w, null) }
     }
 }
 
-// Modern way to declare dependency
 tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += '-Xlint:-incubating'
 }
