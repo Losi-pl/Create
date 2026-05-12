@@ -8,8 +8,7 @@ import java.util.Properties;
 
 public class Version
 {
-    private static String SteamworksServer = null;
-    private static String Create = null;
+    private static String SteamworksServer = null, Create = null, JOML = null, JOMLPrimitives;
     static
     {
         try
@@ -17,8 +16,10 @@ public class Version
             var stream = Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource("version.properties")).openStream();
             var prop = new Properties();
             prop.load(stream);
-            Create = (String) prop.get("version");
-            SteamworksServer = (String) prop.get("steamworks4j-serverVersion");
+            SteamworksServer = (String) prop.get("steamworks4j-server-version");
+            Create = (String) prop.get("create-version");
+            JOML = (String) prop.get("joml-version");
+            JOMLPrimitives = (String) prop.get("joml-primitives-version");
         }
         catch (Exception e)
         {
@@ -26,6 +27,10 @@ public class Version
                 SteamworksServer = "unknown";
             if(Create == null)
                 Create = "unknown";
+            if(JOML == null)
+                JOML = "unknown";
+            if(JOMLPrimitives == null)
+                JOMLPrimitives = "unknown";
         }
     }
 
@@ -39,7 +44,7 @@ public class Version
         {
             var pack = org.joml.Math.class.getPackage();
             var var = pack.getImplementationVersion();
-            return var == null ? "unknown" : var;
+            return var == null ? JOML : var;
         }
         catch (Exception e)
         { return "error"; }
@@ -50,7 +55,7 @@ public class Version
         {
             var pack = org.joml.primitives.Rayf.class.getPackage();
             var var = pack.getImplementationVersion();
-            return var == null ? "unknown" : var;
+            return var == null ? JOMLPrimitives : var;
         }
         catch (Exception e)
         { return "error"; }

@@ -162,8 +162,13 @@ tasks.register('createProperties') {
         def propsFile = propsFileProvider.get().asFile
         propsFile.parentFile.mkdirs()
         Properties p = new Properties()
-        p['version'] = inputs.properties['version']
-        p['steamworks4j-serverVersion'] = inputs.properties['steamworksVersion']
+        p['create-version'] = inputs.properties['version']
+        p['lwjgl-version'] = project.properties['lwjglVersion']
+        p['joml-version'] = project.properties['jomlVersion']
+        p['joml-primitives-version'] = project.properties['joml-primitivesVersion']
+        p['steamworks4j-version'] = project.properties['steamworks4jVersion']
+        p['steamworks4j-server-version'] = project.properties['steamworks4j-serverVersion']
+        p['querz-NBT-version'] = project.properties['querz-NBTversion']
         propsFile.withWriter { w -> p.store(w, null) }
     }
 }
