@@ -2,6 +2,7 @@
 
 plugins {
     id 'java'
+    id 'application'
     id 'org.gradlex.extra-java-module-info' version '1.14'
 }
 
@@ -189,6 +190,11 @@ extraJavaModuleInfo {
 
 tasks.named('classes') {
     dependsOn(tasks.named('createProperties'))
+}
+
+application {
+    mainClass = 'com.losi.create.Startup'
+    mainModule = 'com.losi.create'
 }
 
 test {
