@@ -2,6 +2,7 @@
 
 plugins {
     id 'java'
+    id 'org.gradlex.extra-java-module-info' version '1.14'
 }
 
 group = 'com.losi.create'
@@ -174,6 +175,18 @@ tasks.register('createProperties') {
 }
 
 // Modern way to declare dependency
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += '-Xlint:-incubating'
+}
+
+extraJavaModuleInfo {
+    failOnMissingModuleInfo = false
+    automaticModule("com.github.Querz:NBT", 'nbt.querz')
+    automaticModule('com.code-disaster.steamworks4j:steamworks4j', 'steamworks4j') {
+        mergeJar("com.code-disaster.steamworks4j:steamworks4j-server")
+    }
+}
+
 tasks.named('classes') {
     dependsOn(tasks.named('createProperties'))
 }
