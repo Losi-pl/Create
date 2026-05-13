@@ -1,6 +1,5 @@
 module com.losi.create {
     requires org.joml;
-    requires org.lwjgl;
     requires steamworks4j;
     requires org.joml.primitives;
     requires static org.jetbrains.annotations;
@@ -8,6 +7,11 @@ module com.losi.create {
     requires nbt.querz;
     requires java.rmi;
     requires kotlin.stdlib;
+    requires java.desktop;
+
+    requires org.lwjgl.natives;
+    requires org.lwjgl.glfw.natives;
+    requires org.lwjgl.opengl.natives;
 
     exports com.losi.create;
     exports com.losi.create.registry;

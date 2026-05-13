@@ -1,5 +1,7 @@
 package com.losi.create;
 
+import com.losi.create.internal.WindowInternals;
+
 public class Startup {
     static void main() {
         IO.println("Welcome to Create!");
@@ -11,8 +13,6 @@ public class Startup {
         IO.println("Steamworks: " + Version.GetSteamworksVersion());
         IO.println("Steamworks Server: " + Version.GetSteamworksServerVersion());
 
-        for (int i = 1; i <= 5; i++) {
-            IO.println("i = " + i);
-        }
+        WindowInternals.createWindow.run();
     }
 }
