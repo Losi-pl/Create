@@ -1,9 +1,13 @@
-package com.losi.create;
+package com.losi.create.internal;
 
-import com.losi.create.internal.WindowInternals;
+import com.losi.create.Version;
+import com.losi.create.graphics.Window;
+import java.util.Objects;
+import static org.lwjgl.glfw.GLFW.*;
 
-public class Startup {
-    static void main() {
+public class Start {
+    static void main(String[] args)
+    {
         IO.println("Welcome to Create!");
 
         IO.println("Create: " + Version.getVersion());
@@ -13,6 +17,12 @@ public class Startup {
         IO.println("Steamworks: " + Version.GetSteamworksVersion());
         IO.println("Steamworks Server: " + Version.GetSteamworksServerVersion());
 
-        WindowInternals.createWindow.run();
+        var window = new Window();
+        window.create();
+        window.threadBind();
+        window.run();
+
+        glfwTerminate();
+        Objects.requireNonNull(glfwSetErrorCallback(null)).free();
     }
 }

@@ -138,7 +138,7 @@ tasks.named('classes') {
 
 application {
     applicationDefaultJvmArgs += [ '--enable-native-access=org.lwjgl', '--enable-native-access=org.lwjgl.opengl' ]
-    mainClass = 'com.losi.create.Startup'
+    mainClass = 'com.losi.create.internal.Start'
     mainModule = 'com.losi.create'
 }
 
