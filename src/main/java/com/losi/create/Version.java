@@ -3,7 +3,6 @@ package com.losi.create;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
 import java.util.Properties;
 
 public class Version
@@ -13,7 +12,7 @@ public class Version
     {
         try
         {
-            var stream = Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource("version.properties")).openStream();
+            var stream = Version.class.getModule().getResourceAsStream("version.properties");
             var prop = new Properties();
             prop.load(stream);
             SteamworksServer = (String) prop.get("steamworks4j-server-version");
