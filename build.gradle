@@ -150,6 +150,10 @@ run {
     args = ["--version"]
 }
 
+tasks.compileJava {
+    options.forkOptions.jvmArgs = ['--enable-native-access=ALL-UNNAMED']
+}
+
 application {
     applicationDefaultJvmArgs = ['--enable-native-access=org.lwjgl', '--enable-native-access=org.lwjgl.opengl']
     mainClass = 'com.losi.create.internal.Start'

@@ -54,7 +54,7 @@ public class Window {
     public String title(String _new) {
         title = _new;
         if(window != NULL)
-            glfwSetWindowTitle(window, title == null ? "null" : title);
+            glfwSetWindowTitle(window, title == null ? "" : title);
         return title;
     }
 
@@ -169,7 +169,7 @@ public class Window {
             if(size == null)
                 size = new Vector2i(monitor.width() * 2 / 3, monitor.height() * 2 / 3);
 
-            window = glfwCreateWindow(size.x, size.y, title == null ? "null" : title, NULL, NULL);
+            window = glfwCreateWindow(size.x, size.y, title == null ? "" : title, NULL, NULL);
             if ( window == NULL )
                 throw new RuntimeException("Failed to create the GLFW window");
         }
@@ -202,6 +202,8 @@ public class Window {
                 throw new IllegalStateException("Window is already bound to a Thread");
             if(currentWindow.get() != null)
                 throw new IllegalStateException("Thread is already bound to a Window");
+            if(window == NULL)
+                throw new IllegalStateException("The window was not yet created");
             currentWindow.set(this);
             glfwMakeContextCurrent(window);
             GL.createCapabilities();
