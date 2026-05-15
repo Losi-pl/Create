@@ -8,11 +8,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("unused")
 public class ElementRegister<T extends GameElement>
 {
     private transient Map<String, T> elements_by_name_raw = new HashMap<>();
     private transient Map<String, T> elements_by_name = null;
-    private transient Map<Integer, T> elements_by_id = null;
+    private transient final Map<Integer, T> elements_by_id = null;
     private transient final Object sync = new Object();
 
     //private Immutable
