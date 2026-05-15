@@ -165,8 +165,10 @@ public class Window {
 
             var endTime = timer.getLongTime();
 
-            try { Thread.sleep(startTime + targetTime - endTime); }
-            catch (InterruptedException ignored) { }
+            var timeOut = startTime + targetTime - endTime;
+            if(timeOut > 0)
+                try { Thread.sleep(timeOut); }
+                catch (InterruptedException ignored) { }
         }
     }
     public void create() {
