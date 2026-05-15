@@ -12,6 +12,7 @@ import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+@SuppressWarnings("unused")
 public class Monitor
 {
     private static List<Monitor> monitors = null;
