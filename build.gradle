@@ -5,6 +5,7 @@ plugins {
     id 'java'
     id 'application'
     id 'org.gradlex.extra-java-module-info' version '1.14'
+    id 'org.jetbrains.kotlin.jvm'
 }
 
 group = 'com.losi.create'
@@ -93,6 +94,7 @@ dependencies {
     ['core', 'metadata', 'bmp', 'dds', 'hdr', 'icns', 'iff', 'jpeg', 'pcx', 'pict', 'pnm', 'psd', 'sgi', 'tga', 'thumbsdb', 'tiff', 'webp', 'xwd'].each {
         implementation "com.twelvemonkeys.imageio:imageio-$it:3.13.1"
     }
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
 tasks.register('createProperties') {
@@ -150,8 +152,19 @@ run {
     args = ["--version"]
 }
 
+sourceSets {
+    main {
+        java.srcDirs = ['src/main/java']
+        kotlin.srcDirs = ['src/main/kotlin']
+        //outputDir = file("$buildDir/classes/java/main")
+    }
+}
+
 tasks.compileJava {
     options.forkOptions.jvmArgs = ['--enable-native-access=ALL-UNNAMED']
+}
+tasks.compileKotlin {
+    destinationDirectory = tasks.compileJava.destinationDirectory
 }
 
 application {
@@ -162,4 +175,8 @@ application {
 
 test {
     useJUnitPlatform()
+}
+
+kotlin {
+    jvmToolchain(25)
 }
