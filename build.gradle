@@ -136,6 +136,10 @@ tasks.named('classes') {
     dependsOn(tasks.named('createProperties'))
 }
 
+run {
+    args = []
+}
+
 application {
     applicationDefaultJvmArgs += [ '--enable-native-access=org.lwjgl', '--enable-native-access=org.lwjgl.opengl' ]
     mainClass = 'com.losi.create.internal.Start'
