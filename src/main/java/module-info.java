@@ -8,6 +8,10 @@ module com.losi.create {
     requires java.rmi;
     requires kotlin.stdlib;
     requires java.desktop;
+    requires com.twelvemonkeys.imageio.core;
+    requires com.twelvemonkeys.common.io;
+    requires com.twelvemonkeys.common.image;
+    requires com.twelvemonkeys.common.lang;
 
     requires org.lwjgl.natives;
     requires org.lwjgl.glfw.natives;

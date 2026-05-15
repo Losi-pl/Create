@@ -84,6 +84,15 @@ dependencies {
     //Koloboke
     compileOnly 'com.koloboke:koloboke-api-jdk8:1.0.0'
     runtimeOnly 'com.koloboke:koloboke-impl-jdk8:1.0.0'
+
+    //TwelveMonkeys
+    //https://github.com/haraldk/TwelveMonkeys
+    ['lang', 'io', 'image'].each {
+        implementation "com.twelvemonkeys.common:common-$it:3.13.1"
+    }
+    ['core', 'metadata', 'bmp', 'dds', 'hdr', 'icns', 'iff', 'jpeg', 'pcx', 'pict', 'pnm', 'psd', 'sgi', 'tga', 'thumbsdb', 'tiff', 'webp', 'xwd'].each {
+        implementation "com.twelvemonkeys.imageio:imageio-$it:3.13.1"
+    }
 }
 
 tasks.register('createProperties') {
@@ -142,7 +151,7 @@ run {
 }
 
 application {
-    applicationDefaultJvmArgs += [ '--enable-native-access=org.lwjgl', '--enable-native-access=org.lwjgl.opengl' ]
+    applicationDefaultJvmArgs = ['--enable-native-access=org.lwjgl', '--enable-native-access=org.lwjgl.opengl']
     mainClass = 'com.losi.create.internal.Start'
     mainModule = 'com.losi.create'
 }

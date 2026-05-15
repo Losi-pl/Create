@@ -3,12 +3,14 @@ package com.losi.create.internal;
 import com.losi.create.Version;
 import com.losi.create.graphics.Window;
 import com.losi.create.utility.CArrays;
+
+import java.io.IOException;
 import java.util.Objects;
+
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Start {
-    static void main(String[] args)
-    {
+    static void main(String[] args) {
         IO.println("Welcome to Create!");
 
         if(CArrays.findAny(args, "--Version", true))
@@ -22,6 +24,12 @@ public class Start {
         }
 
         var window = new Window();
+        try
+        {
+            var ico = Version.class.getModule().getResourceAsStream("Icon.ico");
+            window.icon(ico);
+        }
+        catch (IOException ignored) { }
         window.create();
         window.threadBind();
         window.run();

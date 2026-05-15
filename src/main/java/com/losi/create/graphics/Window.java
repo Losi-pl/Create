@@ -1,10 +1,21 @@
 package com.losi.create.graphics;
 
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
+import org.lwjgl.system.MemoryUtil;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.Cleaner;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -16,6 +27,8 @@ public class Window {
     private static final Cleaner cleaner = Cleaner.create();
     private static boolean initialized = false;
 
+    private static final int[] ICON_SIZES = {16, 32, 48, 64, 128, 256};
+
     private transient final Object sync = new Object();
     private transient volatile long window = NULL;
     @SuppressWarnings({"FieldCanBeLocal"})
@@ -25,6 +38,7 @@ public class Window {
     private volatile Vector2i size = null;
     private volatile Monitor monitor = null;
     private volatile boolean vSync = false;
+    private volatile InputStream icon;
 
     public Window()
     {
@@ -47,9 +61,86 @@ public class Window {
     public boolean vSync() { return vSync; }
     public boolean vSync(boolean _new) { vSync = _new; return vSync; }
 
+    public InputStream icon() { return icon; }
+    public InputStream icon(InputStream _new) {
+        synchronized (sync)
+        {
+            icon = _new;
+            if(icon != null && window != NULL)
+                loadIcon(icon);
+            return icon;
+        }
+    }
+
+
     private void initGL() {
         GLFWErrorCallback.createPrint(System.err).set();
         if ( !glfwInit() ) throw new IllegalStateException("Unable to initialize GLFW");
+    }
+    private void loadIcon(@NotNull InputStream icon) {
+        BufferedImage image;
+        try { image = ImageIO.read(icon); }
+        catch (IOException e) { throw  new RuntimeException("Unable to parse icon", e); }
+        if(image == null)
+            throw  new RuntimeException("Unable to parse icon");
+
+        var buffers = new ArrayList<ByteBuffer>();
+        try
+        {
+            for (var SIZE : ICON_SIZES) {
+                if(SIZE > image.getWidth() || SIZE > image.getHeight())
+                    continue;
+
+                var pixBuff = (DataBufferInt)scaleImage(image, SIZE).getRaster().getDataBuffer();
+
+                ByteBuffer buffer = memAlloc(SIZE * SIZE * 4);
+                buffers.add(buffer);
+                buffer.order(ByteOrder.nativeOrder());
+
+                for (var pixel: pixBuff.getData())
+                {
+                    buffer.put((byte) (pixel & 0xFF));          //R
+                    buffer.put((byte) ((pixel >> 8) & 0xFF));   //G
+                    buffer.put((byte) ((pixel >> 16) & 0xFF));  //B
+                    buffer.put((byte) ((pixel >> 24) & 0xFF));  //A
+                }
+                buffer.flip();
+            }
+            var images = new ArrayList<GLFWImage>();
+            try
+            {
+                for (var buffer: buffers)
+                {
+                    var img = GLFWImage.malloc();
+                    images.add(img);
+                    var size = (int)Math.sqrt((double) buffer.capacity() / 4);
+                    img.set(size, size, buffer);
+                }
+
+                try (var set = GLFWImage.malloc(buffers.size()))
+                {
+                    for (int i = 0; i < buffers.size(); i++)
+                        set.put(i, images.get(i));
+                    glfwSetWindowIcon(window, set);
+                }
+            }
+            finally {
+                images.forEach(GLFWImage::free);
+            }
+        }
+        finally {
+            buffers.forEach(MemoryUtil::memFree);
+        }
+    }
+    private static @NotNull BufferedImage scaleImage(@NotNull BufferedImage image, int size) {
+        if(image.getWidth() == size && image.getHeight() == size)
+            return image;
+        var scaled = image.getScaledInstance(size, size, Image.SCALE_SMOOTH);
+        var result = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+        var graphic = result.createGraphics();
+        graphic.drawImage(scaled, 0, 0, null);
+        graphic.dispose();
+        return result;
     }
 
     public void run() {
@@ -63,9 +154,7 @@ public class Window {
             glfwPollEvents();
         }
     }
-
-    public void create()
-    {
+    public void create() {
         synchronized (sync)
         {
             if(window != NULL)
@@ -94,20 +183,19 @@ public class Window {
                 pos.x() + (work.width() - size.x) / 2,
                 pos.y() + (work.height() - size.y) / 2);
 
+        if(icon != null)
+            loadIcon(icon);
+
         /*// glfwSetKeyCallback(window, (wind, key, scancode, action, mods) -> {
             if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
                 glfwSetWindowShouldClose(wind, true); // We will detect this in the rendering loop
         });*/
     }
-
-    public void close()
-    {
+    public void close() {
         if (window != NULL)
             glfwWindowShouldClose(window);
     }
-
-    public void threadBind()
-    {
+    public void threadBind() {
         synchronized (currentWindow)
         {
             if(thread_bound)

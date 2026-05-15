@@ -53,7 +53,7 @@ public class Monitor
 
     public Vector2i position() {
         int[] monitorX = new int[1], monitorY = new int[1];
-        org.lwjgl.glfw.GLFW.glfwGetMonitorPos(handler, monitorX, monitorY);
+        glfwGetMonitorPos(handler, monitorX, monitorY);
         return new Vector2i(monitorX[0], monitorY[0]);
     }
 
