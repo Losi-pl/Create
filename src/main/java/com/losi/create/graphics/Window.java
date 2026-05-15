@@ -3,7 +3,7 @@ package com.losi.create.graphics;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.*;
-import org.lwjgl.opengl.*;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryUtil;
 
 import javax.imageio.ImageIO;
@@ -39,6 +39,7 @@ public class Window {
     private volatile Monitor monitor = null;
     private volatile boolean vSync = false;
     private volatile InputStream icon;
+    private volatile int targetFPS = 60;
 
     public Window()
     {
@@ -72,6 +73,8 @@ public class Window {
         }
     }
 
+    public int targetFPS() { return targetFPS; }
+    public int targetFPS(int _new) { targetFPS = _new; return targetFPS; }
 
     private void initGL() {
         GLFWErrorCallback.createPrint(System.err).set();
@@ -143,15 +146,27 @@ public class Window {
         return result;
     }
 
+    @SuppressWarnings("BusyWait")
     public void run() {
         glfwShowWindow(window);
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
+        var timer = new Timer();
+        long targetTime = 1000L / targetFPS;
+
         glfwSwapInterval(vSync ? 1 : 0);
         while ( !glfwWindowShouldClose(window) ) {
+            var startTime = timer.getLongTime();
+            float delta = timer.getDelta();
+
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glfwSwapBuffers(window);
             glfwPollEvents();
+
+            var endTime = timer.getLongTime();
+
+            try { Thread.sleep(startTime + targetTime - endTime); }
+            catch (InterruptedException ignored) { }
         }
     }
     public void create() {
@@ -209,5 +224,22 @@ public class Window {
             GL.createCapabilities();
             thread_bound = true;
         }
+    }
+
+    static class Timer{
+        double lastLoopTime;
+        float timeCount;
+
+        public double getTime() { return glfwGetTime(); }
+        public long getLongTime(){ return (long)getTime() * 1000; }
+        public void init() { lastLoopTime = getTime(); }
+        public float getDelta() {
+            double time = getTime();
+            float delta = (float) (time - lastLoopTime);
+            lastLoopTime = time;
+            timeCount += delta;
+            return delta;
+        }
+
     }
 }
