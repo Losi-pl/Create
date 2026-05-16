@@ -1,5 +1,6 @@
 package com.losi.create.graphics;
 
+import com.losi.create.utility.ExpandedConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.*;
@@ -40,6 +41,7 @@ public class Window {
     private volatile boolean vSync = false;
     private volatile InputStream icon;
     private volatile int targetFPS = 60;
+    private volatile ExpandedConsumer<Float> logicUpdate;
 
     public Window()
     {
@@ -159,6 +161,8 @@ public class Window {
             var startTime = timer.getLongTime();
             float delta = timer.getDelta();
 
+            logicUpdate.accept(delta);
+
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glfwSwapBuffers(window);
             glfwPollEvents();
@@ -193,7 +197,7 @@ public class Window {
 
         final var handler = window;
         handleDestroyer = cleaner.register(this, () -> glfwDestroyWindow(handler));
-
+        logicUpdate = new ExpandedConsumer<>();
         var pos = monitor.position();
         var work = monitor.workArea();
         glfwSetWindowPos(window,
