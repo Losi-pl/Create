@@ -1,10 +1,14 @@
 package com.losi.create.graphics;
 
+import com.losi.create.internal.GLErrorHandler;
+import com.losi.create.utility.CStreams;
 import com.losi.create.utility.ExpandedConsumer;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
 import javax.imageio.ImageIO;
@@ -19,8 +23,9 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.system.MemoryUtil.*;
+import static com.losi.create.utility.CShaderUniforms.*;
 
 @SuppressWarnings("unused")
 public class Window {
@@ -147,6 +152,10 @@ public class Window {
         graphic.dispose();
         return result;
     }
+    private void onResize(int width, int height) {
+        glViewport(0, 0, width, height);
+        size.x = width; size.y = height;
+    }
 
     @SuppressWarnings("BusyWait")
     public void run() {
@@ -156,6 +165,87 @@ public class Window {
         var timer = new Timer();
         long targetTime = 1000L / targetFPS;
 
+        int vbo;
+        int vao;
+        try (var stack = MemoryStack.stackPush()) {
+            var vertices = stack.mallocFloat(3 * 6);
+            vertices.put(-0.6f).put(-0.4f).put(0f).put(1f).put(0f).put(0f);
+            vertices.put( 0.6f).put(-0.4f).put(0f).put(0f).put(1f).put(0f);
+            vertices.put( 0f  ).put(0.6f).put(0f).put(0f).put(0f).put(1f);
+            vertices.flip();
+
+            vbo = glGenBuffers();
+            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
+        }
+
+        int shaderProgram;
+        {
+            String vertex;
+            try { vertex = CStreams.readAsString(Window.class.getModule().getResourceAsStream("assets/create/shaders/basic.vert")); }
+            catch (IOException e) { vertex = ""; }
+
+            String fragment;
+            try { fragment = CStreams.readAsString(Window.class.getModule().getResourceAsStream("assets/create/shaders/basic.frag")); }
+            catch (IOException e) { fragment = ""; }
+
+            int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+            glShaderSource(vertexShader, vertex);
+            glCompileShader(vertexShader);
+
+            int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+            glShaderSource(fragmentShader, fragment);
+            glCompileShader(fragmentShader);
+
+            if (glGetShaderi(vertexShader, GL_COMPILE_STATUS) != GL_TRUE)
+                throw new RuntimeException(glGetShaderInfoLog(vertexShader));
+            if (glGetShaderi(fragmentShader, GL_COMPILE_STATUS) != GL_TRUE)
+                throw new RuntimeException(glGetShaderInfoLog(fragmentShader));
+
+            shaderProgram = glCreateProgram();
+            glAttachShader(shaderProgram, vertexShader);
+            glAttachShader(shaderProgram, fragmentShader);
+            glBindFragDataLocation(shaderProgram, 0, "fragColor");
+            glLinkProgram(shaderProgram);
+
+            if (glGetProgrami(shaderProgram, GL_LINK_STATUS) != GL_TRUE)
+                throw new RuntimeException(glGetProgramInfoLog(shaderProgram));
+        }
+        glUseProgram(shaderProgram);
+
+        int posAttrib;
+        int colAttrib;
+        {
+            var floatSize = 4;
+            vao = glGenVertexArrays();
+            glBindVertexArray(vao);
+            posAttrib = glGetAttribLocation(shaderProgram, "position");
+            glEnableVertexAttribArray(posAttrib);
+            glVertexAttribPointer(posAttrib, 3, GL_FLOAT, false, 6 * floatSize, 0);
+
+            colAttrib = glGetAttribLocation(shaderProgram, "color");
+            glEnableVertexAttribArray(colAttrib);
+            glVertexAttribPointer(colAttrib, 3, GL_FLOAT, false, 6 * floatSize, 3 * floatSize);
+        }
+
+        int uniModel;
+        int uniView;
+        int uniProjection;
+        {
+            uniModel = glGetUniformLocation(shaderProgram, "model");
+            var model = new Matrix4f();
+            glUniformMatrix4fv(uniModel, false, model);
+
+            uniView = glGetUniformLocation(shaderProgram, "view");
+            var view = new Matrix4f();
+            glUniformMatrix4fv(uniView, false, view);
+
+            uniProjection = glGetUniformLocation(shaderProgram, "projection");
+            float ratio = 640f / 480f;
+            var projection = new Matrix4f().setOrtho(-ratio, ratio, -1f, 1f, -1f, 1f);
+            glUniformMatrix4fv(uniProjection, false, projection);
+        }
+
         glfwSwapInterval(vSync ? 1 : 0);
         while ( !glfwWindowShouldClose(window) ) {
             var startTime = timer.getLongTime();
@@ -164,11 +254,15 @@ public class Window {
             logicUpdate.accept(delta);
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            glBindVertexArray(vao);
+            glUseProgram(shaderProgram);
+            glDrawArrays(GL_TRIANGLES, 0, 3);
+
             glfwSwapBuffers(window);
             glfwPollEvents();
 
             var endTime = timer.getLongTime();
-
             var timeOut = startTime + targetTime - endTime;
             if(timeOut > 0)
                 try { Thread.sleep(timeOut); }
@@ -207,6 +301,7 @@ public class Window {
         if(icon != null)
             loadIcon(icon);
 
+        glfwSetFramebufferSizeCallback(window ,(window, width, height) -> this.onResize(width, height));
         /*// glfwSetKeyCallback(window, (wind, key, scancode, action, mods) -> {
             if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
                 glfwSetWindowShouldClose(wind, true); // We will detect this in the rendering loop
@@ -228,9 +323,14 @@ public class Window {
             currentWindow.set(this);
             glfwMakeContextCurrent(window);
             GL.createCapabilities();
+            glViewport(0, 0, size.x, size.y);
+            GLErrorHandler.bindErrorCather();
+
             thread_bound = true;
         }
     }
+
+
 
     static class Timer{
         double lastLoopTime;
