@@ -24,12 +24,7 @@ public class Start {
         }
 
         var window = new Window();
-        try
-        {
-            var ico = Version.class.getModule().getResourceAsStream("Icon.ico");
-            window.icon(ico);
-        }
-        catch (IOException ignored) { }
+        try { window.icon(Version.class.getModule().getResourceAsStream("Icon.ico")); } catch (IOException ignored) { }
         window.create();
         window.threadBind();
         window.run();
