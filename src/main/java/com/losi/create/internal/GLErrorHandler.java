@@ -8,7 +8,7 @@ public class GLErrorHandler
 {
     public static void bindErrorCather() {
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-        glDebugMessageCallback((source, type, id, severity, length, message, userParam) -> {
+        glDebugMessageCallback((source, type, id, severity, length, message, _) -> {
             String messageStr = org.lwjgl.opengl.GLDebugMessageCallback.getMessage(length, message);
 
             System.err.printf("[OpenGL Debug] Source: 0x%X | Type: 0x%X | ID: %d | Severity: %s | Message: %s%n",
