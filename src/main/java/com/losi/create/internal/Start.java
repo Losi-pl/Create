@@ -25,6 +25,7 @@ public class Start {
 
         var window = new Window();
         try { window.icon(Version.class.getModule().getResourceAsStream("Icon.ico")); } catch (IOException ignored) { }
+        window.title("Create: " + Version.getVersion());
         window.create();
         window.threadBind();
         window.run();
