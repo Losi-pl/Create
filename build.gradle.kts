@@ -7,7 +7,7 @@ plugins {
     id("java")
     id("application")
     id("org.gradlex.extra-java-module-info") version "1.14"
-    id("org.jetbrains.kotlin.jvm") version "2.3.21"
+    kotlin("jvm") version "2.3.21"
 }
 
 group = "com.losi.create"
@@ -93,7 +93,7 @@ dependencies {
     listOf("core", "metadata", "bmp", "dds", "hdr", "icns", "iff", "jpeg", "pcx", "pict", "pnm", "psd", "sgi", "tga", "thumbsdb", "tiff", "webp", "xwd").forEach {
         implementation("com.twelvemonkeys.imageio:imageio-$it:$twelvemonkeysVersion")
     }
-    implementation ("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation(kotlin("stdlib"))
 }
 extraJavaModuleInfo {
     failOnMissingModuleInfo = false
@@ -142,15 +142,24 @@ tasks.register("createProperties") {
         propsFile.writer().use { p.store(it, null) }
     }
 }
-tasks.named("classes") {
-    dependsOn(tasks.named("createProperties"))
+tasks.named("classes") { dependsOn(tasks.named("createProperties")) }
+tasks.compileJava {
+    options.forkOptions.jvmArgs = listOf("--enable-native-access=ALL-UNNAMED")
+    options.compilerArgs.add("-Xlint:-incubating")
+    options.compilerArgumentProviders.add(
+        object : CommandLineArgumentProvider {
+            @get:CompileClasspath
+            val kotlinClasses = tasks.compileKotlin.flatMap { it.destinationDirectory }
+
+            override fun asArguments(): List<String> = listOf(
+                "--patch-module",
+                "com.losi.create=${kotlinClasses.get().asFile.absolutePath}"
+            )
+        }
+    )
 }
 
-tasks.compileJava { options.forkOptions.jvmArgs = listOf("--enable-native-access=ALL-UNNAMED") }
-tasks.compileKotlin { destinationDirectory.set(tasks.compileJava.get().destinationDirectory) }
-tasks.withType<JavaCompile>().configureEach { options.compilerArgs.add("-Xlint:-incubating") }
 tasks.test { useJUnitPlatform() }
-
 tasks.run { args = listOf("--version") }
 
 application {
