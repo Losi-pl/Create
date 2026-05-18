@@ -195,20 +195,17 @@ public class Window {
             catch (ShaderCompilationError ex) { IO.println(ex.getMessage()); return; }
         }
 
-
-        int posAttrib;
-        int colAttrib;
         {
             var floatSize = 4;
             vao = glGenVertexArrays();
             glBindVertexArray(vao);
-            posAttrib = glGetAttribLocation(shaderProgram.getHandler(), "position");
-            glEnableVertexAttribArray(posAttrib);
-            glVertexAttribPointer(posAttrib, 3, GL_FLOAT, false, 6 * floatSize, 0);
+            var pos = shaderProgram.getAttributes().get("position");
+            glEnableVertexAttribArray(pos.getLocation());
+            glVertexAttribPointer(pos.getLocation(), 3, GL_FLOAT, false, 6 * floatSize, 0);
 
-            colAttrib = glGetAttribLocation(shaderProgram.getHandler(), "color");
-            glEnableVertexAttribArray(colAttrib);
-            glVertexAttribPointer(colAttrib, 3, GL_FLOAT, false, 6 * floatSize, 3 * floatSize);
+            var col = shaderProgram.getAttributes().get("color");
+            glEnableVertexAttribArray(col.getLocation());
+            glVertexAttribPointer(col.getLocation(), 3, GL_FLOAT, false, 6 * floatSize, 3 * floatSize);
         }
 
         {
