@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.system.MemoryUtil.*;
-import static com.losi.create.utility.CShaderUniforms.*;
 
 @SuppressWarnings("unused")
 public class Window {
@@ -156,7 +155,7 @@ public class Window {
         size.x = width; size.y = height;
     }
 
-    @SuppressWarnings("BusyWait")
+    @SuppressWarnings({"BusyWait", "ConstantConditions"})
     public void run() {
         glfwShowWindow(window);
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -178,39 +177,24 @@ public class Window {
             glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
         }
 
-        int shaderProgram;
+        Shader shaderProgram;
         {
-            String vertex;
-            try { vertex = CStreams.readAsString(Window.class.getModule().getResourceAsStream("assets/create/shaders/basic.vert")); }
-            catch (IOException e) { vertex = ""; }
+            InputStream vertex;
+            try { vertex = Window.class.getModule().getResourceAsStream("assets/create/shaders/basic.vert"); }
+            catch (IOException e) { vertex = null; }
 
-            String fragment;
-            try { fragment = CStreams.readAsString(Window.class.getModule().getResourceAsStream("assets/create/shaders/basic.frag")); }
-            catch (IOException e) { fragment = ""; }
+            InputStream fragment;
+            try { fragment = Window.class.getModule().getResourceAsStream("assets/create/shaders/basic.frag"); }
+            catch (IOException e) { fragment = null; }
 
-            int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-            glShaderSource(vertexShader, vertex);
-            glCompileShader(vertexShader);
+            InputStream xml;
+            try { xml = Window.class.getModule().getResourceAsStream("assets/create/shaders/basic.xml"); }
+            catch (IOException e) { xml = null; }
 
-            int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-            glShaderSource(fragmentShader, fragment);
-            glCompileShader(fragmentShader);
-
-            if (glGetShaderi(vertexShader, GL_COMPILE_STATUS) != GL_TRUE)
-                throw new RuntimeException(glGetShaderInfoLog(vertexShader));
-            if (glGetShaderi(fragmentShader, GL_COMPILE_STATUS) != GL_TRUE)
-                throw new RuntimeException(glGetShaderInfoLog(fragmentShader));
-
-            shaderProgram = glCreateProgram();
-            glAttachShader(shaderProgram, vertexShader);
-            glAttachShader(shaderProgram, fragmentShader);
-            glBindFragDataLocation(shaderProgram, 0, "fragColor");
-            glLinkProgram(shaderProgram);
-
-            if (glGetProgrami(shaderProgram, GL_LINK_STATUS) != GL_TRUE)
-                throw new RuntimeException(glGetProgramInfoLog(shaderProgram));
+            try { shaderProgram = new Shader(vertex, fragment, xml); }
+            catch (ShaderCompilationError ex) { IO.println(ex.getMessage()); return; }
         }
-        glUseProgram(shaderProgram);
+
 
         int posAttrib;
         int colAttrib;
@@ -218,31 +202,20 @@ public class Window {
             var floatSize = 4;
             vao = glGenVertexArrays();
             glBindVertexArray(vao);
-            posAttrib = glGetAttribLocation(shaderProgram, "position");
+            posAttrib = glGetAttribLocation(shaderProgram.getHandler(), "position");
             glEnableVertexAttribArray(posAttrib);
             glVertexAttribPointer(posAttrib, 3, GL_FLOAT, false, 6 * floatSize, 0);
 
-            colAttrib = glGetAttribLocation(shaderProgram, "color");
+            colAttrib = glGetAttribLocation(shaderProgram.getHandler(), "color");
             glEnableVertexAttribArray(colAttrib);
             glVertexAttribPointer(colAttrib, 3, GL_FLOAT, false, 6 * floatSize, 3 * floatSize);
         }
 
-        int uniModel;
-        int uniView;
-        int uniProjection;
         {
-            uniModel = glGetUniformLocation(shaderProgram, "model");
-            var model = new Matrix4f();
-            glUniformMatrix4fv(uniModel, false, model);
-
-            uniView = glGetUniformLocation(shaderProgram, "view");
-            var view = new Matrix4f();
-            glUniformMatrix4fv(uniView, false, view);
-
-            uniProjection = glGetUniformLocation(shaderProgram, "projection");
+            shaderProgram.setUniform("model", new Matrix4f());
+            shaderProgram.setUniform("view", new Matrix4f());
             float ratio = 640f / 480f;
-            var projection = new Matrix4f().setOrtho(-ratio, ratio, -1f, 1f, -1f, 1f);
-            glUniformMatrix4fv(uniProjection, false, projection);
+            shaderProgram.setUniform("projection", new Matrix4f().setOrtho(-ratio, ratio, -1f, 1f, -1f, 1f));
         }
 
         glfwSwapInterval(vSync ? 1 : 0);
@@ -255,7 +228,7 @@ public class Window {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             glBindVertexArray(vao);
-            glUseProgram(shaderProgram);
+            shaderProgram.use();
             glDrawArrays(GL_TRIANGLES, 0, 3);
 
             glfwSwapBuffers(window);
