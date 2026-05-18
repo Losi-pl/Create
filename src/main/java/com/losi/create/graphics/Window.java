@@ -1,7 +1,6 @@
 package com.losi.create.graphics;
 
 import com.losi.create.internal.GLErrorHandler;
-import com.losi.create.utility.CStreams;
 import com.losi.create.utility.ExpandedConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
@@ -295,8 +294,9 @@ public class Window {
         var pos = monitor.position();
         var work = monitor.workArea();
         glfwSetWindowPos(window,
-                pos.x() + (work.width() - size.x) / 2,
-                pos.y() + (work.height() - size.y) / 2);
+                pos.x() + (work.getWidth() - size.x) / 2,
+                pos.y() + (work.getHeight() - size.y) / 2);
+        work.release();
 
         if(icon != null)
             loadIcon(icon);

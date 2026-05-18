@@ -5,7 +5,10 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.system.MemoryStack;
 
+import java.nio.IntBuffer;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -57,18 +60,42 @@ public class Monitor
         return new Vector2i(monitorX[0], monitorY[0]);
     }
 
-    public record WorkArea(int x, int y, int width, int height) {
+    public static class WorkArea {
+        private int x, y, width, height;
+
+        public int getX() { return x; }
+        public int getY() { return y; }
+
+        public int getWidth() { return width; }
+        public int getHeight() { return height; }
+
         @Contract(value = " -> new", pure = true)
         public @NotNull Vector2i position() { return new Vector2i(x, y); }
         @Contract(value = " -> new", pure = true)
         public @NotNull Vector2i size() { return new Vector2i(width, height); }
+        static final ArrayDeque<WorkArea> pool = new ArrayDeque<>();
+        public static @NotNull WorkArea pull() {
+            synchronized (pool) { return pool.isEmpty() ? new WorkArea() : pool.pop(); }
+        }
+        public static @NotNull WorkArea pull(int x, int y, int width, int height) {
+            var obj = pull();
+            obj.x = x; obj.y = y; obj.width = width; obj.height = height;
+            return obj;
+        }
+        public void release() {
+            synchronized (pool) {pool.addLast(this); }
+        }
     }
     public WorkArea workArea()
     {
-        int[] posX = new int[1], posY = new int[1];
-        int[] workWidth = new int[1], workHeight = new int[1];
-        GLFW.glfwGetMonitorWorkarea(handler, posX, posY, workWidth, workHeight);
-        return new WorkArea(posX[0], posY[0], workWidth[0], workHeight[0]);
+        try (var stack = MemoryStack.stackPush())
+        {
+            IntBuffer posX = stack.mallocInt(1), posY = stack.mallocInt(1);
+            IntBuffer workWidth = stack.mallocInt(1), workHeight = stack.mallocInt(1);
+            GLFW.glfwGetMonitorWorkarea(handler, posX, posY, workWidth, workHeight);
+            return WorkArea.pull(posX.get(), posY.get(), workWidth.get(), workHeight.get());
+        }
+
     }
 
     public String name() {
