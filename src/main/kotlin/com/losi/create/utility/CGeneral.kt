@@ -30,14 +30,18 @@ fun translateGLTypes(type: Int): KClass<*>? = when(type) {
     GL_FLOAT -> Float::class
     GL_DOUBLE -> Double::class
 
-    //TODO: Bool Vectors
+    //TODO: GL_BOOL_VEC2 -> Vector2b::class
+    //TODO: GL_BOOL_VEC3 -> Vector3b::class
+    //TODO: GL_BOOL_VEC4 -> Vector4b::class
 
     //Int Vector
     GL_INT_VEC2 -> Vector2i::class
     GL_INT_VEC3 -> Vector3i::class
     GL_INT_VEC4 -> Vector4i::class
 
-    //TODO: UInt Vectors
+    //TODO: GL40.GL_UNSIGNED_INT_VEC2 -> Vector2ui::class
+    //TODO: GL40.GL_UNSIGNED_INT_VEC3 -> Vector3ui::class
+    //TODO: GL40.GL_UNSIGNED_INT_VEC4 -> Vector4ui::class
 
     //Float Vectors
     GL_FLOAT_VEC2 -> Vector2f::class
