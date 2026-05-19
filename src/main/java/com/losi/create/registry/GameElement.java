@@ -8,6 +8,7 @@ import org.jetbrains.annotations.*;
 import java.rmi.AccessException;
 import java.util.Optional;
 
+//TODO: Kotlinify
 public abstract class GameElement
 {
     private String name;

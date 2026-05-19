@@ -15,6 +15,7 @@ import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+//TODO: Kotlinify
 @SuppressWarnings("unused")
 public class Monitor
 {

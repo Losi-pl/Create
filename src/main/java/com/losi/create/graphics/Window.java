@@ -25,6 +25,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
+//TODO: Kotlinify
 @SuppressWarnings("unused")
 public class Window {
     private static final ThreadLocal<Window> currentWindow = new ThreadLocal<>();

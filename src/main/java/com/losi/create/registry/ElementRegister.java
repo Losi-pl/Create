@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
+//TODO: Kotlinify
 @SuppressWarnings("unused")
 public class ElementRegister<T extends GameElement>
 {
