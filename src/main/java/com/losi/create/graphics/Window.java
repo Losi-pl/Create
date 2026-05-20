@@ -8,7 +8,6 @@ import org.joml.Vector2i;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
 import javax.imageio.ImageIO;
