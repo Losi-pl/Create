@@ -5,6 +5,7 @@ import com.losi.create.utility.ExpandedConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Vector2i;
+import org.joml.Vector3f;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
@@ -168,20 +169,6 @@ public class Window {
         var timer = new Timer();
         long targetTime = 1000L / targetFPS;
 
-        int vbo;
-        int vao;
-        try (var stack = MemoryStack.stackPush()) {
-            var vertices = stack.mallocFloat(3 * 6);
-            vertices.put(-0.6f).put(-0.4f).put(0f).put(1f).put(0f).put(0f);
-            vertices.put( 0.6f).put(-0.4f).put(0f).put(0f).put(1f).put(0f);
-            vertices.put( 0f  ).put(0.6f).put(0f).put(0f).put(0f).put(1f);
-            vertices.flip();
-
-            vbo = glGenBuffers();
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
-            glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
-        }
-
         Shader shaderProgram;
         {
             InputStream vertex;
@@ -200,25 +187,21 @@ public class Window {
             catch (ShaderCompilationError ex) { IO.println(ex.getMessage()); return; }
         }
 
-        {
-            var floatSize = 4;
-            vao = glGenVertexArrays();
-            glBindVertexArray(vao);
-            var pos = shaderProgram.getAttributes().get("position");
-            glEnableVertexAttribArray(pos.getLocation());
-            glVertexAttribPointer(pos.getLocation(), 3, GL_FLOAT, false, 6 * floatSize, 0);
+        shaderProgram.setUniform("model", new Matrix4f());
+        shaderProgram.setUniform("view", new Matrix4f());
+        float ratio = 640f / 480f;
+        shaderProgram.setUniform("projection", new Matrix4f().setOrtho(-ratio, ratio, -1f, 1f, -1f, 1f));
 
-            var col = shaderProgram.getAttributes().get("color");
-            glEnableVertexAttribArray(col.getLocation());
-            glVertexAttribPointer(col.getLocation(), 3, GL_FLOAT, false, 6 * floatSize, 3 * floatSize);
-        }
-
-        {
-            shaderProgram.setUniform("model", new Matrix4f());
-            shaderProgram.setUniform("view", new Matrix4f());
-            float ratio = 640f / 480f;
-            shaderProgram.setUniform("projection", new Matrix4f().setOrtho(-ratio, ratio, -1f, 1f, -1f, 1f));
-        }
+        Mesh mesh = new Mesh(shaderProgram);
+        mesh.setAttribute("position", new Vector3f[]{
+                new Vector3f(-0.6f, -0.4f, 0f),
+                new Vector3f( 0.6f, -0.4f, 0f),
+                new Vector3f( 0f   , 0.6f, 0f)});
+        mesh.setAttribute("color", new Vector3f[]{
+                new Vector3f(1f, 0f, 0f),
+                new Vector3f(0f, 1f, 0f),
+                new Vector3f(0f, 0f, 1f)});
+        mesh.burnModel();
 
         glfwSwapInterval(vSync ? 1 : 0);
         while ( !glfwWindowShouldClose(window) ) {
@@ -229,9 +212,7 @@ public class Window {
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            glBindVertexArray(vao);
-            shaderProgram.use();
-            glDrawArrays(GL_TRIANGLES, 0, 3);
+            mesh.draw();
 
             glfwSwapBuffers(window);
             glfwPollEvents();

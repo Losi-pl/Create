@@ -18,5 +18,45 @@ fun Int?.orElse(els: Int) : Int {
         return els
     return this
 }
+inline fun <T: Comparable<T>> List<T>.assertEqual(negative: () -> T): T {
+    if(this.isEmpty())
+        return negative()
+    val c: T = this[0]
+    this.forEach { if(it.compareTo(c) != 0) return it }
+    return negative()
+}
+inline fun <T: Comparable<T>> Array<T>.assertEqual(negative: () -> T): T {
+    if(this.isEmpty())
+        return negative()
+    val c: T = this[0]
+    this.forEach { if(it.compareTo(c) != 0) return it }
+    return negative()
+}
+inline fun <T: Comparable<T>> Sequence<T>.assertEqual(negative: () -> T): T {
+    val it = this.iterator()
+    if(!it.hasNext())
+        return negative()
+    val c: T = it.next()
+    while (it.hasNext())
+        if(c.compareTo(it.next()) != 0)
+            return negative()
+    return c
+}
+fun <T> Sequence<T>.chunkedReuse(size: Int) = sequence {
+    require(size > 0) { "Chunk size must be positive" }
+    val buffer = mutableListOf<T>()
+    var i = 0
+    for (item in this@chunkedReuse) {
+        if (i == size) { yield(buffer); i = 0 }
 
+        if(buffer.size == i)
+            buffer.add(item)
+        else buffer[i] = item
+        ++i
+    }
+    if (i > 0) {
+        for(I in i until size)
+            buffer.removeLast()
+        yield(buffer)
+    }
 }

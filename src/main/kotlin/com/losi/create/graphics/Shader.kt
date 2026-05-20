@@ -101,13 +101,15 @@ class Shader {
     private fun loadAttributes(){
         val attributes = mutableListOf<Attribute>()
         MemoryStack.stackPush().use { stack ->
+            var offset = 0
             for(i in 0 until glGetProgrami(shaderProgram, GL_ACTIVE_ATTRIBUTES))
             {
                 val count = stack.mallocInt(1)
                 val type = stack.mallocInt(1)
                 val name = glGetActiveAttrib(shaderProgram, i, count, type)
                 val location = glGetAttribLocation(shaderProgram, name)
-                attributes.add(Attribute(name, location, count.get().toUInt(), type.get()))
+                attributes.add(Attribute(name, location, count.get().toUInt(), type.get(0), offset))
+                offset += baseGLTypeBytes(type.get(0))
             }
         }
         this._attributes = attributes.associateBy { it.name }.calcify()
@@ -131,7 +133,7 @@ class Shader {
     }
     //endregion
 
-    data class Attribute(val name: String, val location: Int, val count: UInt, val type: Int) {
+    data class Attribute(val name: String, val location: Int, val count: UInt, val type: Int, val offset: Int) {
         val classType: KClass<*>? get() = translateGLTypes(type)
     }
 }
