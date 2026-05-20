@@ -29,9 +29,9 @@ public class RegisterThreadSafeTest {
                 latch.countDown();
             });
         }
-        var rezult = latch.await(30, TimeUnit.SECONDS);
+        var result = latch.await(30, TimeUnit.SECONDS);
         executor.shutdown();
-        if(!rezult)
+        if(!result)
             fail("Timed out with: [" + element.count() + " / 10]");
         assertEquals(threadCount, element.count());
     }
