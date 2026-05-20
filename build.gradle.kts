@@ -144,7 +144,7 @@ tasks.register("createProperties") {
 }
 tasks.named("classes") { dependsOn(tasks.named("createProperties")) }
 tasks.compileJava {
-    options.forkOptions.jvmArgs = listOf("--enable-native-access=ALL-UNNAMED")
+    options.forkOptions.jvmArgs = listOf("--enable-native-access=ALL-UNNAMED", "--add-reads", "org.joml=kotlin.stdlib")
     options.compilerArgs.add("-Xlint:-incubating")
     options.compilerArgumentProviders.add(
         object : CommandLineArgumentProvider {
@@ -159,11 +159,11 @@ tasks.compileJava {
     )
 }
 
-tasks.test { useJUnitPlatform() }
+tasks.test { jvmArgs = listOf("--enable-native-access=ALL-UNNAMED"); useJUnitPlatform() }
 tasks.run { args = listOf("--version") }
 
 application {
-    applicationDefaultJvmArgs = listOf("--enable-native-access=org.lwjgl", "--enable-native-access=org.lwjgl.opengl")
+    applicationDefaultJvmArgs = listOf("--enable-native-access=org.lwjgl", "--enable-native-access=org.lwjgl.opengl", "--add-reads", "org.joml=kotlin.stdlib")
     mainClass = "com.losi.create.internal.Start"
     mainModule = "com.losi.create"
 }
