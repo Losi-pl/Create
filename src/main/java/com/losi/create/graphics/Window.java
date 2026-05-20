@@ -20,6 +20,7 @@ import java.lang.ref.Cleaner;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL30.*;
@@ -81,6 +82,9 @@ public class Window {
 
     public int targetFPS() { return targetFPS; }
     public int targetFPS(int _new) { targetFPS = _new; return targetFPS; }
+
+    public void registerLogic(Consumer<Float> logic)
+    { logicUpdate.add(logic); }
 
     private void initGL() {
         GLFWErrorCallback.createPrint(System.err).set();

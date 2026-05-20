@@ -3,6 +3,7 @@ package com.losi.create.internal;
 import com.losi.create.Version;
 import com.losi.create.graphics.Window;
 import com.losi.create.utility.CArrays;
+import com.losi.create.utility.OnMainThread;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -28,6 +29,7 @@ public class Start {
         window.title("Create: " + Version.getVersion());
         window.create();
         window.threadBind();
+        window.registerLogic(OnMainThread.INSTANCE::callAction$create);
         window.run();
 
         glfwTerminate();
