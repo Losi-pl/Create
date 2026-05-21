@@ -2,28 +2,32 @@ package com.losi.create
 
 object Version
 {
-    private var SteamworksServer: String = null!!
-    private var Create: String = null!!
-    private var JOML: String = null!!
-    private var JOMLPrimitives: String = null!!
+    private var SteamworksServer: String
+    private var Create: String
+    private var JOML: String
+    private var JOMLPrimitives: String
 
     init {
-        @Suppress("USELESS_ELVIS")
+        var steam: String? = null
+        var create: String? = null
+        var joml: String? = null
+        var jomlPrim: String? = null
+
         try {
             var stream = Version::class.java.module.getResourceAsStream("version.properties")
             var prop = java.util.Properties()
             prop.load(stream)
-            SteamworksServer = prop["steamworks4j-server-version"] as String
-            Create = prop["create-version"] as String
-            JOML = prop["joml-version"] as String
-            JOMLPrimitives = prop["joml-primitives-version"] as String
+            steam = prop["steamworks4j-server-version"] as String
+            create = prop["create-version"] as String
+            joml = prop["joml-version"] as String
+            jomlPrim = prop["joml-primitives-version"] as String
         }
-        catch (_: Exception) {
-            Create = Create ?: "unknown"
-            SteamworksServer = SteamworksServer ?: "unknown"
-            JOML = JOML ?: "unknown"
-            JOMLPrimitives = JOMLPrimitives ?: "unknown"
-        }
+        catch (_: Exception) { }
+
+        Create = create ?: "unknown"
+        SteamworksServer = steam ?: "unknown"
+        JOML = joml ?: "unknown"
+        JOMLPrimitives = jomlPrim ?: "unknown"
     }
 
     @JvmStatic
