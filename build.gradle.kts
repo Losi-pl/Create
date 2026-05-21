@@ -99,14 +99,14 @@ extraJavaModuleInfo {
     failOnMissingModuleInfo = false
     automaticModule("com.github.Querz:NBT", "nbt.querz")
     automaticModule("com.koloboke:koloboke-api-jdk8", "koloboke.api.jdk8")
-    module("org.jetbrains:annotations", "org.jetbrains.annotations") {
-        patchRealModule()
-        preserveExisting()
-        exports("org.jetbrains.annotations")
-    }
-    automaticModule("com.code-disaster.steamworks4j:steamworks4j", "steamworks4j") {
-        mergeJar("com.code-disaster.steamworks4j:steamworks4j-server")
-    }
+    module("org.jetbrains:annotations", "org.jetbrains.annotations")
+    { patchRealModule(); preserveExisting(); exports("org.jetbrains.annotations") }
+    automaticModule("com.code-disaster.steamworks4j:steamworks4j", "steamworks4j")
+    { mergeJar("com.code-disaster.steamworks4j:steamworks4j-server") }
+    module("org.jetbrains.kotlin:kotlin-stdlib", "kotlin.stdlib")
+    { patchRealModule(); preserveExisting() }
+    module("org.joml:joml", "org.joml")
+    { patchRealModule(); preserveExisting(); requires("kotlin.stdlib") }
 }
 kotlin { jvmToolchain(25) }
 java {
@@ -144,7 +144,7 @@ tasks.register("createProperties") {
 }
 tasks.named("classes") { dependsOn(tasks.named("createProperties")) }
 tasks.compileJava {
-    options.forkOptions.jvmArgs = listOf("--enable-native-access=ALL-UNNAMED", "--add-reads", "org.joml=kotlin.stdlib")
+    options.forkOptions.jvmArgs = listOf("--enable-native-access=ALL-UNNAMED")
     options.compilerArgs.add("-Xlint:-incubating")
     options.compilerArgumentProviders.add(
         object : CommandLineArgumentProvider {
@@ -163,7 +163,7 @@ tasks.test { jvmArgs = listOf("--enable-native-access=ALL-UNNAMED"); useJUnitPla
 tasks.run { args = listOf("--version") }
 
 application {
-    applicationDefaultJvmArgs = listOf("--enable-native-access=org.lwjgl", "--enable-native-access=org.lwjgl.opengl", "--add-reads", "org.joml=kotlin.stdlib")
+    applicationDefaultJvmArgs = listOf("--enable-native-access=org.lwjgl", "--enable-native-access=org.lwjgl.opengl")
     mainClass = "com.losi.create.internal.Start"
     mainModule = "com.losi.create"
 }
