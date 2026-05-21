@@ -29,8 +29,8 @@ class Mesh {
             else -> sequenceOf()
         }}
         private inline fun <reified T> Any?.aSequence(): Sequence<T> = this.let { when (it) {
-            is List<*> ->  it.asSequence().filterIsInstance<T>()
-            is Array<*> -> it.asSequence().filterIsInstance<T>()
+            is List<*> ->  it.assert<T>().asSequence()
+            is Array<*> -> it.assert<T>().asSequence()
             else -> sequenceOf()
         }}
 
