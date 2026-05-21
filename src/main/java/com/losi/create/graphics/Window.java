@@ -234,9 +234,9 @@ public class Window {
             glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
             if(monitor == null)
-                monitor = Monitor.list().getFirst();
+                monitor = Monitor.getList().getFirst();
             if(size == null)
-                size = new Vector2i(monitor.width() * 2 / 3, monitor.height() * 2 / 3);
+                size = new Vector2i(monitor.getWidth() * 2 / 3, monitor.getHeight() * 2 / 3);
 
             window = glfwCreateWindow(size.x, size.y, title == null ? "" : title, NULL, NULL);
             if ( window == NULL )
@@ -246,12 +246,11 @@ public class Window {
         final var handler = window;
         handleDestroyer = cleaner.register(this, () -> glfwDestroyWindow(handler));
         logicUpdate = new ExpandedConsumer<>();
-        var pos = monitor.position();
-        var work = monitor.workArea();
+        var pos = monitor.getPosition();
+        var work = monitor.getWorkArea();
         glfwSetWindowPos(window,
                 pos.x() + (work.getWidth() - size.x) / 2,
                 pos.y() + (work.getHeight() - size.y) / 2);
-        work.release();
 
         if(icon != null)
             loadIcon(icon);

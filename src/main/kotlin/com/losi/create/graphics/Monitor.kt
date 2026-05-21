@@ -1,123 +1,83 @@
-package com.losi.create.graphics;
+@file:Suppress("unused")
+package com.losi.create.graphics
 
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.joml.Vector2i;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.system.MemoryStack;
+import org.joml.Vector2i
+import org.lwjgl.glfw.GLFWVidMode
+import org.lwjgl.system.MemoryStack
+import org.lwjgl.glfw.GLFW.*
+import java.util.Collections
 
-import java.nio.IntBuffer;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import static org.lwjgl.glfw.GLFW.*;
-
-//TODO: Kotlinify
-@SuppressWarnings("unused")
-public class Monitor
+class Monitor
 {
-    private static List<Monitor> monitors = null;
-    private static List<Monitor> readOnlyMonitors = null;
-
-    private final long handler;
-    GLFWVidMode vidmode;
-    String name;
-
-    private Monitor(long handler)
+    companion object
     {
-        this.handler = handler;
+        var monitors: MutableList<Monitor>? = null
+        var readOnlyMonitors: List<Monitor>? = null
+
+        @JvmStatic val list: List<Monitor> get(){
+            if(readOnlyMonitors == null)
+                load()
+            return readOnlyMonitors!!
+        }
+        @JvmStatic private fun load() {
+            monitors = Collections.synchronizedList(mutableListOf())
+            readOnlyMonitors = Collections.unmodifiableList(monitors!!)
+            val monitors = glfwGetMonitors()!!
+            for (i in 0 until monitors.limit())
+                Monitor.monitors?.add(Monitor(monitors.get(i)))
+        }
     }
 
-    public static List<Monitor> list() {
-        if(readOnlyMonitors == null)
-            load();
-        return readOnlyMonitors;
-    }
+    private val _handler: Long
+    private var vidmode: GLFWVidMode? = null
+    private var _name: String? = null
 
-    public int width() {
+    private constructor( handler: Long) { _handler = handler; }
+
+    val width: Int get() {
         if(vidmode == null)
-            load_monitor();
-        return vidmode.width();
+            loadMonitor()
+        return vidmode!!.width()
     }
-
-    public int height() {
+    val height: Int get() {
         if(vidmode == null)
-            load_monitor();
-        return vidmode.height();
+            loadMonitor()
+        return vidmode!!.height()
     }
-
-    public int framerate() {
+    val framerate: Int get() {
         if(vidmode == null)
-            load_monitor();
-        return vidmode.refreshRate();
+            loadMonitor()
+        return vidmode!!.refreshRate()
     }
 
-    public Vector2i position() {
-        int[] monitorX = new int[1], monitorY = new int[1];
-        glfwGetMonitorPos(handler, monitorX, monitorY);
-        return new Vector2i(monitorX[0], monitorY[0]);
-    }
-
-    public static class WorkArea {
-        private int x, y, width, height;
-
-        public int getX() { return x; }
-        public int getY() { return y; }
-
-        public int getWidth() { return width; }
-        public int getHeight() { return height; }
-
-        @Contract(value = " -> new", pure = true)
-        public @NotNull Vector2i position() { return new Vector2i(x, y); }
-        @Contract(value = " -> new", pure = true)
-        public @NotNull Vector2i size() { return new Vector2i(width, height); }
-        static final ArrayDeque<WorkArea> pool = new ArrayDeque<>();
-        public static @NotNull WorkArea pull() {
-            synchronized (pool) { return pool.isEmpty() ? new WorkArea() : pool.pop(); }
-        }
-        public static @NotNull WorkArea pull(int x, int y, int width, int height) {
-            var obj = pull();
-            obj.x = x; obj.y = y; obj.width = width; obj.height = height;
-            return obj;
-        }
-        public void release() {
-            synchronized (pool) {pool.addLast(this); }
+    val position: Vector2i get() {
+        MemoryStack.stackPush().use { stack ->
+            val x = stack.mallocInt(1); val y = stack.mallocInt(1)
+            glfwGetMonitorPos(handler, x, y)
+            return Vector2i(x[0], y[0])
         }
     }
-    public WorkArea workArea()
-    {
-        try (var stack = MemoryStack.stackPush())
-        {
-            IntBuffer posX = stack.mallocInt(1), posY = stack.mallocInt(1);
-            IntBuffer workWidth = stack.mallocInt(1), workHeight = stack.mallocInt(1);
-            GLFW.glfwGetMonitorWorkarea(handler, posX, posY, workWidth, workHeight);
-            return WorkArea.pull(posX.get(), posY.get(), workWidth.get(), workHeight.get());
+    val workArea: WorkArea get() {
+        MemoryStack.stackPush().use { stack->
+            val x = stack.mallocInt(1); val width = stack.mallocInt(1)
+            val y = stack.mallocInt(1); val height = stack.mallocInt(1)
+            glfwGetMonitorWorkarea(handler, x, y, width, height)
+            return WorkArea(x[0], y[0], width[0], height[0])
         }
-
     }
 
-    public String name() {
-        if(name == null)
-            name = glfwGetMonitorName(handler);
-        return name;
+    val name: String get() {
+        if(_name == null)
+            _name = glfwGetMonitorName(handler)
+        return _name!!
     }
 
-    public long handler()
-    { return handler; }
+    val handler: Long get() { return _handler; }
 
-    private void load_monitor()
-    { vidmode = glfwGetVideoMode(handler); }
+    private fun loadMonitor() { vidmode = glfwGetVideoMode(handler); }
 
-    private static void load()
-    {
-        monitors = Collections.synchronizedList(new ArrayList<>());
-        readOnlyMonitors = Collections.unmodifiableList(monitors);
-        var monitors = glfwGetMonitors();
-        assert monitors != null;
-        for (int i = 0; i < monitors.limit(); i++)
-            Monitor.monitors.add(new Monitor(monitors.get(i)));
+    data class WorkArea(val x: Int, val y: Int, val width: Int, val height: Int) {
+        val position: Vector2i get() = Vector2i(x, y)
+        val size: Vector2i get() = Vector2i(width, height)
     }
 }
