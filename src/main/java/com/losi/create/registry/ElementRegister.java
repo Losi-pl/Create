@@ -1,7 +1,6 @@
 package com.losi.create.registry;
 
 import com.koloboke.collect.map.hash.HashObjObjMaps;
-import com.losi.create.internal.InternalGameElement;
 import com.losi.create.internal.InternalToken;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,13 +16,10 @@ public class ElementRegister<T extends GameElement>
     private transient final Map<Integer, T> elements_by_id = null;
     private transient final Object sync = new Object();
 
-    //private Immutable
-
     public void register(@NotNull T element, @NotNull String name)
     {
         var token = new InternalToken(InternalToken.projectToken);
-        var elemInt = InternalGameElement.of(element);
-        elemInt.SetName(name);
+        element.setName$create(name);
         synchronized (sync)
         {
             if(elements_by_name_raw.putIfAbsent(name, element) != null)
