@@ -8,16 +8,17 @@ object Version
     private var JOMLPrimitives: String = null!!
 
     init {
+        @Suppress("USELESS_ELVIS")
         try {
             var stream = Version::class.java.module.getResourceAsStream("version.properties")
             var prop = java.util.Properties()
-            prop.load(stream);
+            prop.load(stream)
             SteamworksServer = prop["steamworks4j-server-version"] as String
             Create = prop["create-version"] as String
             JOML = prop["joml-version"] as String
             JOMLPrimitives = prop["joml-primitives-version"] as String
         }
-        catch (e: Exception) {
+        catch (_: Exception) {
             Create = Create ?: "unknown"
             SteamworksServer = SteamworksServer ?: "unknown"
             JOML = JOML ?: "unknown"
@@ -33,7 +34,7 @@ object Version
     val JOMLVersion: String get() {
         try
         {
-            val pack = org.joml.Math::class.java.`package`;
+            val pack = org.joml.Math::class.java.`package`
             return pack.implementationVersion ?: JOML
         }
         catch (_: Exception)
