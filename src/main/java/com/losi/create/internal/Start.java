@@ -17,11 +17,11 @@ public class Start {
         if(CArrays.findAny(args, "--Version", true))
         {
             IO.println("Create: " + Version.getVersion());
-            IO.println("LWJGL: " + Version.GetLWJGLVersion());
-            IO.println("JOML: " + Version.GetJOMLVersion());
-            IO.println("JOML Primitives: " + Version.GetJOMLPrimVersion());
-            IO.println("Steamworks: " + Version.GetSteamworksVersion());
-            IO.println("Steamworks Server: " + Version.GetSteamworksServerVersion());
+            IO.println("LWJGL: " + Version.getLWJGLVersion());
+            IO.println("JOML: " + Version.getJOMLVersion());
+            IO.println("JOML Primitives: " + Version.getJOMLPrimVersion());
+            IO.println("Steamworks: " + Version.getSteamworksVersion());
+            IO.println("Steamworks Server: " + Version.getSteamworksServerVersion());
         }
 
         var window = new Window();

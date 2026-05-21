@@ -1,66 +1,56 @@
-package com.losi.create;
+package com.losi.create
 
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Properties;
-
-public class Version
+object Version
 {
-    private static String SteamworksServer = null, Create = null, JOML = null, JOMLPrimitives;
-    static
-    {
-        try
-        {
-            var stream = Version.class.getModule().getResourceAsStream("version.properties");
-            var prop = new Properties();
+    private var SteamworksServer: String = null!!
+    private var Create: String = null!!
+    private var JOML: String = null!!
+    private var JOMLPrimitives: String = null!!
+
+    init {
+        try {
+            var stream = Version::class.java.module.getResourceAsStream("version.properties")
+            var prop = java.util.Properties()
             prop.load(stream);
-            SteamworksServer = (String) prop.get("steamworks4j-server-version");
-            Create = (String) prop.get("create-version");
-            JOML = (String) prop.get("joml-version");
-            JOMLPrimitives = (String) prop.get("joml-primitives-version");
+            SteamworksServer = prop["steamworks4j-server-version"] as String
+            Create = prop["create-version"] as String
+            JOML = prop["joml-version"] as String
+            JOMLPrimitives = prop["joml-primitives-version"] as String
         }
-        catch (Exception e)
-        {
-            if(SteamworksServer == null)
-                SteamworksServer = "unknown";
-            if(Create == null)
-                Create = "unknown";
-            if(JOML == null)
-                JOML = "unknown";
-            if(JOMLPrimitives == null)
-                JOMLPrimitives = "unknown";
+        catch (e: Exception) {
+            Create = Create ?: "unknown"
+            SteamworksServer = SteamworksServer ?: "unknown"
+            JOML = JOML ?: "unknown"
+            JOMLPrimitives = JOMLPrimitives ?: "unknown"
         }
     }
 
-    @NotNull @Contract(pure = true)
-    public static String getVersion() { return Create; }
-    @NotNull @Contract(pure = true)
-    public static String GetLWJGLVersion() { return org.lwjgl.Version.getVersion(); }
-    @NotNull @Contract(pure = true)
-    public static String GetJOMLVersion() {
+    @JvmStatic
+    val version: String get() = Create
+    @JvmStatic
+    val LWJGLVersion: String get() = org.lwjgl.Version.getVersion()
+    @JvmStatic
+    val JOMLVersion: String get() {
         try
         {
-            var pack = org.joml.Math.class.getPackage();
-            var var = pack.getImplementationVersion();
-            return var == null ? JOML : var;
+            val pack = org.joml.Math::class.java.`package`;
+            return pack.implementationVersion ?: JOML
         }
-        catch (Exception e)
-        { return "error"; }
+        catch (_: Exception)
+        { return "error" }
     }
-    @NotNull @Contract(pure = true)
-    public static String GetJOMLPrimVersion() {
+    @JvmStatic
+    val JOMLPrimVersion: String get() {
         try
         {
-            var pack = org.joml.primitives.Rayf.class.getPackage();
-            var var = pack.getImplementationVersion();
-            return var == null ? JOMLPrimitives : var;
+            val pack = org.joml.primitives.Rayf::class.java.`package`
+            return pack.implementationVersion ?: JOMLPrimitives
         }
-        catch (Exception e)
+        catch (_: Exception)
         { return "error"; }
     }
-    @NotNull @Contract(pure = true)
-    public static String GetSteamworksVersion() { return com.codedisaster.steamworks.Version.getVersion(); }
-    @NotNull @Contract(pure = true)
-    public static String GetSteamworksServerVersion() { return SteamworksServer; }
+    @JvmStatic
+    val SteamworksVersion: String get() = com.codedisaster.steamworks.Version.getVersion()
+    @JvmStatic
+    val SteamworksServerVersion: String get() = SteamworksServer
 }
