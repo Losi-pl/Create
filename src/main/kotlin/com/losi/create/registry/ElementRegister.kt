@@ -1,50 +1,43 @@
-package com.losi.create.registry;
+@file:Suppress("unused")
+package com.losi.create.registry
 
-import com.koloboke.collect.map.hash.HashObjObjMaps;
-import com.losi.create.internal.InternalToken;
-import org.jetbrains.annotations.NotNull;
+import com.koloboke.collect.map.hash.HashObjObjMaps
+import java.util.HashMap
 
-import java.util.HashMap;
-import java.util.Map;
-
-//TODO: Kotlinify
-@SuppressWarnings("unused")
-public class ElementRegister<T extends GameElement>
+//TODO: Make more asynchronous
+class ElementRegister<T: GameElement>
 {
-    private transient Map<String, T> elements_by_name_raw = new HashMap<>();
-    private transient Map<String, T> elements_by_name = null;
-    private transient final Map<Integer, T> elements_by_id = null;
-    private transient final Object sync = new Object();
+    private var elements_by_name_raw: HashMap<String, T>? = HashMap<String, T>()
+    private var elements_by_name: Map<String, T>? = null
 
-    public void register(@NotNull T element, @NotNull String name)
+    private var elements_by_id: Map<ULong, T>? = null
+    private val sync = Any()
+
+    fun register(element: T, name: String) = synchronized (sync)
     {
-        var token = new InternalToken(InternalToken.projectToken);
-        element.setName$create(name);
-        synchronized (sync)
-        {
-            if(elements_by_name_raw.putIfAbsent(name, element) != null)
-                throw new IllegalArgumentException("Element \"" + name + "\" already exists");
-        }
+        if(elements_by_name_raw == null)
+            throw RuntimeException("Register has been closed")
+
+        element.name = name
+        if(elements_by_name_raw?.putIfAbsent(name, element) != null)
+            throw IllegalArgumentException("Element \"$name\" already exists")
     }
 
-    public T retrieve(@NotNull String name)
-    { synchronized (sync) { return elements_by_name_raw != null ? elements_by_name_raw.get(name) : elements_by_name.get(name); } }
+    fun retrieve(name: String): T = synchronized (sync)
+    { (elements_by_name ?: elements_by_name_raw ?: throw IllegalArgumentException("Element \"$name\" does not exist"))[name] as T }
 
-    public boolean completed()
-    { return elements_by_name != null; }
+    fun completed() = elements_by_name != null
 
-    void complete()
+    internal fun complete(): Unit = synchronized (sync)
     {
-        synchronized (sync)
-        {
-            if(completed())
-                return;
+        if(completed())
+            return
 
-            elements_by_name = HashObjObjMaps.newImmutableMap(elements_by_name_raw);
-            elements_by_name_raw = null;
-        }
+        elements_by_name = HashObjObjMaps.newImmutableMap(elements_by_name_raw!!)
+        elements_by_name_raw = null
     }
 
-    public int count()
-    { return elements_by_name_raw != null ? elements_by_name_raw.size() : elements_by_name.size(); }
+
+    val count: Int get() = synchronized(sync)
+    { (elements_by_name ?: elements_by_name_raw ?: throw RuntimeException("Register is null")).size }
 }
