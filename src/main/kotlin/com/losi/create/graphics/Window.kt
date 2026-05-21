@@ -136,7 +136,6 @@ class Window {
         size?.x = width; size?.y = height
     }
 
-    @Suppress("BusyWait", "ConstantConditions")
     fun run() {
         glfwShowWindow(window)
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
@@ -225,11 +224,11 @@ class Window {
                 glfwSetWindowShouldClose(wind, true); // We will detect this in the rendering loop
         });*/
     }
-    @Suppress("unused")
-    fun close() {
+    @Suppress("unused") fun close() {
         if (window != NULL)
             glfwWindowShouldClose(window)
     }
+    @Suppress("unused") fun destroy() = handleDestroyer.clean()
     fun threadBind() = synchronized (currentWindow)
     {
         if(threadBound)
