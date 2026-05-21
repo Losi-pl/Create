@@ -93,7 +93,10 @@ dependencies {
     listOf("core", "metadata", "bmp", "dds", "hdr", "icns", "iff", "jpeg", "pcx", "pict", "pnm", "psd", "sgi", "tga", "thumbsdb", "tiff", "webp", "xwd").forEach {
         implementation("com.twelvemonkeys.imageio:imageio-$it:$twelvemonkeysVersion")
     }
+
+    // =================== Kotlin ===================
     implementation(kotlin("stdlib"))
+    implementation(kotlin("reflect"))
 }
 extraJavaModuleInfo {
     failOnMissingModuleInfo = false
@@ -103,8 +106,6 @@ extraJavaModuleInfo {
     { patchRealModule(); preserveExisting(); exports("org.jetbrains.annotations") }
     automaticModule("com.code-disaster.steamworks4j:steamworks4j", "steamworks4j")
     { mergeJar("com.code-disaster.steamworks4j:steamworks4j-server") }
-    module("org.jetbrains.kotlin:kotlin-stdlib", "kotlin.stdlib")
-    { patchRealModule(); preserveExisting() }
     module("org.joml:joml", "org.joml")
     { patchRealModule(); preserveExisting(); requires("kotlin.stdlib") }
 }
