@@ -1,3 +1,4 @@
+@file:Suppress("unused")
 package com.losi.create.graphics
 
 import com.losi.create.utility.CShaderUniforms.*
@@ -12,7 +13,6 @@ import java.io.InputStream
 import org.w3c.dom.Node
 import org.joml.*
 
-@Suppress("unused")
 class Shader {
     private var shaderProgram: Int = 0
     private var vertexShader: Int = 0
