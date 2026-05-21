@@ -25,8 +25,8 @@ public class Start {
         }
 
         var window = new Window();
-        try { window.icon(Version.class.getModule().getResourceAsStream("Icon.ico")); } catch (IOException ignored) { }
-        window.title("Create: " + Version.getVersion());
+        try { window.setIcon(Version.class.getModule().getResourceAsStream("Icon.ico")); } catch (IOException ignored) { }
+        window.setTitle("Create: " + Version.getVersion());
         window.create();
         window.threadBind();
         window.registerLogic(OnMainThread.INSTANCE::callAction$create);

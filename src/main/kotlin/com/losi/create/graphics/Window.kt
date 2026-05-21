@@ -1,305 +1,262 @@
-package com.losi.create.graphics;
+package com.losi.create.graphics
 
-import com.losi.create.internal.GLErrorHandler;
-import com.losi.create.utility.ExpandedConsumer;
-import org.jetbrains.annotations.NotNull;
-import org.joml.Matrix4f;
-import org.joml.Vector2i;
-import org.joml.Vector3f;
-import org.lwjgl.glfw.*;
-import org.lwjgl.opengl.GL;
-import org.lwjgl.system.MemoryUtil;
+import com.losi.create.internal.GLErrorHandler
+import com.losi.create.utility.ExpandedConsumer
+import org.joml.*
+import org.lwjgl.glfw.*
+import org.lwjgl.opengl.GL
+import org.lwjgl.system.MemoryUtil
+import java.awt.*
+import java.awt.image.*
+import java.io.*
+import java.lang.ref.Cleaner
+import java.nio.*
+import java.util.ArrayList
+import org.lwjgl.glfw.GLFW.*
+import org.lwjgl.opengl.GL30.*
+import org.lwjgl.system.MemoryUtil.*
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.ref.Cleaner;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.function.Consumer;
+class Window {
+    companion object
+    {
+        private var currentWindow = ThreadLocal<Window>()
+        private var cleaner = Cleaner.create()
+        private var initialized = false
+        private var ICON_SIZES = listOf(16, 32, 48, 64, 128, 256)
 
-import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL30.*;
-import static org.lwjgl.system.MemoryUtil.*;
+        private fun scaleImage(image: BufferedImage, size: Int): BufferedImage {
+            if(image.width == size && image.height == size)
+                return image
+            val scaled = image.getScaledInstance(size, size, Image.SCALE_SMOOTH)
+            val result = BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB)
+            val graphic = result.createGraphics()
+            graphic.drawImage(scaled, 0, 0, null)
+            graphic.dispose()
+            return result
+        }
+    }
 
-//TODO: Kotlinify
-@SuppressWarnings("unused")
-public class Window {
-    private static final ThreadLocal<Window> currentWindow = new ThreadLocal<>();
-    private static final Cleaner cleaner = Cleaner.create();
-    private static boolean initialized = false;
+    private val sync = Any()
+    private var window: Long = NULL
+    @Suppress("FieldCanBeLocal") @Transient
+    private lateinit var handleDestroyer: Cleaner.Cleanable
+    private var threadBound = false
+    private var _title: String? = null
+    private var size: Vector2i? = null
+    private var monitor: Monitor? = null
+    private var _vSync = false
+    private var _icon: InputStream? = null
+    private var _targetFPS = 60
+    private val logicUpdate = ExpandedConsumer<Float>()
 
-    private static final int[] ICON_SIZES = {16, 32, 48, 64, 128, 256};
-
-    private transient final Object sync = new Object();
-    private transient volatile long window = NULL;
-    @SuppressWarnings({"FieldCanBeLocal"})
-    private transient Cleaner.Cleanable handleDestroyer;
-    private volatile boolean thread_bound = false;
-    private volatile String title = null;
-    private volatile Vector2i size = null;
-    private volatile Monitor monitor = null;
-    private volatile boolean vSync = false;
-    private volatile InputStream icon;
-    private volatile int targetFPS = 60;
-    private volatile ExpandedConsumer<Float> logicUpdate;
-
-    public Window()
+    constructor()
     {
         synchronized (currentWindow)
         {
             if(!initialized)
-                initGL();
-            initialized = true;
+                initGL()
+            initialized = true
         }
     }
 
-    public String title() { return title; }
-    public String title(String _new) {
-        title = _new;
+    var title: String? get() { return _title; }
+    set(it) {
+        _title = it
         if(window != NULL)
-            glfwSetWindowTitle(window, title == null ? "" : title);
-        return title;
+            glfwSetWindowTitle(window, _title ?: "")
     }
 
-    public boolean vSync() { return vSync; }
-    public boolean vSync(boolean _new) { vSync = _new; return vSync; }
+    var vSync: Boolean get() = _vSync
+    set(it) { _vSync = it }
 
-    public InputStream icon() { return icon; }
-    public InputStream icon(InputStream _new) {
-        synchronized (sync)
-        {
-            icon = _new;
-            if(icon != null && window != NULL)
-                loadIcon(icon);
-            return icon;
-        }
+    var icon: InputStream? get() = _icon
+    set(it) = synchronized (sync)
+    {
+        _icon = it
+        if(_icon != null && window != NULL)
+            loadIcon(_icon!!)
     }
 
-    public int targetFPS() { return targetFPS; }
-    public int targetFPS(int _new) { targetFPS = _new; return targetFPS; }
+    var targetFPS: Int get() = _targetFPS
+    set(it) { _targetFPS = it }
 
-    public void registerLogic(Consumer<Float> logic)
+    fun registerLogic(logic: java.util.function.Consumer<Float>)
     { logicUpdate.add(logic); }
 
-    private void initGL() {
-        GLFWErrorCallback.createPrint(System.err).set();
-        if ( !glfwInit() ) throw new IllegalStateException("Unable to initialize GLFW");
+    private fun initGL() {
+        GLFWErrorCallback.createPrint(System.err).set()
+        if ( !glfwInit() ) throw IllegalStateException("Unable to initialize GLFW")
     }
-    private void loadIcon(@NotNull InputStream icon) {
-        BufferedImage image;
-        try { image = ImageIO.read(icon); }
-        catch (IOException e) { throw  new RuntimeException("Unable to parse icon", e); }
-        if(image == null)
-            throw  new RuntimeException("Unable to parse icon");
-
-        var buffers = new ArrayList<ByteBuffer>();
+    private fun loadIcon(icon: InputStream) {
+        val image = javax.imageio.ImageIO.read(icon) ?: throw RuntimeException("Unable to parse icon")
+        val buffers = ArrayList<ByteBuffer>()
         try
         {
-            for (var SIZE : ICON_SIZES) {
-                if(SIZE > image.getWidth() || SIZE > image.getHeight())
-                    continue;
+            @Suppress("LocalVariableName")
+            ICON_SIZES.forEach { SIZE->
+                if(SIZE > image.width || SIZE > image.height)
+                    return@forEach
 
-                var pixBuff = (DataBufferInt)scaleImage(image, SIZE).getRaster().getDataBuffer();
+                val pixBuff = scaleImage(image, SIZE).raster.dataBuffer as DataBufferInt
+                val buffer = memAlloc(SIZE * SIZE * 4)
+                buffers.add(buffer)
+                buffer.order(ByteOrder.nativeOrder())
 
-                ByteBuffer buffer = memAlloc(SIZE * SIZE * 4);
-                buffers.add(buffer);
-                buffer.order(ByteOrder.nativeOrder());
-
-                for (var pixel: pixBuff.getData())
-                {
-                    buffer.put((byte) (pixel & 0xFF));          //R
-                    buffer.put((byte) ((pixel >> 8) & 0xFF));   //G
-                    buffer.put((byte) ((pixel >> 16) & 0xFF));  //B
-                    buffer.put((byte) ((pixel >> 24) & 0xFF));  //A
+                pixBuff.data.forEach {
+                    buffer.put((it and 0xFF).toByte())         //R
+                    buffer.put(((it shr 8) and 0xFF).toByte()) //G
+                    buffer.put(((it shr 16) and 0xFF).toByte())//B
+                    buffer.put(((it shr 24) and 0xFF).toByte())//A
                 }
-                buffer.flip();
+                buffer.flip()
             }
-            var images = new ArrayList<GLFWImage>();
+            val images = ArrayList<GLFWImage>()
             try
             {
-                for (var buffer: buffers)
-                {
-                    var img = GLFWImage.malloc();
-                    images.add(img);
-                    var size = (int)Math.sqrt((double) buffer.capacity() / 4);
-                    img.set(size, size, buffer);
+                buffers.forEach { buffer->
+                    val img = GLFWImage.malloc()
+                    images.add(img)
+                    val size = Math.sqrt(buffer.capacity().toDouble() / 4).toInt()
+                    img.set(size, size, buffer)
                 }
 
-                try (var set = GLFWImage.malloc(buffers.size()))
-                {
-                    for (int i = 0; i < buffers.size(); i++)
-                        set.put(i, images.get(i));
-                    glfwSetWindowIcon(window, set);
+                GLFWImage.malloc(buffers.size).use { set->
+                    for (i in buffers.indices)
+                        set.put(i, images[i])
+                    glfwSetWindowIcon(window, set)
                 }
             }
-            finally {
-                images.forEach(GLFWImage::free);
-            }
+            finally { images.forEach { it.free() }}
         }
-        finally {
-            buffers.forEach(MemoryUtil::memFree);
-        }
-    }
-    private static @NotNull BufferedImage scaleImage(@NotNull BufferedImage image, int size) {
-        if(image.getWidth() == size && image.getHeight() == size)
-            return image;
-        var scaled = image.getScaledInstance(size, size, Image.SCALE_SMOOTH);
-        var result = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
-        var graphic = result.createGraphics();
-        graphic.drawImage(scaled, 0, 0, null);
-        graphic.dispose();
-        return result;
-    }
-    private void onResize(int width, int height) {
-        glViewport(0, 0, width, height);
-        size.x = width; size.y = height;
+        finally { buffers.forEach { MemoryUtil.memFree(it) }}
     }
 
-    @SuppressWarnings({"BusyWait", "ConstantConditions"})
-    public void run() {
-        glfwShowWindow(window);
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    private fun onResize(width: Int, height: Int) {
+        glViewport(0, 0, width, height)
+        size?.x = width; size?.y = height
+    }
 
-        var timer = new Timer();
-        long targetTime = 1000L / targetFPS;
+    @Suppress("BusyWait", "ConstantConditions")
+    fun run() {
+        glfwShowWindow(window)
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
 
-        Shader shaderProgram;
-        {
-            InputStream vertex;
-            try { vertex = Window.class.getModule().getResourceAsStream("assets/create/shaders/basic.vert"); }
-            catch (IOException e) { vertex = null; }
+        val timer = Timer()
+        val targetTime = 1000L / targetFPS
 
-            InputStream fragment;
-            try { fragment = Window.class.getModule().getResourceAsStream("assets/create/shaders/basic.frag"); }
-            catch (IOException e) { fragment = null; }
+        val shaderProgram = run {
+            val vertex = Window::class.java.module.getResourceAsStream("assets/create/shaders/basic.vert") ?: throw IOException("Unable to open shaders")
+            val fragment = Window::class.java.module.getResourceAsStream("assets/create/shaders/basic.frag") ?: throw IOException("Unable to open shaders")
+            val xml = Window::class.java.module.getResourceAsStream("assets/create/shaders/basic.xml") ?: throw IOException("Unable to open shaders")
 
-            InputStream xml;
-            try { xml = Window.class.getModule().getResourceAsStream("assets/create/shaders/basic.xml"); }
-            catch (IOException e) { xml = null; }
-
-            try { shaderProgram = new Shader(vertex, fragment, xml); }
-            catch (ShaderCompilationError ex) { IO.println(ex.getMessage()); return; }
+            Shader(vertex, fragment, xml)
         }
 
-        shaderProgram.setUniform("model", new Matrix4f());
-        shaderProgram.setUniform("view", new Matrix4f());
-        float ratio = 640f / 480f;
-        shaderProgram.setUniform("projection", new Matrix4f().setOrtho(-ratio, ratio, -1f, 1f, -1f, 1f));
+        shaderProgram.setUniform("model", Matrix4f())
+        shaderProgram.setUniform("view", Matrix4f())
 
-        Mesh mesh = new Mesh(shaderProgram);
-        mesh.setAttribute("position", new Vector3f[]{
-                new Vector3f(-0.6f, -0.4f, 0f),
-                new Vector3f( 0.6f, -0.4f, 0f),
-                new Vector3f( 0f   , 0.6f, 0f)});
-        mesh.setAttribute("color", new Vector3f[]{
-                new Vector3f(1f, 0f, 0f),
-                new Vector3f(0f, 1f, 0f),
-                new Vector3f(0f, 0f, 1f)});
-        mesh.burnModel();
+        val ratio = 640f / 480f
+        shaderProgram.setUniform("projection", Matrix4f().setOrtho(-ratio, ratio, -1f, 1f, -1f, 1f))
 
-        glfwSwapInterval(vSync ? 1 : 0);
-        while ( !glfwWindowShouldClose(window) ) {
-            var startTime = timer.getLongTime();
-            float delta = timer.getDelta();
+        val mesh = Mesh(shaderProgram)
+        mesh.setAttribute("position", arrayOf(
+                Vector3f(-0.6f, -0.4f, 0f),
+                Vector3f( 0.6f, -0.4f, 0f),
+                Vector3f( 0f  ,  0.6f, 0f)))
+        mesh.setAttribute("color", arrayOf(
+                Vector3f(1f, 0f, 0f),
+                Vector3f(0f, 1f, 0f),
+                Vector3f(0f, 0f, 1f)))
+        mesh.burnModel()
 
-            logicUpdate.accept(delta);
+        glfwSwapInterval(if(vSync) 1 else 0)
+        timer.init()
+        while (!glfwWindowShouldClose(window)) {
+            val startTime = timer.longTime
+            val delta = timer.delta
 
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            logicUpdate.accept(delta)
 
-            mesh.draw();
+            glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
 
-            glfwSwapBuffers(window);
-            glfwPollEvents();
+            mesh.draw()
 
-            var endTime = timer.getLongTime();
-            var timeOut = startTime + targetTime - endTime;
+            glfwSwapBuffers(window)
+            glfwPollEvents()
+
+            val endTime = timer.longTime
+            val timeOut = startTime + targetTime - endTime
             if(timeOut > 0)
-                try { Thread.sleep(timeOut); }
-                catch (InterruptedException ignored) { }
+                Thread.sleep(timeOut)
         }
     }
-    public void create() {
-        synchronized (sync)
-        {
+
+    fun create() {
+        @Suppress("USELESS_ELVIS")
+        synchronized (sync) {
             if(window != NULL)
-                return;
+                return
 
-            glfwDefaultWindowHints();
-            glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-            glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+            glfwDefaultWindowHints()
+            glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE)
+            glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE)
 
-            if(monitor == null)
-                monitor = Monitor.getList().getFirst();
-            if(size == null)
-                size = new Vector2i(monitor.getWidth() * 2 / 3, monitor.getHeight() * 2 / 3);
+            monitor = monitor ?: Monitor.list.first()
+            size = size ?: Vector2i(monitor!!.width * 2 / 3, monitor!!.height * 2 / 3)
 
-            window = glfwCreateWindow(size.x, size.y, title == null ? "" : title, NULL, NULL);
+            window = glfwCreateWindow(size!!.x, size!!.y, _title ?: "", NULL, NULL)
             if ( window == NULL )
-                throw new RuntimeException("Failed to create the GLFW window");
+                throw RuntimeException("Failed to create the GLFW window")
         }
 
-        final var handler = window;
-        handleDestroyer = cleaner.register(this, () -> glfwDestroyWindow(handler));
-        logicUpdate = new ExpandedConsumer<>();
-        var pos = monitor.getPosition();
-        var work = monitor.getWorkArea();
-        glfwSetWindowPos(window,
-                pos.x() + (work.getWidth() - size.x) / 2,
-                pos.y() + (work.getHeight() - size.y) / 2);
+        val handler = window
+        handleDestroyer = cleaner.register(this) { glfwDestroyWindow(handler) }
+        val pos = monitor?.position ?: Vector2i(0, 0)
+        val work = monitor!!.workArea
+        glfwSetWindowPos(window, pos.x() + (work.width - size!!.x) / 2, pos.y() + (work.height - size!!.y) / 2)
 
-        if(icon != null)
-            loadIcon(icon);
+        icon?.let { loadIcon(it) }
 
-        glfwSetFramebufferSizeCallback(window ,(window, width, height) -> this.onResize(width, height));
+        glfwSetFramebufferSizeCallback(window) {_, width, height ->
+            this.onResize(width, height)
+        }
         /*// glfwSetKeyCallback(window, (wind, key, scancode, action, mods) -> {
             if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
                 glfwSetWindowShouldClose(wind, true); // We will detect this in the rendering loop
         });*/
     }
-    public void close() {
+    @Suppress("unused")
+    fun close() {
         if (window != NULL)
-            glfwWindowShouldClose(window);
+            glfwWindowShouldClose(window)
     }
-    public void threadBind() {
-        synchronized (currentWindow)
-        {
-            if(thread_bound)
-                throw new IllegalStateException("Window is already bound to a Thread");
-            if(currentWindow.get() != null)
-                throw new IllegalStateException("Thread is already bound to a Window");
-            if(window == NULL)
-                throw new IllegalStateException("The window was not yet created");
-            currentWindow.set(this);
-            glfwMakeContextCurrent(window);
-            GL.createCapabilities();
-            glViewport(0, 0, size.x, size.y);
-            GLErrorHandler.bindErrorCather();
+    fun threadBind() = synchronized (currentWindow)
+    {
+        if(threadBound)
+            throw IllegalStateException("Window is already bound to a Thread")
+        if(currentWindow.get() != null)
+            throw IllegalStateException("Thread is already bound to a Window")
+        if(window == NULL)
+            throw IllegalStateException("The window was not yet created")
+        currentWindow.set(this)
+        glfwMakeContextCurrent(window)
+        GL.createCapabilities()
+        glViewport(0, 0, size!!.x, size!!.y)
+        GLErrorHandler.bindErrorCather()
 
-            thread_bound = true;
-        }
+        threadBound = true
     }
 
-
-
-    static class Timer{
-        double lastLoopTime;
-        float timeCount;
-
-        public double getTime() { return glfwGetTime(); }
-        public long getLongTime(){ return (long)getTime() * 1000; }
-        public void init() { lastLoopTime = getTime(); }
-        public float getDelta() {
-            double time = getTime();
-            float delta = (float) (time - lastLoopTime);
-            lastLoopTime = time;
-            timeCount += delta;
-            return delta;
+    private data class Timer (private var lastLoopTime: Double = .0, private var timeCount: Float = 0f) {
+        val time: Double get() = glfwGetTime()
+        val longTime get() = time.toLong() * 1000
+        fun init() { lastLoopTime = time }
+        val delta: Float get() {
+            val time = time
+            val delta = (time - lastLoopTime).toFloat()
+            lastLoopTime = time
+            timeCount += delta
+            return delta
         }
-
     }
 }
