@@ -54,7 +54,6 @@ class Mesh {
     private val glBinds: GLBinds = GLBinds(0, 0, false)
     private val shader: Shader
     private val variables: MutableMap<Shader.Attribute, Any?>
-    private val sync: Any = Any()
     private var vertexCount = 0
 
     init {
@@ -68,8 +67,8 @@ class Mesh {
             .associateWithTo(mutableMapOf()) { null }
     }
 
-    fun flushBuffers() = synchronized(sync) { variables.keys.forEach { variables[it] = null }}
-    fun draw(): Unit = synchronized(sync) {
+    fun flushBuffers() = synchronized(glBinds) { variables.keys.forEach { variables[it] = null }}
+    fun draw(): Unit = synchronized(glBinds) {
         if(!glBinds.burned)
             return
 
@@ -80,7 +79,7 @@ class Mesh {
 
     private fun findAttr(name: String) = shader.attributes[name].orElse { throw IllegalArgumentException("Attribute \"$name\" not found") }
     private fun <T> setAttribute(name: String, @Suppress("RedundantSuppression","LocalVariableName","SpellCheckingInspection") GLtype: Int, values: T) {
-        synchronized(sync)
+        synchronized(glBinds)
         {
             val attr = findAttr(name)
             if(attr.type != GLtype)
@@ -203,7 +202,7 @@ class Mesh {
     fun setAttribute(name: String, value: Array<Matrix2d>) = setAttribute(name, GL_DOUBLE_MAT2, value)
     //endregion
 
-    fun burnModel() = synchronized(sync) {
+    fun burnModel() = synchronized(glBinds) {
         vertexCount = variables.asSequence().map {
             @OptIn(ExperimentalUnsignedTypes::class)
             val c = it.value.let { at-> when (at) {
@@ -289,7 +288,7 @@ class Mesh {
         }
         glBinds.burned = true
     }
-    val isBurned: Boolean get() = synchronized(sync) { glBinds.burned }
+    val isBurned: Boolean get() = synchronized(glBinds) { glBinds.burned }
 
     private data class GLBinds(var vao: Int, var vbo: Int, var burned: Boolean)
 }
