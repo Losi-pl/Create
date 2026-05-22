@@ -1,18 +1,13 @@
 package com.losi.create.tests;
 
-import com.losi.create.registry.ElementRegister;
-import com.losi.create.registry.GameElement;
+import com.losi.create.registry.*;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class RegisterThreadSafeTest {
+public class RegisterTest {
 
     @Test
     void concurrentCommandsShouldBeThreadSafe() throws InterruptedException {
@@ -32,8 +27,8 @@ public class RegisterThreadSafeTest {
         var result = latch.await(30, TimeUnit.SECONDS);
         executor.shutdown();
         if(!result)
-            fail("Timed out with: [" + element.count() + " / 10]");
-        assertEquals(threadCount, element.count());
+            fail("Timed out with: [" + element.getCount() + " / 10]");
+        assertEquals(threadCount, element.getCount());
     }
 
 }
