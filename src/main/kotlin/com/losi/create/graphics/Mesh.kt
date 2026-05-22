@@ -215,7 +215,7 @@ class Mesh {
                 else -> -1
             }}
             if(c % it.key.count.toInt() == 0) c / it.key.count.toInt() else -1
-        }.assertEqual { -1 }
+        }.assertAllEqual { -1 }
         if(vertexCount == -1) throw RuntimeException("Not all vertexes have data specified")
 
         val vertFormat = shader.attributes.values.associateWithTo(mutableMapOf()) { baseGLTypeBytes(it.type) }

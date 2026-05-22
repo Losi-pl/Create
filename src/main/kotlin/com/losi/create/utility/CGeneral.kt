@@ -18,21 +18,21 @@ fun Int?.orElse(els: Int) : Int {
         return els
     return this
 }
-inline fun <T: Comparable<T>> List<T>.assertEqual(negative: () -> T): T {
+inline fun <T: Comparable<T>> List<T>.assertAllEqual(negative: () -> T): T {
     if(this.isEmpty())
         return negative()
     val c: T = this[0]
     this.forEach { if(it.compareTo(c) != 0) return it }
     return negative()
 }
-inline fun <T: Comparable<T>> Array<T>.assertEqual(negative: () -> T): T {
+inline fun <T: Comparable<T>> Array<T>.assertAllEqual(negative: () -> T): T {
     if(this.isEmpty())
         return negative()
     val c: T = this[0]
     this.forEach { if(it.compareTo(c) != 0) return it }
     return negative()
 }
-inline fun <T: Comparable<T>> Sequence<T>.assertEqual(negative: () -> T): T {
+inline fun <T: Comparable<T>> Sequence<T>.assertAllEqual(negative: () -> T): T {
     val it = this.iterator()
     if(!it.hasNext())
         return negative()
