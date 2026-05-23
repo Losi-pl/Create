@@ -1,3 +1,4 @@
+@SuppressWarnings("Java9RedundantRequiresStatement")
 module com.losi.create {
     requires org.joml;
     requires steamworks4j;
