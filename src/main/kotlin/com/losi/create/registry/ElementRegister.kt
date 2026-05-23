@@ -4,7 +4,6 @@ package com.losi.create.registry
 import com.koloboke.collect.map.hash.HashObjObjMaps
 import java.util.HashMap
 
-//TODO: Make better asynchronous
 class ElementRegister<T: GameElement>
 {
     private var rawElementsByName: HashMap<String, T>? = HashMap<String, T>()
@@ -23,8 +22,9 @@ class ElementRegister<T: GameElement>
             throw IllegalArgumentException("Element \"$name\" already exists")
     }
 
-    fun retrieve(name: String): T = synchronized (sync)
-    { (elementsByName ?: rawElementsByName ?: throw IllegalArgumentException("Element \"$name\" does not exist"))[name] as T }
+    fun retrieve(name: String): T =
+        elementsByName?.get(name) ?: synchronized(sync)
+        { rawElementsByName?.get(name) ?: throw NullPointerException() }
 
     fun completed() = elementsByName != null
 
@@ -38,6 +38,10 @@ class ElementRegister<T: GameElement>
     }
 
 
-    val count: Int get() = synchronized(sync)
-    { (elementsByName ?: rawElementsByName ?: throw RuntimeException("Register is null")).size }
+    val count: Int get() {
+        return if(elementsByName != null)
+            elementsByName!!.size
+        else synchronized(sync)
+        { rawElementsByName!!.size }
+    }
 }
