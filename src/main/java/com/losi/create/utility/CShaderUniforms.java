@@ -7,7 +7,7 @@ import org.lwjgl.system.NativeType;
 
 import static org.lwjgl.opengl.GL20.*;
 
-@SuppressWarnings({"SpellCheckingInspection", "typo"})
+@SuppressWarnings({"SpellCheckingInspection", "typo", "GrazieInspectionRunner"})
 public class CShaderUniforms {
     public static void glUniformMatrix4f(
             @NativeType("GLint") int location,

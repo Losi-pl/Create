@@ -1,5 +1,5 @@
+@file:Suppress("SpellCheckingInspection", "GrazieInspectionRunner")
 @file:JvmName("CGLTypes")
-@file:Suppress("SpellCheckingInspection")
 
 package com.losi.create.utility
 

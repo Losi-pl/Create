@@ -20,7 +20,7 @@ public class RegisterTest {
             int finalI = i;
             GameElement testEle = new GameElement() { };
             executor.submit(() -> {
-                element.register(testEle, "abba:" + finalI);
+                element.register(testEle, "Abba:" + finalI);
                 latch.countDown();
             });
         }

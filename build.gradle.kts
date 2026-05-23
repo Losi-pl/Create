@@ -1,4 +1,4 @@
-@file:Suppress("SpellCheckingInspection")
+@file:Suppress("SpellCheckingInspection", "GrazieInspectionRunner")
 
 import org.gradle.internal.os.OperatingSystem
 import java.util.Properties

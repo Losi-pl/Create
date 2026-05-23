@@ -55,7 +55,7 @@ fun <T> Sequence<T>.chunkedReuse(size: Int) = sequence {
         ++i
     }
     if (i > 0) {
-        for(I in i until size)
+        for(j in i until size)
             buffer.removeLast()
         yield(buffer)
     }
