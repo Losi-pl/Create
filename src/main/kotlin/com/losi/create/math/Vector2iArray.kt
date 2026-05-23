@@ -102,7 +102,7 @@ import kotlin.streams.asStream
         override fun toString(): String = array.toString()
         override fun indexOf(element: Vector2i): Int {
             for (i in start until start + count)
-                if(array[i] == element)
+                if(array.elements[i*2] == element.x && array.elements[i*2+1] == element.y)
                     return i - start
             return -1
         }
@@ -113,7 +113,7 @@ import kotlin.streams.asStream
         }
         override fun lastIndexOf(element: Vector2i): Int {
             for (i in start + count - 1 downTo start)
-                if(array[i] == element)
+                if(array.elements[i*2] == element.x && array.elements[i*2+1] == element.y)
                     return i - start
             return -1
         }
@@ -221,11 +221,11 @@ import kotlin.streams.asStream
     }
 
     fun indexOf(element: Vector2i): Int {
-        for (i in 0 until size) if (get(i) == element) return i
+        for (i in 0 until size) if (elements[i*2] == element.x || elements[i*2+1] == element.y) return i
         return -1
     }
     fun lastIndexOf(element: Vector2i): Int {
-        for (i in size - 1 downTo 0) if (get(i) == element) return i
+        for (i in size - 1 downTo 0) if (elements[i*2] == element.x || elements[i*2+1] == element.y) return i
         return -1
     }
 
@@ -244,8 +244,7 @@ import kotlin.streams.asStream
         val sb = StringBuilder(prefix)
         for (i in fromIndex until toIndex) {
             if (i > 0) sb.append(separator)
-            val v = this[i]
-            sb.append("(").append(v.x).append(", ").append(v.y).append(")")
+            sb.append("(").append(elements[i*2]).append(", ").append(elements[i*2+1]).append(")")
         }
         sb.append(postfix)
         return sb.toString()
@@ -253,6 +252,4 @@ import kotlin.streams.asStream
 
     override fun toString(): String = joinToString()
     private fun checkIndex(index: Int) { if (index !in 0..<size) throw IndexOutOfBoundsException("Index $index out of bounds for size $size") }
-
-
 }
