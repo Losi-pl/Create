@@ -18,4 +18,6 @@ class ModSpace {
         this.identity = identity
         resourceSpace = ResourceSpace()
     }
+
+    override fun toString(): String = "Mod: $identity"
 }
