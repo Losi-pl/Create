@@ -94,6 +94,9 @@ dependencies {
         implementation("com.twelvemonkeys.imageio:imageio-$it:$twelvemonkeysVersion")
     }
 
+    //TODO: =================== Kunion ===================
+    //implementation("com.github.renatoathaydes:kunion:0bd9cbfe38")
+
     // =================== Kotlin ===================
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
