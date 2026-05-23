@@ -60,3 +60,12 @@ fun <T> Sequence<T>.chunkedReuse(size: Int) = sequence {
         yield(buffer)
     }
 }
+fun String.startsWithFrom(subString: String, fromIndex: Int): Boolean {
+    if(this.length - subString.length < 0)
+        return false
+    subString.forEachIndexed { i, c ->
+        if(this[i + fromIndex] != c)
+            return false
+    }
+    return true
+}
