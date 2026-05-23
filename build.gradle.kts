@@ -166,6 +166,11 @@ tasks.compileJava {
 tasks.test { jvmArgs = listOf("--enable-native-access=ALL-UNNAMED"); useJUnitPlatform() }
 tasks.run { args = listOf("--version") }
 
+/* TODO: See about including JRE into the game compilation
+* Non-modular app: https://github.com/beryx/badass-runtime-plugin
+* Modular apps:    https://github.com/beryx/badass-jlink-plugin
+* */
+
 application {
     applicationDefaultJvmArgs = listOf("--enable-native-access=org.lwjgl", "--enable-native-access=org.lwjgl.opengl")
     mainClass = "com.losi.create.internal.Start"
