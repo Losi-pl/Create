@@ -1,5 +1,6 @@
 package com.losi.create.graphics
 
+import com.losi.create.math.*
 import com.losi.create.utility.*
 import org.joml.*
 import org.lwjgl.opengl.GL40.*
@@ -38,10 +39,10 @@ class Mesh {
             val (attr, verSize, attrSize) = data
 
             if(attr.count == 1u)
-                this.withIndex().forEach { action(attr.offset + (it.index * verSize), it.value) }
+                this.forEachIndexed { index, it -> action(attr.offset + (index * verSize), it) }
             else
                 this.chunkedReuse(attr.count.toInt()).withIndex().forEach { ti->
-                    ti.value.withIndex().forEach { action(attr.offset + (attrSize + it.index) + (ti.index * verSize), it.value) }
+                    ti.value.forEachIndexed { index, it -> action(attr.offset + (attrSize + index) + (ti.index * verSize), it) }
                 }
         }
 
@@ -116,6 +117,7 @@ class Mesh {
     @JvmName("setAttributeVector2iList")
     fun setAttribute(name: String, value: List<Vector2i>) = setAttribute(name, GL_INT_VEC2, value)
     fun setAttribute(name: String, value: Array<Vector2i>) = setAttribute(name, GL_INT_VEC2, value)
+    fun setAttribute(name: String, value: Vector2iArray) = setAttribute(name, GL_INT_VEC2, value)
 
     @JvmName("setAttributeVector3iList")
     fun setAttribute(name: String, value: List<Vector3i>) = setAttribute(name, GL_INT_VEC3, value)
@@ -234,7 +236,7 @@ class Mesh {
                     GL_FLOAT ->        list.aSequence<Float, FloatArray>   { it.asSequence() }.putIntoBuffer(dataSet) { i, v-> fullBuffer.putFloat(i, v) }
                     GL_DOUBLE ->       list.aSequence<Double, DoubleArray> { it.asSequence() }.putIntoBuffer(dataSet) { i, v-> fullBuffer.putDouble(i, v) }
 
-                    GL_INT_VEC2 -> list.aSequence<Vector2i/*TODO:Vector2iArray*/>().putIntoBuffer(dataSet) { i, v-> fullBuffer.putVector2i(i, v) }
+                    GL_INT_VEC2 -> list.aSequence<Vector2i, Vector2iArray> { it.asSequence() }.putIntoBuffer(dataSet) { i, v-> fullBuffer.putVector2i(i, v) }
                     GL_INT_VEC3 -> list.aSequence<Vector3i/*TODO:Vector3iArray*/>().putIntoBuffer(dataSet) { i, v-> fullBuffer.putVector3i(i, v) }
                     GL_INT_VEC4 -> list.aSequence<Vector4i/*TODO:Vector4iArray*/>().putIntoBuffer(dataSet) { i, v-> fullBuffer.putVector4i(i, v) }
 
