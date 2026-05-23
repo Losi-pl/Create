@@ -10,6 +10,8 @@ import kotlin.streams.asStream
     companion object {
         private val _empty = Vector2iArray(IntArray(0))
         val empty: Vector2iArray get() = _empty
+        private fun IntArray.isAt(ind: Int, vec: Vector2i): Boolean =
+            this[ind*2] == vec.x && this[ind*2+1] == vec.y
 
         @JvmExposeBoxed @JvmStatic fun of(count: Int): Vector2iArray = Vector2iArray(count)
         @JvmExposeBoxed @JvmStatic fun of(vararg elements: Vector2i): Vector2iArray {
@@ -77,7 +79,7 @@ import kotlin.streams.asStream
     fun asList() = List(this)
     @JvmInline value class List internal constructor(private val array: Vector2iArray):  kotlin.collections.List<Vector2i> {
         override fun contains(element: Vector2i): Boolean = array.contains(element)
-        override fun containsAll(elements: Collection<Vector2i>): Boolean = elements.any { contains(it) }//TODO: REDO
+        override fun containsAll(elements: Collection<Vector2i>) = array.containsAll(elements)
         override fun get(index: Int): Vector2i = array[index]
         override fun indexOf(element: Vector2i): Int = array.indexOf(element)
         override fun isEmpty(): Boolean = array.size == 0
@@ -91,18 +93,18 @@ import kotlin.streams.asStream
             val to = toIndex.coerceIn(0 until array.size)
             return SpanList(array, from, to - from)
         }
-        override val size: Int get() = array.size
+        override val size: Int get() = array.elements.size / 2
     }
 
     @ConsistentCopyVisibility
     data class SpanList internal constructor(private val array: Vector2iArray, private val start: Int, private val count: Int): kotlin.collections.List<Vector2i> {
         override fun contains(element: Vector2i): Boolean = indexOf(element) >= 0
-        override fun containsAll(elements: Collection<Vector2i>): Boolean = elements.any { contains(it) }//TODO: REDO
+        override fun containsAll(elements: Collection<Vector2i>) = array.containsAll(elements, start, start + count)
         override fun get(index: Int): Vector2i { checkIndex(index); return array[index + start] }
         override fun toString(): String = array.toString()
         override fun indexOf(element: Vector2i): Int {
             for (i in start until start + count)
-                if(array.elements[i*2] == element.x && array.elements[i*2+1] == element.y)
+                if(array.elements.isAt(i, element))
                     return i - start
             return -1
         }
@@ -113,7 +115,7 @@ import kotlin.streams.asStream
         }
         override fun lastIndexOf(element: Vector2i): Int {
             for (i in start + count - 1 downTo start)
-                if(array.elements[i*2] == element.x && array.elements[i*2+1] == element.y)
+                if(array.elements.isAt(i, element))
                     return i - start
             return -1
         }
@@ -221,15 +223,28 @@ import kotlin.streams.asStream
     }
 
     fun indexOf(element: Vector2i): Int {
-        for (i in 0 until size) if (elements[i*2] == element.x || elements[i*2+1] == element.y) return i
+        for (i in 0 until size) if (elements.isAt(i, element)) return i
         return -1
     }
     fun lastIndexOf(element: Vector2i): Int {
-        for (i in size - 1 downTo 0) if (elements[i*2] == element.x || elements[i*2+1] == element.y) return i
+        for (i in size - 1 downTo 0) if (elements.isAt(i, element)) return i
         return -1
     }
 
     fun contains(element: Vector2i): Boolean = indexOf(element) >= 0
+    fun containsAll(elements: Collection<Vector2i>, fromIndex: Int = 0, toIndex: Int = size): Boolean {
+        var count = elements.size
+        for (i in fromIndex until toIndex)
+        {
+            val x = this.elements[i*2]; val y = this.elements[i*2+1]
+            for(ele in elements)
+                if(x == ele.x && y == ele.y)
+                    count--
+            if(count == 0)
+                return true
+        }
+        return false
+    }
 
     inline fun forEach(action: (Vector2i) -> Unit) {
         for (i in 0 until size) action(get(i))
