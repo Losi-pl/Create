@@ -13,5 +13,5 @@ internal object ShaderProcessor: AssetTypeProcessor<Shader>
     }
 
     override fun clearAssets() = TODO("Not yet implemented")
-    override fun getAsset(name: String): Shader = TODO("Not yet implemented")
+    override fun getAsset(mod: ModSpace, name: String): Shader = TODO("Not yet implemented")
 }

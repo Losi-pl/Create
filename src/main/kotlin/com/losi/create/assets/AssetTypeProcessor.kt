@@ -113,5 +113,11 @@ interface AssetTypeProcessor<T>
 
     fun processResources(resources: Resources)
     fun clearAssets()
-    fun getAsset(name : String) : T?
+    fun getAsset(mod: ModSpace, name : String): T?
+    fun getAsset(name: String): T? {
+        val modIdent = name.substringBefore(':')
+        val actualName = name.substringAfter(':')
+        val mod = ModSpace.modules[modIdent] ?: ModSpace("", modIdent, ResourceSpace(), true)
+        return getAsset(mod, actualName)
+    }
 }
