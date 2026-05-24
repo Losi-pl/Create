@@ -3,6 +3,7 @@ package com.losi.create.internal;
 import com.losi.create.Version;
 import com.losi.create.assets.Manager;
 import com.losi.create.assets.ShaderProcessor;
+import com.losi.create.graphics.GLContext;
 import com.losi.create.graphics.Shader;
 import com.losi.create.graphics.Window;
 import com.losi.create.utility.CArrays;
@@ -15,6 +16,9 @@ import java.util.Objects;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Start {
+    static Window main;
+    static GLContext context;
+
     static void main(String[] args) {
         IO.println("Welcome to Create!");
 
@@ -28,15 +32,17 @@ public class Start {
             IO.println("Steamworks Server: " + Version.getSteamworksServerVersion());
         }
 
-        var window = new Window();
-        try { window.setIcon(Version.class.getModule().getResourceAsStream("Icon.ico")); } catch (IOException ignored) { }
-        window.setTitle("Create: " + Version.getVersion());
-        window.create();
-        window.threadBind();
-        window.registerLogic(OnMainThread.INSTANCE::callAction$create);
+        OnMainThread.INSTANCE.setMainThread$create(Thread.currentThread());
+        main = new Window();
+        try { main.setIcon(Version.class.getModule().getResourceAsStream("Icon.ico")); } catch (IOException ignored) { }
+        main.setTitle("Create: " + Version.getVersion());
+        main.create();
+        main.threadBind();
+        main.registerLogic(OnMainThread.INSTANCE::callAction$create);
+        context = new GLContext(main);
         var register = new Thread(Start::BuildRegister);
         register.start();
-        window.run();
+        main.run();
 
         glfwTerminate();
         Objects.requireNonNull(glfwSetErrorCallback(null)).free();
@@ -44,8 +50,11 @@ public class Start {
 
     public static void BuildRegister()
     {
+        context.threadBind();
         Manager.constructAssetLoader$create();
         Manager.registerProcessor(ShaderProcessor.INSTANCE, JvmClassMappingKt.getKotlinClass(Shader.class), "shaders");
         Manager.INSTANCE.processAssets$create();
+        context.release();
+        OnMainThread.schedule(() -> { context.close(); context = null; });
     }
 }
