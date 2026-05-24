@@ -127,6 +127,9 @@ class Shader {
         setUniform(name, GL_FLOAT_MAT4) { glUniformMatrix4f(it.location, false, matrix) }
     fun setUniform(name: String, value: Float) =
         setUniform(name, GL_FLOAT) { glUniform1f(it.location, value) }
+    //TODO: setUniform(/* ALL */)
+
+    fun destroy() { /*TODO*/ }
 
     data class Uniform(val name: String, val location: Int, val count: UInt, val type: Int) {
         val classType: KClass<*>? get() = translateGLTypes(type)
