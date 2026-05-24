@@ -8,7 +8,7 @@ object OnMainThread
     private val queue: ConcurrentLinkedQueue<Runnable> = ConcurrentLinkedQueue()
     internal var mainThread: Thread? = null
 
-    internal fun callAction(ignore: Float)
+    internal fun callAction(@Suppress("unused") ignore: Float)
     {
         while (true) {
             val item = queue.poll() ?: break
