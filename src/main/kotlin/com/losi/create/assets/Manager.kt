@@ -49,8 +49,7 @@ object Manager {
     }
 
     @JvmStatic
-    internal fun constructAssetLoader()
-    {
+    internal fun constructAssetLoader() {
         val mods = ModSpace.modules
         for (mod in mods)
         {
@@ -71,8 +70,7 @@ object Manager {
         val secondBreak = path.indexOf('/', firstBreak) + 1
         return ProcType.of(path.substring(firstBreak, secondBreak))
     }
-    internal fun processAssets()
-    {
+    internal fun processAssets() {
         /* <ModSpace>/<AssetType>/<Path...>
         *  <AssetType>
         *   |
@@ -130,6 +128,8 @@ object Manager {
         }
         typeProcessors[type] = Pair(proc, procName)
     }
+    @JvmStatic
+    fun <T: Any> registerProcessor(proc: AssetTypeProcessor<T>, type: Class<T>, name: String) = registerProcessor(proc, type.kotlin, name)
 
     internal fun getStream(source: ResourceSpace, path: String): InputStream? = assetLoaders[source]?.invoke(path)
     internal fun listResourceFiles(resourceFolder: String): MutableList<String> {

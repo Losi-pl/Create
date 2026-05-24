@@ -8,7 +8,6 @@ import com.losi.create.graphics.Shader;
 import com.losi.create.graphics.Window;
 import com.losi.create.utility.CArrays;
 import com.losi.create.utility.OnMainThread;
-import kotlin.jvm.JvmClassMappingKt;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -52,7 +51,7 @@ public class Start {
     {
         context.threadBind();
         Manager.constructAssetLoader$create();
-        Manager.registerProcessor(ShaderProcessor.INSTANCE, JvmClassMappingKt.getKotlinClass(Shader.class), "shaders");
+        Manager.registerProcessor(ShaderProcessor.INSTANCE, Shader.class, "shaders");
         Manager.INSTANCE.processAssets$create();
         context.close();
     }
