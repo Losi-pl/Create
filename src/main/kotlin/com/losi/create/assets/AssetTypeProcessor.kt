@@ -7,7 +7,7 @@ import com.losi.create.utility.longHashCode
 
 interface AssetTypeProcessor<T>
 {
-    typealias Resources = Map<ResourceSpace, Map<ModSpace, Set<String>>>
+    typealias Resources = Map<ResourceSpace, Map<ModSpace, List<String>>>
     companion object
     {
         internal val nameType = ThreadLocal<String>()

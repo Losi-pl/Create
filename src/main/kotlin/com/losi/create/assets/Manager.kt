@@ -89,12 +89,15 @@ object Manager {
         *   |  +-<Path...>
         */
 
-        val paths = listResourceFiles("assets").groupBy { group(it) }.mapValues {
-            it.value.map { at -> split(at, it.key.name.length) }
-        }
-        .mapValues { at ->
-            at.value.groupBy { ModSpace.modules[it.first]!! }.mapValues { it.value.asSequence().map { t -> t.second }.toSet() }
-        }.toMap()
+        val paths = listResourceFiles("assets").asSequence().map { Pair(group(it), it) }
+            .groupBy(keySelector = { it.first },  valueTransform = { it.second  })
+            .mapValues {
+                ti -> ti.value.asSequence()
+                    .map { split(it, ti.key.name.length) }
+                    .groupBy(keySelector = {it.first}, valueTransform = {it.second})
+                .mapKeys { ModSpace.modules[it.key] ?: ModSpace("", it.key, ResourceSpace(), true) }
+            }
+
 
         AssetTypeProcessor.order.set(listOf(ModSpace.modules["create"]!!.resourceSpace))
 
