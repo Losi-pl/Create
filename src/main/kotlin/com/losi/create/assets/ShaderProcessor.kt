@@ -16,7 +16,7 @@ internal object ShaderProcessor: AssetTypeProcessor<Shader>
         shaderGroups.forEach { (shader, parts) ->
             val vert = parts.find { it.first.endsWith(".vert") }?.let { loadResource(it.second, shader.first, it.first) }
             val frag = parts.find { it.first.endsWith(".frag") }?.let { loadResource(it.second, shader.first, it.first) }
-            val xml = parts.find { it.first.endsWith(".xml") }?.let { loadResource(it.second, shader.first, it.first) }
+            val xml =  parts.find { it.first.endsWith(".xml")  }?.let { loadResource(it.second, shader.first, it.first) }
 
             if(vert == null) { ResourceProcessingException("The Vertex shader for \"${genName(shader)}\" is nod defined").printStackTrace(System.err); return }
             if(frag == null) { ResourceProcessingException("The Fragment shader for \"${genName(shader)}\" is nod defined").printStackTrace(System.err); return }
@@ -29,5 +29,5 @@ internal object ShaderProcessor: AssetTypeProcessor<Shader>
     fun genName(shader: Pair<ModSpace, String>): String = "${shader.first.identity}:${shader.second}"
 
     override fun clearAssets() = TODO("Not yet implemented")
-    override fun getAsset(mod: ModSpace, name: String): Shader = TODO("Not yet implemented")
+    override fun getAsset(mod: ModSpace, name: String): Shader = shaders[Pair(mod, name)]!!
 }
