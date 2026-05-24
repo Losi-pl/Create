@@ -15,7 +15,7 @@ import kotlin.reflect.full.isSuperclassOf
 
 
 @Suppress("unused")
-object Manager {
+object AssetsManager {
     private val assetLoaders = HashMap<ResourceSpace, (String) -> InputStream?>()
     private val typeProcessors = HashMap<KClass<*>, Pair<AssetTypeProcessor<*>, String>>()
     private var assetsLoaded = false
