@@ -86,7 +86,7 @@ import kotlin.streams.asStream
         override fun iterator(): Iterator<Vector2i> = array.iterator()
         override fun lastIndexOf(element: Vector2i): Int = array.lastIndexOf(element)
         override fun listIterator(): kotlin.collections.ListIterator<Vector2i> = ListIterator(array.elements)
-        override fun listIterator(index: Int): kotlin.collections.ListIterator<Vector2i> = ListIterator(array.elements, index * 2)
+        override fun listIterator(index: Int): kotlin.collections.ListIterator<Vector2i> = ListIterator(array.elements, index)
         override fun toString(): String = array.toString()
         override fun subList(fromIndex: Int, toIndex: Int): SpanList {
             val from = fromIndex.coerceIn(0 until array.size)
@@ -124,7 +124,7 @@ import kotlin.streams.asStream
         override fun subList(fromIndex: Int, toIndex: Int): SpanList {
             val from = fromIndex.coerceIn(0 until count)
             val to = toIndex.coerceIn(0 until count)
-            return SpanList(array, start + from, to - (start + from))
+            return SpanList(array, start + from, to - from)
         }
         override val size: Int get() = count
 
@@ -259,7 +259,7 @@ import kotlin.streams.asStream
     fun joinToString(fromIndex: Int, toIndex: Int, separator: String = ", ", prefix: String = "[", postfix: String = "]"): String {
         val sb = StringBuilder(prefix)
         for (i in fromIndex until toIndex) {
-            if (i > 0) sb.append(separator)
+            if (i > fromIndex) sb.append(separator)
             sb.append("(").append(elements[i*2]).append(", ").append(elements[i*2+1]).append(")")
         }
         sb.append(postfix)
