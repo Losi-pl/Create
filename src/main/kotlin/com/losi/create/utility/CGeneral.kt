@@ -69,3 +69,9 @@ fun String.startsWithFrom(subString: String, fromIndex: Int): Boolean {
     }
     return true
 }
+fun <T, R> Pair<T, R>.longHashCode(): Long
+{
+    var hash = this.first.hashCode().toLong()
+    hash = 31 * hash + this.second.hashCode().toLong()
+    return hash xor (hash ushr 32)
+}
