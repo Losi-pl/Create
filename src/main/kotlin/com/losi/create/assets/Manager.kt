@@ -96,6 +96,8 @@ object Manager {
             at.value.groupBy { ModSpace.modules[it.first]!! }.mapValues { it.value.asSequence().map { t -> t.second }.toSet() }
         }.toMap()
 
+        AssetTypeProcessor.order.set(listOf(ModSpace.modules["create"]!!.resourceSpace))
+
         paths.forEach { type ->
             if(type.key is ProcType.Unknown)
                 return@forEach
