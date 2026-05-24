@@ -18,6 +18,7 @@ import kotlin.reflect.full.isSuperclassOf
 object Manager {
     private val assetLoaders = HashMap<ResourceSpace, (String) -> InputStream?>()
     private val typeProcessors = HashMap<KClass<*>, Pair<AssetTypeProcessor<*>, String>>()
+    private var assetsLoaded = false
 
     private abstract class ProcType {
         companion object {
@@ -106,6 +107,8 @@ object Manager {
             AssetTypeProcessor.nameType.set(processor!!.second)
             processor.first.processResources(mapOf(ModSpace.modules["create"]!!.resourceSpace to type.value))
         }
+
+        assetsLoaded = true
     }
 
     inline fun <reified T: Any> registerProcessor(proc: AssetTypeProcessor<T>, name: String) = registerProcessor(proc, T::class, name)
@@ -130,20 +133,24 @@ object Manager {
 
     inline fun <reified T: Any> get(name: String): T? = get(T::class, name) as? T
     @JvmStatic fun <T: Any> get(klass: KClass<T>, name: String): Any? {
+        if(!assetsLoaded) throw RuntimeException("The assets have not yet been loaded")
         val proc = typeProcessors[klass] ?: return null
         return proc.first.getAsset(name)
     }
     @JvmStatic fun <T: Any> get(klass: Class<T>, name: String): Any? {
+        if(!assetsLoaded) throw RuntimeException("The assets have not yet been loaded")
         val proc = typeProcessors[klass.kotlin] ?: return null
         return proc.first.getAsset(name)
     }
 
     inline fun <reified T: Any> get(mod: ModSpace, name: String): T? = get(T::class, mod, name) as? T
     @JvmStatic fun <T: Any> get(klass: KClass<T>, mod: ModSpace, name: String): Any? {
+        if(!assetsLoaded) throw RuntimeException("The assets have not yet been loaded")
         val proc = typeProcessors[klass] ?: return null
         return proc.first.getAsset(mod, name)
     }
     @JvmStatic fun <T: Any> get(klass: Class<T>, mod: ModSpace, name: String): Any? {
+        if(!assetsLoaded) throw RuntimeException("The assets have not yet been loaded")
         val proc = typeProcessors[klass.kotlin] ?: return null
         return proc.first.getAsset(mod, name)
     }

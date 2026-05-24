@@ -8,7 +8,6 @@ import com.losi.create.graphics.Shader;
 import com.losi.create.graphics.Window;
 import com.losi.create.utility.CArrays;
 import com.losi.create.utility.OnMainThread;
-
 import java.io.IOException;
 import java.util.Objects;
 
