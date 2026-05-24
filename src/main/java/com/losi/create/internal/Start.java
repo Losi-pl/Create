@@ -2,9 +2,12 @@ package com.losi.create.internal;
 
 import com.losi.create.Version;
 import com.losi.create.assets.Manager;
+import com.losi.create.assets.ShaderProcessor;
+import com.losi.create.graphics.Shader;
 import com.losi.create.graphics.Window;
 import com.losi.create.utility.CArrays;
 import com.losi.create.utility.OnMainThread;
+import kotlin.jvm.JvmClassMappingKt;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -42,6 +45,7 @@ public class Start {
     public static void BuildRegister()
     {
         Manager.constructAssetLoader$create();
+        Manager.registerProcessor(ShaderProcessor.INSTANCE, JvmClassMappingKt.getKotlinClass(Shader.class), "shaders");
         Manager.INSTANCE.processAssets$create();
     }
 }
