@@ -6,9 +6,9 @@ import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL
 import org.lwjgl.system.MemoryUtil.*
 
-internal interface GContext
+internal interface InternalGLContext
 
-class GLContext: GContext, AutoCloseable {
+class GLContext: InternalGLContext, AutoCloseable {
     private val handle: Long
     private var threadBound: Boolean = false
 

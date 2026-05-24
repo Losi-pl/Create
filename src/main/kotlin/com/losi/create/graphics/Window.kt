@@ -16,10 +16,10 @@ import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL30.*
 import org.lwjgl.system.MemoryUtil.*
 
-class Window: GContext {
+class Window: InternalGLContext {
     companion object
     {
-        internal var currentContext = ThreadLocal<GContext>()
+        internal var currentContext = ThreadLocal<InternalGLContext>()
         private var cleaner = Cleaner.create()
         private var initialized = false
         private var ICON_SIZES = listOf(16, 32, 48, 64, 128, 256)

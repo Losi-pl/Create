@@ -40,7 +40,7 @@ public class Start {
         main.threadBind();
         main.registerLogic(OnMainThread.INSTANCE::callAction$create);
         context = new GLContext(main);
-        var register = new Thread(Start::BuildRegister);
+        var register = new Thread(Start::BuildAssets);
         register.start();
         main.run();
 
@@ -48,7 +48,7 @@ public class Start {
         Objects.requireNonNull(glfwSetErrorCallback(null)).free();
     }
 
-    public static void BuildRegister()
+    public static void BuildAssets()
     {
         context.threadBind();
         Manager.constructAssetLoader$create();
