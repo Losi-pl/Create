@@ -17,6 +17,9 @@ object OnMainThread
     }
 
     @JvmStatic
+    fun isMain(): Boolean = mainThread == Thread.currentThread()
+
+    @JvmStatic
     fun schedule(action: Runnable) = queue.offer(action)
 
     @JvmStatic @Suppress("unused")

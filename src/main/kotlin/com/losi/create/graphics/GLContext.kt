@@ -2,6 +2,7 @@ package com.losi.create.graphics
 
 import com.losi.create.graphics.Window.Companion.currentContext
 import com.losi.create.internal.GLErrorHandler
+import com.losi.create.utility.OnMainThread
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL
 import org.lwjgl.system.MemoryUtil.*
@@ -46,6 +47,9 @@ class GLContext: InternalGLContext, AutoCloseable {
 
     override fun close() {
         release()
-        glfwDestroyWindow(handle)
+        if(OnMainThread.isMain())
+            glfwDestroyWindow(handle)
+        else
+            OnMainThread.schedule { glfwDestroyWindow(handle) }
     }
 }

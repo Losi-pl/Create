@@ -54,7 +54,6 @@ public class Start {
         Manager.constructAssetLoader$create();
         Manager.registerProcessor(ShaderProcessor.INSTANCE, JvmClassMappingKt.getKotlinClass(Shader.class), "shaders");
         Manager.INSTANCE.processAssets$create();
-        context.release();
-        OnMainThread.schedule(() -> { context.close(); context = null; });
+        context.close();
     }
 }
