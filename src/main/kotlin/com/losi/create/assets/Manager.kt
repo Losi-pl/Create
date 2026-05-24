@@ -108,10 +108,8 @@ object Manager {
         }
     }
 
-    @JvmStatic
     inline fun <reified T: Any> registerProcessor(proc: AssetTypeProcessor<T>, name: String) = registerProcessor(proc, T::class, name)
-    @JvmStatic
-    fun <T: Any> registerProcessor(proc: AssetTypeProcessor<T>, type: KClass<T>, name: String) = synchronized(typeProcessors)
+    @JvmStatic fun <T: Any> registerProcessor(proc: AssetTypeProcessor<T>, type: KClass<T>, name: String) = synchronized(typeProcessors)
     {
         val procName = name.replace('\\', '/').let { if(it.last() == '/') it else "$it/" }
         val procBarLast = lazy { procName.substringBeforeLast('/') }
@@ -128,8 +126,27 @@ object Manager {
         }
         typeProcessors[type] = Pair(proc, procName)
     }
-    @JvmStatic
-    fun <T: Any> registerProcessor(proc: AssetTypeProcessor<T>, type: Class<T>, name: String) = registerProcessor(proc, type.kotlin, name)
+    @JvmStatic fun <T: Any> registerProcessor(proc: AssetTypeProcessor<T>, type: Class<T>, name: String) = registerProcessor(proc, type.kotlin, name)
+
+    inline fun <reified T: Any> get(name: String): T? = get(T::class, name) as? T
+    @JvmStatic fun <T: Any> get(klass: KClass<T>, name: String): Any? {
+        val proc = typeProcessors[klass] ?: return null
+        return proc.first.getAsset(name)
+    }
+    @JvmStatic fun <T: Any> get(klass: Class<T>, name: String): Any? {
+        val proc = typeProcessors[klass.kotlin] ?: return null
+        return proc.first.getAsset(name)
+    }
+
+    inline fun <reified T: Any> get(mod: ModSpace, name: String): T? = get(T::class, mod, name) as? T
+    @JvmStatic fun <T: Any> get(klass: KClass<T>, mod: ModSpace, name: String): Any? {
+        val proc = typeProcessors[klass] ?: return null
+        return proc.first.getAsset(mod, name)
+    }
+    @JvmStatic fun <T: Any> get(klass: Class<T>, mod: ModSpace, name: String): Any? {
+        val proc = typeProcessors[klass.kotlin] ?: return null
+        return proc.first.getAsset(mod, name)
+    }
 
     internal fun getStream(source: ResourceSpace, path: String): InputStream? = assetLoaders[source]?.invoke(path)
     internal fun listResourceFiles(resourceFolder: String): MutableList<String> {
