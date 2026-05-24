@@ -233,14 +233,15 @@ import kotlin.streams.asStream
 
     fun contains(element: Vector2i): Boolean = indexOf(element) >= 0
     fun containsAll(elements: Collection<Vector2i>, fromIndex: Int = 0, toIndex: Int = size): Boolean {
-        var count = elements.size
+        val count = BooleanArray(elements.size)
         for (i in fromIndex until toIndex)
         {
             val x = this.elements[i*2]; val y = this.elements[i*2+1]
-            for(ele in elements)
+            elements.forEachIndexed { index, ele ->
                 if(x == ele.x && y == ele.y)
-                    count--
-            if(count == 0)
+                    count[index] = true
+            }
+            if(count.all { it })
                 return true
         }
         return false
