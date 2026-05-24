@@ -9,7 +9,7 @@ internal object ShaderProcessor: AssetTypeProcessor<Shader>
 
     override fun processResources(resources: AssetTypeProcessor.Resources) {
         val combined = resources.overlayed(getResourceOrder())
-        val shaderGroups = combined.keys.groupBy { it.second.substringBeforeLast('.') }
+        val shaderGroups = combined.keys.groupBy({ Pair(it.first, it.second.substringBeforeLast('.')) }, { it.second })
     }
 
     override fun clearAssets() = TODO("Not yet implemented")
