@@ -14,7 +14,7 @@ import java.io.InputStream
 import org.w3c.dom.Node
 import org.joml.*
 
-class Shader {
+class Shader: AutoCloseable {
     companion object{
         private fun parseProperties(xml: InputStream) : Document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xml)
         private val cleaner = Cleaner.create()
@@ -156,10 +156,10 @@ class Shader {
         setUniform(name, GL_FLOAT) { glUniform1f(it.location, value) }
     //TODO: setUniform(/* ALL */)
 
-    fun destroy() = cleanable.clean()
-    val destroyed: Boolean get() = handlers.program == 0
+    override fun close() = cleanable.clean()
+    val closed: Boolean get() = handlers.program == 0
     fun breakTest() {
-        if(destroyed)
+        if(closed)
             throw NullPointerException("The shader has been destroyed")
     }
 
