@@ -7,7 +7,7 @@ import org.lwjgl.opengl.GL40.*
 import org.lwjgl.system.MemoryStack
 
 @Suppress("unused")
-class Mesh {
+class Mesh: GLBound {
     companion object {
         val cleaner = java.lang.ref.Cleaner.create()!!
         val identity = Matrix4f()
@@ -63,6 +63,7 @@ class Mesh {
     }
 
     constructor(shader: Shader) {
+        shader.dependencySubscription(this)
         this.shader = shader
         this.variables =  shader.attributes.values
             .associateWithTo(mutableMapOf()) { null }
@@ -89,6 +90,8 @@ class Mesh {
                 variables[attr] = values
         }
     }
+
+    override fun release() { }
 
     //region Primitives
     @JvmName("setAttributeIntList")
