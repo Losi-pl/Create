@@ -5,11 +5,12 @@ import com.losi.create.utility.*
 import org.joml.*
 import org.lwjgl.opengl.GL40.*
 import org.lwjgl.system.MemoryStack
+import java.lang.ref.Cleaner
 
 @Suppress("unused")
 class Mesh: GLBound {
     companion object {
-        val cleaner = java.lang.ref.Cleaner.create()!!
+        val cleaner = Cleaner.create()!!
         val identity = Matrix4f()
 
         private inline fun <reified T> List<*>.assert(): List<T> {
@@ -48,19 +49,19 @@ class Mesh: GLBound {
 
         private fun garbageCollect(data: GLBinds)
         {
+            glBindVertexArray(0)
+            glBindBuffer(GL_ARRAY_BUFFER, 0)
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
 
+            glDeleteBuffers(data.vbo)
+            glDeleteVertexArrays(data.vao)
         }
     }
 
-    private val glBinds: GLBinds = GLBinds(0, 0, false)
+    private var glBinds: GLBinds? = null
     private val shader: Shader
     private val variables: MutableMap<Shader.Attribute, Any?>
-    private var vertexCount = 0
-
-    init {
-        var cl = glBinds
-        cleaner.register(this) { OnMainThread.schedule { garbageCollect(cl) }}
-    }
+    private var cleaner: Cleaner.Cleanable? = null
 
     constructor(shader: Shader) {
         shader.dependencySubscription(this)
@@ -69,29 +70,36 @@ class Mesh: GLBound {
             .associateWithTo(mutableMapOf()) { null }
     }
 
-    fun flushBuffers() = synchronized(glBinds) { variables.keys.forEach { variables[it] = null }}
-    fun draw(): Unit = synchronized(glBinds) {
-        if(!glBinds.burned)
-            return
-
-        glBindVertexArray(glBinds.vao)
+    fun flushBuffers() = synchronized(variables) { variables.keys.forEach { variables[it] = null }}
+    fun draw(): Unit = synchronized(variables) {
+        if(shader.released)
+            throw NullPointerException("The Shader used by this Mesh was destroyed")
+        val bin = glBinds ?: throw NullPointerException("This Mesh does not have a burned model to draw")
+        glBindVertexArray(bin.vao)
         shader.use()
-        glDrawArrays(GL_TRIANGLES, 0, vertexCount)
+        glDrawArrays(GL_TRIANGLES, 0, bin.vertexCount)
     }
 
     private fun findAttr(name: String) = shader.attributes[name].orElse { throw IllegalArgumentException("Attribute \"$name\" not found") }
-    private fun <T> setAttribute(name: String, @Suppress("RedundantSuppression","LocalVariableName","SpellCheckingInspection") GLtype: Int, values: T) {
-        synchronized(glBinds)
+    private fun <T> setAttribute(name: String, type: Int, values: T) {
+        synchronized(variables)
         {
+            if(shader.released)
+                throw NullPointerException("The Shader used by this Mesh was destroyed")
+
             val attr = findAttr(name)
-            if(attr.type != GLtype)
-                throw IllegalArgumentException("Attribute \"${attr.name}\" is not of type ${translateGLTypes(GLtype)} and requires ${attr.classType}")
+            if(attr.type != type)
+                throw IllegalArgumentException("Attribute \"${attr.name}\" is not of type ${translateGLTypes(type)} and requires ${attr.classType}")
             else
                 variables[attr] = values
         }
     }
 
-    override fun release() { }
+    override fun release() = synchronized(variables) {
+        cleaner?.clean()
+        cleaner = null
+        glBinds = null
+    }
 
     //region Primitives
     @JvmName("setAttributeIntList")
@@ -207,8 +215,13 @@ class Mesh: GLBound {
     fun setAttribute(name: String, value: Array<Matrix2d>) = setAttribute(name, GL_DOUBLE_MAT2, value)
     //endregion
 
-    fun burnModel() = synchronized(glBinds) {
-        vertexCount = variables.asSequence().map {
+    fun burnModel() = synchronized(variables) {
+        if(glBinds != null)
+            throw IllegalArgumentException("The previous model still persists")
+        if(shader.released)
+            throw NullPointerException("The shader used by this mesh was destroyed")
+
+        val vertexCount = variables.asSequence().map {
             @OptIn(ExperimentalUnsignedTypes::class)
             val c = it.value.let { at-> when (at) {
                 is List<*> -> at.size
@@ -277,23 +290,35 @@ class Mesh: GLBound {
                 }
             }
 
-            glBinds.vbo = glGenBuffers()
-            glBindBuffer(GL_ARRAY_BUFFER, glBinds.vbo)
-            glBufferData(GL_ARRAY_BUFFER, fullBuffer, GL_STATIC_DRAW)
+            glBinds = GLBinds(0, 0, 0)
+            glBinds?.let {
+                cleaner = Mesh.cleaner.register(this) {
+                    val onContext = try { glGetError(); true } catch (ignored: NullPointerException) { false }
+                    if(onContext)
+                        garbageCollect(it)
+                    else
+                        OnMainThread.schedule { garbageCollect(it)}
+                }
+                it.vertexCount = vertexCount
+                it.vbo = glGenBuffers()
+                glBindBuffer(GL_ARRAY_BUFFER, it.vbo)
+                glBufferData(GL_ARRAY_BUFFER, fullBuffer, GL_STATIC_DRAW)
+            }
         }
 
-        glBinds.vao = glGenVertexArrays()
-        glBindVertexArray(glBinds.vao)
-        shader.use()
-        shader.attributes.values.forEach {
-            glEnableVertexAttribArray(it.location)
-            glVertexAttribPointer(it.location, baseGLPrimitivesCount(it.type),
-                baseGLPrimitiveTypes(it.type), false,
-                vertexSize, it.offset.toLong())
+        glBinds?.let { bind ->
+            bind.vao = glGenVertexArrays()
+            glBindVertexArray(bind.vao)
+            shader.use()
+            shader.attributes.values.forEach {
+                glEnableVertexAttribArray(it.location)
+                glVertexAttribPointer(it.location, baseGLPrimitivesCount(it.type),
+                    baseGLPrimitiveTypes(it.type), false,
+                    vertexSize, it.offset.toLong())
+            }
         }
-        glBinds.burned = true
     }
-    val isBurned: Boolean get() = synchronized(glBinds) { glBinds.burned }
+    val isBurned: Boolean get() = synchronized(variables) { glBinds != null }
 
-    private data class GLBinds(var vao: Int, var vbo: Int, var burned: Boolean)
+    private data class GLBinds(var vao: Int, var vbo: Int, var vertexCount: Int)
 }
