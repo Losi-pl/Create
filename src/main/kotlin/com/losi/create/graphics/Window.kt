@@ -159,13 +159,14 @@ class Window: InternalGLContext {
                 Vector3f(0f, 1f, 0f),
                 Vector3f(0f, 0f, 1f)))
         mesh.burnModel()
+        mesh.flushBuffers()
 
         @Suppress("unused")
         glfwSetKeyCallback(window) { wind, key, scancode, action, mods ->
             if(key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
                 glfwSetWindowShouldClose(wind, true)
             if(key == GLFW_KEY_D && action == GLFW_RELEASE)
-                shaderProgram.destroy()
+                shaderProgram.release()
         }
 
         glfwSwapInterval(if(vSync) 1 else 0)
