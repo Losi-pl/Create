@@ -159,11 +159,11 @@ class Shader: GLBound {
     //TODO: setUniform(/* ALL */)
 
     override fun release() {
-        var exc: MutableList<Throwable>? = null
+        var exc: MutableList<Exception>? = null
         synchronized(subscribers) {
             subscribers.forEach {
                 try { it.get()?.release() }
-                catch (ex: Throwable) {
+                catch (ex: Exception) {
                     if(exc == null)
                         exc = ArrayList()
                     exc.add(ex)
