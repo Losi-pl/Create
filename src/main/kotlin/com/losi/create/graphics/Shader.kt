@@ -13,11 +13,13 @@ import org.w3c.dom.Element
 import java.io.InputStream
 import org.w3c.dom.Node
 import org.joml.*
+import java.lang.ref.WeakReference
 
-class Shader: AutoCloseable {
+class Shader: GLBound {
     companion object{
         private fun parseProperties(xml: InputStream) : Document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xml)
         private val cleaner = Cleaner.create()
+        fun release() = glUseProgram(0)
     }
 
     constructor(vertex: InputStream, fragment: InputStream) {
@@ -32,6 +34,7 @@ class Shader: AutoCloseable {
     private val handlers: Handlers = Handlers()
     private lateinit var _uniforms: Map<String, Uniform>
     private lateinit var _attributes: Map<String, Attribute>
+    private val subscribers = mutableListOf<WeakReference<GLBound>>()
     private val cleanable: Cleaner.Cleanable = run {
         val hand = handlers
         cleaner.register(this) {
@@ -64,7 +67,6 @@ class Shader: AutoCloseable {
     val attributes: Map<String, Attribute> get() = _attributes
 
     fun use() { breakTest(); glUseProgram(handlers.program) }
-    fun release() = glUseProgram(0)
 
     private fun compile(vertex: String, fragment: String) {
         handlers.vertex = glCreateShader(GL_VERTEX_SHADER)
@@ -156,11 +158,44 @@ class Shader: AutoCloseable {
         setUniform(name, GL_FLOAT) { glUniform1f(it.location, value) }
     //TODO: setUniform(/* ALL */)
 
-    override fun close() = cleanable.clean()
-    val closed: Boolean get() = handlers.program == 0
+    override fun release() {
+        var exc: MutableList<Throwable>? = null
+        synchronized(subscribers) {
+            subscribers.forEach {
+                try { it.get()?.release() }
+                catch (ex: Throwable) {
+                    if(exc == null)
+                        exc = ArrayList()
+                    exc.add(ex)
+                }
+            }
+        }
+        cleanable.clean()
+        if(exc != null)
+        {
+            val run = RuntimeException("During shader release, the following Exceptions gave been caught.")
+            exc.forEach { run.addSuppressed(it) }
+            throw run
+        }
+    }
+    val released: Boolean get() = handlers.program == 0
     fun breakTest() {
-        if(closed)
+        if(released)
             throw NullPointerException("The shader has been destroyed")
+    }
+
+    /**
+     * All subscribers will be called to release when this object is called to.
+     * If this object is collected by the garbage collector, the call will not happen.
+     *
+     * @param dependant Contains the reference to the subscriber in format of [GLBound] interface, when this Shader is released, all the subscribers wil release as well
+     */
+    fun dependencySubscription(dependant: GLBound) = synchronized(subscribers) {
+        val ref = WeakReference(dependant)
+        if(subscribers.contains(ref))
+            return@synchronized
+        else
+            subscribers.add(ref)
     }
 
     private data class Handlers(var program: Int = 0, var vertex: Int = 0, var fragment: Int = 0)
