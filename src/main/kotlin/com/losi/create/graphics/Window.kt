@@ -160,6 +160,14 @@ class Window: InternalGLContext {
                 Vector3f(0f, 0f, 1f)))
         mesh.burnModel()
 
+        @Suppress("unused")
+        glfwSetKeyCallback(window) { wind, key, scancode, action, mods ->
+            if(key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
+                glfwSetWindowShouldClose(wind, true)
+            if(key == GLFW_KEY_D && action == GLFW_RELEASE)
+                shaderProgram.destroy()
+        }
+
         glfwSwapInterval(if(vSync) 1 else 0)
         timer.init()
         while (!glfwWindowShouldClose(window)) {
@@ -211,10 +219,7 @@ class Window: InternalGLContext {
         glfwSetFramebufferSizeCallback(window) {_, width, height ->
             this.onResize(width, height)
         }
-        /*// glfwSetKeyCallback(window, (wind, key, scancode, action, mods) -> {
-            if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
-                glfwSetWindowShouldClose(wind, true); // We will detect this in the rendering loop
-        });*/
+
     }
     @Suppress("unused") fun close() {
         if (window != NULL)
