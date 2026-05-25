@@ -78,15 +78,15 @@ import kotlin.streams.asStream
 
     fun asList() = List(this)
     @JvmInline value class List internal constructor(private val array: Vector2iArray):  kotlin.collections.List<Vector2i> {
-        override fun contains(element: Vector2i): Boolean = array.contains(element)
+        override fun contains(element: Vector2i) = array.contains(element)
         override fun containsAll(elements: Collection<Vector2i>) = array.containsAll(elements)
-        override fun get(index: Int): Vector2i = array[index]
-        override fun indexOf(element: Vector2i): Int = array.indexOf(element)
-        override fun isEmpty(): Boolean = array.size == 0
-        override fun iterator(): Iterator<Vector2i> = array.iterator()
-        override fun lastIndexOf(element: Vector2i): Int = array.lastIndexOf(element)
-        override fun listIterator(): kotlin.collections.ListIterator<Vector2i> = ListIterator(array.elements)
-        override fun listIterator(index: Int): kotlin.collections.ListIterator<Vector2i> = ListIterator(array.elements, index)
+        override fun get(index: Int) = array[index]
+        override fun indexOf(element: Vector2i) = array.indexOf(element)
+        override fun isEmpty() = array.size == 0
+        override fun iterator() = array.iterator()
+        override fun lastIndexOf(element: Vector2i) = array.lastIndexOf(element)
+        override fun listIterator() = ListIterator(array.elements)
+        override fun listIterator(index: Int) = ListIterator(array.elements, index)
         override fun toString(): String = array.toString()
         override fun subList(fromIndex: Int, toIndex: Int): SpanList {
             val from = fromIndex.coerceIn(0 until array.size)

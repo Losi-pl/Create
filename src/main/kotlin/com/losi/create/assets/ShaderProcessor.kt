@@ -18,8 +18,8 @@ internal object ShaderProcessor: AssetTypeProcessor<Shader>
             val frag = parts.find { it.first.endsWith(".frag") }?.let { loadResource(it.second, shader.first, it.first) }
             val xml =  parts.find { it.first.endsWith(".xml")  }?.let { loadResource(it.second, shader.first, it.first) }
 
-            if(vert == null) { ResourceProcessingException("The Vertex shader for \"${genName(shader)}\" is nod defined").printStackTrace(System.err); return }
-            if(frag == null) { ResourceProcessingException("The Fragment shader for \"${genName(shader)}\" is nod defined").printStackTrace(System.err); return }
+            if(vert == null) { ResourceProcessingException("The Vertex shader for \"${genName(shader)}\" is not defined").printStackTrace(System.err); return }
+            if(frag == null) { ResourceProcessingException("The Fragment shader for \"${genName(shader)}\" is not defined").printStackTrace(System.err); return }
 
             val shaderPr = xml?.let { Shader(vert, frag, it) } ?: Shader(vert, frag)
             shaders[shader] = shaderPr
