@@ -16,9 +16,9 @@ interface AssetTypeProcessor<T>
 
     fun getResourceOrder() = order.get()!!
     fun loadResource(space: ResourceSpace, mod: ModSpace, name: String) =
-        AssetsManager.getStream(space, "assets/${mod.identity}/${nameType.get()}$name")
+        AssetManager.getStream(space, "assets/${mod.identity}/${nameType.get()}$name")
     fun loadResource(space: ResourceSpace, path: Pair<ModSpace, String>) =
-        AssetsManager.getStream(space, "assets/${path.first.identity}/${nameType.get()}${path.second}")
+        AssetManager.getStream(space, "assets/${path.first.identity}/${nameType.get()}${path.second}")
     fun Resources.overlayed(order: List<ResourceSpace>) = this.let { resources-> object : Map<Pair<ModSpace, String>, ResourceSpace> {
         val lazySize = lazy {
             val hash = HashLongSets.newMutableSet()

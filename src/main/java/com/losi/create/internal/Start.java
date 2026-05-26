@@ -1,7 +1,7 @@
 package com.losi.create.internal;
 
 import com.losi.create.Version;
-import com.losi.create.assets.AssetsManager;
+import com.losi.create.assets.AssetManager;
 import com.losi.create.assets.ShaderProcessor;
 import com.losi.create.graphics.GLContext;
 import com.losi.create.graphics.Shader;
@@ -49,9 +49,9 @@ public class Start {
     public static void BuildAssets()
     {
         context.threadBind();
-        AssetsManager.constructAssetLoader$create();
-        AssetsManager.registerProcessor(ShaderProcessor.INSTANCE, Shader.class, "shaders");
-        AssetsManager.INSTANCE.processAssets$create();
+        AssetManager.constructAssetLoader$create();
+        AssetManager.registerProcessor(ShaderProcessor.INSTANCE, Shader.class, "shaders");
+        AssetManager.INSTANCE.processAssets$create();
         context.close();
     }
 }
