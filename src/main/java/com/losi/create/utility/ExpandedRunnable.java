@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**An implementation of the {@link Runnable} lambda meant to make a subscribtion type event where anyone can add their own lambda that will be called whenever this lambda is called*/
-@SuppressWarnings({"unused", "SpellCheckingInspection", "typo"})
+@SuppressWarnings({"RedundantSuppression", "SpellCheckingInspection", "unused", "typo"})
 public final class ExpandedRunnable implements Runnable {
     private List<Runnable> runnables = List.of();
     private final Object sync = new Object();

@@ -7,7 +7,7 @@ import org.lwjgl.system.NativeType;
 
 import static org.lwjgl.opengl.GL20.*;
 
-@SuppressWarnings({"SpellCheckingInspection", "typo", "GrazieInspectionRunner"})
+@SuppressWarnings({"RedundantSuppression", "SpellCheckingInspection", "GrazieInspectionRunner", "typo"})
 public class CShaderUniforms {
     /** {@code void glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, GLfloat const * value)} */
     public static void glUniformMatrix4f(
