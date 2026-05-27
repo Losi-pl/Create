@@ -9,6 +9,7 @@ import static org.lwjgl.opengl.GL20.*;
 
 @SuppressWarnings({"SpellCheckingInspection", "typo", "GrazieInspectionRunner"})
 public class CShaderUniforms {
+    /** {@code void glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, GLfloat const * value)} */
     public static void glUniformMatrix4f(
             @NativeType("GLint") int location,
             @NativeType("GLboolean")boolean transpose,
