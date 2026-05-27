@@ -13,10 +13,15 @@ import java.util.Objects;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+/** The entry point of the game, meant toly to start up the game. */
 public class Start {
+    /**The main game window*/
     static Window main;
+    /**The context allowing for the OpenGL operations during the construction of the resources*/
     static GLContext context;
 
+    /**The starting methods of the game starting all other processes
+     * @param args The parameters of the game startup*/
     static void main(String[] args) {
         IO.println("Welcome to Create!");
 
@@ -46,6 +51,8 @@ public class Start {
         Objects.requireNonNull(glfwSetErrorCallback(null)).free();
     }
 
+    /**The method executed in the parallel thread, it is meant to load all resources of the game.
+     * <p>At the moment including: <ul><li>{@link Shader}: Assets: {@code shaders/}</li></ul>*/
     public static void BuildAssets()
     {
         context.threadBind();
