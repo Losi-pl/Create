@@ -16,10 +16,10 @@ import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL30.*
 import org.lwjgl.system.MemoryUtil.*
 
-class Window {
+class Window: InternalGLContext {
     companion object
     {
-        private var currentWindow = ThreadLocal<Window>()
+        internal var currentContext = ThreadLocal<InternalGLContext>()
         private var cleaner = Cleaner.create()
         private var initialized = false
         private var ICON_SIZES = listOf(16, 32, 48, 64, 128, 256)
@@ -49,9 +49,8 @@ class Window {
     private var _targetFPS = 60
     private val logicUpdate = ExpandedConsumer<Float>()
 
-    constructor()
-    {
-        synchronized (currentWindow)
+    constructor() {
+        synchronized (currentContext)
         {
             if(!initialized)
                 initGL()
@@ -59,26 +58,19 @@ class Window {
         }
     }
 
-    var title: String? get() { return _title; }
-    set(it) {
+    var title: String? get() { return _title; } set(it) {
         _title = it
         if(window != NULL)
             glfwSetWindowTitle(window, _title ?: "")
     }
-
-    var vSync: Boolean get() = _vSync
-    set(it) { _vSync = it }
-
-    var icon: InputStream? get() = _icon
-    set(it) = synchronized (sync)
-    {
+    var vSync: Boolean get() = _vSync; set(it) { _vSync = it }
+    var icon: InputStream? get() = _icon; set(it) = synchronized (sync) {
         _icon = it
         if(_icon != null && window != NULL)
             loadIcon(_icon!!)
     }
-
-    var targetFPS: Int get() = _targetFPS
-    set(it) { _targetFPS = it }
+    var targetFPS: Int get() = _targetFPS; set(it) { _targetFPS = it }
+    internal val handle: Long get() = window
 
     fun registerLogic(logic: java.util.function.Consumer<Float>)
     { logicUpdate.add(logic); }
@@ -167,6 +159,15 @@ class Window {
                 Vector3f(0f, 1f, 0f),
                 Vector3f(0f, 0f, 1f)))
         mesh.burnModel()
+        mesh.flushBuffers()
+
+        @Suppress("unused")
+        glfwSetKeyCallback(window) { wind, key, scancode, action, mods ->
+            if(key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
+                glfwSetWindowShouldClose(wind, true)
+            if(key == GLFW_KEY_D && action == GLFW_RELEASE)
+                shaderProgram.release()
+        }
 
         glfwSwapInterval(if(vSync) 1 else 0)
         timer.init()
@@ -219,25 +220,22 @@ class Window {
         glfwSetFramebufferSizeCallback(window) {_, width, height ->
             this.onResize(width, height)
         }
-        /*// glfwSetKeyCallback(window, (wind, key, scancode, action, mods) -> {
-            if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
-                glfwSetWindowShouldClose(wind, true); // We will detect this in the rendering loop
-        });*/
+
     }
     @Suppress("unused") fun close() {
         if (window != NULL)
             glfwWindowShouldClose(window)
     }
     @Suppress("unused") fun destroy() = handleDestroyer.clean()
-    fun threadBind() = synchronized (currentWindow)
+    fun threadBind() = synchronized (currentContext)
     {
         if(threadBound)
             throw IllegalStateException("Window is already bound to a Thread")
-        if(currentWindow.get() != null)
-            throw IllegalStateException("Thread is already bound to a Window")
+        if(currentContext.get() != null)
+            throw IllegalStateException("Thread is already bound to a Window or Context")
         if(window == NULL)
             throw IllegalStateException("The window was not yet created")
-        currentWindow.set(this)
+        currentContext.set(this)
         glfwMakeContextCurrent(window)
         GL.createCapabilities()
         glViewport(0, 0, size!!.x, size!!.y)

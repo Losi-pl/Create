@@ -5,21 +5,25 @@ import java.util.concurrent.CountDownLatch
 
 object OnMainThread
 {
-    private val queue: ConcurrentLinkedQueue<() -> Unit> = ConcurrentLinkedQueue()
+    private val queue: ConcurrentLinkedQueue<Runnable> = ConcurrentLinkedQueue()
+    internal var mainThread: Thread? = null
 
-    internal fun callAction(ignore: Float)
+    internal fun callAction(@Suppress("unused") ignore: Float)
     {
         while (true) {
             val item = queue.poll() ?: break
-            item()
+            item.run()
         }
     }
 
     @JvmStatic
-    fun schedule(action: () -> Unit) = queue.offer(action)
+    fun isMain(): Boolean = mainThread == Thread.currentThread()
+
+    @JvmStatic
+    fun schedule(action: Runnable) = queue.offer(action)
 
     @JvmStatic @Suppress("unused")
-    inline fun <T> schedule(crossinline action: () -> T): T
+    inline fun <T> query(crossinline action: () -> T): T
     {
         val latch = CountDownLatch(1)
         var result: T? = null

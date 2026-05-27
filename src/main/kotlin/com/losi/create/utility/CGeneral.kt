@@ -60,3 +60,18 @@ fun <T> Sequence<T>.chunkedReuse(size: Int) = sequence {
         yield(buffer)
     }
 }
+fun String.startsWithFrom(subString: String, fromIndex: Int): Boolean {
+    if(this.length - subString.length < 0)
+        return false
+    subString.forEachIndexed { i, c ->
+        if(this[i + fromIndex] != c)
+            return false
+    }
+    return true
+}
+fun <T, R> Pair<T, R>.longHashCode(): Long
+{
+    var hash = this.first.hashCode().toLong()
+    hash = 31 * hash + this.second.hashCode().toLong()
+    return hash xor (hash ushr 32)
+}

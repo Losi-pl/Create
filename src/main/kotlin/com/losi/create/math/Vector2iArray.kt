@@ -78,15 +78,15 @@ import kotlin.streams.asStream
 
     fun asList() = List(this)
     @JvmInline value class List internal constructor(private val array: Vector2iArray):  kotlin.collections.List<Vector2i> {
-        override fun contains(element: Vector2i): Boolean = array.contains(element)
+        override fun contains(element: Vector2i) = array.contains(element)
         override fun containsAll(elements: Collection<Vector2i>) = array.containsAll(elements)
-        override fun get(index: Int): Vector2i = array[index]
-        override fun indexOf(element: Vector2i): Int = array.indexOf(element)
-        override fun isEmpty(): Boolean = array.size == 0
-        override fun iterator(): Iterator<Vector2i> = array.iterator()
-        override fun lastIndexOf(element: Vector2i): Int = array.lastIndexOf(element)
-        override fun listIterator(): kotlin.collections.ListIterator<Vector2i> = ListIterator(array.elements)
-        override fun listIterator(index: Int): kotlin.collections.ListIterator<Vector2i> = ListIterator(array.elements, index * 2)
+        override fun get(index: Int) = array[index]
+        override fun indexOf(element: Vector2i) = array.indexOf(element)
+        override fun isEmpty() = array.size == 0
+        override fun iterator() = array.iterator()
+        override fun lastIndexOf(element: Vector2i) = array.lastIndexOf(element)
+        override fun listIterator() = ListIterator(array.elements)
+        override fun listIterator(index: Int) = ListIterator(array.elements, index)
         override fun toString(): String = array.toString()
         override fun subList(fromIndex: Int, toIndex: Int): SpanList {
             val from = fromIndex.coerceIn(0 until array.size)
@@ -124,7 +124,7 @@ import kotlin.streams.asStream
         override fun subList(fromIndex: Int, toIndex: Int): SpanList {
             val from = fromIndex.coerceIn(0 until count)
             val to = toIndex.coerceIn(0 until count)
-            return SpanList(array, start + from, to - (start + from))
+            return SpanList(array, start + from, to - from)
         }
         override val size: Int get() = count
 
@@ -233,14 +233,15 @@ import kotlin.streams.asStream
 
     fun contains(element: Vector2i): Boolean = indexOf(element) >= 0
     fun containsAll(elements: Collection<Vector2i>, fromIndex: Int = 0, toIndex: Int = size): Boolean {
-        var count = elements.size
+        val count = BooleanArray(elements.size)
         for (i in fromIndex until toIndex)
         {
             val x = this.elements[i*2]; val y = this.elements[i*2+1]
-            for(ele in elements)
+            elements.forEachIndexed { index, ele ->
                 if(x == ele.x && y == ele.y)
-                    count--
-            if(count == 0)
+                    count[index] = true
+            }
+            if(count.all { it })
                 return true
         }
         return false
@@ -258,7 +259,7 @@ import kotlin.streams.asStream
     fun joinToString(fromIndex: Int, toIndex: Int, separator: String = ", ", prefix: String = "[", postfix: String = "]"): String {
         val sb = StringBuilder(prefix)
         for (i in fromIndex until toIndex) {
-            if (i > 0) sb.append(separator)
+            if (i > fromIndex) sb.append(separator)
             sb.append("(").append(elements[i*2]).append(", ").append(elements[i*2+1]).append(")")
         }
         sb.append(postfix)
