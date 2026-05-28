@@ -5,20 +5,38 @@ import com.losi.create.ModSpace
 import com.losi.create.utility.forceAdd
 import com.losi.create.utility.longHashCode
 
+/**The interface used to create a mechanism used in [AssetManager] to process objects of type [T]*/
 interface AssetTypeProcessor<T>
 {
+    /**Format of resources to be processed in [processResources]*/
     typealias Resources = Map<ResourceSpace, Map<ModSpace, List<String>>>
     companion object
     {
+        /**Path in assets which this specific type occupies like `shaders/`
+         *
+         * It is set whenever this block is called*/
         internal val nameType = ThreadLocal<String>()
+        /**Contains a list of all recognized sources of resources in order of their importance
+         *
+         * They are put in order of least to most important ones*/
         internal val order = ThreadLocal<List<ResourceSpace>>()
     }
 
+    /**Will return a list of all [ResourceSpace] recognized by the game in the order of their importance from least to most important ones*/
     fun getResourceOrder() = order.get()!!
+    /**This is used to get an [java.io.InputStream] to a specified resource
+     * @param space The specific [ResourceSpace] you want to load from
+     * @param mod The specific [ModSpace] the resource is attached to
+     * @param name The path to or name of the resource you want to load within the type*/
     fun loadResource(space: ResourceSpace, mod: ModSpace, name: String) =
         AssetManager.getStream(space, "assets/${mod.identity}/${nameType.get()}$name")
+    /**This is used to get an [java.io.InputStream] to a specified resource
+     * @param space The specific [ResourceSpace] you want to load from
+     * @param path A combination of the [ModSpace] and the path within this type to the searched resource*/
     fun loadResource(space: ResourceSpace, path: Pair<ModSpace, String>) =
         AssetManager.getStream(space, "assets/${path.first.identity}/${nameType.get()}${path.second}")
+    /**Created a map with the paths to specific resources serving as keys and leading to [ResourceSpace]'s containing the most relevant version of that resource
+     * @param order the order of relevance of the resources, can  be obtained from [getResourceOrder]*/
     fun Resources.overlayed(order: List<ResourceSpace>) = this.let { resources-> object : Map<Pair<ModSpace, String>, ResourceSpace> {
         val lazySize = lazy {
             val hash = HashLongSets.newMutableSet()
@@ -111,13 +129,24 @@ interface AssetTypeProcessor<T>
         }
     }}
 
+    /**This method is used for loading resources and processing them into assets
+     * @param resources The resources to be processed*/
     fun processResources(resources: Resources)
+    /**If the resources are meant to be reloaded this method is called to clear the current versions of them*/
     fun clearAssets()
+    /**This method is used to obtain a specific resource of this type
+     * @param mod The [ModSpace] the resource is attached to
+     * @param name The path or name of the resource being looked for*/
     fun getAsset(mod: ModSpace, name : String): T?
-    fun getAsset(name: String): T? {
-        val modIdent = name.substringBefore(':')
-        val actualName = name.substringAfter(':')
-        val mod = ModSpace.modules[modIdent] ?: ModSpace("", modIdent, ResourceSpace(), true)
-        return getAsset(mod, actualName)
-    }
+}
+
+/**An extension of [AssetTypeProcessor.getAsset]
+ *
+ * This variation is made for a quick call on resource without a need to pass on the specific [ModSpace]
+ * and that type being inferred from the structure of the query in format `mod:resource`*/
+internal fun <T> AssetTypeProcessor<T>.getAsset(name: String): T? {
+    val modIdent = name.substringBefore(':')
+    val actualName = name.substringAfter(':')
+    val mod = ModSpace.modules[modIdent] ?: ModSpace("", modIdent, ResourceSpace(), true)
+    return getAsset(mod, actualName)
 }
