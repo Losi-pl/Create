@@ -3,6 +3,9 @@ package com.losi.create.assets
 import com.losi.create.ModSpace
 import com.losi.create.graphics.Shader
 
+/**A processor responsible for parsing shaders in the resources into assets
+ *
+ * Path in assets: `shaders/`*/
 internal object ShaderProcessor: AssetTypeProcessor<Shader>
 {
     val shaders = HashMap<Pair<ModSpace, String>, Shader>()
@@ -26,6 +29,7 @@ internal object ShaderProcessor: AssetTypeProcessor<Shader>
         }
     }
 
+    /**Converts a pair containing the [ModSpace] and the path to resource into a human friendly format*/
     fun genName(shader: Pair<ModSpace, String>): String = "${shader.first.identity}:${shader.second}"
 
     override fun clearAssets() = TODO("Not yet implemented")
