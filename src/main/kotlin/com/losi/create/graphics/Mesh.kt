@@ -120,7 +120,7 @@ class Mesh: GLBound {
                 throw NullPointerException("The Shader used by this Mesh was destroyed")
 
             val attr = findAttr(name)
-            if(attr.type != type)
+            if(attr.type != type)                                                           //TODO: Use the attribute for info
                 throw IllegalArgumentException("Attribute \"${attr.name}\" is not of type ${translateGLTypes(type)} and requires ${attr.classType}")
             else
                 variables[attr] = values

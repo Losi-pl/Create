@@ -15,26 +15,39 @@ import org.w3c.dom.Node
 import org.joml.*
 import java.lang.ref.WeakReference
 
+/**Shader program used to render objects*/
 class Shader: GLBound {
     companion object{
+        /**Turns an [InputStream] into an XML [Document]*/
         private fun parseProperties(xml: InputStream) : Document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xml)
+        /**Used to ensure that if a Shader is Garbage Collected it is also released from OpenGL memory*/
         private val cleaner = Cleaner.create()
+        /**Unbinds a current shader from the context*/
         fun release() = glUseProgram(0)
     }
 
+    /**Creates a new shader from scratch using the [InputStream]'s*/
     constructor(vertex: InputStream, fragment: InputStream) {
         compile(vertex.readAsString(), fragment.readAsString())
     }
+    /**Creates a new shader from scratch using the [InputStream]'s
+     *
+     * Accepts an extra XML with configuration*/
     constructor(vertex: InputStream, fragment: InputStream, xml: InputStream) {
         compile(vertex.readAsString(), fragment.readAsString())
         var prop = parseProperties(xml)
         setFragmentShader(prop.getElementsByTagName("fragment").item(0))
     }
 
+    /**The [Handlers] of this instance*/
     private val handlers: Handlers = Handlers()
+    /**The list of active uniforms for this Shader*/
     private lateinit var _uniforms: Map<String, Uniform>
+    /**A list of attributes used models implementing this Shader*/
     private lateinit var _attributes: Map<String, Attribute>
+    /**A list of dependency's that will be released along with this Shader*/
     private val subscribers = mutableListOf<WeakReference<GLBound>>()
+    /**Sets up the even for when this object is Garbage Collected to ensure that it is also dissolved in the OpenGL memory*/
     private val cleanable: Cleaner.Cleanable = run {
         val hand = handlers
         cleaner.register(this) {
@@ -62,12 +75,19 @@ class Shader: GLBound {
         }
     }
 
+    /**The OpenGL handler of this Shader Program*/
     val handler: Int get() = handlers.program
+    /**The list of active uniforms for this Shader*/
     val uniforms: Map<String, Uniform> get() = _uniforms
+    /**A list of attributes used models implementing this Shader*/
     val attributes: Map<String, Attribute> get() = _attributes
 
+    /**Specifies that this is the Shader current used in this Thread
+     *
+     * Meant for OpenGL*/
     fun use() { breakTest(); glUseProgram(handlers.program) }
 
+    /**Compiles the Shader from [InputStream]'s*/
     private fun compile(vertex: String, fragment: String) {
         handlers.vertex = glCreateShader(GL_VERTEX_SHADER)
         glShaderSource(handlers.vertex, vertex)
@@ -98,6 +118,7 @@ class Shader: GLBound {
         loadUniforms()
         loadAttributes()
     }
+    /**Loads data about uniforms*/
     private fun loadUniforms() {
         val uniforms = mutableListOf<Uniform>()
         MemoryStack.stackPush().use { stack ->
@@ -113,6 +134,9 @@ class Shader: GLBound {
         }
         this._uniforms = uniforms.associateBy { it.name }.calcify()
     }
+    /**Reads XML data from the configuration and applies it to the shader
+     *
+     *  Configuration specific to Fragment Shader*/
     private fun setFragmentShader(info: Node) {
         if(info is Element)
         {
@@ -126,6 +150,7 @@ class Shader: GLBound {
         }
 
     }
+    /**Loads data related to the attributes from a compiles shader*/
     private fun loadAttributes(){
         val attributes = mutableListOf<Attribute>()
         MemoryStack.stackPush().use { stack ->
@@ -144,6 +169,10 @@ class Shader: GLBound {
     }
 
     //region Uniforms
+    /**The format fot setting an attribute
+     * @param name The name of the attribute to set
+     * @param type OpenGL type expected by the method to find
+     * @param setter Invoked to set the uniform when the internal logic of this method set up everything else*/
     private inline fun setUniform(name: String, type: Int, setter: (Uniform) -> Unit) {
         breakTest()
         val uninfo = _uniforms[name].orElse { throw Exception("Unknown uniform \"$name\"") }
@@ -152,12 +181,19 @@ class Shader: GLBound {
         use()
         setter(uninfo)
     }
+    /**Used to set the [name] uniform with a [matrix]
+     * @throws Exception If the attribute could not be found or if its type is not matched to the value*/
     fun setUniform(name: String, matrix: Matrix4f) =
         setUniform(name, GL_FLOAT_MAT4) { glUniformMatrix4f(it.location, false, matrix) }
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if its type is not matched to the [value]*/
     fun setUniform(name: String, value: Float) =
         setUniform(name, GL_FLOAT) { glUniform1f(it.location, value) }
     //TODO: setUniform(/* ALL */)
 
+    /**Used to dissolve the Shader allowing the OpenGl data to be freed
+     *
+     * After calling the Shader will become unusable, and all dependency's will be released as well*/
     override fun release() {
         var exc: MutableList<Exception>? = null
         synchronized(subscribers) {
@@ -178,7 +214,10 @@ class Shader: GLBound {
             throw run
         }
     }
+    /**Is this Shader dissolved flag*/
     val released: Boolean get() = handlers.program == 0
+    /**A check if this Shader can be used or is it dissolved
+     * @throws NullPointerException Thrown if the Shader has been dissolved*/
     fun breakTest() {
         if(released)
             throw NullPointerException("The shader has been destroyed")
@@ -198,13 +237,29 @@ class Shader: GLBound {
             subscribers.add(ref)
     }
 
+    /**The handlers to all relevant OpenGL objects
+     * @property program The Shader Program
+     * @property vertex The Vertex Shader
+     * @property fragment Thr Fragment Shader*/
     private data class Handlers(var program: Int = 0, var vertex: Int = 0, var fragment: Int = 0)
 
+    /**The information about the Uniform of a Shader Program
+     * @property name A human friendly name
+     * @property location The handler of the uniform in th shader
+     * @property count Information about the values of the [type] in ths specific uniform, if bigger than `1` then this uniform is an array
+     * @property type The type of data of this uniform
+     * @property classType The [type] of this uniform but in Kotlin format*/
     data class Uniform(val name: String, val location: Int, val count: UInt, val type: Int) {
         val classType: KClass<*>? get() = translateGLTypes(type)
     }
     //endregion
 
+    /**The information about the Attribute of a Shader Program
+     * @property name A human friendly name
+     * @property location The handler of the attribute in th shader
+     * @property count Information about the values of the [type] in ths specific attribute, if bigger than `1` then this attribute is an array
+     * @property type The type of data of this attribute
+     * @property classType The [type] of this attribute but in Kotlin format*/
     data class Attribute(val name: String, val location: Int, val count: UInt, val type: Int, val offset: Int) {
         val classType: KClass<*>? get() = translateGLTypes(type)
     }
