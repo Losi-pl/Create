@@ -2,18 +2,21 @@ package com.losi.create.graphics
 
 import org.lwjgl.opengl.GL43.*
 
+/**An Exception used when the compilation or linking of a Shader failed*/
 class ShaderCompilationError : RuntimeException {
     var shaderError: Error
 
+    /**When only one part of a Shader failed to compile properly*/
     @Suppress("unused")
     constructor(shaderType: Int, content: String) {
         shaderError = Error.ShaderParts(listOf(Pair(shaderType, content)))
     }
+    /**A list of multiple failers to properly compile shader part's*/
     constructor(compilationErrors: List<Pair<Int, String>>) {
         shaderError = Error.ShaderParts(ArrayList(compilationErrors))
     }
-    constructor(linkingError: String)
-    {
+    /**An error with liking of the shader parts into a single program*/
+    constructor(linkingError: String) {
         shaderError = Error.ShaderLinking(linkingError)
     }
 
@@ -42,9 +45,12 @@ class ShaderCompilationError : RuntimeException {
         }
     }
 
+    /**Information about the specific error of this exception*/
     sealed class Error
     {
+        /**Errors in compilation of Shaders Part's*/
         data class ShaderParts(var errors: List<Pair<Int, String>>) : Error()
+        /**Error in linking of Shader Part's*/
         data class ShaderLinking(var message: String) : Error()
     }
 }
