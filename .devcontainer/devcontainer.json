@@ -3,7 +3,7 @@
   "build": { "dockerfile": "Dockerfile" },
   "containerEnv": {
     "JAVA_HOME": "/opt/jdk-25",
-    "PATH": "/opt/jdk-25/bin:/usr/local/sdkman/candidates/gradle/current/bin:${containerEnv:PATH}"
+    "PATH": "/opt/jdk-25/bin:/usr/local/sdkman/candidates/gradle/current/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
   },
   "extensions": [
     "JetBrains.kotlin",
