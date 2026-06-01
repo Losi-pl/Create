@@ -23,10 +23,10 @@ fun NodeList.last(): Node = this.item(this.length - 1)
 fun <T> T?.orElse(default: T): T = this ?: default
 /**If [this] value is `null` will return the lazy defined [default]*/
 inline fun <T> T?.orElse(default: () -> T): T = this ?: default()
-/**If [this] value is `null` will return the [els] TODO:Rename to `default`*/
-fun Int?.orElse(els: Int) : Int {
+/**If [this] value is `null` will return the [default]*/
+fun Int?.orElse(default: Int) : Int {
     if(this == null)
-        return els
+        return default
     return this
 }
 /**Goes through the list ensuring that all elements in it are equal to each other
