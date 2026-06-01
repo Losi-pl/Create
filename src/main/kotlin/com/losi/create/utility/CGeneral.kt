@@ -89,11 +89,7 @@ fun String.startsWithFrom(subString: String, fromIndex: Int): Boolean {
     return true
 }
 /**Creates an 64-bit hash intend of the standard 32-bit
- * To create the hash values of the [Pair] are used
- * TODO: Correct, most of space available in a [Long] is wasted*/
-fun <T, R> Pair<T, R>.longHashCode(): Long
-{
-    var hash = this.first.hashCode().toLong()
-    hash = 31 * hash + this.second.hashCode().toLong()
-    return hash xor (hash ushr 32)
-}
+ *
+ * It is created from hashes of values in the [Pair]*/
+fun <T, R> Pair<T, R>.longHashCode() =
+    ((this.first.hashCode().toLong() and 0xFFFFFFFFL) or (this.second.hashCode().toLong() shl 32))
