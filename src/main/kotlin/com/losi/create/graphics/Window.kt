@@ -52,9 +52,9 @@ class Window: InternalGLContext {
     private lateinit var handleDestroyer: Cleaner.Cleanable
     /**A flag, is this window already connected to a [Thread]*/
     private var threadBound = false
-    /**Title of this window TODO: See if it's needed*/
+    /**Title of this window*/
     private var _title: String? = null
-    /**Size of this window TODO: See if it's needed*/
+    /**Size of this window*/
     private var size: Vector2i? = null
     /**The monitor on which the window was set to be present*/
     private var monitor: Monitor? = null
@@ -77,10 +77,7 @@ class Window: InternalGLContext {
             initialized = true
         }
     }
-    /**Title of this window
-     *
-     * TODO: Remove dependency for a variable
-     */
+    /**Title of this window*/
     var title: String? get() { return _title; } set(it) {
         _title = it
         if(window != NULL)
