@@ -1,12 +1,9 @@
 {
   "name": "Kotlin 2.3.21 + Java 25",
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
+  "build": { "dockerfile": "Dockerfile" },
   "containerEnv": {
-    "JAVA_HOME": "/usr/local/sdkman/candidates/java/current",
-    "SDKMAN_DIR": "/usr/local/sdkman",
-    "PATH": "/usr/local/sdkman/candidates/java/current/bin:/usr/local/sdkman/candidates/gradle/current/bin:${containerEnv:PATH}"
+    "JAVA_HOME": "/opt/jdk-25",
+    "PATH": "/opt/jdk-25/bin:/usr/local/sdkman/candidates/gradle/current/bin:${containerEnv:PATH}"
   },
   "extensions": [
     "JetBrains.kotlin",
@@ -15,12 +12,12 @@
   "settings": {
     "kotlin.languageServer.enabled": true,
     "kotlin.gradle.enabled": true,
-    "kotlin.gradle.javaHome": "/usr/local/sdkman/candidates/java/current",
-    "gradle.java.home": "/usr/local/sdkman/candidates/java/current",
+    "kotlin.gradle.javaHome": "/opt/jdk-25",
+    "gradle.java.home": "/opt/jdk-25",
     "java.configuration.runtimes": [
       {
         "name": "JavaSE-25",
-        "path": "/usr/local/sdkman/candidates/java/current",
+        "path": "/opt/jdk-25",
         "default": true
       }
     ]
