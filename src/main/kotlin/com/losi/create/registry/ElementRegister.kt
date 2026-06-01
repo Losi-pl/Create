@@ -19,16 +19,18 @@ class ElementRegister<T: GameElement>
     private val sync = Any()
     /**Add a new element the registry
      *
-     *  - TODO: Throws an error if [element] was already registered
+     *  - Throws an error if [element] was already registered
      *  - Throws an error if [name] is already taken*/
     fun register(element: T, name: String) = synchronized (sync)
     {
         if(rawElementsByName == null)
             throw RuntimeException("Register has been closed")
+        if(element.registered())
+            throw IllegalArgumentException("Element was already registered")
 
-        element.name = name
         if(rawElementsByName?.putIfAbsent(name, element) != null)
             throw IllegalArgumentException("Element \"$name\" already exists")
+        element.name = name
     }
     /**Looks for an element by [name] in the register*/
     fun retrieve(name: String): T =
