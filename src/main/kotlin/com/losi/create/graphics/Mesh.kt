@@ -15,9 +15,6 @@ class Mesh: GLBound {
     companion object {
         /**The [Cleaner] used to ensure that the resources bound the this [Mesh] are released if the object is Garbage Collected*/
         val cleaner = Cleaner.create()!!
-        /**I do not remember why I added this and it doesn't seem be needed anywhere so TODO: Remove
-         */
-        val identity = Matrix4f()
 
         /**Used to force the type in the [List] to be recognized as [T]*/
         private inline fun <reified T> List<*>.assert(): List<T> {
