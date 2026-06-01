@@ -1,0 +1,55 @@
+{
+  "name": "Kotlin 2.3.21 + Java 25",
+  // If you use a Dockerfile:
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  // Alternatively, use a pre‑built image with the SDKMAN feature:
+  // "image": "mcr.microsoft.com/devcontainers/universal:linux",
+  // "features": {
+  //   "ghcr.io/devcontainers-contrib/features/sdkman:1": {}
+  // },
+
+  // Set environment variables for the JDK and Gradle
+  "containerEnv": {
+    "JAVA_HOME": "/usr/local/sdkman/candidates/java/current",
+    "SDKMAN_DIR": "/usr/local/sdkman",
+    "PATH": "/usr/local/sdkman/candidates/java/current/bin:/usr/local/sdkman/candidates/gradle/current/bin:${containerEnv:PATH}"
+  },
+
+  // VS Code extensions (make sure the IDs are correct for your marketplace)
+  "extensions": [
+    "JetBrains.kotlin",           // JetBrains official Kotlin extension
+    "vscjava.vscode-gradle",      // Gradle language support
+    "fwcd.kotlin"                 // alternative if JetBrains isn't available
+  ],
+
+  // Settings that prevent “everything is an error”
+  "settings": {
+    "kotlin.languageServer.enabled": true,
+    "kotlin.gradle.enabled": true,
+    "kotlin.gradle.javaHome": "/usr/local/sdkman/candidates/java/current",
+    "gradle.java.home": "/usr/local/sdkman/candidates/java/current",
+    "java.configuration.runtimes": [
+      {
+        "name": "JavaSE-25",
+        "path": "/usr/local/sdkman/candidates/java/current",
+        "default": true
+      }
+    ]
+  },
+
+  // Post‑create commands: generate the Gradle wrapper and download all dependencies
+  "postCreateCommand": [
+    "gradle wrapper --gradle-version 8.12",    // creates gradlew + gradle/wrapper
+    "./gradlew build --no-daemon -x test"      // forces dependency resolution (skip tests)
+  ],
+
+  // Share the Gradle & Kotlin cache with the host to speed up rebuilds
+  "mounts": [
+    "source=${localWorkspaceFolderBasename}-gradle-cache,target=/home/vscode/.gradle,type=volume"
+  ],
+
+  // Use a non‑root user (the image already has ‘vscode’)
+  "remoteUser": "vscode"
+}
