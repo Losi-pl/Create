@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.losi.create.registry
 
 /**The base for the modular structure of the games mechanics*/
@@ -16,7 +18,9 @@ abstract class GameElement
     /**Unique identifier of this element
      *
      * Set during world creation will remain the same for this specific world*/
-    val uuid: ULong? get() = this._uuid
+    var uuid: ULong get() = this._uuid ?: throw RuntimeException("Game session was not yet started")
+        internal set(it) { this._uuid = it }
+
     /**A flag, telling if the element was registered*/
     @get:JvmName("isRegistered")
     val isRegistered: Boolean get() = _name != null
