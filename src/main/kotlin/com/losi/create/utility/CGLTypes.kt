@@ -7,6 +7,9 @@ import org.joml.*
 import org.lwjgl.opengl.GL40.*
 import kotlin.reflect.KClass
 
+/**Converts an OpenGL type into it's Kotlin eqivalent
+ *
+ * Will return `null` is the type is not recognized or desn't has a recognized equivalent*/
 fun translateGLTypes(type: Int): KClass<*>? = when(type) {
     //Basic
     GL_BOOL -> Boolean::class
@@ -63,6 +66,9 @@ fun translateGLTypes(type: Int): KClass<*>? = when(type) {
     //TODO: Samplers, Images, etc
     else -> null
 }
+/**Returns a primitive type building up the [type]
+ *
+ * If the type is not recognized returns [GL_INT]*/
 fun baseGLPrimitiveTypes(type: Int): Int = when(type) {
     GL_BOOL -> GL_BOOL
     GL_INT -> GL_INT
@@ -117,6 +123,7 @@ fun baseGLPrimitiveTypes(type: Int): Int = when(type) {
 
     else -> GL_INT
 }
+/**The count of primitive values an OpenGL type is constructed from*/
 fun baseGLPrimitivesCount(type: Int): Int = when(type) {
     GL_BOOL -> 1
     GL_INT -> 1
@@ -171,6 +178,7 @@ fun baseGLPrimitivesCount(type: Int): Int = when(type) {
 
     else -> GL_INT
 }
+/**A byte size an OpenGL type*/
 fun baseGLTypeBytes(type: Int): Int =
     when(baseGLPrimitiveTypes(type)){
         GL_BOOL -> 1

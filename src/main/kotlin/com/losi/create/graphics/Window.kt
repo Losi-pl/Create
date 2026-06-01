@@ -16,14 +16,21 @@ import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL30.*
 import org.lwjgl.system.MemoryUtil.*
 
+/**An OpenGL Window and a Context, contains mechanisms for interaction with the user*/
 class Window: InternalGLContext {
-    companion object
-    {
+    companion object {
+        /**A lock for better synchronization between OpenGL context's and [Thread]'s*/
         internal var currentContext = ThreadLocal<InternalGLContext>()
+        /**For ensuring that there are no free floating unused windows*/
         private var cleaner = Cleaner.create()
+        /**A flag, is OpenGL was initialized already*/
         private var initialized = false
+        /**List of recommend sized of an icon*/
         private var ICON_SIZES = listOf(16, 32, 48, 64, 128, 256)
-
+        /**Takes in an [BufferedImage] and returns a new version of it resized to [size]x[size]
+         * @param image An initial image to be resized
+         * @param size Expected size on an image
+         * @return If the input image is already of an expected size the original will be returned, otherwise a new instance will be created*/
         private fun scaleImage(image: BufferedImage, size: Int): BufferedImage {
             if(image.width == size && image.height == size)
                 return image
@@ -36,19 +43,32 @@ class Window: InternalGLContext {
         }
     }
 
+    /**For some flimsy thread synchronization*/
     private val sync = Any()
+    /**Handler for the OpenGL instance of the window*/
     private var window: Long = NULL
+    /**Clearer operation of the window to ensure that the OpenGL instance will not float untethered to anything*/
     @Suppress("FieldCanBeLocal") @Transient
     private lateinit var handleDestroyer: Cleaner.Cleanable
+    /**A flag, is this window already connected to a [Thread]*/
     private var threadBound = false
+    /**Title of this window TODO: See if it's needed*/
     private var _title: String? = null
+    /**Size of this window TODO: See if it's needed*/
     private var size: Vector2i? = null
+    /**The monitor on which the window was set to be present*/
     private var monitor: Monitor? = null
+    /**A flag, is the V-Sync mechanism enabled*/
     private var _vSync = false
+    /**The stream to the icon of this window*/
     private var _icon: InputStream? = null
+    /**Targeted frame rate for this window*/
     private var _targetFPS = 60
+    /**A collective lambda that it called every frame*/
     private val logicUpdate = ExpandedConsumer<Float>()
 
+    /**The standard constructor for the Window
+     * Will ensure that OpenGL is initiated before finishing construction*/
     constructor() {
         synchronized (currentContext)
         {
@@ -57,28 +77,41 @@ class Window: InternalGLContext {
             initialized = true
         }
     }
-
+    /**Title of this window
+     *
+     * TODO: Remove dependency for a variable
+     */
     var title: String? get() { return _title; } set(it) {
         _title = it
         if(window != NULL)
             glfwSetWindowTitle(window, _title ?: "")
     }
+    /**A flag, is V-Sync mechanism enabled*/
     var vSync: Boolean get() = _vSync; set(it) { _vSync = it }
+    /**An [InputStream] to the icon currently set in this window*/
     var icon: InputStream? get() = _icon; set(it) = synchronized (sync) {
         _icon = it
         if(_icon != null && window != NULL)
             loadIcon(_icon!!)
     }
+    /**The targeted frame rate of the window*/
     var targetFPS: Int get() = _targetFPS; set(it) { _targetFPS = it }
+    /**The handler of this window*/
     internal val handle: Long get() = window
 
+    /**Registers a lambda to be executed every frame as a part of logic update
+     * @param logic Logic lambda*/
     fun registerLogic(logic: java.util.function.Consumer<Float>)
     { logicUpdate.add(logic); }
 
+    /**Initializes the GLFW library*/
     private fun initGL() {
         GLFWErrorCallback.createPrint(System.err).set()
         if ( !glfwInit() ) throw IllegalStateException("Unable to initialize GLFW")
     }
+    /**Loads and processes an [InputStream] into an GLFW icon and binds it to the window.
+     * Automatically creates multiple sizes of the icon using [ICON_SIZES] and up to the size of the icon in [InputStream]
+     * @param icon Contains the data of the icon to be processed*/
     private fun loadIcon(icon: InputStream) {
         val image = javax.imageio.ImageIO.read(icon) ?: throw RuntimeException("Unable to parse icon")
         val buffers = ArrayList<ByteBuffer>()
@@ -122,12 +155,14 @@ class Window: InternalGLContext {
         }
         finally { buffers.forEach { MemoryUtil.memFree(it) }}
     }
-
+    /**Used as an event for when the window was resized*/
     private fun onResize(width: Int, height: Int) {
         glViewport(0, 0, width, height)
         size?.x = width; size?.y = height
     }
-
+    /**Starts up the window logic
+     *
+     * Run's in the current thread*/
     fun run() {
         glfwShowWindow(window)
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
@@ -191,6 +226,7 @@ class Window: InternalGLContext {
         }
     }
 
+    /**Creates a new OpenGL window instance and it's related logic*/
     fun create() {
         @Suppress("USELESS_ELVIS")
         synchronized (sync) {
@@ -222,11 +258,14 @@ class Window: InternalGLContext {
         }
 
     }
+    /**Sets the flag stating that whe window should close itself, will go into effect during next logic update*/
     @Suppress("unused") fun close() {
         if (window != NULL)
             glfwWindowShouldClose(window)
     }
+    /**Dissolves the OpenGL window making this instance unusable*/
     @Suppress("unused") fun destroy() = handleDestroyer.clean()
+    /**Binds the required OpenGL logic to this [Thread]*/
     fun threadBind() = synchronized (currentContext)
     {
         if(threadBound)
@@ -244,6 +283,7 @@ class Window: InternalGLContext {
         threadBound = true
     }
 
+    /**Mechanism for limiting frames per second*/
     private data class Timer (private var lastLoopTime: Double = .0, private var timeCount: Float = 0f) {
         val time: Double get() = glfwGetTime()
         val longTime get() = time.toLong() * 1000

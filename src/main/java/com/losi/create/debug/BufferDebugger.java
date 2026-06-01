@@ -2,6 +2,7 @@ package com.losi.create.debug;
 
 import java.nio.ByteBuffer;
 
+/**It's meant for debugging when it is needed to view content of a buffer*/
 //TODO: Correct
 @SuppressWarnings("unused")
 public class BufferDebugger {

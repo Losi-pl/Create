@@ -4,8 +4,12 @@ import org.lwjgl.system.MemoryUtil;
 
 import static org.lwjgl.opengl.GL43.*;
 
+/**Stores the {@link #bindErrorCather()} for OpenGL error handling*/
 public class GLErrorHandler
 {
+    /**A method meant for detecting and processing OpenGL errors
+     * <p>When it is called in a thread it will connect to the context</p>
+     * The caught error will be pushed to the console, it the error in question is critical it will be thrown as an Exception*/
     public static void bindErrorCather() {
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback((source, type, id, severity, length, message, _) -> {

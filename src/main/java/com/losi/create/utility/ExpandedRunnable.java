@@ -3,12 +3,14 @@ package com.losi.create.utility;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("unused")
+/**An implementation of the {@link Runnable} lambda meant to make a subscribtion type event where anyone can add their own lambda that will be called whenever this lambda is called*/
+@SuppressWarnings({"RedundantSuppression", "SpellCheckingInspection", "unused", "typo"})
 public final class ExpandedRunnable implements Runnable {
-    @SuppressWarnings({"SpellCheckingInspection", "typo"})
     private List<Runnable> runnables = List.of();
     private final Object sync = new Object();
 
+    /**Meant for adding a new lambda to the subscription <p color="#83B035">TODO: Make the method return it's argument</p>
+     * @param runnable The lambda to be added to the subscription*/
     public void add(Runnable runnable)
     {
         synchronized (sync)
@@ -19,6 +21,8 @@ public final class ExpandedRunnable implements Runnable {
         }
     }
 
+    /**Meant to remove a lambda from subscription <p>Will require the user to provide the user to provide the specific lambda to remove</p>
+     * @param runnable The lambda to be removed*/
     public boolean remove(Runnable runnable)
     {
         synchronized (sync)
