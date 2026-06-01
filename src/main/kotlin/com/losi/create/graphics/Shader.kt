@@ -75,8 +75,8 @@ class Shader: GLBound {
         }
     }
 
-    /**The OpenGL handler of this Shader Program TODO: Make internal*/
-    val handler: Int get() = handlers.program
+    /**The OpenGL handler of this Shader Program*/
+    internal val handler: Int get() = handlers.program
     /**The list of active uniforms for this Shader*/
     val uniforms: Map<String, Uniform> get() = _uniforms
     /**A list of attributes used models implementing this Shader*/
