@@ -25,7 +25,7 @@ class ElementRegister<T: GameElement>
     {
         if(rawElementsByName == null)
             throw RuntimeException("Register has been closed")
-        if(element.registered())
+        if(element.isRegistered)
             throw IllegalArgumentException("Element was already registered")
 
         if(rawElementsByName?.putIfAbsent(name, element) != null)

@@ -17,7 +17,7 @@ abstract class GameElement
      *
      * Set during world creation will remain the same for this specific world*/
     val uuid: ULong? get() = this._uuid
-    /**TODO: It was supposed to tell if this object was registered but tells if the session was started*/
-    @Suppress("unused")
-    fun registered(): Boolean = uuid != null
+    /**A flag, telling if the element was registered*/
+    @get:JvmName("isRegistered")
+    val isRegistered: Boolean get() = _name != null
 }
