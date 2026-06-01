@@ -1,9 +1,10 @@
 @file:Suppress("unused")
 package com.losi.create.graphics
 
-import com.losi.create.utility.CShaderUniforms.*
 import javax.xml.parsers.DocumentBuilderFactory
+import com.losi.create.utility.GL20C.*
 import org.lwjgl.system.MemoryStack
+import java.lang.ref.WeakReference
 import com.losi.create.utility.*
 import org.lwjgl.opengl.GL30.*
 import kotlin.reflect.KClass
@@ -13,7 +14,6 @@ import org.w3c.dom.Element
 import java.io.InputStream
 import org.w3c.dom.Node
 import org.joml.*
-import java.lang.ref.WeakReference
 
 /**Shader program used to render objects*/
 class Shader: GLBound {

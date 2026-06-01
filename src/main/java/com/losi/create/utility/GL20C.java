@@ -8,7 +8,7 @@ import org.lwjgl.system.NativeType;
 import static org.lwjgl.opengl.GL20.*;
 
 @SuppressWarnings({"RedundantSuppression", "SpellCheckingInspection", "GrazieInspectionRunner", "typo"})
-public class CShaderUniforms {
+public class GL20C {
     /** {@code void glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, GLfloat const * value)} */
     public static void glUniformMatrix4f(
             @NativeType("GLint") int location,
