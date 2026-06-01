@@ -1,5 +1,6 @@
 package com.losi.create
 
+/**Manifest of versions of library's in this project*/
 object Version
 {
     private var SteamworksServer: String
