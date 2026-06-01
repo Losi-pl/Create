@@ -17,6 +17,7 @@ module com.losi.create {
     requires org.lwjgl.natives;
     requires org.lwjgl.glfw.natives;
     requires org.lwjgl.opengl.natives;
+    requires com.google.errorprone.annotations;
 
     exports com.losi.create;
     exports com.losi.create.registry;

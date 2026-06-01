@@ -1,5 +1,7 @@
 package com.losi.create.utility;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,9 +11,10 @@ public final class ExpandedRunnable implements Runnable {
     private List<Runnable> runnables = List.of();
     private final Object sync = new Object();
 
-    /**Meant for adding a new lambda to the subscription <p color="#83B035">TODO: Make the method return it's argument</p>
+    /**Meant for adding a new lambda to the subscription
      * @param runnable The lambda to be added to the subscription*/
-    public void add(Runnable runnable)
+    @CanIgnoreReturnValue
+    public Runnable add(Runnable runnable)
     {
         synchronized (sync)
         {
@@ -19,6 +22,7 @@ public final class ExpandedRunnable implements Runnable {
             temp.add(runnable);
             runnables = List.copyOf(temp);
         }
+        return runnable;
     }
 
     /**Meant to remove a lambda from subscription <p>Will require the user to provide the user to provide the specific lambda to remove</p>

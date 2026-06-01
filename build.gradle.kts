@@ -100,6 +100,9 @@ dependencies {
     // =================== Kotlin ===================
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
+
+    // =================== Guava ===================
+    implementation("com.google.guava:guava:33.6.0-jre")
 }
 extraJavaModuleInfo {
     failOnMissingModuleInfo = false
