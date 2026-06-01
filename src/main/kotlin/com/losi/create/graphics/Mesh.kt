@@ -50,12 +50,11 @@ class Mesh: GLBound {
             else -> sequenceOf()
         }}
 
-        /**Used to put object into a [java.nio.ByteBuffer]
+        /**Used to put objects into a [ByteBuffer][java.nio.ByteBuffer]
          *
          * Works by being provided a sequence of object and [data] informing the method how to properly scatter them in that boffer
-         * @param data A set of values: [Shader.Attribute] with the data of the attribute being set, an [Int] specifying how much the data has to be stadered, and [Int] specyfing the secoundary stadder if thre has to be more than one object in a group tugether
-         * @param action the mothed to handle the proces of puting the specyfic data into the buffer with its specyfic position and content beeing already calculated by the method*/
-        @Suppress("SpellCheckingInspection")
+         * @param data A set of values: [Attribute][Shader.Attribute] with the data of the attribute being set, an [Int] specifying how much the data has to be stadered, and [Int] specifying the secondary stadder if there has to be more than one object in a group together
+         * @param action the method to handle the process of putting the specific object into the buffer, with its specific position and content being already calculated by the method*/
         private inline fun <T> Sequence<T>.putIntoBuffer(data: Triple<Shader.Attribute, Int, Int>, action: (Int, T) -> Unit) {
             val (attr, verSize, attrSize) = data
 
