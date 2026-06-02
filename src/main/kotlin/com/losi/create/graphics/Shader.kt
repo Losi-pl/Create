@@ -2,11 +2,12 @@
 package com.losi.create.graphics
 
 import javax.xml.parsers.DocumentBuilderFactory
-import com.losi.create.graphics.gl.GL20C.*
+import com.losi.create.graphics.gl.GL40C.*
 import org.lwjgl.system.MemoryStack
 import java.lang.ref.WeakReference
 import com.losi.create.utility.*
 import org.lwjgl.opengl.GL30.*
+import org.lwjgl.opengl.GL40
 import kotlin.reflect.KClass
 import java.lang.ref.Cleaner
 import org.w3c.dom.Document
@@ -178,18 +179,105 @@ class Shader: GLBound {
         val uninfo = _uniforms[name].orElse { throw Exception("Unknown uniform \"$name\"") }
         if(uninfo.type != type)
             throw Exception("Uniform \"$name\" has expects a type \"${uninfo.classType?.simpleName.orElse{"GLSL: 0x%x".format(uninfo.type)}}\"")
+        if(uninfo.count > 1u)
+            throw Exception("Uniform \"$name\" requires ${uninfo.count} values to be passed to it while only 1 was provided")
         use()
         setter(uninfo)
     }
-    /**Used to set the [name] uniform with a [matrix]
-     * @throws Exception If the attribute could not be found or if its type is not matched to the value*/
-    fun setUniform(name: String, matrix: Matrix4f) =
-        setUniform(name, GL_FLOAT_MAT4) { glUniformMatrix4f(it.location, false, matrix) }
+
+    //region Primitive Uniform's
     /**Used to set the [name] uniform with a [value]
-     * @throws Exception If the attribute could not be found or if its type is not matched to the [value]*/
-    fun setUniform(name: String, value: Float) =
-        setUniform(name, GL_FLOAT) { glUniform1f(it.location, value) }
-    //TODO: setUniform(/* ALL */)
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Boolean) = setUniform(name, GL_BOOL) { glUniform1i(it.location, if(value) GL_TRUE else GL_FALSE) }
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Int) = setUniform(name, GL_INT) { glUniform1i(it.location, value) }
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: UInt) = setUniform(name, GL_UNSIGNED_INT) { glUniform1ui(it.location, value.toInt()) }
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Float) = setUniform(name, GL_FLOAT) { glUniform1f(it.location, value) }
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Double) = setUniform(name, GL_DOUBLE) { GL40.glUniform1d(it.location, value) }
+    //endregion
+    //TODO: GL_BOOL_VEC
+    //region Int Vector Uniform's
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Vector2i) = setUniform(name, GL_INT_VEC2) { glUniform2i(it.location, value.x, value.y) }
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Vector3i) = setUniform(name, GL_INT_VEC3) { glUniform3i(it.location, value.x, value.y, value.z) }
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Vector4i) = setUniform(name, GL_INT_VEC4) { glUniform4i(it.location, value.x, value.y, value.z, value.w) }
+    //endregion
+    //region Float Vector Uniform's
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Vector2f) = setUniform(name, GL_FLOAT_VEC2) { glUniform2f(it.location, value.x, value.y) }
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Vector3f) = setUniform(name, GL_FLOAT_VEC3) { glUniform3f(it.location, value.x, value.y, value.z) }
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Vector4f) = setUniform(name, GL_FLOAT_VEC4) { glUniform4f(it.location, value.x, value.y, value.z, value.w) }
+    //endregion
+    //region Double Vector Uniform's
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Vector2d) = setUniform(name, GL40.GL_DOUBLE_VEC2) { GL40.glUniform2d(it.location, value.x, value.y) }
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Vector3d) = setUniform(name, GL40.GL_DOUBLE_VEC3) { GL40.glUniform3d(it.location, value.x, value.y, value.z) }
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Vector4d) = setUniform(name, GL40.GL_DOUBLE_VEC4) { GL40.glUniform4d(it.location, value.x, value.y, value.z, value.w) }
+    //endregion
+    //region Float Matrix Uniform's
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Matrix4f) = setUniform(name, GL_FLOAT_MAT4) { glUniformMatrix4f(it.location, false, value) }
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Matrix4x3f) = setUniform(name, GL_FLOAT_MAT4x3) { glUniformMatrix4x3f(it.location, false, value) }
+    //TODO: GL_FLOAT_MAT4x2
+    //TODO: GL_FLOAT_MAT3x4
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Matrix3f) = setUniform(name, GL_FLOAT_MAT3) { glUniformMatrix3f(it.location, false, value) }
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Matrix3x2f) = setUniform(name, GL_FLOAT_MAT3x2) { glUniformMatrix3x2f(it.location, false, value) }
+    //TODO: GL_FLOAT_MAT2x4
+    //TODO: GL_FLOAT_MAT2x3
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Matrix2f) = setUniform(name, GL_FLOAT_MAT2) { glUniformMatrix2f(it.location, false, value) }
+    //endregion
+    //region Double Matrix Uniform's
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Matrix4d) = setUniform(name, GL40.GL_DOUBLE_MAT4) { glUniformMatrix4d(it.location, false, value) }
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Matrix4x3d) = setUniform(name, GL40.GL_DOUBLE_MAT4x3) { glUniformMatrix4x3d(it.location, false, value) }
+    //TODO: GL_FLOAT_MAT4x2
+    //TODO: GL_FLOAT_MAT3x4
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Matrix3d) = setUniform(name, GL40.GL_DOUBLE_MAT3) { glUniformMatrix3d(it.location, false, value) }
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Matrix3x2d) = setUniform(name, GL40.GL_DOUBLE_MAT3x2) { glUniformMatrix3x2d(it.location, false, value) }
+    //TODO: GL_FLOAT_MAT2x4
+    //TODO: GL_FLOAT_MAT2x3
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Matrix2d) = setUniform(name, GL40.GL_DOUBLE_MAT2) { glUniformMatrix2d(it.location, false, value) }
+    //endregion
 
     /**Used to dissolve the Shader allowing the OpenGl data to be freed
      *
