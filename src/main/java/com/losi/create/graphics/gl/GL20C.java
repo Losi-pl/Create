@@ -1,4 +1,4 @@
-package com.losi.create.utility;
+package com.losi.create.graphics.gl;
 
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;

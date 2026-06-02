@@ -23,4 +23,5 @@ module com.losi.create {
     exports com.losi.create.registry;
     exports com.losi.create.graphics;
     exports com.losi.create.utility;
+    exports com.losi.create.graphics.gl;
 }

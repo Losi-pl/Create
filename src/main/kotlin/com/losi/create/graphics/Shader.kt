@@ -2,7 +2,7 @@
 package com.losi.create.graphics
 
 import javax.xml.parsers.DocumentBuilderFactory
-import com.losi.create.utility.GL20C.*
+import com.losi.create.graphics.gl.GL20C.*
 import org.lwjgl.system.MemoryStack
 import java.lang.ref.WeakReference
 import com.losi.create.utility.*
