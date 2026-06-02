@@ -32,6 +32,9 @@ internal object ShaderProcessor: AssetTypeProcessor<Shader>
     /**Converts a pair containing the [ModSpace] and the path to resource into a human friendly format*/
     fun genName(shader: Pair<ModSpace, String>): String = "${shader.first.identity}:${shader.second}"
 
-    override fun clearAssets() = TODO("Not yet implemented")
+    override fun clearAssets() {
+        shaders.forEach { (_, shader) -> shader.release() }
+        shaders.clear()
+    }
     override fun getAsset(mod: ModSpace, name: String): Shader = shaders[Pair(mod, name)]!!
 }
