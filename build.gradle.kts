@@ -119,6 +119,7 @@ kotlin { jvmToolchain(25) }
 java {
     sourceCompatibility = JavaVersion.VERSION_25
     targetCompatibility = JavaVersion.VERSION_25
+    toolchain { languageVersion = JavaLanguageVersion.of(25) }
 }
 
 tasks.register("createProperties") {
@@ -152,7 +153,7 @@ tasks.register("createProperties") {
 tasks.named("classes") { dependsOn(tasks.named("createProperties")) }
 tasks.compileJava {
     options.forkOptions.jvmArgs = listOf("--enable-native-access=ALL-UNNAMED")
-    options.compilerArgs.add("-Xlint:-incubating")
+    options.compilerArgs.addAll(listOf("-Xlint:-incubating", "--enable-preview"))
     options.compilerArgumentProviders.add(
         object : CommandLineArgumentProvider {
             @get:CompileClasspath
@@ -166,7 +167,7 @@ tasks.compileJava {
     )
 }
 
-tasks.test { jvmArgs = listOf("--enable-native-access=ALL-UNNAMED"); useJUnitPlatform() }
+tasks.test { jvmArgs = listOf("--enable-native-access=ALL-UNNAMED", "--enable-preview"); useJUnitPlatform() }
 tasks.run { args = listOf("--version") }
 
 /* TODO: See about including JRE into the game compilation
@@ -175,7 +176,7 @@ tasks.run { args = listOf("--version") }
 * */
 
 application {
-    applicationDefaultJvmArgs = listOf("--enable-native-access=org.lwjgl", "--enable-native-access=org.lwjgl.opengl")
+    applicationDefaultJvmArgs = listOf("--enable-native-access=org.lwjgl", "--enable-native-access=org.lwjgl.opengl", "--enable-preview")
     mainClass = "com.losi.create.internal.Start"
     mainModule = "com.losi.create"
 }
