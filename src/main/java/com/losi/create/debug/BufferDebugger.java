@@ -3,10 +3,9 @@ package com.losi.create.debug;
 import java.nio.ByteBuffer;
 
 /**It's meant for debugging when it is needed to view content of a buffer*/
-//TODO: Correct
 @SuppressWarnings("unused")
 public class BufferDebugger {
-    public static String toHex(ByteBuffer buf) {
+    public static String read(ByteBuffer buf) {
         if (buf == null) return "null";
         ByteBuffer copy = buf.duplicate(); // doesn't affect original position
         StringBuilder sb = new StringBuilder();
@@ -18,5 +17,4 @@ public class BufferDebugger {
         }
         return sb.toString();
     }
-
 }
