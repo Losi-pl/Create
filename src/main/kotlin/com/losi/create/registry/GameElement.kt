@@ -2,9 +2,13 @@
 
 package com.losi.create.registry
 
+import com.losi.create.ModSpace
+
 /**The base for the modular structure of the games mechanics*/
 abstract class GameElement
 {
+    /**The mod this element is attached to*/
+    private var _space: ModSpace? = null
     /**Human friendly name of the element*/
     private var _name: String? = null
     /**System efficient id of the element*/
@@ -20,7 +24,11 @@ abstract class GameElement
      * Set during world creation will remain the same for this specific world*/
     var uuid: ULong get() = this._uuid ?: throw RuntimeException("Game session was not yet started")
         internal set(it) { this._uuid = it }
-
+    /**The Mod this element is registered to
+     *
+     * Set during registration of the element*/
+    var space: ModSpace get() = _space?: throw RuntimeException("Element has not been registered")
+        internal set(it) { _space = it }
     /**A flag, telling if the element was registered*/
     @get:JvmName("isRegistered")
     val isRegistered: Boolean get() = _name != null

@@ -93,3 +93,11 @@ fun String.startsWithFrom(subString: String, fromIndex: Int): Boolean {
  * It is created from hashes of values in the [Pair]*/
 fun <T, R> Pair<T, R>.longHashCode() =
     ((this.first.hashCode().toLong() and 0xFFFFFFFFL) or (this.second.hashCode().toLong() shl 32))
+/**Finds and returns the first element in the [Map] that meats the [condition], if nothing is found will return `null`*/
+inline fun <K, F> Map<K, F>.findFirst(condition: (Map.Entry<K, F>) -> Boolean): Map.Entry<K, F>? {
+    this.forEach {
+        if(condition(it))
+            return it
+    }
+    return null
+}
