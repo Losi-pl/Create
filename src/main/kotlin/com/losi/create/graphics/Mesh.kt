@@ -1,6 +1,6 @@
 package com.losi.create.graphics
 
-import com.losi.create.math.*
+import com.losi.create.math.collections.*
 import com.losi.create.utility.*
 import org.joml.*
 import org.lwjgl.opengl.GL40.*

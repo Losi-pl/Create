@@ -1,6 +1,6 @@
 package com.losi.create.tests.math;
 
-import com.losi.create.math.Vector2iArray;
+import com.losi.create.math.collections.Vector2iArray;
 import org.joml.Vector2i;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

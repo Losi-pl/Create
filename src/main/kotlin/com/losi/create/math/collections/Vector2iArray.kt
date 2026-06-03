@@ -1,5 +1,5 @@
-@file:Suppress("unused")
-package com.losi.create.math
+@file:Suppress("unused", "DuplicatedCode")
+package com.losi.create.math.collections
 
 import org.joml.Vector2i
 import kotlin.streams.asStream
