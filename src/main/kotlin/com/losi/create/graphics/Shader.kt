@@ -3,6 +3,7 @@ package com.losi.create.graphics
 
 import javax.xml.parsers.DocumentBuilderFactory
 import com.losi.create.graphics.gl.GL40C.*
+import com.losi.create.math.*
 import org.lwjgl.system.MemoryStack
 import java.lang.ref.WeakReference
 import com.losi.create.utility.*
@@ -202,7 +203,17 @@ class Shader: GLBound {
      * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
     fun setUniform(name: String, value: Double) = setUniform(name, GL_DOUBLE) { GL40.glUniform1d(it.location, value) }
     //endregion
-    //TODO: GL_BOOL_VEC
+    //region Boolean Vector Uniform's
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Vector2b) = setUniform(name, GL_BOOL_VEC2) { glUniform2i(it.location, value.x.toInt(), value.y.toInt()) }
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Vector3b) = setUniform(name, GL_BOOL_VEC3) { glUniform3i(it.location, value.x.toInt(), value.y.toInt(), value.z.toInt()) }
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Vector4b) = setUniform(name, GL_BOOL_VEC4) { glUniform4i(it.location, value.x.toInt(), value.y.toInt(), value.z.toInt(), value.w.toInt()) }
+    //endregion
     //region Int Vector Uniform's
     /**Used to set the [name] uniform with a [value]
      * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/

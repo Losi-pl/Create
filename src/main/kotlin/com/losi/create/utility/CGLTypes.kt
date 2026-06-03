@@ -3,6 +3,7 @@
 
 package com.losi.create.utility
 
+import com.losi.create.math.*
 import org.joml.*
 import org.lwjgl.opengl.GL40.*
 import kotlin.reflect.KClass
@@ -18,9 +19,9 @@ fun translateGLTypes(type: Int): KClass<*>? = when(type) {
     GL_FLOAT -> Float::class
     GL_DOUBLE -> Double::class
 
-    //TODO: GL_BOOL_VEC2 -> Vector2b::class
-    //TODO: GL_BOOL_VEC3 -> Vector3b::class
-    //TODO: GL_BOOL_VEC4 -> Vector4b::class
+    GL_BOOL_VEC2 -> Vector2b::class
+    GL_BOOL_VEC3 -> Vector3b::class
+    GL_BOOL_VEC4 -> Vector4b::class
 
     //Int Vector
     GL_INT_VEC2 -> Vector2i::class

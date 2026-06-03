@@ -101,3 +101,4 @@ inline fun <K, F> Map<K, F>.findFirst(condition: (Map.Entry<K, F>) -> Boolean): 
     }
     return null
 }
+fun Boolean.toInt() = if(this) 1 else 0
