@@ -13,13 +13,12 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.isSuperclassOf
 
-import com.losi.create.graphics.Shader
 /**The main manager of the game assets like Shaders, Textures, Languages, etc...
  *
  * ---
  *
  * Currently supported:
- * - [Shader] -> `shader/`*/
+ * - [Shader][com.losi.create.graphics.Shader] -> `shaders/`*/
 @Suppress("unused")
 object AssetManager {
     private val assetLoaders = HashMap<ResourceSpace, (String) -> InputStream?>()
