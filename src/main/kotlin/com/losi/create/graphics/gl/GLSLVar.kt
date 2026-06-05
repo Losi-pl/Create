@@ -80,89 +80,89 @@ enum class GLSLVar {
     Matrix2d  (GL40.GL_DOUBLE_MAT2,   org.joml.Matrix2d::class,   Double, 2u * 2u, true, "GL_DOUBLE_MAT2"),
 
     // Regular Samplers
-    Sampler1D                (GL20.GL_SAMPLER_1D,                    null, Int, name = "GL_SAMPLER_1D"),
-    Sampler2D                (GL20.GL_SAMPLER_2D,                    null, Int, name = "GL_SAMPLER_2D"),
-    Sampler3D                (GL20.GL_SAMPLER_3D,                    null, Int, name = "GL_SAMPLER_3D"),
-    Sampler2DMul             (GL32.GL_SAMPLER_2D_MULTISAMPLE,        null, Int, name = "GL_SAMPLER_2D_MULTISAMPLE"),
-    SamplerCube              (GL20.GL_SAMPLER_CUBE,                  null, Int, name = "GL_SAMPLER_CUBE"),
-    SamplerBuffer            (GL31.GL_SAMPLER_BUFFER,                null, Int, name = "GL_SAMPLER_BUFFER"),
-    Sampler2DRect            (GL31.GL_SAMPLER_2D_RECT,               null, Int, name = "GL_SAMPLER_2D_RECT"),
-    Sampler1DShadow          (GL20.GL_SAMPLER_1D_SHADOW,             null, Int, name = "GL_SAMPLER_1D_SHADOW"),
-    Sampler2DShadow          (GL20.GL_SAMPLER_2D_SHADOW,             null, Int, name = "GL_SAMPLER_2D_SHADOW"),
-    SamplerCubeShadow        (GL30.GL_SAMPLER_CUBE_SHADOW,           null, Int, name = "GL_SAMPLER_CUBE_SHADOW"),
-    Sampler1DArray           (GL30.GL_SAMPLER_1D_ARRAY,              null, Int, name = "GL_SAMPLER_1D_ARRAY"),
-    Sampler2DArray           (GL30.GL_SAMPLER_2D_ARRAY,              null, Int, name = "GL_SAMPLER_2D_ARRAY"),
-    Sampler2DMulArray        (GL32.GL_SAMPLER_2D_MULTISAMPLE_ARRAY,  null, Int, name = "GL_SAMPLER_2D_MULTISAMPLE_ARRAY"),
-    SamplerCubeArray         (GL40.GL_SAMPLER_CUBE_MAP_ARRAY,        null, Int, name = "GL_SAMPLER_CUBE_MAP_ARRAY"),
-    Sampler1DArrayShadow     (GL30.GL_SAMPLER_1D_ARRAY_SHADOW,       null, Int, name = "GL_SAMPLER_1D_ARRAY_SHADOW"),
-    Sampler2DArrayShadow     (GL30.GL_SAMPLER_2D_ARRAY_SHADOW,       null, Int, name = "GL_SAMPLER_2D_ARRAY_SHADOW"),
-    SamplerCubeMapArrayShadow(GL40.GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW, null, Int, name = "GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW"),
-    Sampler2DRectShadow      (GL31.GL_SAMPLER_2D_RECT_SHADOW,        null, Int, name = "GL_SAMPLER_2D_RECT_SHADOW"),
+    Sampler1D                (GL20.GL_SAMPLER_1D,                    null, Int, obj = true, name = "GL_SAMPLER_1D"),
+    Sampler2D                (GL20.GL_SAMPLER_2D,                    null, Int, obj = true, name = "GL_SAMPLER_2D"),
+    Sampler3D                (GL20.GL_SAMPLER_3D,                    null, Int, obj = true, name = "GL_SAMPLER_3D"),
+    Sampler2DMul             (GL32.GL_SAMPLER_2D_MULTISAMPLE,        null, Int, obj = true, name = "GL_SAMPLER_2D_MULTISAMPLE"),
+    SamplerCube              (GL20.GL_SAMPLER_CUBE,                  null, Int, obj = true, name = "GL_SAMPLER_CUBE"),
+    SamplerBuffer            (GL31.GL_SAMPLER_BUFFER,                null, Int, obj = true, name = "GL_SAMPLER_BUFFER"),
+    Sampler2DRect            (GL31.GL_SAMPLER_2D_RECT,               null, Int, obj = true, name = "GL_SAMPLER_2D_RECT"),
+    Sampler1DShadow          (GL20.GL_SAMPLER_1D_SHADOW,             null, Int, obj = true, name = "GL_SAMPLER_1D_SHADOW"),
+    Sampler2DShadow          (GL20.GL_SAMPLER_2D_SHADOW,             null, Int, obj = true, name = "GL_SAMPLER_2D_SHADOW"),
+    SamplerCubeShadow        (GL30.GL_SAMPLER_CUBE_SHADOW,           null, Int, obj = true, name = "GL_SAMPLER_CUBE_SHADOW"),
+    Sampler1DArray           (GL30.GL_SAMPLER_1D_ARRAY,              null, Int, obj = true, name = "GL_SAMPLER_1D_ARRAY"),
+    Sampler2DArray           (GL30.GL_SAMPLER_2D_ARRAY,              null, Int, obj = true, name = "GL_SAMPLER_2D_ARRAY"),
+    Sampler2DMulArray        (GL32.GL_SAMPLER_2D_MULTISAMPLE_ARRAY,  null, Int, obj = true, name = "GL_SAMPLER_2D_MULTISAMPLE_ARRAY"),
+    SamplerCubeArray         (GL40.GL_SAMPLER_CUBE_MAP_ARRAY,        null, Int, obj = true, name = "GL_SAMPLER_CUBE_MAP_ARRAY"),
+    Sampler1DArrayShadow     (GL30.GL_SAMPLER_1D_ARRAY_SHADOW,       null, Int, obj = true, name = "GL_SAMPLER_1D_ARRAY_SHADOW"),
+    Sampler2DArrayShadow     (GL30.GL_SAMPLER_2D_ARRAY_SHADOW,       null, Int, obj = true, name = "GL_SAMPLER_2D_ARRAY_SHADOW"),
+    SamplerCubeMapArrayShadow(GL40.GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW, null, Int, obj = true, name = "GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW"),
+    Sampler2DRectShadow      (GL31.GL_SAMPLER_2D_RECT_SHADOW,        null, Int, obj = true, name = "GL_SAMPLER_2D_RECT_SHADOW"),
 
     // Signed Integer Samplers
-    IntSampler1D          (GL30.GL_INT_SAMPLER_1D,                   null, Int, name = "GL_INT_SAMPLER_1D"),
-    IntSampler2D          (GL30.GL_INT_SAMPLER_2D,                   null, Int, name = "GL_INT_SAMPLER_2D"),
-    IntSampler3D          (GL30.GL_INT_SAMPLER_3D,                   null, Int, name = "GL_INT_SAMPLER_3D"),
-    IntSampler2DMul       (GL32.GL_INT_SAMPLER_2D_MULTISAMPLE,       null, Int, name = "GL_INT_SAMPLER_2D_MULTISAMPLE"),
-    IntSamplerCube        (GL30.GL_INT_SAMPLER_CUBE,                 null, Int, name = "GL_INT_SAMPLER_CUBE"),
-    IntSampler1DArray     (GL30.GL_INT_SAMPLER_1D_ARRAY,             null, Int, name = "GL_INT_SAMPLER_1D_ARRAY"),
-    IntSampler2DArray     (GL30.GL_INT_SAMPLER_2D_ARRAY,             null, Int, name = "GL_INT_SAMPLER_2D_ARRAY"),
-    IntSamplerCubeMapArray(GL40.GL_INT_SAMPLER_CUBE_MAP_ARRAY,       null, Int, name = "GL_INT_SAMPLER_CUBE_MAP_ARRAY"),
-    IntSampler2DMulArray  (GL32.GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY, null, Int, name = "GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY"),
-    IntSamplerBuffer      (GL31.GL_INT_SAMPLER_BUFFER,               null, Int, name = "GL_INT_SAMPLER_BUFFER"),
-    IntSampler2DRect      (GL31.GL_INT_SAMPLER_2D_RECT,              null, Int, name = "GL_INT_SAMPLER_2D_RECT"),
+    IntSampler1D          (GL30.GL_INT_SAMPLER_1D,                   null, Int, obj = true, name = "GL_INT_SAMPLER_1D"),
+    IntSampler2D          (GL30.GL_INT_SAMPLER_2D,                   null, Int, obj = true, name = "GL_INT_SAMPLER_2D"),
+    IntSampler3D          (GL30.GL_INT_SAMPLER_3D,                   null, Int, obj = true, name = "GL_INT_SAMPLER_3D"),
+    IntSampler2DMul       (GL32.GL_INT_SAMPLER_2D_MULTISAMPLE,       null, Int, obj = true, name = "GL_INT_SAMPLER_2D_MULTISAMPLE"),
+    IntSamplerCube        (GL30.GL_INT_SAMPLER_CUBE,                 null, Int, obj = true, name = "GL_INT_SAMPLER_CUBE"),
+    IntSampler1DArray     (GL30.GL_INT_SAMPLER_1D_ARRAY,             null, Int, obj = true, name = "GL_INT_SAMPLER_1D_ARRAY"),
+    IntSampler2DArray     (GL30.GL_INT_SAMPLER_2D_ARRAY,             null, Int, obj = true, name = "GL_INT_SAMPLER_2D_ARRAY"),
+    IntSamplerCubeMapArray(GL40.GL_INT_SAMPLER_CUBE_MAP_ARRAY,       null, Int, obj = true, name = "GL_INT_SAMPLER_CUBE_MAP_ARRAY"),
+    IntSampler2DMulArray  (GL32.GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY, null, Int, obj = true, name = "GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY"),
+    IntSamplerBuffer      (GL31.GL_INT_SAMPLER_BUFFER,               null, Int, obj = true, name = "GL_INT_SAMPLER_BUFFER"),
+    IntSampler2DRect      (GL31.GL_INT_SAMPLER_2D_RECT,              null, Int, obj = true, name = "GL_INT_SAMPLER_2D_RECT"),
 
     // Unsigned Integer Samplers
-    UIntSampler1D          (GL30.GL_UNSIGNED_INT_SAMPLER_1D,                   null, Int, name = "GL_UNSIGNED_INT_SAMPLER_1D"),
-    UIntSampler2D          (GL30.GL_UNSIGNED_INT_SAMPLER_2D,                   null, Int, name = "GL_UNSIGNED_INT_SAMPLER_2D"),
-    UIntSampler3D          (GL30.GL_UNSIGNED_INT_SAMPLER_3D,                   null, Int, name = "GL_UNSIGNED_INT_SAMPLER_3D"),
-    UIntSampler2DMul       (GL32.GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE,       null, Int, name = "GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE"),
-    UIntSamplerCube        (GL30.GL_UNSIGNED_INT_SAMPLER_CUBE,                 null, Int, name = "GL_UNSIGNED_INT_SAMPLER_CUBE"),
-    UIntSampler1DArray     (GL30.GL_UNSIGNED_INT_SAMPLER_1D_ARRAY,             null, Int, name = "GL_UNSIGNED_INT_SAMPLER_1D_ARRAY"),
-    UIntSampler2DShadow    (GL30.GL_UNSIGNED_INT_SAMPLER_2D_ARRAY,             null, Int, name = "GL_UNSIGNED_INT_SAMPLER_2D_ARRAY"),
-    UIntSamplerCubeMapArray(GL40.GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY,       null, Int, name = "GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY"),
-    UIntSampler2DMulArray  (GL32.GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY, null, Int, name = "GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY"),
-    UIntSamplerBuffer      (GL31.GL_UNSIGNED_INT_SAMPLER_BUFFER,               null, Int, name = "GL_UNSIGNED_INT_SAMPLER_BUFFER"),
-    UIntSampler2DRect      (GL31.GL_UNSIGNED_INT_SAMPLER_2D_RECT,              null, Int, name = "GL_UNSIGNED_INT_SAMPLER_2D_RECT"),
+    UIntSampler1D          (GL30.GL_UNSIGNED_INT_SAMPLER_1D,                   null, Int, obj = true, name = "GL_UNSIGNED_INT_SAMPLER_1D"),
+    UIntSampler2D          (GL30.GL_UNSIGNED_INT_SAMPLER_2D,                   null, Int, obj = true, name = "GL_UNSIGNED_INT_SAMPLER_2D"),
+    UIntSampler3D          (GL30.GL_UNSIGNED_INT_SAMPLER_3D,                   null, Int, obj = true, name = "GL_UNSIGNED_INT_SAMPLER_3D"),
+    UIntSampler2DMul       (GL32.GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE,       null, Int, obj = true, name = "GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE"),
+    UIntSamplerCube        (GL30.GL_UNSIGNED_INT_SAMPLER_CUBE,                 null, Int, obj = true, name = "GL_UNSIGNED_INT_SAMPLER_CUBE"),
+    UIntSampler1DArray     (GL30.GL_UNSIGNED_INT_SAMPLER_1D_ARRAY,             null, Int, obj = true, name = "GL_UNSIGNED_INT_SAMPLER_1D_ARRAY"),
+    UIntSampler2DShadow    (GL30.GL_UNSIGNED_INT_SAMPLER_2D_ARRAY,             null, Int, obj = true, name = "GL_UNSIGNED_INT_SAMPLER_2D_ARRAY"),
+    UIntSamplerCubeMapArray(GL40.GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY,       null, Int, obj = true, name = "GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY"),
+    UIntSampler2DMulArray  (GL32.GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY, null, Int, obj = true, name = "GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY"),
+    UIntSamplerBuffer      (GL31.GL_UNSIGNED_INT_SAMPLER_BUFFER,               null, Int, obj = true, name = "GL_UNSIGNED_INT_SAMPLER_BUFFER"),
+    UIntSampler2DRect      (GL31.GL_UNSIGNED_INT_SAMPLER_2D_RECT,              null, Int, obj = true, name = "GL_UNSIGNED_INT_SAMPLER_2D_RECT"),
 
     // Regular Images
-    Image1D                (GL42.GL_IMAGE_1D,                    null, Int, name = "GL_IMAGE_1D"),
-    Image2D                (GL42.GL_IMAGE_2D,                    null, Int, name = "GL_IMAGE_2D"),
-    Image3D                (GL42.GL_IMAGE_3D,                    null, Int, name = "GL_IMAGE_3D"),
-    Image2DMul             (GL42.GL_IMAGE_2D_MULTISAMPLE,        null, Int, name = "GL_IMAGE_2D_MULTISAMPLE"),
-    ImageCube              (GL42.GL_IMAGE_CUBE,                  null, Int, name = "GL_IMAGE_CUBE"),
-    ImageBuffer            (GL42.GL_IMAGE_BUFFER,                null, Int, name = "GL_IMAGE_BUFFER"),
-    Image2DRect            (GL42.GL_IMAGE_2D_RECT,               null, Int, name = "GL_IMAGE_2D_RECT"),
-    Image1DArray           (GL42.GL_IMAGE_1D_ARRAY,              null, Int, name = "GL_IMAGE_1D_ARRAY"),
-    Image2DArray           (GL42.GL_IMAGE_2D_ARRAY,              null, Int, name = "GL_IMAGE_2D_ARRAY"),
-    Image2DMulArray        (GL42.GL_IMAGE_2D_MULTISAMPLE_ARRAY,  null, Int, name = "GL_IMAGE_2D_MULTISAMPLE_ARRAY"),
-    ImageCubeArray         (GL42.GL_IMAGE_CUBE_MAP_ARRAY,        null, Int, name = "GL_IMAGE_CUBE_MAP_ARRAY"),
+    Image1D                (GL42.GL_IMAGE_1D,                    null, Int, obj = true, name = "GL_IMAGE_1D"),
+    Image2D                (GL42.GL_IMAGE_2D,                    null, Int, obj = true, name = "GL_IMAGE_2D"),
+    Image3D                (GL42.GL_IMAGE_3D,                    null, Int, obj = true, name = "GL_IMAGE_3D"),
+    Image2DMul             (GL42.GL_IMAGE_2D_MULTISAMPLE,        null, Int, obj = true, name = "GL_IMAGE_2D_MULTISAMPLE"),
+    ImageCube              (GL42.GL_IMAGE_CUBE,                  null, Int, obj = true, name = "GL_IMAGE_CUBE"),
+    ImageBuffer            (GL42.GL_IMAGE_BUFFER,                null, Int, obj = true, name = "GL_IMAGE_BUFFER"),
+    Image2DRect            (GL42.GL_IMAGE_2D_RECT,               null, Int, obj = true, name = "GL_IMAGE_2D_RECT"),
+    Image1DArray           (GL42.GL_IMAGE_1D_ARRAY,              null, Int, obj = true, name = "GL_IMAGE_1D_ARRAY"),
+    Image2DArray           (GL42.GL_IMAGE_2D_ARRAY,              null, Int, obj = true, name = "GL_IMAGE_2D_ARRAY"),
+    Image2DMulArray        (GL42.GL_IMAGE_2D_MULTISAMPLE_ARRAY,  null, Int, obj = true, name = "GL_IMAGE_2D_MULTISAMPLE_ARRAY"),
+    ImageCubeArray         (GL42.GL_IMAGE_CUBE_MAP_ARRAY,        null, Int, obj = true, name = "GL_IMAGE_CUBE_MAP_ARRAY"),
 
     // Signed Integer Images
-    IntImage1D          (GL42.GL_INT_IMAGE_1D,                   null, Int, name = "GL_INT_IMAGE_1D"),
-    IntImage2D          (GL43.GL_INT_IMAGE_2D,                   null, Int, name = "GL_INT_IMAGE_2D"),
-    IntImage3D          (GL42.GL_INT_IMAGE_3D,                   null, Int, name = "GL_INT_IMAGE_3D"),
-    IntImage2DMul       (GL42.GL_INT_IMAGE_2D_MULTISAMPLE,       null, Int, name = "GL_INT_IMAGE_2D_MULTISAMPLE"),
-    IntImageCube        (GL42.GL_INT_IMAGE_CUBE,                 null, Int, name = "GL_INT_IMAGE_CUBE"),
-    IntImage1DArray     (GL42.GL_INT_IMAGE_1D_ARRAY,             null, Int, name = "GL_INT_IMAGE_1D_ARRAY"),
-    IntImage2DArray     (GL42.GL_INT_IMAGE_2D_ARRAY,             null, Int, name = "GL_INT_IMAGE_2D_ARRAY"),
-    IntImageCubeMapArray(GL42.GL_INT_IMAGE_CUBE_MAP_ARRAY,       null, Int, name = "GL_INT_IMAGE_CUBE_MAP_ARRAY"),
-    IntImage2DMulArray  (GL42.GL_INT_IMAGE_2D_MULTISAMPLE_ARRAY, null, Int, name = "GL_INT_IMAGE_2D_MULTISAMPLE_ARRAY"),
-    IntImageBuffer      (GL42.GL_INT_IMAGE_BUFFER,               null, Int, name = "GL_INT_IMAGE_BUFFER"),
-    IntImage2DRect      (GL42.GL_INT_IMAGE_2D_RECT,              null, Int, name = "GL_INT_IMAGE_2D_RECT"),
+    IntImage1D          (GL42.GL_INT_IMAGE_1D,                   null, Int, obj = true, name = "GL_INT_IMAGE_1D"),
+    IntImage2D          (GL43.GL_INT_IMAGE_2D,                   null, Int, obj = true, name = "GL_INT_IMAGE_2D"),
+    IntImage3D          (GL42.GL_INT_IMAGE_3D,                   null, Int, obj = true, name = "GL_INT_IMAGE_3D"),
+    IntImage2DMul       (GL42.GL_INT_IMAGE_2D_MULTISAMPLE,       null, Int, obj = true, name = "GL_INT_IMAGE_2D_MULTISAMPLE"),
+    IntImageCube        (GL42.GL_INT_IMAGE_CUBE,                 null, Int, obj = true, name = "GL_INT_IMAGE_CUBE"),
+    IntImage1DArray     (GL42.GL_INT_IMAGE_1D_ARRAY,             null, Int, obj = true, name = "GL_INT_IMAGE_1D_ARRAY"),
+    IntImage2DArray     (GL42.GL_INT_IMAGE_2D_ARRAY,             null, Int, obj = true, name = "GL_INT_IMAGE_2D_ARRAY"),
+    IntImageCubeMapArray(GL42.GL_INT_IMAGE_CUBE_MAP_ARRAY,       null, Int, obj = true, name = "GL_INT_IMAGE_CUBE_MAP_ARRAY"),
+    IntImage2DMulArray  (GL42.GL_INT_IMAGE_2D_MULTISAMPLE_ARRAY, null, Int, obj = true, name = "GL_INT_IMAGE_2D_MULTISAMPLE_ARRAY"),
+    IntImageBuffer      (GL42.GL_INT_IMAGE_BUFFER,               null, Int, obj = true, name = "GL_INT_IMAGE_BUFFER"),
+    IntImage2DRect      (GL42.GL_INT_IMAGE_2D_RECT,              null, Int, obj = true, name = "GL_INT_IMAGE_2D_RECT"),
 
     // Unsigned Integer Images
-    UIntImage1D          (GL42.GL_UNSIGNED_INT_IMAGE_1D,                   null, Int, name = "GL_UNSIGNED_INT_IMAGE_1D"),
-    UIntImage2D          (GL42.GL_UNSIGNED_INT_IMAGE_2D,                   null, Int, name = "GL_UNSIGNED_INT_IMAGE_2D"),
-    UIntImage3D          (GL42.GL_UNSIGNED_INT_IMAGE_3D,                   null, Int, name = "GL_UNSIGNED_INT_IMAGE_3D"),
-    UIntImage2DMul       (GL42.GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE,       null, Int, name = "GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE"),
-    UIntImageCube        (GL42.GL_UNSIGNED_INT_IMAGE_CUBE,                 null, Int, name = "GL_UNSIGNED_INT_IMAGE_CUBE"),
-    UIntImage1DArray     (GL42.GL_UNSIGNED_INT_IMAGE_1D_ARRAY,             null, Int, name = "GL_UNSIGNED_INT_IMAGE_1D_ARRAY"),
-    UIntImage2DShadow    (GL42.GL_UNSIGNED_INT_IMAGE_2D_ARRAY,             null, Int, name = "GL_UNSIGNED_INT_IMAGE_2D_ARRAY"),
-    UIntImageCubeMapArray(GL42.GL_UNSIGNED_INT_IMAGE_CUBE_MAP_ARRAY,       null, Int, name = "GL_UNSIGNED_INT_IMAGE_CUBE_MAP_ARRAY"),
-    UIntImage2DMulArray  (GL42.GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE_ARRAY, null, Int, name = "GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE_ARRAY"),
-    UIntImageBuffer      (GL42.GL_UNSIGNED_INT_IMAGE_BUFFER,               null, Int, name = "GL_UNSIGNED_INT_IMAGE_BUFFER"),
-    UIntImage2DRect      (GL42.GL_UNSIGNED_INT_IMAGE_2D_RECT,              null, Int, name = "GL_UNSIGNED_INT_IMAGE_2D_RECT"),
+    UIntImage1D          (GL42.GL_UNSIGNED_INT_IMAGE_1D,                   null, Int, obj = true, name = "GL_UNSIGNED_INT_IMAGE_1D"),
+    UIntImage2D          (GL42.GL_UNSIGNED_INT_IMAGE_2D,                   null, Int, obj = true, name = "GL_UNSIGNED_INT_IMAGE_2D"),
+    UIntImage3D          (GL42.GL_UNSIGNED_INT_IMAGE_3D,                   null, Int, obj = true, name = "GL_UNSIGNED_INT_IMAGE_3D"),
+    UIntImage2DMul       (GL42.GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE,       null, Int, obj = true, name = "GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE"),
+    UIntImageCube        (GL42.GL_UNSIGNED_INT_IMAGE_CUBE,                 null, Int, obj = true, name = "GL_UNSIGNED_INT_IMAGE_CUBE"),
+    UIntImage1DArray     (GL42.GL_UNSIGNED_INT_IMAGE_1D_ARRAY,             null, Int, obj = true, name = "GL_UNSIGNED_INT_IMAGE_1D_ARRAY"),
+    UIntImage2DShadow    (GL42.GL_UNSIGNED_INT_IMAGE_2D_ARRAY,             null, Int, obj = true, name = "GL_UNSIGNED_INT_IMAGE_2D_ARRAY"),
+    UIntImageCubeMapArray(GL42.GL_UNSIGNED_INT_IMAGE_CUBE_MAP_ARRAY,       null, Int, obj = true, name = "GL_UNSIGNED_INT_IMAGE_CUBE_MAP_ARRAY"),
+    UIntImage2DMulArray  (GL42.GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE_ARRAY, null, Int, obj = true, name = "GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE_ARRAY"),
+    UIntImageBuffer      (GL42.GL_UNSIGNED_INT_IMAGE_BUFFER,               null, Int, obj = true, name = "GL_UNSIGNED_INT_IMAGE_BUFFER"),
+    UIntImage2DRect      (GL42.GL_UNSIGNED_INT_IMAGE_2D_RECT,              null, Int, obj = true, name = "GL_UNSIGNED_INT_IMAGE_2D_RECT"),
 
     //Legacy
     Bytes2(GL11.GL_2_BYTES, null, Byte, 2u, true, "GL_2_BYTES"),
@@ -170,8 +170,8 @@ enum class GLSLVar {
     Bytes4(GL11.GL_4_BYTES, null, Byte, 4u, true, "GL_4_BYTES"),
 
     //Special
-    UnsRGB332      (GL12.GL_UNSIGNED_BYTE_3_3_2,                              null, UByte,  1u, true, "GL_UNSIGNED_BYTE_3_3_2"),
-    UnsBGR233      (GL12.GL_UNSIGNED_BYTE_2_3_3_REV,                          null, UByte,  1u, true, "GL_UNSIGNED_BYTE_2_3_3_REV"),
+    UnsRGB332     (GL12.GL_UNSIGNED_BYTE_3_3_2,                              null, UByte,  1u, true, "GL_UNSIGNED_BYTE_3_3_2"),
+    UnsBGR233     (GL12.GL_UNSIGNED_BYTE_2_3_3_REV,                          null, UByte,  1u, true, "GL_UNSIGNED_BYTE_2_3_3_REV"),
     UnsR5G6B5     (GL12.GL_UNSIGNED_SHORT_5_6_5,                             null, UShort, 1u, true, "GL_UNSIGNED_SHORT_5_6_5"),
     UnsB5G6R5     (GL12.GL_UNSIGNED_SHORT_5_6_5_REV,                         null, UShort, 1u, true, "GL_UNSIGNED_SHORT_5_6_5_REV"),
     UnsRGBA4      (GL12.GL_UNSIGNED_SHORT_4_4_4_4,                           null, UShort, 1u, true, "GL_UNSIGNED_SHORT_4_4_4_4"),
@@ -193,30 +193,39 @@ enum class GLSLVar {
     val klass: KClass<*>?
     val primitive: GLSLVar
     val primitivesCount: UInt
-    val attributeUsable: Boolean
+    val isAttribute: Boolean
     val glName: String
-    constructor(gl: Int, klass: KClass<*>?, primitive: GLSLVar? = null, primitivesCount: UInt = 1u, attr: Boolean = false, name: String) {
+    val isObject: Boolean
+    private var bCou = 0u
+    constructor(gl: Int, klass: KClass<*>?, primitive: GLSLVar? = null, primitivesCount: UInt = 1u, attr: Boolean = false, name: String, obj: Boolean = false) {
         this.gl = gl
         this.klass = klass
         this.primitive = primitive ?: this
         this.primitivesCount = primitivesCount
-        attributeUsable = attr
+        isAttribute = attr
         glName = name
+        isObject = obj
     }
-    val byteCount: UInt get() = when(primitive) {
-        Boolean -> 1u
-        Byte -> 1u
-        UByte -> 1u
-        Short -> 2u
-        UShort -> 2u
-        Int -> 4u
-        UInt -> 4u
-        Long -> 8u
-        ULong -> 8u
-        Float -> 4u
-        Double -> 8u
-        else -> 1u
-    } * primitivesCount
+    val byteCount: UInt get() {
+        if(bCou > 0u)
+            return bCou
+        bCou = when(primitive) {
+            Boolean -> 1u
+            Byte -> 1u
+            UByte -> 1u
+            Short -> 2u
+            UShort -> 2u
+            Int -> 4u
+            UInt -> 4u
+            Long -> 8u
+            ULong -> 8u
+            Float -> 4u
+            Double -> 8u
+            else -> 1u
+        } * primitivesCount
+        return bCou
+    }
+    val isPrimitive : Boolean get() = this === primitive
 
     companion object {
         /**Factory to get the format by name if needed,

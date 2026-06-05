@@ -48,6 +48,7 @@ class Shader: GLBound {
     private lateinit var _uniforms: Map<String, Uniform>
     /**A list of attributes used models implementing this Shader*/
     private lateinit var _attributes: Map<String, Attribute>
+    private lateinit var glObjects: Map<Uniform, MutablePair<Int, Texture2D?>>
     /**A list of dependency's that will be released along with this Shader*/
     private val subscribers = mutableListOf<WeakReference<GLBound>>()
     /**Sets up the even for when this object is Garbage Collected to ensure that it is also dissolved in the OpenGL memory*/
@@ -124,6 +125,7 @@ class Shader: GLBound {
     /**Loads data about uniforms*/
     private fun loadUniforms() {
         val uniforms = mutableListOf<Uniform>()
+        val glObj = mutableMapOf<Uniform, MutablePair<Int, Texture2D?>>()
         MemoryStack.stackPush().use { stack ->
             for(i in 0 until glGetProgrami(handlers.program, GL_ACTIVE_UNIFORMS))
             {
@@ -132,11 +134,20 @@ class Shader: GLBound {
 
                 val name = glGetActiveUniform(handlers.program, i, count, type)
                 val location = glGetUniformLocation(handlers.program, name)
-                uniforms.add(Uniform(name, location, count.get(0).toUInt(), GLSLVar.of(type.get(0))
-                    ?: throw TypeCastException("There is no recognized OpenGL type under number ${type.get(0)}")))
+
+                val uniform = Uniform(name, location, count.get(0).toUInt(), GLSLVar.of(type.get(0))
+                    ?: throw TypeCastException("There is no recognized OpenGL type under number ${type.get(0)}"))
+
+                uniforms.add(uniform)
+                if(uniform.type.isObject)
+                {
+                    glUniform1i(uniform.location, glObj.size)
+                    glObj[uniform] = MutablePair(glObj.size, null)
+                }
             }
         }
         this._uniforms = uniforms.associateBy { it.name }.calcify()
+        glObjects = glObj.toMap()
     }
     /**Reads XML data from the configuration and applies it to the shader
      *
@@ -152,7 +163,6 @@ class Shader: GLBound {
                 glBindFragDataLocation(handlers.program, location, name)
             }
         }
-
     }
     /**Loads data related to the attributes from a compiles shader*/
     private fun loadAttributes(){
@@ -368,6 +378,10 @@ class Shader: GLBound {
     fun setUniform(name: String, value: Matrix2d) = setUniform(name, GLSLVar.Matrix2d) { glUniformMatrix2d(it.location, false, value) }
     //endregion
 
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Texture2D?) = setUniform(name, GLSLVar.Sampler2D) { glObjects[it]!!.second = value }
+
     /**Used to dissolve the Shader allowing the OpenGl data to be freed
      *
      * After calling the Shader will become unusable, and all dependency's will be released as well*/
@@ -395,9 +409,25 @@ class Shader: GLBound {
     val released: Boolean get() = handlers.program == 0
     /**A check if this Shader can be used or is it dissolved
      * @throws NullPointerException Thrown if the Shader has been dissolved*/
-    fun breakTest() {
+    private fun breakTest() {
         if(released)
             throw NullPointerException("The shader has been destroyed")
+    }
+
+    fun assignObjects() {
+        glObjects.forEach { (uniform, pair) ->
+            if(pair.first !in 0..31)
+                return@forEach
+
+            glActiveTexture(GL_TEXTURE0 + pair.first)
+            val handler = pair.second?.handle ?: 0
+            when(uniform.type)
+            {
+                GLSLVar.Sampler2D -> { glBindTexture(GL_TEXTURE_2D, handler) }
+                else -> { IO.println("Failed to properly bind an ${uniform.type.glName} element") }
+            }
+        }
+        glActiveTexture(GL_TEXTURE0)
     }
 
     /**

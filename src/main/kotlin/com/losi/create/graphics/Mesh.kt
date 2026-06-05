@@ -100,6 +100,7 @@ class Mesh: GLBound {
         val bin = glBinds ?: throw NullPointerException("This Mesh does not have a burned model to draw")
         glBindVertexArray(bin.vao)
         shader.use()
+        shader.assignObjects()
         glDrawArrays(GL_TRIANGLES, 0, bin.vertexCount)
     }
 

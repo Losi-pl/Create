@@ -178,20 +178,26 @@ class Window: InternalGLContext {
         shaderProgram.setUniform("model", Matrix4f())
         shaderProgram.setUniform("view", Matrix4f())
 
-        val ratio = 640f / 480f
+        val ratio = size!!.x / size!!.y.toFloat()
         shaderProgram.setUniform("projection", Matrix4f().setOrtho(-ratio, ratio, -1f, 1f, -1f, 1f))
 
         val mesh = Mesh(shaderProgram)
         mesh.setAttribute("position", arrayOf(
-                Vector3f(-0.6f, -0.4f, 0f),
-                Vector3f( 0.6f, -0.4f, 0f),
-                Vector3f( 0f  ,  0.6f, 0f)))
-        mesh.setAttribute("color", arrayOf(
-                Vector3f(1f, 0f, 0f),
-                Vector3f(0f, 1f, 0f),
-                Vector3f(0f, 0f, 1f)))
+                Vector3f(-1f, 1f, 0f),
+                Vector3f( 1f, -1f, 0f),
+                Vector3f( -1f  ,  -1f, 0f),
+                Vector3f(-1f, 1f, 0f),
+                Vector3f( 1f, -1f, 0f),
+                Vector3f( 1f  ,  1f, 0f)))
+        //mesh.setAttribute("color", arrayOf(
+        //        Vector3f(1f, 0f, 0f),
+        //        Vector3f(0f, 1f, 0f),
+        //        Vector3f(0f, 0f, 1f)))
         mesh.burnModel()
         mesh.flushBuffers()
+
+        val texture = Texture2D(Window::class.java.module.getResourceAsStream("assets/create/testures/block/dirt.png"))
+        shaderProgram.setUniform("image", texture)
 
         @Suppress("unused")
         glfwSetKeyCallback(window) { wind, key, scancode, action, mods ->
