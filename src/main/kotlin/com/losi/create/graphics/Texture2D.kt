@@ -51,7 +51,7 @@ class Texture2D {
         loadBuffer(image.convertImageType(BufferedImage.TYPE_BYTE_INDEXED))
     }
 
-    @Suppress("SpellCheckingInspection")
+    @Suppress("SpellCheckingInspection", "RedundantSuppression")
     private fun loadBuffer(image: BufferedImage) { when (image.type)
     {
         BufferedImage.TYPE_INT_RGB, BufferedImage.TYPE_INT_ARGB -> {
@@ -270,7 +270,6 @@ class Texture2D {
         BufferedImage.TYPE_BYTE_INDEXED -> {
             val width = image.width
             val height = image.height
-            val raster = image.raster
 
             val cm = image.colorModel
             val bytesPerPixel = if (cm.hasAlpha()) 4 else 3
