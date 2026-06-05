@@ -1,4 +1,4 @@
-@file:Suppress("unused", "RemoveRedundantQualifierName")
+@file:Suppress("unused", "RemoveRedundantQualifierName", "SpellCheckingInspection")
 package com.losi.create.graphics.gl
 
 import org.lwjgl.opengl.*
@@ -170,19 +170,23 @@ enum class GLSLVar {
     Bytes4(GL11.GL_4_BYTES, null, Byte, 4u, true, "GL_4_BYTES"),
 
     //Special
-    UnsignedRGB332     (GL12.GL_UNSIGNED_BYTE_3_3_2,                              null, UByte,  1u, true, "GL_UNSIGNED_BYTE_3_3_2"),
-    UnsignedBGR233Rev  (GL12.GL_UNSIGNED_BYTE_2_3_3_REV,                          null, UByte,  1u, true, "GL_UNSIGNED_BYTE_2_3_3_REV"),
-    UnsignedRGB565     (GL12.GL_UNSIGNED_SHORT_5_6_5,                             null, UShort, 1u, true, "GL_UNSIGNED_SHORT_5_6_5"),
-    UnsignedRGBA4444   (GL12.GL_UNSIGNED_SHORT_4_4_4_4,                           null, UShort, 1u, true, "GL_UNSIGNED_SHORT_4_4_4_4"),
-    UnsignedRGBA5551   (GL12.GL_UNSIGNED_SHORT_5_5_5_1,                           null, UShort, 1u, true, "GL_UNSIGNED_SHORT_5_5_5_1"),
-    UnsignedRGBA1555Rev(GL12.GL_UNSIGNED_SHORT_1_5_5_5_REV,                       null, UShort, 1u, true, "GL_UNSIGNED_SHORT_1_5_5_5_REV"),
-    UnsignedRGBA8888   (GL12.GL_UNSIGNED_INT_8_8_8_8,                             null, UInt,   1u, true, "GL_UNSIGNED_INT_8_8_8_8"),
-    UnsignedRGB10A2    (GL12.GL_UNSIGNED_INT_2_10_10_10_REV,                      null, UInt,   1u, true, "GL_UNSIGNED_INT_2_10_10_10_REV"),
-    UnsignedR10G11B11F (GL30.GL_UNSIGNED_INT_10F_11F_11F_REV,                     null, UInt,   1u, true, "GL_UNSIGNED_INT_10F_11F_11F_REV"),
-    UnsignedRGB999Rev  (GL30.GL_UNSIGNED_INT_5_9_9_9_REV,                         null, UInt,   1u, true, "GL_UNSIGNED_INT_5_9_9_9_REV"),
-    SignedRGB10A2      (GL33.GL_INT_2_10_10_10_REV,                               null, Int,    1u, true, "GL_INT_2_10_10_10_REV"),
-    UnsignedRGB10A2OES (OESVertexType1010102.GL_UNSIGNED_INT_10_10_10_2_OES, null, UInt,   1u, true, "GL_UNSIGNED_INT_10_10_10_2_OES"),
-    SignedRGB10A2OES   (OESVertexType1010102.GL_INT_10_10_10_2_OES,          null, Int,    1u, true, "GL_INT_10_10_10_2_OES"),
+    UnsRGB332      (GL12.GL_UNSIGNED_BYTE_3_3_2,                              null, UByte,  1u, true, "GL_UNSIGNED_BYTE_3_3_2"),
+    UnsBGR233      (GL12.GL_UNSIGNED_BYTE_2_3_3_REV,                          null, UByte,  1u, true, "GL_UNSIGNED_BYTE_2_3_3_REV"),
+    UnsR5G6B5     (GL12.GL_UNSIGNED_SHORT_5_6_5,                             null, UShort, 1u, true, "GL_UNSIGNED_SHORT_5_6_5"),
+    UnsB5G6R5     (GL12.GL_UNSIGNED_SHORT_5_6_5_REV,                         null, UShort, 1u, true, "GL_UNSIGNED_SHORT_5_6_5_REV"),
+    UnsRGBA4      (GL12.GL_UNSIGNED_SHORT_4_4_4_4,                           null, UShort, 1u, true, "GL_UNSIGNED_SHORT_4_4_4_4"),
+    UnsABGR4      (GL12.GL_UNSIGNED_SHORT_4_4_4_4_REV,                       null, UShort, 1u, true, "GL_UNSIGNED_SHORT_4_4_4_4_REV"),
+    UnsRGB5A1     (GL12.GL_UNSIGNED_SHORT_5_5_5_1,                           null, UShort, 1u, true, "GL_UNSIGNED_SHORT_5_5_5_1"),
+    UnsA1BGR5     (GL12.GL_UNSIGNED_SHORT_1_5_5_5_REV,                       null, UShort, 1u, true, "GL_UNSIGNED_SHORT_1_5_5_5_REV"),
+    UnsRGBA8      (GL12.GL_UNSIGNED_INT_8_8_8_8,                             null, UInt,   1u, true, "GL_UNSIGNED_INT_8_8_8_8"),
+    UnsABGR8      (GL12.GL_UNSIGNED_INT_8_8_8_8_REV,                         null, UInt,   1u, true, "GL_UNSIGNED_INT_8_8_8_8_REV"),
+    UnsRGB10A2    (GL12.GL_UNSIGNED_INT_10_10_10_2,                          null, UInt,   1u, true, "GL_UNSIGNED_INT_10_10_10_2"),
+    UnsA2BGR10    (GL12.GL_UNSIGNED_INT_2_10_10_10_REV,                      null, UInt,   1u, true, "GL_UNSIGNED_INT_2_10_10_10_REV"),
+    UnsB10G11R11F (GL30.GL_UNSIGNED_INT_10F_11F_11F_REV,                     null, UInt,   1u, true, "GL_UNSIGNED_INT_10F_11F_11F_REV"),
+    UnsA5BGR9     (GL30.GL_UNSIGNED_INT_5_9_9_9_REV,                         null, UInt,   1u, true, "GL_UNSIGNED_INT_5_9_9_9_REV"),
+    SigA2BGR10    (GL33.GL_INT_2_10_10_10_REV,                               null, Int,    1u, true, "GL_INT_2_10_10_10_REV"),
+    UnsRGB10A2OES (OESVertexType1010102.GL_UNSIGNED_INT_10_10_10_2_OES, null, UInt,   1u, true, "GL_UNSIGNED_INT_10_10_10_2_OES"),
+    SigRGB10A2OES (OESVertexType1010102.GL_INT_10_10_10_2_OES,          null, Int,    1u, true, "GL_INT_10_10_10_2_OES"),
     ;
 
     val gl: Int
