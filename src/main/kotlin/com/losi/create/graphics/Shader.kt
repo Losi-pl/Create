@@ -414,6 +414,7 @@ class Shader: GLBound {
             throw NullPointerException("The shader has been destroyed")
     }
 
+    /**Used to bind proper objects to specific Uniforms*/
     fun assignObjects() {
         glObjects.forEach { (uniform, pair) ->
             if(pair.first !in 0..31)
