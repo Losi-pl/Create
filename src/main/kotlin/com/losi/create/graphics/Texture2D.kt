@@ -1,12 +1,12 @@
 package com.losi.create.graphics
 
-import com.losi.create.graphics.gl.GLInternalFormat
-import com.losi.create.graphics.gl.GLPixelFormat
+import com.losi.create.graphics.gl.InternalFormat
+import com.losi.create.graphics.gl.PixelFormat
 import com.losi.create.graphics.gl.GLSLVar
-import com.losi.create.graphics.gl.GLTextureWrappingMode
-import com.losi.create.graphics.gl.GLTextureWrappingMode.Repeat
-import com.losi.create.graphics.gl.GLWrappingDirection.Horizontal
-import com.losi.create.graphics.gl.GLWrappingDirection.Vertical
+import com.losi.create.graphics.gl.TextureWrappingMode
+import com.losi.create.graphics.gl.TextureWrappingMode.Repeat
+import com.losi.create.graphics.gl.WrappingDirection.Horizontal
+import com.losi.create.graphics.gl.WrappingDirection.Vertical
 import org.lwjgl.opengl.GL20.*
 import org.lwjgl.system.MemoryStack
 import java.awt.image.BufferedImage
@@ -19,7 +19,7 @@ import java.nio.ByteBuffer
 
 
 class Texture2D {
-    typealias ProcessedImage = Triple<ByteBuffer, Triple<GLInternalFormat, GLPixelFormat, GLSLVar>, Pair<Int, Int>>
+    typealias ProcessedImage = Triple<ByteBuffer, Triple<InternalFormat, PixelFormat, GLSLVar>, Pair<Int, Int>>
     companion object {
         @Suppress("unused")
         fun BufferedImage.convertImageType(targetType: Int): BufferedImage {
@@ -38,11 +38,11 @@ class Texture2D {
         {
             BufferedImage.TYPE_INT_RGB, BufferedImage.TYPE_INT_ARGB -> {
                 val pixels = (this.raster.dataBuffer as DataBufferInt).data
-                val inForm = if(this.type == BufferedImage.TYPE_INT_ARGB) GLInternalFormat.RGBA8 else GLInternalFormat.RGB8
+                val inForm = if(this.type == BufferedImage.TYPE_INT_ARGB) InternalFormat.RGBA8 else InternalFormat.RGB8
                 val buffer = stack.mallocInt(pixels.size).put(pixels).flip()
 
                 return Triple(MemorySegment.ofBuffer(buffer).asByteBuffer(),
-                       Triple(inForm, GLPixelFormat.BGRA, GLSLVar.UnsABGR8),
+                       Triple(inForm, PixelFormat.BGRA, GLSLVar.UnsABGR8),
                        Pair(width, height))
             }
             BufferedImage.TYPE_INT_ARGB_PRE -> {
@@ -67,7 +67,7 @@ class Texture2D {
                 buffer.flip()
 
                 return Triple(MemorySegment.ofBuffer(buffer).asByteBuffer(),
-                       Triple(GLInternalFormat.RGBA8, GLPixelFormat.RGBA, GLSLVar.UnsRGBA8),
+                       Triple(InternalFormat.RGBA8, PixelFormat.RGBA, GLSLVar.UnsRGBA8),
                        Pair(width, height))
             }
             BufferedImage.TYPE_INT_BGR -> {
@@ -75,7 +75,7 @@ class Texture2D {
                 val buffer = stack.mallocInt(pixels.size).put(pixels).flip()
 
                 return Triple(MemorySegment.ofBuffer(buffer).asByteBuffer(),
-                    Triple(GLInternalFormat.RGB8, GLPixelFormat.RGBA, GLSLVar.UnsABGR8),
+                    Triple(InternalFormat.RGB8, PixelFormat.RGBA, GLSLVar.UnsABGR8),
                     Pair(width, height))
             }
             BufferedImage.TYPE_3BYTE_BGR -> {
@@ -83,7 +83,7 @@ class Texture2D {
                 val buffer = stack.malloc(pixels.size).put(pixels).flip()
 
                 return Triple(buffer,
-                    Triple(GLInternalFormat.RGB8, GLPixelFormat.BGR, GLSLVar.UByte),
+                    Triple(InternalFormat.RGB8, PixelFormat.BGR, GLSLVar.UByte),
                     Pair(width, height))
             }
             BufferedImage.TYPE_4BYTE_ABGR -> {
@@ -91,7 +91,7 @@ class Texture2D {
                 val buffer = stack.malloc(pixels.size).put(pixels).flip()
 
                 return Triple(buffer,
-                    Triple(GLInternalFormat.RGBA8, GLPixelFormat.RGBA, GLSLVar.UnsRGBA8),
+                    Triple(InternalFormat.RGBA8, PixelFormat.RGBA, GLSLVar.UnsRGBA8),
                     Pair(width, height))
             }
             BufferedImage.TYPE_4BYTE_ABGR_PRE -> {
@@ -119,7 +119,7 @@ class Texture2D {
                 buffer.flip()
 
                 return Triple(buffer,
-                    Triple(GLInternalFormat.RGBA8, GLPixelFormat.RGBA, GLSLVar.UByte),
+                    Triple(InternalFormat.RGBA8, PixelFormat.RGBA, GLSLVar.UByte),
                     Pair(width, height))
             }
             BufferedImage.TYPE_USHORT_565_RGB -> {
@@ -127,7 +127,7 @@ class Texture2D {
                 val buffer = stack.mallocShort(pixels.size).put(pixels).flip()
 
                 return Triple(MemorySegment.ofBuffer(buffer).asByteBuffer(),
-                    Triple(GLInternalFormat.RGB565, GLPixelFormat.RGB, GLSLVar.UnsR5G6B5),
+                    Triple(InternalFormat.RGB565, PixelFormat.RGB, GLSLVar.UnsR5G6B5),
                     Pair(width, height))
             }
             BufferedImage.TYPE_USHORT_555_RGB -> {
@@ -139,7 +139,7 @@ class Texture2D {
                 buffer.flip()
 
                 return Triple(MemorySegment.ofBuffer(buffer).asByteBuffer(),
-                    Triple(GLInternalFormat.RGB5A1, GLPixelFormat.RGBA, GLSLVar.UnsRGB5A1),
+                    Triple(InternalFormat.RGB5A1, PixelFormat.RGBA, GLSLVar.UnsRGB5A1),
                     Pair(width, height))
             }
             BufferedImage.TYPE_BYTE_GRAY -> {
@@ -147,7 +147,7 @@ class Texture2D {
                 val buffer = stack.malloc(pixels.size).put(pixels).flip()
 
                 return Triple(buffer,
-                    Triple(GLInternalFormat.R8, GLPixelFormat.RED, GLSLVar.UByte),
+                    Triple(InternalFormat.R8, PixelFormat.RED, GLSLVar.UByte),
                     Pair(width, height))
 
             }
@@ -156,7 +156,7 @@ class Texture2D {
                 val buffer = stack.mallocShort(pixels.size).put(pixels).flip()
 
                 return Triple(MemorySegment.ofBuffer(buffer).asByteBuffer(),
-                    Triple(GLInternalFormat.R16, GLPixelFormat.RED, GLSLVar.UShort),
+                    Triple(InternalFormat.R16, PixelFormat.RED, GLSLVar.UShort),
                     Pair(width, height))
             }
             BufferedImage.TYPE_BYTE_BINARY -> {
@@ -179,7 +179,7 @@ class Texture2D {
                 buffer.flip()
 
                 return Triple(buffer,
-                    Triple(GLInternalFormat.R8, GLPixelFormat.RED, GLSLVar.UByte),
+                    Triple(InternalFormat.R8, PixelFormat.RED, GLSLVar.UByte),
                     Pair(width, height))
             }
             else /* BufferedImage.TYPE_BYTE_INDEXED, BufferedImage.TYPE_CUSTOM*/ -> {
@@ -194,7 +194,7 @@ class Texture2D {
                 buffer.flip()
 
                 return Triple(MemorySegment.ofBuffer(buffer).asByteBuffer(),
-                    Triple(GLInternalFormat.SRGB8_ALPHA8, GLPixelFormat.BGRA, GLSLVar.UnsABGR8),
+                    Triple(InternalFormat.SRGB8_ALPHA8, PixelFormat.BGRA, GLSLVar.UnsABGR8),
                     Pair(width, height))
             }
         }}
@@ -211,12 +211,12 @@ class Texture2D {
 
     private val handles = Handles(glGenTextures())
 
-    constructor(stream: InputStream, wrappingMode: GLTextureWrappingMode = Repeat):
+    constructor(stream: InputStream, wrappingMode: TextureWrappingMode = Repeat):
             this (stream, wrappingMode, wrappingMode)
 
     constructor(stream: InputStream,
-                verticalWrapping: GLTextureWrappingMode,
-                horizontalWrapping: GLTextureWrappingMode) {
+                verticalWrapping: TextureWrappingMode,
+                horizontalWrapping: TextureWrappingMode) {
         glBindTexture(GL_TEXTURE_2D, handle)
         glTexParameteri(GL_TEXTURE_2D, Horizontal.gl, horizontalWrapping.gl)
         glTexParameteri(GL_TEXTURE_2D, Vertical.gl, verticalWrapping.gl)

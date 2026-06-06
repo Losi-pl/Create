@@ -3,7 +3,7 @@ package com.losi.create.graphics.gl
 import org.lwjgl.opengl.*
 
 /**The direction of wrapping in a texture*/
-enum class GLWrappingDirection(val gl: Int) {
+enum class WrappingDirection(val gl: Int) {
     /**`GL_TEXTURE_WRAP_S`*/
     Horizontal(GL11.GL_TEXTURE_WRAP_S),
     /**`GL_TEXTURE_WRAP_T`*/
@@ -15,6 +15,6 @@ enum class GLWrappingDirection(val gl: Int) {
     companion object {
         /**Factory to get the format by name if needed,
          * or to validate if a constant is supported.*/
-        fun of(gl: Int) = GLWrappingDirection.entries.find { it.gl == gl }
+        fun of(gl: Int) = WrappingDirection.entries.find { it.gl == gl }
     }
 }

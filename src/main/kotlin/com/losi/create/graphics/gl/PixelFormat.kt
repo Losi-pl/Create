@@ -3,7 +3,7 @@ package com.losi.create.graphics.gl
 
 import org.lwjgl.opengl.*
 
-enum class GLPixelFormat(val gl: Int, val glName: String) {
+enum class PixelFormat(val gl: Int, val glName: String) {
     RGB(GL11.GL_RGB, "GL_RGB"),
     BGR(GL12.GL_BGR, "GL_BGR"),
     RGBA(GL11.GL_RGBA, "GL_RGBA"),
@@ -21,6 +21,6 @@ enum class GLPixelFormat(val gl: Int, val glName: String) {
     companion object {
         /**Factory to get the format by name if needed,
          * or to validate if a constant is supported.*/
-        fun of(gl: Int) = GLPixelFormat.entries.find { it.gl == gl }
+        fun of(gl: Int) = entries.find { it.gl == gl }
     }
 }

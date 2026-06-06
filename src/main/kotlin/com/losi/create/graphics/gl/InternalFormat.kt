@@ -5,7 +5,7 @@ package com.losi.create.graphics.gl
 import org.lwjgl.opengl.*
 
 /** OpenGL internal texture format, used as the `internalFormat` parameter in `glTexImage2D`, `glTexStorage2D`, etc. */
-enum class GLInternalFormat(val gl: Int, val glName: String) {
+enum class InternalFormat(val gl: Int, val glName: String) {
     // --- Low Precision (Legacy / Mobile) ---
     /**4‑bit per channel RGBA (16 bits total). Very low quality, legacy/mobile.
      *

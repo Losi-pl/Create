@@ -3,7 +3,7 @@ package com.losi.create.graphics.gl
 import org.lwjgl.opengl.GL20.*
 
 /**The mode of texture wrapping then exiting the border*/
-enum class GLTextureWrappingMode(val gl: Int) {
+enum class TextureWrappingMode(val gl: Int) {
     /**Repeats the texture.*/
     Repeat(GL_REPEAT),
     /**Repeats the texture, but mirrored with odd coordinates.*/
@@ -18,6 +18,6 @@ enum class GLTextureWrappingMode(val gl: Int) {
         /**Factory to get the format by name if needed,
          * or to validate if a constant is supported.
          */
-        fun of(gl: Int) = GLTextureWrappingMode.entries.find { it.gl == gl }
+        fun of(gl: Int) = TextureWrappingMode.entries.find { it.gl == gl }
     }
 }
