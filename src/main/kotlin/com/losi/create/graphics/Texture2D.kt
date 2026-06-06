@@ -7,6 +7,7 @@ import com.losi.create.graphics.gl.GLTextureWrappingMode
 import com.losi.create.graphics.gl.GLTextureWrappingMode.Repeat
 import com.losi.create.graphics.gl.GLWrappingDirection.Horizontal
 import com.losi.create.graphics.gl.GLWrappingDirection.Vertical
+import com.losi.create.utility.Quad
 import org.lwjgl.opengl.GL20.*
 import org.lwjgl.system.MemoryStack
 import java.awt.image.BufferedImage
@@ -14,7 +15,8 @@ import java.awt.image.DataBufferByte
 import java.awt.image.DataBufferInt
 import java.awt.image.DataBufferUShort
 import java.io.InputStream
-import java.nio.ByteOrder
+import java.lang.foreign.MemorySegment
+import java.nio.ByteBuffer
 
 
 class Texture2D {
@@ -30,46 +32,21 @@ class Texture2D {
             return img
         }
 
-    }
-
-    private val handles = Handles(glGenTextures())
-
-    constructor(stream: InputStream, wrappingMode: GLTextureWrappingMode = Repeat):
-            this (stream, wrappingMode, wrappingMode)
-
-    constructor(stream: InputStream,
-                verticalWrapping: GLTextureWrappingMode,
-                horizontalWrapping: GLTextureWrappingMode) {
-        glBindTexture(GL_TEXTURE_2D, handle)
-        glTexParameteri(GL_TEXTURE_2D, Horizontal.gl, horizontalWrapping.gl)
-        glTexParameteri(GL_TEXTURE_2D, Vertical.gl, verticalWrapping.gl)
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-
-        val image = javax.imageio.ImageIO.read(stream) ?: throw RuntimeException("Unable to parse icon")
-        loadBuffer(image.convertImageType(BufferedImage.TYPE_BYTE_INDEXED))
-    }
-
-    @Suppress("SpellCheckingInspection", "RedundantSuppression")
-    private fun loadBuffer(image: BufferedImage) { when (image.type)
-    {
-        BufferedImage.TYPE_INT_RGB, BufferedImage.TYPE_INT_ARGB -> {
-            val pixels = (image.raster.dataBuffer as DataBufferInt).data
-            val inForm = if(image.type == BufferedImage.TYPE_INT_ARGB) GLInternalFormat.RGBA8 else GLInternalFormat.RGB8
-            MemoryStack.stackPush().use { stack ->
+        @Suppress("SpellCheckingInspection", "RedundantSuppression")
+        fun BufferedImage.processForGL(stack: MemoryStack): Quad<ByteBuffer, GLInternalFormat, GLPixelFormat, GLSLVar> { when (this.type)
+        {
+            BufferedImage.TYPE_INT_RGB, BufferedImage.TYPE_INT_ARGB -> {
+                val pixels = (this.raster.dataBuffer as DataBufferInt).data
+                val inForm = if(this.type == BufferedImage.TYPE_INT_ARGB) GLInternalFormat.RGBA8 else GLInternalFormat.RGB8
                 val buffer = stack.mallocInt(pixels.size).put(pixels).flip()
-                glTexImage2D(
-                    GL_TEXTURE_2D, 0,
-                    inForm.gl,
-                    image.width, image.height, 0,
-                    GLPixelFormat.BGRA.gl,
-                    GLSLVar.UnsABGR8.gl, buffer)
+
+                return Quad(MemorySegment.ofBuffer(buffer).asByteBuffer(),
+                    inForm,
+                    GLPixelFormat.BGRA,
+                    GLSLVar.UnsABGR8)
             }
-        }
-        BufferedImage.TYPE_INT_ARGB_PRE -> {
-            val pixels = (image.raster.dataBuffer as DataBufferInt).data
-            MemoryStack.stackPush().use { stack ->
+            BufferedImage.TYPE_INT_ARGB_PRE -> {
+                val pixels = (this.raster.dataBuffer as DataBufferInt).data
                 val buffer = stack.mallocInt(pixels.size)
 
                 pixels.forEach {
@@ -89,230 +66,179 @@ class Texture2D {
                 }
                 buffer.flip()
 
-                glTexImage2D(
-                    GL_TEXTURE_2D, 0,
-                    GLInternalFormat.RGBA8.gl,
-                    image.width, image.height, 0,
-                    GLPixelFormat.RGBA.gl,
-                    GLSLVar.UnsRGBA8.gl, buffer)
+                return Quad(MemorySegment.ofBuffer(buffer).asByteBuffer(),
+                    GLInternalFormat.RGBA8,
+                    GLPixelFormat.RGBA,
+                    GLSLVar.UnsRGBA8)
             }
-        }
-        BufferedImage.TYPE_INT_BGR -> {
-            val pixels = (image.raster.dataBuffer as DataBufferInt).data
-            MemoryStack.stackPush().use { stack ->
+            BufferedImage.TYPE_INT_BGR -> {
+                val pixels = (this.raster.dataBuffer as DataBufferInt).data
                 val buffer = stack.mallocInt(pixels.size).put(pixels).flip()
 
-                glTexImage2D(
-                    GL_TEXTURE_2D, 0,
-                    GLInternalFormat.RGB8.gl,
-                    image.width, image.height, 0,
-                    GLPixelFormat.RGBA.gl,
-                    GLSLVar.UnsABGR8.gl, buffer)
+                return Quad(MemorySegment.ofBuffer(buffer).asByteBuffer(),
+                    GLInternalFormat.RGB8,
+                    GLPixelFormat.RGBA,
+                    GLSLVar.UnsABGR8)
             }
-        }
-        BufferedImage.TYPE_3BYTE_BGR -> {
-            val pixels = (image.raster.dataBuffer as DataBufferByte).data
-            MemoryStack.stackPush().use { stack ->
+            BufferedImage.TYPE_3BYTE_BGR -> {
+                val pixels = (this.raster.dataBuffer as DataBufferByte).data
                 val buffer = stack.malloc(pixels.size).put(pixels).flip()
-                glTexImage2D(
-                    GL_TEXTURE_2D, 0,
-                    GLInternalFormat.RGB8.gl,
-                    image.width, image.height, 0,
-                    GLPixelFormat.BGR.gl,
-                    GLSLVar.UByte.gl, buffer)
-            }
-        }
-        BufferedImage.TYPE_4BYTE_ABGR -> {
-            val pixels = (image.raster.dataBuffer as DataBufferByte).data
-            MemoryStack.stackPush().use { stack ->
-                val buffer = stack.malloc(pixels.size).put(pixels).flip()
-                glTexImage2D(
-                    GL_TEXTURE_2D, 0,
-                    GLInternalFormat.RGBA8.gl,
-                    image.width, image.height, 0,
-                    GLPixelFormat.RGBA.gl,
-                    GLSLVar.UnsRGBA8.gl, buffer)
-            }
-        }
-        BufferedImage.TYPE_4BYTE_ABGR_PRE -> {
-            val pixels = (image.raster.dataBuffer as DataBufferInt).data
-            val inForm = if(image.type == BufferedImage.TYPE_INT_ARGB) GLInternalFormat.RGBA8 else GLInternalFormat.RGB8
-            MemoryStack.stackPush().use { stack ->
-                val buffer = stack.mallocInt(pixels.size)
 
-                pixels.forEach {
-                    val a = (it shr 24) and 0xFF
-                    if (a == 0) {
-                        buffer.put(0)
+                return Quad(buffer,
+                    GLInternalFormat.RGB8,
+                    GLPixelFormat.BGR,
+                    GLSLVar.UByte)
+            }
+            BufferedImage.TYPE_4BYTE_ABGR -> {
+                val pixels = (this.raster.dataBuffer as DataBufferByte).data
+                val buffer = stack.malloc(pixels.size).put(pixels).flip()
+
+                return Quad(buffer,
+                    GLInternalFormat.RGBA8,
+                    GLPixelFormat.RGBA,
+                    GLSLVar.UnsRGBA8)
+            }
+            BufferedImage.TYPE_4BYTE_ABGR_PRE -> {
+                val pixels = (this.raster.dataBuffer as DataBufferByte).data
+                val buffer = stack.malloc(pixels.size)
+
+                for (ind in pixels.indices step 4)
+                {
+                    val a = pixels[ind]
+                    if (a == 0.toByte()) {
+                        buffer.put(0).put(0).put(0).put(0)
                     } else {
-                        val r = it and 0xFF
-                        val g = (it shr 8) and 0xFF
-                        val b = (it shr 16) and 0xFF
-                        val newR = (r * 255) / a
-                        val newG = (g * 255) / a
-                        val newB = (b * 255) / a
-                        buffer.put((newR shl 24) or (newG shl 16) or (newB shl 8) or a)
+                        val b = pixels[ind + 1]
+                        val g = pixels[ind + 2]
+                        val r = pixels[ind + 3]
+                        val newR = (r * 255f) / a
+                        val newG = (g * 255f) / a
+                        val newB = (b * 255f) / a
+                        buffer.put(newR.toInt().toByte())
+                            .put(newG.toInt().toByte())
+                            .put(newB.toInt().toByte())
+                            .put(a)
                     }
                 }
                 buffer.flip()
 
-                glTexImage2D(
-                    GL_TEXTURE_2D, 0,
-                    inForm.gl,
-                    image.width, image.height, 0,
-                    GLPixelFormat.RGBA.gl,
-                    GLSLVar.UnsRGBA8.gl, buffer)
+                return Quad(buffer,
+                    GLInternalFormat.RGBA8,
+                    GLPixelFormat.RGBA,
+                    GLSLVar.UByte)
             }
-            TODO("Fix as it apperantly the data is not an int buffer")
-        }
-        BufferedImage.TYPE_USHORT_565_RGB -> {
-            val pixels = (image.raster.dataBuffer as DataBufferUShort).data
-            MemoryStack.stackPush().use { stack ->
+            BufferedImage.TYPE_USHORT_565_RGB -> {
+                val pixels = (this.raster.dataBuffer as DataBufferUShort).data
                 val buffer = stack.mallocShort(pixels.size).put(pixels).flip()
-                glTexImage2D(
-                    GL_TEXTURE_2D, 0,
-                    GLInternalFormat.RGB565.gl,
-                    image.width, image.height, 0,
-                    GLPixelFormat.RGB.gl,
-                    GLSLVar.UnsR5G6B5.gl, buffer)
+
+                return Quad(MemorySegment.ofBuffer(buffer).asByteBuffer(),
+                    GLInternalFormat.RGB565,
+                    GLPixelFormat.RGB,
+                    GLSLVar.UnsR5G6B5)
             }
-        }
-        BufferedImage.TYPE_USHORT_555_RGB -> {
-            val pixels = (image.raster.dataBuffer as DataBufferUShort).data
-            MemoryStack.stackPush().use { stack ->
+            BufferedImage.TYPE_USHORT_555_RGB -> {
+                val pixels = (this.raster.dataBuffer as DataBufferUShort).data
                 val buffer = stack.mallocShort(pixels.size)
                 for (packed in pixels) {
-                    val r = (packed.toInt() ushr 10) and 0x1F
-                    val g = (packed.toInt() ushr 5) and 0x1F
-                    val b = packed.toInt() and 0x1F
-
-                    val a = 1
-                    val rgba = (r shl 11) or (g shl 6) or (b shl 1) or a
-                    buffer.put(rgba.toShort())
+                    buffer.put(((packed.toInt() shl 1) or 1).toShort())
                 }
                 buffer.flip()
 
-                glTexImage2D(
-                    GL_TEXTURE_2D, 0,
-                    GLInternalFormat.RGB5A1.gl,
-                    image.width, image.height, 0,
-                    GLPixelFormat.BGR.gl,
-                    GLSLVar.UnsRGB5A1.gl, buffer)
-                TODO("This doesn't work")
+                return Quad(MemorySegment.ofBuffer(buffer).asByteBuffer(),
+                    GLInternalFormat.RGB5A1,
+                    GLPixelFormat.RGBA,
+                    GLSLVar.UnsRGB5A1)
             }
-        }
-        BufferedImage.TYPE_BYTE_GRAY -> {
-            val pixels = (image.raster.dataBuffer as DataBufferByte).data
-            MemoryStack.stackPush().use { stack ->
+            BufferedImage.TYPE_BYTE_GRAY -> {
+                val pixels = (this.raster.dataBuffer as DataBufferByte).data
                 val buffer = stack.malloc(pixels.size).put(pixels).flip()
-                glTexImage2D(
-                    GL_TEXTURE_2D, 0,
-                    GLInternalFormat.R8.gl,
-                    image.width, image.height, 0,
-                    GLPixelFormat.RED.gl,
-                    GLSLVar.UByte.gl, buffer)
+
+                return Quad(buffer,
+                    GLInternalFormat.R8,
+                    GLPixelFormat.RED,
+                    GLSLVar.UByte)
+
             }
-        }
-        BufferedImage.TYPE_USHORT_GRAY -> {
-            val pixels = (image.raster.dataBuffer as DataBufferUShort).data
-            MemoryStack.stackPush().use { stack ->
+            BufferedImage.TYPE_USHORT_GRAY -> {
+                val pixels = (this.raster.dataBuffer as DataBufferUShort).data
                 val buffer = stack.mallocShort(pixels.size).put(pixels).flip()
-                glTexImage2D(
-                    GL_TEXTURE_2D, 0,
-                    GLInternalFormat.R16.gl,
-                    image.width, image.height, 0,
-                    GLPixelFormat.RED.gl,
-                    GLSLVar.UShort.gl, buffer)
+
+                return Quad(MemorySegment.ofBuffer(buffer).asByteBuffer(),
+                    GLInternalFormat.R16,
+                    GLPixelFormat.RED,
+                    GLSLVar.UShort)
             }
-        }
-        BufferedImage.TYPE_BYTE_BINARY -> {
-            val width = image.width
-            val height = image.height
-            val raster = image.raster
-            // Get the underlying packed byte data
-            val packedData = (raster.dataBuffer as DataBufferByte).data
+            BufferedImage.TYPE_BYTE_BINARY -> {
+                val packedData = (this.raster.dataBuffer as DataBufferByte).data
 
-            // Calculate scanline stride (row length in bytes), accounting for padding
-            val strideInBytes = (width + 7) / 8
-
-            MemoryStack.stackPush().use { stack ->
-                // Create a ByteBuffer to hold the unpacked, single-channel data
-                val pixelBuffer = stack.malloc(width * height)
+                val strideInBytes = (width + 7) / 8
+                val buffer = stack.malloc(width * height)
 
                 for (y in 0 until height) {
                     for (x in 0 until width) {
-                        // Find the byte that contains the pixel (x, y)
                         val byteIndex = y * strideInBytes + (x / 8)
-                        // Get the specific byte
                         val currentByte = packedData[byteIndex].toInt()
-                        // Determine the bit position within the byte
                         val bitPosition = 7 - (x % 8)
 
-                        // Isolate the bit (0 or 1)
                         val bitValue = (currentByte shr bitPosition) and 1
-                        // Convert the bit to a grayscale byte (0 or 255)
                         val grayValue = (if (bitValue == 1) 0xFF else 0x00).toByte()
-                        pixelBuffer.put(grayValue)
-                    }
-                }
-                pixelBuffer.flip()
-
-                glTexImage2D(
-                    GL_TEXTURE_2D,0,
-                    GLInternalFormat.R8.gl,
-                    width, height, 0,
-                    GLPixelFormat.RED.gl,
-                    GLSLVar.UByte.gl,
-                    pixelBuffer)
-            }
-
-        }
-        BufferedImage.TYPE_BYTE_INDEXED -> {
-            val width = image.width
-            val height = image.height
-
-            val cm = image.colorModel
-            val bytesPerPixel = if (cm.hasAlpha()) 4 else 3
-
-            MemoryStack.stackPush().use { stack ->
-                val buffer = stack.malloc(width * height * 4).order(ByteOrder.nativeOrder())
-
-                for (y in 0 until height) {
-                    for (x in 0 until width) {
-                        // Use the reliable built-in method
-                        val argb = image.getRGB(x, y)
-
-                        // This line is now safe and works for all image types
-                        val a = (argb shr 24) and 0xFF
-                        val r = (argb shr 16) and 0xFF
-                        val g = (argb shr 8) and 0xFF
-                        val b = argb and 0xFF
-
-                        if (bytesPerPixel == 4) {
-                            buffer.put(r.toByte()).put(g.toByte()).put(b.toByte()).put(a.toByte())
-                        } else {
-                            buffer.put(r.toByte()).put(g.toByte()).put(b.toByte()).put(0xFF.toByte())
-                        }
+                        buffer.put(grayValue)
                     }
                 }
                 buffer.flip()
 
-                glTexImage2D(
-                    GL_TEXTURE_2D, 0,
-                    (if (bytesPerPixel == 4) GLInternalFormat.RGBA4 else GLInternalFormat.RGBA4).gl,
-                    width, height, 0,
-                    GLPixelFormat.RGBA.gl,
-                    GLSLVar.UByte.gl,
-                    buffer
-                )
-            }
-            return
-            @Suppress("KotlinUnreachableCode")
-            TODO("This returns grabage")
-        }
+                return Quad(buffer,
+                    GLInternalFormat.R8,
+                    GLPixelFormat.RED,
+                    GLSLVar.UByte)
 
-        BufferedImage.TYPE_CUSTOM -> { TODO("See if there is a way to deal with this") }
-    }}
+            }
+            else /* BufferedImage.TYPE_BYTE_INDEXED, BufferedImage.TYPE_CUSTOM*/ -> {
+                val buffer = stack.mallocInt(width * height)
+
+                for (y in 0 until height) {
+                    for (x in 0 until width) {
+                        val argb = this.getRGB(x, y)
+                        buffer.put(argb)
+                    }
+                }
+                buffer.flip()
+
+                return Quad(MemorySegment.ofBuffer(buffer).asByteBuffer(),
+                    GLInternalFormat.SRGB8_ALPHA8,
+                    GLPixelFormat.BGRA,
+                    GLSLVar.UnsABGR8)
+            }
+        }}
+
+        fun Quad<ByteBuffer, GLInternalFormat, GLPixelFormat, GLSLVar>.loadToGL(image: BufferedImage) =
+            glTexImage2D(
+                GL_TEXTURE_2D,0,
+                second.gl,
+                image.width, image.height, 0,
+                third.gl,
+                fourth.gl,
+                first)
+    }
+
+    private val handles = Handles(glGenTextures())
+
+    constructor(stream: InputStream, wrappingMode: GLTextureWrappingMode = Repeat):
+            this (stream, wrappingMode, wrappingMode)
+
+    constructor(stream: InputStream,
+                verticalWrapping: GLTextureWrappingMode,
+                horizontalWrapping: GLTextureWrappingMode) {
+        glBindTexture(GL_TEXTURE_2D, handle)
+        glTexParameteri(GL_TEXTURE_2D, Horizontal.gl, horizontalWrapping.gl)
+        glTexParameteri(GL_TEXTURE_2D, Vertical.gl, verticalWrapping.gl)
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+
+        val image = javax.imageio.ImageIO.read(stream) ?: throw RuntimeException("Unable to parse icon")
+        MemoryStack.stackPush().use { stack -> image.processForGL(stack).loadToGL(image) }
+    }
 
     internal val handle = handles.texture
 
