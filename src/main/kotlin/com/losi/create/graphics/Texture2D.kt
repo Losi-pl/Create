@@ -21,6 +21,7 @@ import java.nio.ByteBuffer
 class Texture2D {
     typealias ProcessedImage = Triple<ByteBuffer, Triple<GLInternalFormat, GLPixelFormat, GLSLVar>, Pair<Int, Int>>
     companion object {
+        @Suppress("unused")
         fun BufferedImage.convertImageType(targetType: Int): BufferedImage {
             if (this.type == targetType)
                 return this
