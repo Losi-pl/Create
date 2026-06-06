@@ -1,39 +1,45 @@
-package com.losi.create.graphics.gl;
+@file:JvmName("GL20Cr")
+@file:Suppress("PackageDirectoryMismatch","unused", "SpellCheckingInspection")
 
-import org.jetbrains.annotations.NotNull;
-import org.joml.*;
-import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.NativeType;
+package com.losi.create.graphics.gl
 
-import static org.lwjgl.opengl.GL20C.*;
+import org.joml.*
+import org.lwjgl.opengl.GL20C
+import org.lwjgl.system.MemoryStack
+import org.lwjgl.system.NativeType
 
-@SuppressWarnings({"RedundantSuppression", "SpellCheckingInspection", "GrazieInspectionRunner", "typo"})
-public class GL20Cr {
-    /** {@code void glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, GLfloat const * value)} */
-    public static void glUniformMatrix4f(@NativeType("GLint") int location, @NativeType("GLboolean")boolean transpose, @NativeType("GLfloat const *") @NotNull Matrix4f matrix) {
-        try (var stack = MemoryStack.stackPush())
-            {
-                var buff = stack.mallocFloat(4 * 4);
-                matrix.get(buff);
-                glUniformMatrix4fv(location, transpose, buff);
-            }
-        }
-    /** {@code void glUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose, GLfloat const * value)} */
-    public static void glUniformMatrix3f(@NativeType("GLint") int location, @NativeType("GLboolean")boolean transpose, @NativeType("GLfloat const *") @NotNull Matrix3f matrix) {
-        try (var stack = MemoryStack.stackPush())
-            {
-                var buff = stack.mallocFloat(3 * 3);
-                matrix.get(buff);
-                glUniformMatrix3fv(location, transpose, buff);
-            }
-        }
-    /** {@code void glUniformMatrix2fv(GLint location, GLsizei count, GLboolean transpose, GLfloat const * value)} */
-    public static void glUniformMatrix2f(@NativeType("GLint") int location, @NativeType("GLboolean")boolean transpose, @NativeType("GLfloat const *") @NotNull Matrix2f matrix) {
-        try (var stack = MemoryStack.stackPush())
-            {
-                var buff = stack.mallocFloat(2 * 2);
-                matrix.get(buff);
-                glUniformMatrix2fv(location, transpose, buff);
-            }
-        }
+/** `void glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, GLfloat const * value)`  */
+fun glUniformMatrix4f(
+    @NativeType("GLint") location: Int,
+    @NativeType("GLboolean") transpose: Boolean,
+    @NativeType("GLfloat const *") matrix: Matrix4f) {
+    MemoryStack.stackPush().use { stack ->
+        val buff = stack.mallocFloat(4 * 4)
+        matrix.get(buff)
+        GL20C.glUniformMatrix4fv(location, transpose, buff)
+    }
+}
+
+/** `void glUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose, GLfloat const * value)`  */
+fun glUniformMatrix3f(
+    @NativeType("GLint") location: Int,
+    @NativeType("GLboolean") transpose: Boolean,
+    @NativeType("GLfloat const *") matrix: Matrix3f) {
+    MemoryStack.stackPush().use { stack ->
+        val buff = stack.mallocFloat(3 * 3)
+        matrix.get(buff)
+        GL20C.glUniformMatrix3fv(location, transpose, buff)
+    }
+}
+
+/** `void glUniformMatrix2fv(GLint location, GLsizei count, GLboolean transpose, GLfloat const * value)`  */
+fun glUniformMatrix2f(
+    @NativeType("GLint") location: Int,
+    @NativeType("GLboolean") transpose: Boolean,
+    @NativeType("GLfloat const *") matrix: Matrix2f) {
+    MemoryStack.stackPush().use { stack ->
+        val buff = stack.mallocFloat(2 * 2)
+        matrix.get(buff)
+        GL20C.glUniformMatrix2fv(location, transpose, buff)
+    }
 }

@@ -2,8 +2,7 @@
 package com.losi.create.graphics
 
 import javax.xml.parsers.DocumentBuilderFactory
-import com.losi.create.graphics.gl.GL40Cr.*
-import com.losi.create.graphics.gl.GLSLVar
+import com.losi.create.graphics.gl.*
 import com.losi.create.math.*
 import org.lwjgl.system.MemoryStack
 import java.lang.ref.WeakReference

@@ -1,57 +1,69 @@
-package com.losi.create.graphics.gl;
+@file:JvmName("GL40Cr")
+@file:Suppress("PackageDirectoryMismatch","unused", "SpellCheckingInspection")
 
-import org.jetbrains.annotations.NotNull;
-import org.joml.*;
-import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.NativeType;
-import static org.lwjgl.opengl.GL40C.*;
+package com.losi.create.graphics.gl
 
-@SuppressWarnings({"RedundantSuppression", "SpellCheckingInspection", "GrazieInspectionRunner", "typo"})
-public class GL40Cr extends GL21Cr {
-    /** {@code void glUniformMatrix4dv(GLint location, GLsizei count, GLboolean transpose, GLdouble const * value)} */
-    public static void glUniformMatrix4d(@NativeType("GLint") int location, @NativeType("GLboolean")boolean transpose, @NativeType("GLdouble const *") @NotNull Matrix4d matrix) {
-        try (var stack = MemoryStack.stackPush())
-            {
-                var buff = stack.mallocDouble(4 * 4);
-                matrix.get(buff);
-                glUniformMatrix4dv(location, transpose, buff);
-            }
-        }
-    /** {@code void glUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose, GLdouble const * value)} */
-    public static void glUniformMatrix3d(@NativeType("GLint") int location, @NativeType("GLboolean")boolean transpose, @NativeType("GLdouble const *") @NotNull Matrix3d matrix) {
-        try (var stack = MemoryStack.stackPush())
-            {
-                var buff = stack.mallocDouble(3 * 3);
-                matrix.get(buff);
-                glUniformMatrix3dv(location, transpose, buff);
-            }
-        }
-    /** {@code void glUniformMatrix2fv(GLint location, GLsizei count, GLboolean transpose, GLdouble const * value)} */
-    public static void glUniformMatrix2d(@NativeType("GLint") int location, @NativeType("GLboolean")boolean transpose, @NativeType("GLdouble const *") @NotNull Matrix2d matrix) {
-        try (var stack = MemoryStack.stackPush())
-            {
-                var buff = stack.mallocDouble(2 * 2);
-                matrix.get(buff);
-                glUniformMatrix2dv(location, transpose, buff);
-            }
-        }
+import org.joml.*
+import org.lwjgl.opengl.GL40C
+import org.lwjgl.system.MemoryStack
+import org.lwjgl.system.NativeType
 
-    /** {@code void glUniformMatrix4x3dv(GLint location, GLsizei count, GLboolean transpose, GLdouble const * value)} */
-    public static void glUniformMatrix4x3d(@NativeType("GLint") int location, @NativeType("GLboolean")boolean transpose, @NativeType("GLdouble const *") @NotNull Matrix4x3d matrix) {
-        try (var stack = MemoryStack.stackPush())
-            {
-                var buff = stack.mallocDouble(4 * 3);
-                matrix.get(buff);
-                glUniformMatrix4x3dv(location, transpose, buff);
-            }
-        }
-    /** {@code void glUniformMatrix3x2fv(GLint location, GLsizei count, GLboolean transpose, GLdouble const * value)} */
-    public static void glUniformMatrix3x2d(@NativeType("GLint") int location, @NativeType("GLboolean")boolean transpose, @NativeType("GLdouble const *") @NotNull Matrix3x2d matrix) {
-        try (var stack = MemoryStack.stackPush())
-            {
-                var buff = stack.mallocDouble(3 * 2);
-                matrix.get(buff);
-                glUniformMatrix3x2dv(location, transpose, buff);
-            }
-        }
+/** `void glUniformMatrix4dv(GLint location, GLsizei count, GLboolean transpose, GLdouble const * value)`  */
+fun glUniformMatrix4d(
+    @NativeType("GLint") location: Int,
+    @NativeType("GLboolean") transpose: Boolean,
+    @NativeType("GLdouble const *") matrix: Matrix4d) {
+    MemoryStack.stackPush().use { stack ->
+        val buff = stack.mallocDouble(4 * 4)
+        matrix.get(buff)
+        GL40C.glUniformMatrix4dv(location, transpose, buff)
+    }
+}
+
+/** `void glUniformMatrix3dv(GLint location, GLsizei count, GLboolean transpose, GLdouble const * value)`  */
+fun glUniformMatrix3d(
+    @NativeType("GLint") location: Int,
+    @NativeType("GLboolean") transpose: Boolean,
+    @NativeType("GLdouble const *") matrix: Matrix3d) {
+    MemoryStack.stackPush().use { stack ->
+        val buff = stack.mallocDouble(3 * 3)
+        matrix.get(buff)
+        GL40C.glUniformMatrix3dv(location, transpose, buff)
+    }
+}
+
+/** `void glUniformMatrix2dv(GLint location, GLsizei count, GLboolean transpose, GLdouble const * value)`  */
+fun glUniformMatrix2d(
+    @NativeType("GLint") location: Int,
+    @NativeType("GLboolean") transpose: Boolean,
+    @NativeType("GLdouble const *") matrix: Matrix2d) {
+    MemoryStack.stackPush().use { stack ->
+        val buff = stack.mallocDouble(2 * 2)
+        matrix.get(buff)
+        GL40C.glUniformMatrix2dv(location, transpose, buff)
+    }
+}
+
+/** `void glUniformMatrix4x3dv(GLint location, GLsizei count, GLboolean transpose, GLdouble const * value)`  */
+fun glUniformMatrix4x3d(
+    @NativeType("GLint") location: Int,
+    @NativeType("GLboolean") transpose: Boolean,
+    @NativeType("GLdouble const *") matrix: Matrix4x3d) {
+    MemoryStack.stackPush().use { stack ->
+        val buff = stack.mallocDouble(4 * 3)
+        matrix.get(buff)
+        GL40C.glUniformMatrix4x3dv(location, transpose, buff)
+    }
+}
+
+/** `void glUniformMatrix3x2dv(GLint location, GLsizei count, GLboolean transpose, GLdouble const * value)`  */
+fun glUniformMatrix3x2d(
+    @NativeType("GLint") location: Int,
+    @NativeType("GLboolean") transpose: Boolean,
+    @NativeType("GLdouble const *") matrix: Matrix3x2d) {
+    MemoryStack.stackPush().use { stack ->
+        val buff = stack.mallocDouble(3 * 2)
+        matrix.get(buff)
+        GL40C.glUniformMatrix3x2dv(location, transpose, buff)
+    }
 }
