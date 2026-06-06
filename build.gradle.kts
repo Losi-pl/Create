@@ -90,9 +90,11 @@ dependencies {
     listOf("lang", "io", "image").forEach {
         implementation("com.twelvemonkeys.common:common-$it:$twelvemonkeysVersion")
     }
-    listOf("core", "metadata", "bmp", "dds", "hdr", "icns", "iff", "jpeg", "pcx", "pict", "pnm", "psd", "sgi", "tga", "thumbsdb", "tiff", "webp", "xwd").forEach {
+    listOf("core", "metadata", "bmp", "dds", "hdr", "icns", "iff", "jpeg", "pcx", "pict", "pnm", "psd", "sgi", "tga", "thumbsdb", "tiff", "webp", "xwd", "batik").forEach {
         implementation("com.twelvemonkeys.imageio:imageio-$it:$twelvemonkeysVersion")
     }
+    //https://xmlgraphics.apache.org/batik/
+    implementation("org.apache.xmlgraphics:batik-transcoder:1.19")
 
     //TODO: ============== Kunion ===================
     //implementation("com.github.renatoathaydes:kunion:0bd9cbfe38")
