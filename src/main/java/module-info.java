@@ -20,8 +20,11 @@ module com.losi.create {
     requires com.google.errorprone.annotations;
 
     exports com.losi.create;
-    exports com.losi.create.registry;
+    exports com.losi.create.assets;
     exports com.losi.create.graphics;
-    exports com.losi.create.utility;
     exports com.losi.create.graphics.gl;
+    exports com.losi.create.math;
+    exports com.losi.create.math.collections;
+    exports com.losi.create.registry;
+    exports com.losi.create.utility;
 }
