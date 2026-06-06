@@ -8,7 +8,7 @@ import org.lwjgl.system.NativeType;
 import static org.lwjgl.opengl.GL20C.*;
 
 @SuppressWarnings({"RedundantSuppression", "SpellCheckingInspection", "GrazieInspectionRunner", "typo"})
-public class GL20C {
+public class GL20Cr {
     /** {@code void glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, GLfloat const * value)} */
     public static void glUniformMatrix4f(@NativeType("GLint") int location, @NativeType("GLboolean")boolean transpose, @NativeType("GLfloat const *") @NotNull Matrix4f matrix) {
         try (var stack = MemoryStack.stackPush())

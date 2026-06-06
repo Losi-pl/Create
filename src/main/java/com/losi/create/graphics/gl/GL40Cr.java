@@ -7,7 +7,7 @@ import org.lwjgl.system.NativeType;
 import static org.lwjgl.opengl.GL40C.*;
 
 @SuppressWarnings({"RedundantSuppression", "SpellCheckingInspection", "GrazieInspectionRunner", "typo"})
-public class GL40C extends GL21C {
+public class GL40Cr extends GL21Cr {
     /** {@code void glUniformMatrix4dv(GLint location, GLsizei count, GLboolean transpose, GLdouble const * value)} */
     public static void glUniformMatrix4d(@NativeType("GLint") int location, @NativeType("GLboolean")boolean transpose, @NativeType("GLdouble const *") @NotNull Matrix4d matrix) {
         try (var stack = MemoryStack.stackPush())
