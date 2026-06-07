@@ -456,18 +456,17 @@ class Mesh: GLBound {
                 }
             }
 
-            glBinds = GLBinds(0, 0, 0)
-            glBinds?.let {
+            glBinds = GLBinds(0, 0, 0).apply  {
                 cleaner = Mesh.cleaner.register(this) {
                     val onContext = try { glGetError(); true } catch (ignored: NullPointerException) { false }
                     if(onContext)
-                        garbageCollect(it)
+                        garbageCollect(this)
                     else
-                        OnMainThread.schedule { garbageCollect(it)}
+                        OnMainThread.schedule { garbageCollect(this)}
                 }
-                it.vertexCount = vertexCount
-                it.vbo = glGenBuffers()
-                glBindBuffer(GL_ARRAY_BUFFER, it.vbo)
+                this.vertexCount = vertexCount
+                vbo = glGenBuffers()
+                glBindBuffer(GL_ARRAY_BUFFER, vbo)
                 glBufferData(GL_ARRAY_BUFFER, fullBuffer, GL_STATIC_DRAW)
             }
         }

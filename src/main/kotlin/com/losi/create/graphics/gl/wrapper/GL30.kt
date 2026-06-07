@@ -14,3 +14,9 @@ fun glUniform1(location: UniformLocation, value: UByte) = GL30C.glUniform1ui(loc
 fun glUniform1(location: UniformLocation, value: UShort) = GL30C.glUniform1ui(location.handle, value.toInt())
 /**`void glUniform1ui(GLint location, GLuint v0)`*/
 fun glUniform1(location: UniformLocation, value: UInt) = GL30C.glUniform1ui(location.handle, value.toInt())
+
+/**`void glTexParameteri(GLenum target, GLenum pname, GLint param)`*/
+fun glTexParameterComparison(texture: TextureType, func: ComparisonFunction?) {
+    GL30C.glTexParameteri(texture.gl, GL30C.GL_TEXTURE_COMPARE_MODE , if(func != null) GL30C.GL_COMPARE_REF_TO_TEXTURE else GL30C.GL_NONE)
+    func?.let { GL30C.glTexParameteri(texture.gl, GL30C.GL_TEXTURE_COMPARE_FUNC, it.gl) }
+}

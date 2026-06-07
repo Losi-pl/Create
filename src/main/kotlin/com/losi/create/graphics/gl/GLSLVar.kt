@@ -373,11 +373,15 @@ enum class GLSLVar {
     val isPrimitive : Boolean get() = this === primitive
 
     companion object {
+        private val classSupp = lazy { entries.filter { it.klass != null }.map { it.klass!! }}
+
         /**Factory to get the format by name if needed,
          * or to validate if a constant is supported.*/
         fun of(gl: Int) = entries.find { it.gl == gl }
         /**Factory to get the format by name if needed,
          * or to validate if a constant is supported.*/
         fun of(klass: KClass<*>) = entries.find { it.klass == klass }
+
+        val supportedClasses = classSupp.value
     }
 }

@@ -381,7 +381,7 @@ class Shader: GLBound {
                 return@forEach
 
             glActiveTexture(pair.first)
-            val handler = pair.second?.handle ?: 0
+            val handler = pair.second?.handle?.handle ?: 0
             when(uniform.type)
             {
                 GLSLVar.Sampler2D -> { glBindTexture(TextureObject(TextureType.Texture2D, handler)) }

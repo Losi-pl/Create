@@ -1,18 +1,10 @@
 package com.losi.create.graphics
 
-import com.losi.create.graphics.gl.InternalFormat
-import com.losi.create.graphics.gl.PixelFormat
-import com.losi.create.graphics.gl.GLSLVar
-import com.losi.create.graphics.gl.TextureWrappingMode
-import com.losi.create.graphics.gl.TextureWrappingMode.Repeat
-import com.losi.create.graphics.gl.WrappingDirection.Horizontal
-import com.losi.create.graphics.gl.WrappingDirection.Vertical
-import org.lwjgl.opengl.GL20.*
+import com.losi.create.graphics.gl.*
+import com.losi.create.graphics.gl.TextureWrappingMode.*
+import com.losi.create.graphics.gl.WrappingDirection.*
 import org.lwjgl.system.MemoryStack
-import java.awt.image.BufferedImage
-import java.awt.image.DataBufferByte
-import java.awt.image.DataBufferInt
-import java.awt.image.DataBufferUShort
+import java.awt.image.*
 import java.io.InputStream
 import java.lang.foreign.MemorySegment
 import java.nio.ByteBuffer
@@ -198,18 +190,9 @@ class Texture2D {
                     Pair(width, height))
             }
         }}
-
-        fun ProcessedImage.loadToGL() =
-            glTexImage2D(
-                GL_TEXTURE_2D,0,
-                second.first.gl,
-                third.first, third.second, 0,
-                second.second.gl,
-                second.third.gl,
-                first)
     }
 
-    private val handles = Handles(glGenTextures())
+    private val handles = Handles(glGenTexture(TextureType.Texture2D))
 
     constructor(stream: InputStream, wrappingMode: TextureWrappingMode = Repeat):
             this (stream, wrappingMode, wrappingMode)
@@ -217,18 +200,18 @@ class Texture2D {
     constructor(stream: InputStream,
                 verticalWrapping: TextureWrappingMode,
                 horizontalWrapping: TextureWrappingMode) {
-        glBindTexture(GL_TEXTURE_2D, handle)
-        glTexParameteri(GL_TEXTURE_2D, Horizontal.gl, horizontalWrapping.gl)
-        glTexParameteri(GL_TEXTURE_2D, Vertical.gl, verticalWrapping.gl)
+        glBindTexture(handle)
+        glTexParameterWrapping(TextureType.Texture2D, Horizontal, horizontalWrapping)
+        glTexParameterWrapping(TextureType.Texture2D, Vertical, verticalWrapping)
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+        glTexParameter(TextureType.Texture2D, MinFilterMode.Nearest)
+        glTexParameter(TextureType.Texture2D, MagFilterMode.Nearest)
 
-        val image = javax.imageio.ImageIO.read(stream) ?: throw RuntimeException("Unable to parse icon")
-        MemoryStack.stackPush().use { stack -> image.processForGL(stack).loadToGL() }
+        val image = javax.imageio.ImageIO.read(stream)?: throw RuntimeException("Unable to parse texture")
+        glTexImage2D(image)
     }
 
     internal val handle = handles.texture
 
-    private data class Handles (val texture: Int)
+    private data class Handles (val texture: TextureObject)
 }
