@@ -1,5 +1,6 @@
 package com.losi.create.graphics
 
+import com.losi.create.graphics.gl.GLBound
 import com.losi.create.graphics.gl.GLSLVar
 import com.losi.create.math.collections.*
 import com.losi.create.utility.*
