@@ -125,6 +125,6 @@ enum class TextureType(val gl: Int, val glName: String) {
     companion object {
         /**Factory to get the format by name if needed,
          * or to validate if a constant is supported.*/
-        fun of(gl: Int) = TextureType.entries.find { it.gl == gl }
+        fun of(gl: Int) = entries.find { it.gl == gl }
     }
 }

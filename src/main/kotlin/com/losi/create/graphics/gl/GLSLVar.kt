@@ -85,11 +85,11 @@ enum class GLSLVar {
 
     //Double Vectors
     /**`GL_DOUBLE_VEC2` -> [Vector2d][org.joml.Vector2d]*/
-    Vector2d(GL40.GL_DOUBLE_VEC2, org.joml.Vector2d::class, Double, 2u, true, name = "GL_DOUBLE_VEC2"),
+    Vector2d(ARBGPUShaderFP64.GL_DOUBLE_VEC2, org.joml.Vector2d::class, Double, 2u, true, name = "GL_DOUBLE_VEC2"),
     /**`GL_DOUBLE_VEC3` -> [Vector3d][org.joml.Vector3d]*/
-    Vector3d(GL40.GL_DOUBLE_VEC3, org.joml.Vector3d::class, Double, 3u, true, name = "GL_DOUBLE_VEC3"),
+    Vector3d(ARBGPUShaderFP64.GL_DOUBLE_VEC3, org.joml.Vector3d::class, Double, 3u, true, name = "GL_DOUBLE_VEC3"),
     /**`GL_DOUBLE_VEC4` -> [Vector4d][org.joml.Vector4d]*/
-    Vector4d(GL40.GL_DOUBLE_VEC4, org.joml.Vector4d::class, Double, 4u, true, name = "GL_DOUBLE_VEC4"),
+    Vector4d(ARBGPUShaderFP64.GL_DOUBLE_VEC4, org.joml.Vector4d::class, Double, 4u, true, name = "GL_DOUBLE_VEC4"),
 
     // Float Matrix
     /**`GL_FLOAT_MAT4` -> [Matrix4f][org.joml.Matrix4f]*/
@@ -113,23 +113,23 @@ enum class GLSLVar {
 
     // Double Matrix
     /**`GL_DOUBLE_MAT4` -> [Matrix4d][org.joml.Matrix4d]*/
-    Matrix4d  (GL40.GL_DOUBLE_MAT4,   org.joml.Matrix4d::class,   Double, 4u * 4u, true, "GL_DOUBLE_MAT4"),
+    Matrix4d  (ARBGPUShaderFP64.GL_DOUBLE_MAT4,   org.joml.Matrix4d::class,   Double, 4u * 4u, true, "GL_DOUBLE_MAT4"),
     /**`GL_DOUBLE_MAT4x3` -> [Matrix4x3d][org.joml.Matrix4x3d]*/
-    Matrix4x3d(GL41.GL_DOUBLE_MAT4x3, org.joml.Matrix4x3d::class, Double, 4u * 3u, true, "GL_DOUBLE_MAT4x3"),
+    Matrix4x3d(ARBGPUShaderFP64.GL_DOUBLE_MAT4x3, org.joml.Matrix4x3d::class, Double, 4u * 3u, true, "GL_DOUBLE_MAT4x3"),
     /**`GL_DOUBLE_MAT4x2` -> None*/
-    Matrix4x2d(GL41.GL_DOUBLE_MAT4x2, null,                       Double, 4u * 2u, true, "GL_DOUBLE_MAT4x2"),
+    Matrix4x2d(ARBGPUShaderFP64.GL_DOUBLE_MAT4x2, null,                       Double, 4u * 2u, true, "GL_DOUBLE_MAT4x2"),
     /**`GL_DOUBLE_MAT3x4` -> None*/
-    Matrix3x4d(GL41.GL_DOUBLE_MAT3x4, null,                       Double, 3u * 4u, true, "GL_DOUBLE_MAT3x4"),
+    Matrix3x4d(ARBGPUShaderFP64.GL_DOUBLE_MAT3x4, null,                       Double, 3u * 4u, true, "GL_DOUBLE_MAT3x4"),
     /**`GL_DOUBLE_MAT3` -> [Matrix3d][org.joml.Matrix3d]*/
-    Matrix3d  (GL40.GL_DOUBLE_MAT3,   org.joml.Matrix3d::class,   Double, 3u * 3u, true, "GL_DOUBLE_MAT3"),
+    Matrix3d  (ARBGPUShaderFP64.GL_DOUBLE_MAT3,   org.joml.Matrix3d::class,   Double, 3u * 3u, true, "GL_DOUBLE_MAT3"),
     /**`GL_DOUBLE_MAT3x2` -> [Matrix3x2d][org.joml.Matrix3x2d]*/
-    Matrix3x2d(GL41.GL_DOUBLE_MAT3x2, org.joml.Matrix3x2d::class, Double, 3u * 2u, true, "GL_DOUBLE_MAT3x2"),
+    Matrix3x2d(ARBGPUShaderFP64.GL_DOUBLE_MAT3x2, org.joml.Matrix3x2d::class, Double, 3u * 2u, true, "GL_DOUBLE_MAT3x2"),
     /**`GL_DOUBLE_MAT2x4` -> None*/
-    Matrix2x4d(GL41.GL_DOUBLE_MAT2x4, null,                       Double, 2u * 4u, true, "GL_DOUBLE_MAT2x4"),
+    Matrix2x4d(ARBGPUShaderFP64.GL_DOUBLE_MAT2x4, null,                       Double, 2u * 4u, true, "GL_DOUBLE_MAT2x4"),
     /**`GL_DOUBLE_MAT2x3` -> None*/
-    Matrix2x3d(GL41.GL_DOUBLE_MAT2x3, null,                       Double, 2u * 3u, true, "GL_DOUBLE_MAT2x3"),
+    Matrix2x3d(ARBGPUShaderFP64.GL_DOUBLE_MAT2x3, null,                       Double, 2u * 3u, true, "GL_DOUBLE_MAT2x3"),
     /**`GL_DOUBLE_MAT2` -> [Matrix2d][org.joml.Matrix2d]*/
-    Matrix2d  (GL40.GL_DOUBLE_MAT2,   org.joml.Matrix2d::class,   Double, 2u * 2u, true, "GL_DOUBLE_MAT2"),
+    Matrix2d  (ARBGPUShaderFP64.GL_DOUBLE_MAT2,   org.joml.Matrix2d::class,   Double, 2u * 2u, true, "GL_DOUBLE_MAT2"),
 
     // Regular Samplers
     /**`GL_SAMPLER_1D` -> None*/
@@ -375,9 +375,9 @@ enum class GLSLVar {
     companion object {
         /**Factory to get the format by name if needed,
          * or to validate if a constant is supported.*/
-        fun of(gl: Int) = GLSLVar.entries.find { it.gl == gl }
+        fun of(gl: Int) = entries.find { it.gl == gl }
         /**Factory to get the format by name if needed,
          * or to validate if a constant is supported.*/
-        fun of(klass: KClass<*>) = GLSLVar.entries.find { it.klass == klass }
+        fun of(klass: KClass<*>) = entries.find { it.klass == klass }
     }
 }

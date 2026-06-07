@@ -15,6 +15,6 @@ enum class WrappingDirection(val gl: Int) {
     companion object {
         /**Factory to get the format by name if needed,
          * or to validate if a constant is supported.*/
-        fun of(gl: Int) = WrappingDirection.entries.find { it.gl == gl }
+        fun of(gl: Int) = entries.find { it.gl == gl }
     }
 }

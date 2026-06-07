@@ -477,8 +477,8 @@ class Mesh: GLBound {
             glBindVertexArray(bind.vao)
             shader.use()
             shader.attributes.values.forEach {
-                glEnableVertexAttribArray(it.location)
-                glVertexAttribPointer(it.location, it.type.primitivesCount.toInt(),
+                glEnableVertexAttribArray(it.location.handle)
+                glVertexAttribPointer(it.location.handle, it.type.primitivesCount.toInt(),
                     it.type.primitive.gl, false,
                     vertexSize, it.offset.toLong())
             }

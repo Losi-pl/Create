@@ -18,6 +18,6 @@ enum class TextureWrappingMode(val gl: Int) {
         /**Factory to get the format by name if needed,
          * or to validate if a constant is supported.
          */
-        fun of(gl: Int) = TextureWrappingMode.entries.find { it.gl == gl }
+        fun of(gl: Int) = entries.find { it.gl == gl }
     }
 }
