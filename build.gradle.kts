@@ -1,7 +1,6 @@
 @file:Suppress("SpellCheckingInspection", "GrazieInspectionRunner")
 
 import org.gradle.internal.os.OperatingSystem
-import java.util.Properties
 
 plugins {
     id("java")
@@ -135,5 +134,5 @@ tasks.run { args = listOf("--version") }
 
 application {
     applicationDefaultJvmArgs = listOf("--enable-native-access=ALL-UNNAMED", "--enable-preview")
-    mainClass = "com.losi.create.internal.Start"
+    mainClass = "com.losi.create.App"
 }

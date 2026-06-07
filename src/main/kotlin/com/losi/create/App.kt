@@ -1,63 +1,64 @@
-package com.losi.create.internal;
+package com.losi.create
 
-import com.losi.create.Version;
-import com.losi.create.assets.AssetManager;
-import com.losi.create.assets.ShaderProcessor;
-import com.losi.create.graphics.GLContext;
-import com.losi.create.graphics.Shader;
-import com.losi.create.graphics.Window;
-import com.losi.create.utility.CArrays;
-import com.losi.create.utility.OnMainThread;
-import java.util.Objects;
+import com.losi.create.assets.*
+import com.losi.create.graphics.*
+import com.losi.create.utility.*
+import org.lwjgl.glfw.GLFW
+import kotlin.concurrent.thread
 
-org.lwjgl.glfw.GLFW.*;
+internal object App {
+    /**The main game window */
+    private var main: Window? = null
 
-/** The entry point of the game, meant toly to start up the game. */
-public class App {
-    /**The main game window*/
-    static Window main;
-    /**The context allowing for the OpenGL operations during the construction of the resources*/
-    static GLContext context;
+    /**The context allowing for the OpenGL operations during the construction of the resources */
+    private var context: GLContext? = null
 
     /**The starting methods of the game starting all other processes
-     * @param args The parameters of the game startup*/
-    static void main(String[] args) {
-        IO.println("Welcome to Create!");
+     * @param args The parameters of the game startup
+     */
+    @JvmStatic fun main(vararg args: String) {
+        println("Welcome to Create!")
 
-        if(CArrays.findAny(args, "--Version", true))
-        {
-            IO.println("Create: " + Version.getVersion());
-            IO.println("LWJGL: " + Version.getLWJGLVersion());
-            IO.println("JOML: " + Version.getJOMLVersion());
-            IO.println("JOML Primitives: " + Version.getJOMLPrimVersion());
-            IO.println("Steamworks: " + Version.getSteamworksVersion());
-            IO.println("Steamworks Server: " + Version.getSteamworksServerVersion());
+        args.find { it.equals("--version", true) }?.let {
+            println("Create: ${Version.version}")
+            println("LWJGL: ${Version.LWJGLVersion}")
+            println("JOML: ${Version.JOMLVersion}")
+            println("JOML Primitives: ${Version.JOMLPrimVersion}")
+            println("Steamworks: ${Version.SteamworksVersion}")
         }
 
-        OnMainThread.INSTANCE.setMainThread$create(Thread.currentThread());
-        main = new Window();
-        try { main.setIcon(Version.class.getModule().getResourceAsStream("Icon.ico")); } catch (IOException ignored) { }
-        main.setTitle("Create: " + Version.getVersion());
-        main.create();
-        main.threadBind();
-        main.registerLogic(OnMainThread.INSTANCE::callAction$create);
-        context = new GLContext(main);
-        var register = new Thread(App::BuildAssets);
-        register.start();
-        main.run();
+        OnMainThread.mainThread = Thread.currentThread()
 
-        glfwTerminate();
-        Objects.requireNonNull(glfwSetErrorCallback(null)).free();
+        main = Window()
+        main.mustRun {
+            //Configure the window icon and title
+            icon = Version::class.java.getResourceAsStream("Icon.ico")
+            title = "Create: ${Version.version}"
+
+            //Connect OpenGL logic and thread logic
+            create()
+            threadBind()
+            registerLogic(OnMainThread::callAction)
+
+            //Create Assets loading thread
+            context = GLContext(this)
+            thread(name = "Assets loading", block = App::buildAssets)
+
+            run()
+        }
+
+        GLFW.glfwTerminate()
+        GLFW.glfwSetErrorCallback(null)?.free()
     }
 
     /**The method executed in the parallel thread, it is meant to load all resources of the game.
-     * <p>At the moment including: <ul><li>{@link Shader}: Assets: {@code shaders/}</li></ul>*/
-    public static void BuildAssets()
-    {
-        context.threadBind();
-        AssetManager.constructAssetLoader$create();
-        AssetManager.registerProcessor(ShaderProcessor.INSTANCE, Shader.class, "shaders");
-        AssetManager.INSTANCE.processAssets$create();
-        context.close();
+     *
+     * At the moment including:
+     * - Type: [Shader]: Assets: `shaders/` */
+    fun buildAssets() = context?.use { context ->
+        context.threadBind()
+        AssetManager.constructAssetLoader()
+        AssetManager.registerProcessor(ShaderProcessor, "shaders")
+        AssetManager.processAssets()
     }
 }
