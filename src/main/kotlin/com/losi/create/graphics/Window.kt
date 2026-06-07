@@ -1,6 +1,6 @@
 package com.losi.create.graphics
 
-import com.losi.create.internal.GLErrorHandler
+import com.losi.create.graphics.gl.bindErrorCather
 import com.losi.create.utility.ExpandedConsumer
 import org.joml.*
 import org.lwjgl.glfw.*
@@ -280,8 +280,8 @@ class Window: InternalGLContext {
         currentContext.set(this)
         glfwMakeContextCurrent(window)
         GL.createCapabilities()
-        glViewport(0, 0, size!!.x, size!!.y)
-        GLErrorHandler.bindErrorCather()
+        size?.let{ glViewport(0, 0, it.x, it.y) }
+        bindErrorCather()
 
         threadBound = true
     }

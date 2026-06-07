@@ -106,3 +106,6 @@ inline fun <T> T?.mustRun(action: T.() -> Unit) {
         throw NullPointerException("The element was supposed to be set")
     this.action()
 }
+
+private val camelCaseRegex = "(?<=[a-z])(?=[A-Z])".toRegex()
+fun String.splitCamelCase()= split(camelCaseRegex).joinToString(separator = " ")
