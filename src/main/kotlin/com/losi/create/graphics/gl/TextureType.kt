@@ -126,5 +126,56 @@ enum class TextureType(val gl: Int, val glName: String) {
         /**Factory to get the format by name if needed,
          * or to validate if a constant is supported.*/
         fun of(gl: Int) = entries.find { it.gl == gl }
+
+        private val typeForSampler = lazy { mapOf(
+            // ===== STANDARD =====
+            GLSLVar.Sampler1D               to Texture1D,
+            GLSLVar.Sampler2D               to Texture2D,
+            GLSLVar.Sampler3D               to Texture3D,
+            GLSLVar.Sampler1DArray          to Texture1DArray,
+            GLSLVar.Sampler2DArray          to Texture2DArray,
+            GLSLVar.Sampler2DMul            to Texture2DMul,
+            GLSLVar.SamplerCube             to TextureCube,
+            GLSLVar.SamplerCubeArray        to TextureCubeMap,
+            GLSLVar.SamplerBuffer           to TextureBuffer,
+            GLSLVar.Sampler2DRect           to TextureRectangle,
+
+            // ===== SHADOW SAMPLERS =====
+            GLSLVar.Sampler1DShadow             to Texture1D,
+            GLSLVar.Sampler2DShadow             to Texture2D,
+            GLSLVar.SamplerCubeShadow           to TextureCube,
+            GLSLVar.Sampler1DArrayShadow        to Texture1DArray,
+            GLSLVar.Sampler2DArrayShadow        to Texture2DArray,
+            GLSLVar.SamplerCubeMapArrayShadow   to TextureCubeMap,
+            GLSLVar.Sampler2DRectShadow         to TextureRectangle,
+
+            // ===== INTEGER SAMPLERS =====
+            GLSLVar.IntSampler1D            to Texture1D,
+            GLSLVar.IntSampler2D            to Texture2D,
+            GLSLVar.IntSampler3D            to Texture3D,
+            GLSLVar.IntSampler2DMul         to Texture2DMul,
+            GLSLVar.IntSamplerCube          to TextureCube,
+            GLSLVar.IntSampler1DArray       to Texture1DArray,
+            GLSLVar.IntSampler2DArray       to Texture2DArray,
+            GLSLVar.IntSamplerCubeMapArray  to TextureCubeMap,
+            GLSLVar.IntSampler2DMulArray    to Texture2DMalArray,
+            GLSLVar.IntSamplerBuffer        to TextureBuffer,
+            GLSLVar.IntSampler2DRect        to TextureRectangle,
+
+            // ===== UNSIGNED INTEGER SAMPLERS =====
+            GLSLVar.UIntSampler1D           to Texture1D,
+            GLSLVar.UIntSampler2D           to Texture2D,
+            GLSLVar.UIntSampler3D           to Texture3D,
+            GLSLVar.UIntSampler2DMul        to Texture2DMul,
+            GLSLVar.UIntSamplerCube         to TextureCube,
+            GLSLVar.UIntSampler1DArray      to Texture1DArray,
+            GLSLVar.UIntSampler2DArray      to Texture2DArray,
+            GLSLVar.UIntSamplerCubeMapArray to TextureCubeMap,
+            GLSLVar.UIntSampler2DMulArray   to Texture2DMalArray,
+            GLSLVar.UIntSamplerBuffer       to TextureBuffer,
+            GLSLVar.UIntSampler2DRect       to TextureRectangle
+        )}
+
+        fun usedFor(type: GLSLVar) = typeForSampler.value[type]
     }
 }

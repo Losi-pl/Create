@@ -17,6 +17,9 @@ fun glGenTexture(type: TextureType) = TextureObject(type, GL11C.glGenTextures())
 /**void glBindTexture(GLenum target, GLuint texture)*/
 fun glBindTexture(handle: TextureObject) = GL11C.glBindTexture(handle.type.gl, handle.handle)
 
+/**void glBindTexture(GLenum target, GLuint texture)*/
+fun glUnbindTexture(target: TextureType) = GL11C.glBindTexture(target.gl, 0)
+
 /**`void glTexParameteri(GLenum target, GLenum pname, GLint param)`*/
 fun glTexParameterWrapping(texture: TextureType, direction: WrappingDirection, mode: TextureWrappingMode) =
     GL11C.glTexParameteri(texture.gl, direction.gl, mode.gl)
