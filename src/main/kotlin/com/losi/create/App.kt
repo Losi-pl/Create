@@ -8,13 +8,12 @@ import com.losi.create.graphics.Shader;
 import com.losi.create.graphics.Window;
 import com.losi.create.utility.CArrays;
 import com.losi.create.utility.OnMainThread;
-import java.io.IOException;
 import java.util.Objects;
 
-import static org.lwjgl.glfw.GLFW.*;
+org.lwjgl.glfw.GLFW.*;
 
 /** The entry point of the game, meant toly to start up the game. */
-public class Start {
+public class App {
     /**The main game window*/
     static Window main;
     /**The context allowing for the OpenGL operations during the construction of the resources*/
@@ -43,7 +42,7 @@ public class Start {
         main.threadBind();
         main.registerLogic(OnMainThread.INSTANCE::callAction$create);
         context = new GLContext(main);
-        var register = new Thread(Start::BuildAssets);
+        var register = new Thread(App::BuildAssets);
         register.start();
         main.run();
 
