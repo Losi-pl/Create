@@ -42,7 +42,7 @@ class Shader: GLBound {
     private lateinit var _uniforms: Map<String, Uniform>
     /**A list of attributes used models implementing this Shader*/
     private lateinit var _attributes: Map<String, Attribute>
-    private lateinit var glObjects: Map<Uniform, MutablePair<Int, Texture2D?>>
+    private lateinit var glObjects: Map<Uniform, MutablePair<Int, Texture?>>
     /**A list of dependency's that will be released along with this Shader*/
     private val subscribers = mutableListOf<WeakReference<GLBound>>()
     /**Sets up the even for when this object is Garbage Collected to ensure that it is also dissolved in the OpenGL memory*/

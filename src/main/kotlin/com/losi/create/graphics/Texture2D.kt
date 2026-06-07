@@ -11,7 +11,7 @@ import java.lang.foreign.MemorySegment
 import java.nio.ByteBuffer
 
 
-class Texture2D : GLBound {
+class Texture2D : Texture, GLBound {
     typealias ProcessedImage = Triple<ByteBuffer, Triple<InternalFormat, PixelFormat, GLSLVar>, Pair<Int, Int>>
     companion object {
         @Suppress("unused")
@@ -227,7 +227,8 @@ class Texture2D : GLBound {
         glTexImage2D(image)
     }
 
-    internal val handle = handles.texture
+    override val handle: TextureObject get() = if(isDestroyed) TextureObject(TextureType.Texture2D, 0) else handles.texture
+    override val textureTarget: GLSLVar get() = GLSLVar.Sampler2D
     val isDestroyed = handles.destroyed
 
     override fun release() = cleanable.clean()
