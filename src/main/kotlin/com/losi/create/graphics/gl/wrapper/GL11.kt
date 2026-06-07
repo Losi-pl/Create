@@ -14,6 +14,9 @@ fun glTest() = try { GL11C.glGetError(); true } catch (ignored: NullPointerExcep
 /**`void glGenTextures(GLsizei n, GLuint * textures)`*/
 fun glGenTexture(type: TextureType) = TextureObject(type, GL11C.glGenTextures())
 
+/**`void glDeleteTextures(GLsizei n, GLuint const * textures)`*/
+fun glDeleteTexture(target: TextureObject) = GL11C.glDeleteTextures(target.handle)
+
 /**void glBindTexture(GLenum target, GLuint texture)*/
 fun glBindTexture(handle: TextureObject) = GL11C.glBindTexture(handle.type.gl, handle.handle)
 

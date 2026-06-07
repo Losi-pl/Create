@@ -3,6 +3,7 @@ package com.losi.create.graphics
 import com.losi.create.graphics.gl.*
 import com.losi.create.graphics.gl.TextureWrappingMode.*
 import com.losi.create.graphics.gl.WrappingDirection.*
+import com.losi.create.utility.OnMainThread
 import org.lwjgl.system.MemoryStack
 import java.awt.image.*
 import java.io.InputStream
@@ -10,7 +11,7 @@ import java.lang.foreign.MemorySegment
 import java.nio.ByteBuffer
 
 
-class Texture2D {
+class Texture2D : GLBound {
     typealias ProcessedImage = Triple<ByteBuffer, Triple<InternalFormat, PixelFormat, GLSLVar>, Pair<Int, Int>>
     companion object {
         @Suppress("unused")
@@ -193,6 +194,21 @@ class Texture2D {
     }
 
     private val handles = Handles(glGenTexture(TextureType.Texture2D))
+    private var cleanable = run {
+        val handles = this.handles
+        Texture.cleaner.register(this) {
+            handles.destroyed = true
+            val act = {
+                glUnbindTexture(TextureType.Texture2D)
+                glDeleteTexture(handles.texture)
+            }
+
+            if(glTest())
+                act()
+            else
+                OnMainThread.schedule(act)
+        }
+    }
 
     constructor(stream: InputStream, wrappingMode: TextureWrappingMode = Repeat):
             this (stream, wrappingMode, wrappingMode)
@@ -212,6 +228,9 @@ class Texture2D {
     }
 
     internal val handle = handles.texture
+    val isDestroyed = handles.destroyed
 
-    private data class Handles (val texture: TextureObject)
+    override fun release() = cleanable.clean()
+
+    private data class Handles (val texture: TextureObject, var destroyed: Boolean = false)
 }
