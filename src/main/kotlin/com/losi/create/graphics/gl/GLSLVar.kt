@@ -207,7 +207,7 @@ enum class GLSLVar {
     /**`GL_UNSIGNED_INT_SAMPLER_1D_ARRAY` -> None*/
     UIntSampler1DArray     (GL30.GL_UNSIGNED_INT_SAMPLER_1D_ARRAY,             null, Int, obj = true, name = "GL_UNSIGNED_INT_SAMPLER_1D_ARRAY"),
     /**`GL_UNSIGNED_INT_SAMPLER_2D_ARRAY` -> None*/
-    UIntSampler2DShadow    (GL30.GL_UNSIGNED_INT_SAMPLER_2D_ARRAY,             null, Int, obj = true, name = "GL_UNSIGNED_INT_SAMPLER_2D_ARRAY"),
+    UIntSampler2DArray    (GL30.GL_UNSIGNED_INT_SAMPLER_2D_ARRAY,             null, Int, obj = true, name = "GL_UNSIGNED_INT_SAMPLER_2D_ARRAY"),
     /**`GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY` -> None*/
     UIntSamplerCubeMapArray(GL40.GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY,       null, Int, obj = true, name = "GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY"),
     /**`GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY` -> None*/
