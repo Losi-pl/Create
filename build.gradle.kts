@@ -12,7 +12,7 @@ group = "com.losi.create"
 version = "1.0.0-a1"
 
 var lwjglVersion  = "3.4.1"
-var jomlVersion = "1.10.8"
+var jomlVersion = "1.10.9"
 var jomlPrimitivesVersion = "1.10.0"
 var steamworks4jVersion = "1.10.0"
 var steamworks4jServerVersion = "1.10.0"
@@ -133,6 +133,6 @@ tasks.run { args = listOf("--version") }
 * */
 
 application {
-    applicationDefaultJvmArgs = listOf("--enable-native-access=ALL-UNNAMED", "--enable-preview")
+    applicationDefaultJvmArgs = listOf("--enable-native-access=ALL-UNNAMED", "--enable-preview", "--sun-misc-unsafe-memory-access=allow")
     mainClass = "com.losi.create.App"
 }
