@@ -210,7 +210,7 @@ class Texture2D : Texture, GLBound {
         }
     }
 
-    constructor(stream: InputStream, wrappingMode: TextureWrappingMode = Repeat):
+    constructor(stream: InputStream, wrappingMode: TextureWrappingMode = ClampToEdge):
             this (stream, wrappingMode, wrappingMode)
 
     constructor(stream: InputStream,
