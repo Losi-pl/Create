@@ -1,5 +1,7 @@
 package com.losi.create.graphics
 
+import com.losi.create.assets.AssetManager
+import com.losi.create.assets.BlockTexture
 import com.losi.create.graphics.gl.bindErrorCather
 import com.losi.create.utility.ExpandedConsumer
 import org.joml.*
@@ -207,6 +209,8 @@ class Window: InternalGLContext {
                 shaderProgram.release()
         }
 
+        var atlasUsed = false
+
         glfwSwapInterval(if(vSync) 1 else 0)
         timer.init()
         while (!glfwWindowShouldClose(window)) {
@@ -216,6 +220,14 @@ class Window: InternalGLContext {
             logicUpdate.accept(delta)
 
             glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
+
+            if(!atlasUsed && AssetManager.isLoaded)
+            {
+                shaderProgram.setUniform("atlas", BlockTexture.atlas)
+                shaderProgram.setUniform("useAtlas", true)
+                shaderProgram.setUniform("textureInd", AssetManager.get<BlockTexture>("create:dirt")!!.index)
+                atlasUsed = true
+            }
 
             mesh.draw()
 
