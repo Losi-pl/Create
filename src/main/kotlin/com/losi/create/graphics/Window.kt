@@ -196,7 +196,7 @@ class Window: InternalGLContext {
         mesh.burnModel()
         mesh.flushBuffers()
 
-        val texture = Texture2D(Window::class.java.module.getResourceAsStream("assets/create/testures/blocks/debug3.svg"))
+        val texture = Texture2D(Window::class.java.module.getResourceAsStream("assets/create/textures/blocks/debug3.svg"))
         shaderProgram.setUniform("image", texture)
 
         @Suppress("unused")
