@@ -1,17 +1,18 @@
 package com.losi.create.assets
 
+import com.losi.create.assets.AssetTypeProcessor.Companion.getAsset
+import com.losi.create.utility.startsWithFrom
+import kotlin.reflect.full.isSuperclassOf
+import kotlin.reflect.full.isSubclassOf
 import com.losi.create.ModSpace
 import com.losi.create.Version
-import com.losi.create.utility.startsWithFrom
-import java.io.File
-import java.io.InputStream
-import java.util.*
-import java.util.jar.JarFile
-import java.net.URL
 import java.util.jar.JarEntry
 import kotlin.reflect.KClass
-import kotlin.reflect.full.isSubclassOf
-import kotlin.reflect.full.isSuperclassOf
+import java.util.jar.JarFile
+import java.io.InputStream
+import java.io.File
+import java.net.URL
+import java.util.*
 
 /**The main manager of the game assets like Shaders, Textures, Languages, etc...
  *

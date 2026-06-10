@@ -20,6 +20,17 @@ interface AssetTypeProcessor<T>
          *
          * They are put in order of least to most important ones*/
         internal val order = ThreadLocal<List<ResourceSpace>>()
+
+        /**An extension of [AssetTypeProcessor.getAsset]
+         *
+         * This variation is made for a quick call on resource without a need to pass on the specific [ModSpace]
+         * and that type being inferred from the structure of the query in format `mod:resource`*/
+        internal fun <T> AssetTypeProcessor<T>.getAsset(name: String): T? {
+            val modIdent = name.substringBefore(':')
+            val actualName = name.substringAfter(':')
+            val mod = ModSpace.modules[modIdent] ?: ModSpace("", modIdent, ResourceSpace(), true)
+            return getAsset(mod, actualName)
+        }
     }
 
     /**Will return a list of all [ResourceSpace] recognized by the game in the order of their importance from least to most important ones*/
@@ -138,15 +149,4 @@ interface AssetTypeProcessor<T>
      * @param mod The [ModSpace] the resource is attached to
      * @param name The path or name of the resource being looked for*/
     fun getAsset(mod: ModSpace, name : String): T?
-}
-
-/**An extension of [AssetTypeProcessor.getAsset]
- *
- * This variation is made for a quick call on resource without a need to pass on the specific [ModSpace]
- * and that type being inferred from the structure of the query in format `mod:resource`*/
-internal fun <T> AssetTypeProcessor<T>.getAsset(name: String): T? {
-    val modIdent = name.substringBefore(':')
-    val actualName = name.substringAfter(':')
-    val mod = ModSpace.modules[modIdent] ?: ModSpace("", modIdent, ResourceSpace(), true)
-    return getAsset(mod, actualName)
 }
