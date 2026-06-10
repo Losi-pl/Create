@@ -133,6 +133,8 @@ tasks.run { args = listOf("--version") }
 * */
 
 application {
-    applicationDefaultJvmArgs = listOf("--enable-native-access=ALL-UNNAMED", "--enable-preview", "--sun-misc-unsafe-memory-access=allow")
+    applicationDefaultJvmArgs = listOf(
+        "--enable-native-access=ALL-UNNAMED", "--enable-preview", "--sun-misc-unsafe-memory-access=allow",
+        "-XX:+UseZGC", "-XX:+UseCompactObjectHeaders", "-XX:+AlwaysPreTouch")
     mainClass = "com.losi.create.App"
 }
