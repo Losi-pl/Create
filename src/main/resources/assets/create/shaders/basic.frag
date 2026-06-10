@@ -1,6 +1,5 @@
 #version 150 core
 
-in vec3 vertexColor;
 in vec2 uvPos;
 
 out vec4 fragColor;
@@ -12,7 +11,12 @@ uniform uint textureInd;
 
 void main() {
     if(useAtlas)
-        fragColor = texture(atlas, vec3(uvPos, textureInd));
+    {
+        uint ind = (uint(uvPos.y * 2) * 2u) + uint(uvPos.x * 2);
+        vec2 uv = vec2(mod(uvPos.x * 2.0, 1.0), mod(uvPos.y * 2.0, 1.0));
+
+        fragColor = texture(atlas, vec3(uv, ind + textureInd));
+    }
     else
-        fragColor = texture(image, uvPos);//vec4(vertexColor, 1.0)
+        fragColor = texture(image, uvPos);
 }

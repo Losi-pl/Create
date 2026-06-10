@@ -191,10 +191,7 @@ class Window: InternalGLContext {
                 Vector3f(-1f, 1f, 0f),
                 Vector3f( 1f, -1f, 0f),
                 Vector3f( 1f  ,  1f, 0f)))
-        //mesh.setAttribute("color", arrayOf(
-        //        Vector3f(1f, 0f, 0f),
-        //        Vector3f(0f, 1f, 0f),
-        //        Vector3f(0f, 0f, 1f)))
+
         mesh.burnModel()
         mesh.flushBuffers()
 
@@ -225,7 +222,7 @@ class Window: InternalGLContext {
             {
                 shaderProgram.setUniform("atlas", BlockTexture.atlas)
                 shaderProgram.setUniform("useAtlas", true)
-                shaderProgram.setUniform("textureInd", AssetManager.get<BlockTexture>("create:dirt")!!.index)
+                shaderProgram.setUniform("textureInd", AssetManager.get<BlockTexture>("create:abba")!!.index)
                 atlasUsed = true
             }
 
