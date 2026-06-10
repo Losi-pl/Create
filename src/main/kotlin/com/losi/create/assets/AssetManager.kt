@@ -71,29 +71,6 @@ object AssetManager {
         }
     }
 
-    /**Splits a path into identifier of [ModSpace] and the in type path to the resource itself
-     * @param it A full path in the resources, `<ModSpace>/<DataType>/<Path...>`
-     * @param offset A length of `<DataType>` acquired from [ProcType]
-     * @return A combination of `<ModSpace>` / `<Path...>` in that order, both in String*/
-    private fun split(it: String, offset: Int): Pair<String, String> {
-        val firstBreak = it.indexOf('/')
-        return Pair(it.substring(0, firstBreak), it.substring(firstBreak + offset + 1, it.length))
-    }
-
-    /**Figures out the [ProcType] from a path to a resource
-     * @param path A path to a resource `<ModSpace>/<DataType>/<Path...>`
-     * @return If a type is recognized it will return [ProcType.Known] containing the type of data that works as the key for it.
-     * If the type is not known it will return [ProcType.Unknown] containing the path to that type*/
-    private fun group(path: String): ProcType {
-        typeProcessors.forEach { (klass, pair) ->
-            if(path.startsWithFrom(pair.second, path.indexOf('/')+1))
-                return ProcType.of(klass)
-        }
-        val firstBreak = path.indexOf('/') + 1
-        val secondBreak = path.indexOf('/', firstBreak) + 1
-        return ProcType.of(path.substring(firstBreak, secondBreak))
-    }
-
     /**This method an entry point to processing all resources into assets.
      * First it maps paths to all files and all resources then groups the by: `ResourceSpace` -> `AssetType` -> `ModSpace`
      *
@@ -120,6 +97,28 @@ object AssetManager {
      * ```
      * */
     internal fun processAssets() {
+        /**Splits a path into identifier of [ModSpace] and the in type path to the resource itself
+         * @param it A full path in the resources, `<ModSpace>/<DataType>/<Path...>`
+         * @param offset A length of `<DataType>` acquired from [ProcType]
+         * @return A combination of `<ModSpace>` / `<Path...>` in that order, both in String*/
+        fun split(it: String, offset: Int): Pair<String, String> {
+            val firstBreak = it.indexOf('/')
+            return Pair(it.substring(0, firstBreak), it.substring(firstBreak + offset + 1, it.length))
+        }
+
+        /**Figures out the [ProcType] from a path to a resource
+         * @param path A path to a resource `<ModSpace>/<DataType>/<Path...>`
+         * @return If a type is recognized it will return [ProcType.Known] containing the type of data that works as the key for it.
+         * If the type is not known it will return [ProcType.Unknown] containing the path to that type*/
+        fun group(path: String): ProcType {
+            typeProcessors.forEach { (klass, pair) ->
+                if(path.startsWithFrom(pair.second, path.indexOf('/')+1))
+                    return ProcType.of(klass)
+            }
+            val firstBreak = path.indexOf('/') + 1
+            val secondBreak = path.indexOf('/', firstBreak) + 1
+            return ProcType.of(path.substring(firstBreak, secondBreak))
+        }
 
         val paths = listResourceFiles("assets").map { Pair(group(it), it) }
             .groupBy(keySelector = { it.first },  valueTransform = { it.second  })
