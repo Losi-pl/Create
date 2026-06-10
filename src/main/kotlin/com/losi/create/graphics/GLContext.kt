@@ -1,7 +1,7 @@
 package com.losi.create.graphics
 
 import com.losi.create.graphics.Window.Companion.currentContext
-import com.losi.create.internal.GLErrorHandler
+import com.losi.create.graphics.gl.bindErrorCather
 import com.losi.create.utility.OnMainThread
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL
@@ -33,7 +33,7 @@ class GLContext: InternalGLContext, AutoCloseable {
         currentContext.set(this)
         glfwMakeContextCurrent(handle)
         GL.createCapabilities()
-        GLErrorHandler.bindErrorCather()
+        bindErrorCather()
 
         threadBound = true
     }

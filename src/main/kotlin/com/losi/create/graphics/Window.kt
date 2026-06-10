@@ -1,6 +1,8 @@
 package com.losi.create.graphics
 
-import com.losi.create.internal.GLErrorHandler
+import com.losi.create.assets.AssetManager
+import com.losi.create.assets.BlockTexture
+import com.losi.create.graphics.gl.bindErrorCather
 import com.losi.create.utility.ExpandedConsumer
 import org.joml.*
 import org.lwjgl.glfw.*
@@ -178,20 +180,23 @@ class Window: InternalGLContext {
         shaderProgram.setUniform("model", Matrix4f())
         shaderProgram.setUniform("view", Matrix4f())
 
-        val ratio = 640f / 480f
+        val ratio = size!!.x / size!!.y.toFloat()
         shaderProgram.setUniform("projection", Matrix4f().setOrtho(-ratio, ratio, -1f, 1f, -1f, 1f))
 
         val mesh = Mesh(shaderProgram)
         mesh.setAttribute("position", arrayOf(
-                Vector3f(-0.6f, -0.4f, 0f),
-                Vector3f( 0.6f, -0.4f, 0f),
-                Vector3f( 0f  ,  0.6f, 0f)))
-        mesh.setAttribute("color", arrayOf(
-                Vector3f(1f, 0f, 0f),
-                Vector3f(0f, 1f, 0f),
-                Vector3f(0f, 0f, 1f)))
+                Vector3f(-1f, 1f, 0f),
+                Vector3f( 1f, -1f, 0f),
+                Vector3f( -1f  ,  -1f, 0f),
+                Vector3f(-1f, 1f, 0f),
+                Vector3f( 1f, -1f, 0f),
+                Vector3f( 1f  ,  1f, 0f)))
+
         mesh.burnModel()
         mesh.flushBuffers()
+
+        val texture = Texture2D(Window::class.java.module.getResourceAsStream("assets/create/textures/blocks/debug3.svg"))
+        shaderProgram.setUniform("image", texture)
 
         @Suppress("unused")
         glfwSetKeyCallback(window) { wind, key, scancode, action, mods ->
@@ -200,6 +205,8 @@ class Window: InternalGLContext {
             if(key == GLFW_KEY_D && action == GLFW_RELEASE)
                 shaderProgram.release()
         }
+
+        var atlasUsed = false
 
         glfwSwapInterval(if(vSync) 1 else 0)
         timer.init()
@@ -210,6 +217,14 @@ class Window: InternalGLContext {
             logicUpdate.accept(delta)
 
             glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
+
+            if(!atlasUsed && AssetManager.isLoaded)
+            {
+                shaderProgram.setUniform("atlas", BlockTexture.atlas)
+                shaderProgram.setUniform("useAtlas", true)
+                shaderProgram.setUniform("textureInd", AssetManager.get<BlockTexture>("create:abba")!!.index)
+                atlasUsed = true
+            }
 
             mesh.draw()
 
@@ -265,17 +280,15 @@ class Window: InternalGLContext {
     /**Binds the required OpenGL logic to this [Thread]*/
     fun threadBind() = synchronized (currentContext)
     {
-        if(threadBound)
-            throw IllegalStateException("Window is already bound to a Thread")
-        if(currentContext.get() != null)
-            throw IllegalStateException("Thread is already bound to a Window or Context")
-        if(window == NULL)
-            throw IllegalStateException("The window was not yet created")
+        check(!threadBound) { "Window is already bound to a Thread" }
+        check(currentContext.get() == null) { "Thread is already bound to a Window or Context" }
+        check(window != NULL) { "The window was not yet created" }
+
         currentContext.set(this)
         glfwMakeContextCurrent(window)
         GL.createCapabilities()
-        glViewport(0, 0, size!!.x, size!!.y)
-        GLErrorHandler.bindErrorCather()
+        size?.let{ glViewport(0, 0, it.x, it.y) }
+        bindErrorCather()
 
         threadBound = true
     }

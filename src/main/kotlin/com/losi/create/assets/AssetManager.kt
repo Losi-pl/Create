@@ -1,17 +1,18 @@
 package com.losi.create.assets
 
+import com.losi.create.assets.AssetTypeProcessor.Companion.getAsset
+import com.losi.create.utility.startsWithFrom
+import kotlin.reflect.full.isSuperclassOf
+import kotlin.reflect.full.isSubclassOf
 import com.losi.create.ModSpace
 import com.losi.create.Version
-import com.losi.create.utility.startsWithFrom
-import java.io.File
-import java.io.InputStream
-import java.util.*
-import java.util.jar.JarFile
-import java.net.URL
-import java.util.jar.JarEntry
+import com.losi.create.utility.forEach
 import kotlin.reflect.KClass
-import kotlin.reflect.full.isSubclassOf
-import kotlin.reflect.full.isSuperclassOf
+import java.util.jar.JarFile
+import java.io.InputStream
+import java.io.File
+import java.net.URL
+import java.util.*
 
 /**The main manager of the game assets like Shaders, Textures, Languages, etc...
  *
@@ -70,29 +71,6 @@ object AssetManager {
         }
     }
 
-    /**Splits a path into identifier of [ModSpace] and the in type path to the resource itself
-     * @param it A full path in the resources, `<ModSpace>/<DataType>/<Path...>`
-     * @param offset A length of `<DataType>` acquired from [ProcType]
-     * @return A combination of `<ModSpace>` / `<Path...>` in that order, both in String*/
-    private fun split(it: String, offset: Int): Pair<String, String> {
-        val firstBreak = it.indexOf('/')
-        return Pair(it.substring(0, firstBreak), it.substring(firstBreak + offset + 1, it.length))
-    }
-
-    /**Figures out the [ProcType] from a path to a resource
-     * @param path A path to a resource `<ModSpace>/<DataType>/<Path...>`
-     * @return If a type is recognized it will return [ProcType.Known] containing the type of data that works as the key for it.
-     * If the type is not known it will return [ProcType.Unknown] containing the path to that type*/
-    private fun group(path: String): ProcType {
-        typeProcessors.forEach { (klass, pair) ->
-            if(path.startsWithFrom(pair.second, path.indexOf('/')+1))
-                return ProcType.of(klass)
-        }
-        val firstBreak = path.indexOf('/') + 1
-        val secondBreak = path.indexOf('/', firstBreak) + 1
-        return ProcType.of(path.substring(firstBreak, secondBreak))
-    }
-
     /**This method an entry point to processing all resources into assets.
      * First it maps paths to all files and all resources then groups the by: `ResourceSpace` -> `AssetType` -> `ModSpace`
      *
@@ -119,8 +97,30 @@ object AssetManager {
      * ```
      * */
     internal fun processAssets() {
+        /**Splits a path into identifier of [ModSpace] and the in type path to the resource itself
+         * @param it A full path in the resources, `<ModSpace>/<DataType>/<Path...>`
+         * @param offset A length of `<DataType>` acquired from [ProcType]
+         * @return A combination of `<ModSpace>` / `<Path...>` in that order, both in String*/
+        fun split(it: String, offset: Int): Pair<String, String> {
+            val firstBreak = it.indexOf('/')
+            return Pair(it.substring(0, firstBreak), it.substring(firstBreak + offset + 1, it.length))
+        }
 
-        val paths = listResourceFiles("assets").asSequence().map { Pair(group(it), it) }
+        /**Figures out the [ProcType] from a path to a resource
+         * @param path A path to a resource `<ModSpace>/<DataType>/<Path...>`
+         * @return If a type is recognized it will return [ProcType.Known] containing the type of data that works as the key for it.
+         * If the type is not known it will return [ProcType.Unknown] containing the path to that type*/
+        fun group(path: String): ProcType {
+            typeProcessors.forEach { (klass, pair) ->
+                if(path.startsWithFrom(pair.second, path.indexOf('/')+1))
+                    return ProcType.of(klass)
+            }
+            val firstBreak = path.indexOf('/') + 1
+            val secondBreak = path.indexOf('/', firstBreak) + 1
+            return ProcType.of(path.substring(firstBreak, secondBreak))
+        }
+
+        val paths = listResourceFiles("assets").map { Pair(group(it), it) }
             .groupBy(keySelector = { it.first },  valueTransform = { it.second  })
             .mapValues {
                 ti -> ti.value.asSequence()
@@ -220,47 +220,48 @@ object AssetManager {
         return proc.first.getAsset(mod, name)
     }
 
+    /**A flag specifying if the assets were loaded*/
+    val isLoaded: Boolean get() = assetsLoaded
+
     /**This method is for getting an [InputStream] to a resource
      * @param source The specific source of resources being queried
      * @param path A path within the [ResourceSpace] to be loaded from*/
     internal fun getStream(source: ResourceSpace, path: String): InputStream? = assetLoaders[source]?.invoke(path)
-    /**This is a method I got from the internet, it is meant for getting a manifest of all files available in the [ClassLoader]
+    /**Returns a sequence of all files present in a specific folder in resources of the [classLoader]
      * @param resourceFolder A sub path to be manifested
-     * @author DeepSeek*/
-    internal fun listResourceFiles(resourceFolder: String): MutableList<String> {
-        val fileNames = ArrayList<String>()
-        val classLoader = Thread.currentThread().contextClassLoader
-        val folderUrl: URL? = classLoader.getResource(resourceFolder)
+     * @param classLoader The source of resources to be filled from
+     * @author Losi-pl*/
+    internal fun listResourceFiles(resourceFolder: String, classLoader: ClassLoader =
+        Thread.currentThread().contextClassLoader ?: ClassLoader.getSystemClassLoader() ): Sequence<String> {
+        /**Iterates over a [directory][file] to find all files present in it and its subdirectory's*/
+        fun allFiles(file: File): Sequence<File> = sequence {
+            if(file.isDirectory)
+                file.listFiles()?.forEach { if(it.isFile) yield(it) else yieldAll(allFiles(it)) }
+            else
+                yield(file)
+        }
 
-        requireNotNull(folderUrl) { "Resource folder not found: $resourceFolder" }
+        val normResPath = resourceFolder.trim('/', '\\')
+        val folderUrl: URL? = classLoader.getResource(normResPath)
 
-        if (folderUrl.protocol.equals("file")) {
-            val folder = File(folderUrl.toURI())
-            val files = folder.listFiles()
-            if (files != null) {
-                for (file in files) {
-                    if (file.isFile()) {
-                        fileNames.add(file.getName())
+        requireNotNull(folderUrl) { "Resource folder not found: $normResPath" }
+
+        return when(folderUrl.protocol) {
+            "file" -> {
+                val file = File(folderUrl.toURI())
+                val basePath = file.toString().let { if(it.last().let { c -> c == '/' || c == '\\' }) it.length else it.length + 1 }
+                allFiles(file).map { it.toString().substring(basePath).replace('\\', '/') }
+            }
+            "jar" -> sequence {
+                val jarPath = folderUrl.path.substring(5, folderUrl.path.indexOf("!"))
+                JarFile(jarPath).use { jarFile ->
+                    jarFile.entries().forEach {
+                        if (it.name.startsWith("$normResPath/") && !it.isDirectory)
+                            yield(it.name.substring(normResPath.length + 1))
                     }
                 }
             }
+            else -> throw UnsupportedOperationException("Unsupported protocol: ${folderUrl.protocol}")
         }
-        else if (folderUrl.protocol.equals("jar")) {
-            val jarPath = folderUrl.path.substring(5, folderUrl.path.indexOf("!"))
-            JarFile(jarPath).use { jarFile ->
-                val entries = jarFile.entries()
-                while (entries.hasMoreElements()) {
-                    val entry: JarEntry = entries.nextElement()
-                    val entryName: String = entry.getName()
-                    if (entryName.startsWith("$resourceFolder/") && !entry.isDirectory) {
-                        val relativePath = entryName.substring(resourceFolder.length + 1)
-                        fileNames.add(relativePath)
-                    }
-                }
-            }
-        }
-        else { throw UnsupportedOperationException("Unsupported protocol: " + folderUrl.protocol) }
-
-        return fileNames
     }
 }

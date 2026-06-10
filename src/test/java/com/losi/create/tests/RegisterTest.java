@@ -1,5 +1,6 @@
 package com.losi.create.tests;
 
+import com.losi.create.ModSpace;
 import com.losi.create.registry.*;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +21,7 @@ public class RegisterTest {
             int finalI = i;
             GameElement testEle = new GameElement() { };
             executor.submit(() -> {
-                element.register(testEle, "Abba:" + finalI);
+                element.register(testEle, ModSpace.Companion.getModules().get("create") ,"Abba:" + finalI);
                 latch.countDown();
             });
         }

@@ -1,12 +1,10 @@
 @file:Suppress("SpellCheckingInspection", "GrazieInspectionRunner")
 
 import org.gradle.internal.os.OperatingSystem
-import java.util.Properties
 
 plugins {
     id("java")
     id("application")
-    id("org.gradlex.extra-java-module-info") version "1.14"
     kotlin("jvm") version "2.3.21"
 }
 
@@ -14,7 +12,7 @@ group = "com.losi.create"
 version = "1.0.0-a1"
 
 var lwjglVersion  = "3.4.1"
-var jomlVersion = "1.10.8"
+var jomlVersion = "1.10.9"
 var jomlPrimitivesVersion = "1.10.0"
 var steamworks4jVersion = "1.10.0"
 var steamworks4jServerVersion = "1.10.0"
@@ -90,9 +88,11 @@ dependencies {
     listOf("lang", "io", "image").forEach {
         implementation("com.twelvemonkeys.common:common-$it:$twelvemonkeysVersion")
     }
-    listOf("core", "metadata", "bmp", "dds", "hdr", "icns", "iff", "jpeg", "pcx", "pict", "pnm", "psd", "sgi", "tga", "thumbsdb", "tiff", "webp", "xwd").forEach {
+    listOf("core", "metadata", "bmp", "dds", "hdr", "icns", "iff", "jpeg", "pcx", "pict", "pnm", "psd", "sgi", "tga", "thumbsdb", "tiff", "webp", "xwd", "batik").forEach {
         implementation("com.twelvemonkeys.imageio:imageio-$it:$twelvemonkeysVersion")
     }
+    //https://xmlgraphics.apache.org/batik/
+    implementation("org.apache.xmlgraphics:batik-transcoder:1.19")
 
     //TODO: ============== Kunion ===================
     //implementation("com.github.renatoathaydes:kunion:0bd9cbfe38")
@@ -104,17 +104,6 @@ dependencies {
     // =================== Guava ===================
     implementation("com.google.guava:guava:33.6.0-jre")
 }
-extraJavaModuleInfo {
-    failOnMissingModuleInfo = false
-    automaticModule("com.github.Querz:NBT", "nbt.querz")
-    automaticModule("com.koloboke:koloboke-api-jdk8", "koloboke.api.jdk8")
-    module("org.jetbrains:annotations", "org.jetbrains.annotations")
-    { patchRealModule(); preserveExisting(); exports("org.jetbrains.annotations") }
-    automaticModule("com.code-disaster.steamworks4j:steamworks4j", "steamworks4j")
-    { mergeJar("com.code-disaster.steamworks4j:steamworks4j-server") }
-    module("org.joml:joml", "org.joml")
-    { patchRealModule(); preserveExisting(); requires("kotlin.stdlib") }
-}
 kotlin { jvmToolchain(25) }
 java {
     sourceCompatibility = JavaVersion.VERSION_25
@@ -122,49 +111,17 @@ java {
     toolchain { languageVersion = JavaLanguageVersion.of(25) }
 }
 
-tasks.register("createProperties") {
-    dependsOn("processResources")
-    var propsFileProvider = layout.buildDirectory.file("resources/main/version.properties")
-    outputs.file(propsFileProvider)
-
-    // Declare inputs so Gradle knows when to rerun
-    inputs.property("create", version)
-    inputs.property("lwjgl", lwjglVersion)
-    inputs.property("joml", jomlVersion)
-    inputs.property("joml-primitives", jomlPrimitivesVersion)
-    inputs.property("steamworks", steamworks4jVersion)
-    inputs.property("steamworks-server", steamworks4jServerVersion)
-    inputs.property("querz-NBT", querzNBTversion)
-
-    doLast {
-        var propsFile = propsFileProvider.get().asFile
-        propsFile.parentFile.mkdirs()
-        var p = Properties()
-        p["create-version"] = inputs.properties["create"]
-        p["lwjgl-version"] = inputs.properties["lwjgl"]
-        p["joml-version"] = inputs.properties["joml"]
-        p["joml-primitives-version"] = inputs.properties["joml-primitives"]
-        p["steamworks4j-version"] = inputs.properties["steamworks"]
-        p["steamworks4j-server-version"] = inputs.properties["steamworks-server"]
-        p["querz-NBT-version"] = inputs.properties["querz-NBT"]
-        propsFile.writer().use { p.store(it, null) }
+tasks.jar {
+    manifest {
+        attributes(
+            "Implementation-Title" to "Create",
+            "Implementation-Version" to project.version
+        )
     }
 }
-tasks.named("classes") { dependsOn(tasks.named("createProperties")) }
 tasks.compileJava {
     options.forkOptions.jvmArgs = listOf("--enable-native-access=ALL-UNNAMED")
     options.compilerArgs.addAll(listOf("-Xlint:-incubating", "--enable-preview"))
-    options.compilerArgumentProviders.add(
-        object : CommandLineArgumentProvider {
-            @get:CompileClasspath
-            val kotlinClasses = tasks.compileKotlin.flatMap { it.destinationDirectory }
-
-            override fun asArguments(): List<String> = listOf(
-                "--patch-module",
-                "com.losi.create=${kotlinClasses.get().asFile.absolutePath}"
-            )
-        }
-    )
 }
 
 tasks.test { jvmArgs = listOf("--enable-native-access=ALL-UNNAMED", "--enable-preview"); useJUnitPlatform() }
@@ -176,7 +133,8 @@ tasks.run { args = listOf("--version") }
 * */
 
 application {
-    applicationDefaultJvmArgs = listOf("--enable-native-access=org.lwjgl", "--enable-native-access=org.lwjgl.opengl", "--enable-preview")
-    mainClass = "com.losi.create.internal.Start"
-    mainModule = "com.losi.create"
+    applicationDefaultJvmArgs = listOf(
+        "--enable-native-access=ALL-UNNAMED", "--enable-preview", "--sun-misc-unsafe-memory-access=allow",
+        "-XX:+UseZGC", "-XX:+UseCompactObjectHeaders", "-XX:+AlwaysPreTouch")
+    mainClass = "com.losi.create.App"
 }
