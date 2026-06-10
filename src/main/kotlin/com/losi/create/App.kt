@@ -59,6 +59,7 @@ internal object App {
         context.threadBind()
         AssetManager.constructAssetLoader()
         AssetManager.registerProcessor(ShaderProcessor, "shaders")
+        AssetManager.registerProcessor(BlockTexture.BlockAtlasProcessor, "textures/blocks")
         AssetManager.processAssets()
     }
 }
