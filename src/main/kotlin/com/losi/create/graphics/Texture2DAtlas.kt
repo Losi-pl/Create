@@ -1,24 +1,36 @@
 package com.losi.create.graphics
 
 import com.losi.create.graphics.gl.*
-import com.losi.create.utility.orElse
+import com.losi.create.utility.*
 import org.joml.*
 import java.awt.image.BufferedImage
 import java.io.InputStream
+import java.lang.ref.Cleaner
 import javax.imageio.ImageIO
-import kotlin.require
 
 class Texture2DAtlas : Texture, GLBound {
     private val handlers: Handlers
+    private val cleaner: Cleaner.Cleanable
 
     override val textureTarget: GLSLVar get() = GLSLVar.Sampler2DArray
     override val handle: TextureObject get() = handlers.texture
 
-    private constructor(`object`: TextureObject) { handlers = Handlers(`object`) }
+    private constructor(`object`: TextureObject) {
+        handlers = Handlers(`object`)
 
-    override fun release() = TODO("Not yet implemented")
+        val handlers = handlers
+        cleaner = Texture.cleaner.register(this) {
+            handlers.deleted = true
+            if(glTest())
+                glDeleteTexture(handlers.texture)
+            else
+                OnMainThread.schedule { glDeleteTexture(handlers.texture) }
+        }
+    }
 
-    private data class Handlers(var texture: TextureObject)
+    override fun release() = cleaner.clean()
+
+    private data class Handlers(val texture: TextureObject, var deleted: Boolean = false)
 
     companion object {
         private val texture = TextureType.Texture2DArray
