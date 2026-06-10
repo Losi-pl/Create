@@ -271,12 +271,10 @@ class Window: InternalGLContext {
     /**Binds the required OpenGL logic to this [Thread]*/
     fun threadBind() = synchronized (currentContext)
     {
-        if(threadBound)
-            throw IllegalStateException("Window is already bound to a Thread")
-        if(currentContext.get() != null)
-            throw IllegalStateException("Thread is already bound to a Window or Context")
-        if(window == NULL)
-            throw IllegalStateException("The window was not yet created")
+        check(!threadBound) { "Window is already bound to a Thread" }
+        check(currentContext.get() == null) { "Thread is already bound to a Window or Context" }
+        check(window != NULL) { "The window was not yet created" }
+
         currentContext.set(this)
         glfwMakeContextCurrent(window)
         GL.createCapabilities()
