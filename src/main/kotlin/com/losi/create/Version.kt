@@ -5,16 +5,17 @@ object Version
 {
     private const val VERSION = "1.0.0-a1"
 
-    @JvmStatic
-    val version: String get() {
+    val myVersion = lazy {
         try
         {
             val version = Version::class.java.`package`?.implementationVersion ?: VERSION
-            return version
+            return@lazy version
         }
         catch (_: Exception)
-        { return "error" }
+        { return@lazy "error" }
     }
+    @JvmStatic
+    val version: String get() = myVersion.value
     @JvmStatic
     val LWJGLVersion: String get() = org.lwjgl.Version.getVersion()
 
