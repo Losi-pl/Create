@@ -224,8 +224,8 @@ class Texture2D : Texture, GLBound {
         glTexParameter(TextureType.Texture2D, MagFilterMode.Nearest)
 
         val image = javax.imageio.ImageIO.read(stream)?: throw RuntimeException("Unable to parse texture")
-        width = image.width
-        height = image.height
+        width = image.width.toUInt()
+        height = image.height.toUInt()
         glTexImage2D(image)
     }
 
@@ -233,8 +233,8 @@ class Texture2D : Texture, GLBound {
     override val textureTarget: GLSLVar get() = GLSLVar.Sampler2D
     val isDestroyed = handles.destroyed
 
-    val width: Int
-    val height: Int
+    val width: UInt
+    val height: UInt
 
     override fun release() = cleanable.clean()
 
