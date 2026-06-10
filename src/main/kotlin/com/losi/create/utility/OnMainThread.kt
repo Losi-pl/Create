@@ -2,6 +2,7 @@ package com.losi.create.utility
 
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 /**Operations performed on the main thread of the application*/
 object OnMainThread
@@ -31,16 +32,22 @@ object OnMainThread
      *
      * Will wait until the lambda is done before continuing*/
     @JvmStatic @Suppress("unused")
-    inline fun <T> query(crossinline action: () -> T): T
+    inline fun <reified T> query(crossinline action: () -> T): T
     {
+        if(isMain())
+            return action()
+
         val latch = CountDownLatch(1)
         var result: T? = null
+        var error: Throwable? = null
         schedule {
-            result = action()
-            latch.countDown()
+            try { result = action() }
+            catch (e: Throwable) {error = e}
+            finally { latch.countDown() }
         }
-        latch.await()
-        return result!!
+        latch.await(5, TimeUnit.SECONDS)
+        error?.let { throw it }
+        return result as T
     }
 }
 
