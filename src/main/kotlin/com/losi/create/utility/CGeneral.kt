@@ -101,10 +101,10 @@ inline fun <K, F> Map<K, F>.findFirst(condition: (Map.Entry<K, F>) -> Boolean): 
     }
     return null
 }
+/**An overload of [run] the is combined with an assertion that the value it's used on is not null*/
 inline fun <T> T?.mustRun(action: T.() -> Unit) {
-    if(this == null)
-        throw NullPointerException("The element was supposed to be set")
-    this.action()
+    assert(this != null) { "The element was supposed to be set" }
+    this!!.action()
 }
 
 private val camelCaseRegex = "(?<=[a-z])(?=[A-Z])".toRegex()
