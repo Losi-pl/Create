@@ -342,6 +342,10 @@ class Shader: GLBound {
      * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
     fun setUniform(name: String, value: Texture2D?) = setUniform(name, GLSLVar.Sampler2D) { glObjects[it]!!.second = value }
 
+    /**Used to set the [name] uniform with a [value]
+     * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
+    fun setUniform(name: String, value: Texture2DAtlas?) = setUniform(name, GLSLVar.Sampler2DArray) { glObjects[it]!!.second = value }
+
     /**Used to dissolve the Shader allowing the OpenGl data to be freed
      *
      * After calling the Shader will become unusable, and all dependency's will be released as well*/

@@ -133,41 +133,41 @@ enum class GLSLVar {
 
     // Regular Samplers
     /**`GL_SAMPLER_1D` -> None*/
-    Sampler1D                (GL20.GL_SAMPLER_1D,                    null,             Int, obj = true, name = "GL_SAMPLER_1D"),
+    Sampler1D                (GL20.GL_SAMPLER_1D,                    null,                  Int, obj = true, name = "GL_SAMPLER_1D"),
     /**`GL_SAMPLER_2D` -> [Texture2D]*/
-    Sampler2D                (GL20.GL_SAMPLER_2D,                    Texture2D::class, Int, obj = true, name = "GL_SAMPLER_2D"),
+    Sampler2D                (GL20.GL_SAMPLER_2D,                    Texture2D::class,      Int, obj = true, name = "GL_SAMPLER_2D"),
     /**`GL_SAMPLER_3D` -> None*/
-    Sampler3D                (GL20.GL_SAMPLER_3D,                    null,             Int, obj = true, name = "GL_SAMPLER_3D"),
+    Sampler3D                (GL20.GL_SAMPLER_3D,                    null,                  Int, obj = true, name = "GL_SAMPLER_3D"),
     /**`GL_SAMPLER_2D_MULTISAMPLE` -> None*/
-    Sampler2DMul             (GL32.GL_SAMPLER_2D_MULTISAMPLE,        null,             Int, obj = true, name = "GL_SAMPLER_2D_MULTISAMPLE"),
+    Sampler2DMul             (GL32.GL_SAMPLER_2D_MULTISAMPLE,        null,                  Int, obj = true, name = "GL_SAMPLER_2D_MULTISAMPLE"),
     /**`GL_SAMPLER_CUBE` -> None*/
-    SamplerCube              (GL20.GL_SAMPLER_CUBE,                  null,             Int, obj = true, name = "GL_SAMPLER_CUBE"),
+    SamplerCube              (GL20.GL_SAMPLER_CUBE,                  null,                  Int, obj = true, name = "GL_SAMPLER_CUBE"),
     /**`GL_SAMPLER_BUFFER` -> None*/
-    SamplerBuffer            (GL31.GL_SAMPLER_BUFFER,                null,             Int, obj = true, name = "GL_SAMPLER_BUFFER"),
+    SamplerBuffer            (GL31.GL_SAMPLER_BUFFER,                null,                  Int, obj = true, name = "GL_SAMPLER_BUFFER"),
     /**`GL_SAMPLER_2D_RECT` -> None*/
-    Sampler2DRect            (GL31.GL_SAMPLER_2D_RECT,               null,             Int, obj = true, name = "GL_SAMPLER_2D_RECT"),
+    Sampler2DRect            (GL31.GL_SAMPLER_2D_RECT,               null,                  Int, obj = true, name = "GL_SAMPLER_2D_RECT"),
     /**`GL_SAMPLER_1D_SHADOW` -> None*/
-    Sampler1DShadow          (GL20.GL_SAMPLER_1D_SHADOW,             null,             Int, obj = true, name = "GL_SAMPLER_1D_SHADOW"),
+    Sampler1DShadow          (GL20.GL_SAMPLER_1D_SHADOW,             null,                  Int, obj = true, name = "GL_SAMPLER_1D_SHADOW"),
     /**`GL_SAMPLER_2D_SHADOW` -> None*/
-    Sampler2DShadow          (GL20.GL_SAMPLER_2D_SHADOW,             null,             Int, obj = true, name = "GL_SAMPLER_2D_SHADOW"),
+    Sampler2DShadow          (GL20.GL_SAMPLER_2D_SHADOW,             null,                  Int, obj = true, name = "GL_SAMPLER_2D_SHADOW"),
     /**`GL_SAMPLER_CUBE_SHADOW` -> None*/
-    SamplerCubeShadow        (GL30.GL_SAMPLER_CUBE_SHADOW,           null,             Int, obj = true, name = "GL_SAMPLER_CUBE_SHADOW"),
+    SamplerCubeShadow        (GL30.GL_SAMPLER_CUBE_SHADOW,           null,                  Int, obj = true, name = "GL_SAMPLER_CUBE_SHADOW"),
     /**`GL_SAMPLER_1D_ARRAY` -> None*/
-    Sampler1DArray           (GL30.GL_SAMPLER_1D_ARRAY,              null,             Int, obj = true, name = "GL_SAMPLER_1D_ARRAY"),
+    Sampler1DArray           (GL30.GL_SAMPLER_1D_ARRAY,              null,                  Int, obj = true, name = "GL_SAMPLER_1D_ARRAY"),
     /**`GL_SAMPLER_2D_ARRAY` -> None*/
-    Sampler2DArray           (GL30.GL_SAMPLER_2D_ARRAY,              null,             Int, obj = true, name = "GL_SAMPLER_2D_ARRAY"),
+    Sampler2DArray           (GL30.GL_SAMPLER_2D_ARRAY,              Texture2DAtlas::class, Int, obj = true, name = "GL_SAMPLER_2D_ARRAY"),
     /**`GL_SAMPLER_2D_MULTISAMPLE_ARRAY` -> None*/
-    Sampler2DMulArray        (GL32.GL_SAMPLER_2D_MULTISAMPLE_ARRAY,  null,             Int, obj = true, name = "GL_SAMPLER_2D_MULTISAMPLE_ARRAY"),
+    Sampler2DMulArray        (GL32.GL_SAMPLER_2D_MULTISAMPLE_ARRAY,  null,                  Int, obj = true, name = "GL_SAMPLER_2D_MULTISAMPLE_ARRAY"),
     /**`GL_SAMPLER_CUBE_MAP_ARRAY` -> None*/
-    SamplerCubeArray         (GL40.GL_SAMPLER_CUBE_MAP_ARRAY,        null,             Int, obj = true, name = "GL_SAMPLER_CUBE_MAP_ARRAY"),
+    SamplerCubeArray         (GL40.GL_SAMPLER_CUBE_MAP_ARRAY,        null,                  Int, obj = true, name = "GL_SAMPLER_CUBE_MAP_ARRAY"),
     /**`GL_SAMPLER_1D_ARRAY_SHADOW` -> None*/
-    Sampler1DArrayShadow     (GL30.GL_SAMPLER_1D_ARRAY_SHADOW,       null,             Int, obj = true, name = "GL_SAMPLER_1D_ARRAY_SHADOW"),
+    Sampler1DArrayShadow     (GL30.GL_SAMPLER_1D_ARRAY_SHADOW,       null,                  Int, obj = true, name = "GL_SAMPLER_1D_ARRAY_SHADOW"),
     /**`GL_SAMPLER_2D_ARRAY_SHADOW` -> None*/
-    Sampler2DArrayShadow     (GL30.GL_SAMPLER_2D_ARRAY_SHADOW,       null,             Int, obj = true, name = "GL_SAMPLER_2D_ARRAY_SHADOW"),
+    Sampler2DArrayShadow     (GL30.GL_SAMPLER_2D_ARRAY_SHADOW,       null,                  Int, obj = true, name = "GL_SAMPLER_2D_ARRAY_SHADOW"),
     /**`GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW` -> None*/
-    SamplerCubeMapArrayShadow(GL40.GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW, null,             Int, obj = true, name = "GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW"),
+    SamplerCubeMapArrayShadow(GL40.GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW, null,                  Int, obj = true, name = "GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW"),
     /**`GL_SAMPLER_2D_RECT_SHADOW` -> None*/
-    Sampler2DRectShadow      (GL31.GL_SAMPLER_2D_RECT_SHADOW,        null,             Int, obj = true, name = "GL_SAMPLER_2D_RECT_SHADOW"),
+    Sampler2DRectShadow      (GL31.GL_SAMPLER_2D_RECT_SHADOW,        null,                  Int, obj = true, name = "GL_SAMPLER_2D_RECT_SHADOW"),
 
     // Signed Integer Samplers
     /**`GL_INT_SAMPLER_1D` -> None*/
