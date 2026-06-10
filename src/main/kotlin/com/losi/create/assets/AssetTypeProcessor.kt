@@ -21,6 +21,9 @@ interface AssetTypeProcessor<T>
          * They are put in order of least to most important ones*/
         internal val order = ThreadLocal<List<ResourceSpace>>()
 
+        /**The standard file identity contains its file extension, this method is meant purely for removing that extension*/
+        fun Pair<ModSpace, String>.cutExtent() = Pair(this.first, this.second.substringBeforeLast('.'))
+
         /**An extension of [AssetTypeProcessor.getAsset]
          *
          * This variation is made for a quick call on resource without a need to pass on the specific [ModSpace]
