@@ -220,6 +220,9 @@ object AssetManager {
         return proc.first.getAsset(mod, name)
     }
 
+    /**A flag specifying if the assets were loaded*/
+    val isLoaded: Boolean get() = assetsLoaded
+
     /**This method is for getting an [InputStream] to a resource
      * @param source The specific source of resources being queried
      * @param path A path within the [ResourceSpace] to be loaded from*/
