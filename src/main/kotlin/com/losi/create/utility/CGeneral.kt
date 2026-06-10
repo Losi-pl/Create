@@ -3,6 +3,8 @@ package com.losi.create.utility
 
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
 /**Performs the given action on each element.
  *
@@ -108,4 +110,33 @@ inline fun <T> T?.mustRun(action: T.() -> Unit) {
 }
 
 private val camelCaseRegex = "(?<=[a-z])(?=[A-Z])".toRegex()
+/**This method is meant for splitting a single word into a sentence along all upper case characters
+ *
+ * `ItsAnSentence` -> `Its An Sentence`*/
 fun String.splitCamelCase()= split(camelCaseRegex).joinToString(separator = " ")
+
+/**An overload of [require][kotlin.require] that can be used in a line of code*/
+@OptIn(ExperimentalContracts::class)
+inline fun <T> T.require(value: Boolean, lazyMessage: () -> Any): T {
+    contract {
+        returns() implies value
+    }
+
+    kotlin.require(value) { lazyMessage() }
+    return this
+}
+
+/**Turns a [Sequence] into a [MutableMap]*/
+fun <K, V> Sequence<Pair<K, V>>.toMutableMap(): MutableMap<K, V> {
+    val map = mutableMapOf<K, V>()
+    this.forEach { (key, value) -> map[key] = value }
+    return map
+}
+
+/**Performs the given [action] on each element.
+ *
+ * The operation is _terminal_.*/
+inline fun <T> java.util.Enumeration<T>.forEach(action: (T) -> Unit) {
+    while (this.hasMoreElements())
+        action(this.nextElement())
+}
