@@ -1,6 +1,7 @@
 @file:Suppress("unused", "SpellCheckingInspection")
 package com.losi.create.utility.joml
 
+import com.losi.create.math.*
 import org.joml.*
 
 // ===================================== Float =====================================
@@ -25,3 +26,15 @@ fun Vector4d(x: Double, y: Double, zw: Vector2d) = Vector4d(x, y, zw.x, zw.y)
 fun Vector4d(x: Double, yz: Vector2d, w: Double) = Vector4d(x, yz.x, yz.y, w)
 fun Vector4d(xyz: Vector3d, w: Double) = Vector4d(xyz.x, xyz.y, xyz.z, w)
 fun Vector4d(x: Double, yzw: Vector3d) = Vector4d(x, yzw.x, yzw.y, yzw.z)
+
+
+// ===================================== Boolean =====================================
+fun Vector3b(xy: Vector2b, z: Boolean) = Vector3b(xy.x, xy.y, z)
+fun Vector3b(x: Boolean, yz: Vector2b) = Vector3b(x, yz.x, yz.y)
+
+fun Vector4b(xy: Vector2b, zw: Vector2b) = Vector4b(xy.x, xy.y, zw.x, zw.y)
+fun Vector4b(xy: Vector2b, z: Boolean, w: Boolean) = Vector4b(xy.x, xy.y, z, w)
+fun Vector4b(x: Boolean, y: Boolean, zw: Vector2b) = Vector4b(x, y, zw.x, zw.y)
+fun Vector4b(x: Boolean, yz: Vector2b, w: Boolean) = Vector4b(x, yz.x, yz.y, w)
+fun Vector4b(xyz: Vector3b, w: Boolean) = Vector4b(xyz.x, xyz.y, xyz.z, w)
+fun Vector4b(x: Boolean, yzw: Vector3b) = Vector4b(x, yzw.x, yzw.y, yzw.z)
