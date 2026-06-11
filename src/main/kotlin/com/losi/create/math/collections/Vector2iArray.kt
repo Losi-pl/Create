@@ -37,7 +37,7 @@ import kotlin.streams.asStream
 
     operator fun get(index: Int): Vector2i {
         checkIndex(index)
-        return Vector2i(elements[index * 2], elements[index * 2 + 1])
+        return Vector2i(elements, index * 2)
     }
     operator fun set(index: Int, value: Vector2i) {
         checkIndex(index)
