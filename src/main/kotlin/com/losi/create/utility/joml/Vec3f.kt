@@ -8,13 +8,13 @@ fun Triple<Float, Float, Float>.toVector() = Vector3f(this.first, this.second, t
 
 // ===================================== XYZ =====================================
 val Vector3f.xx get() = Vector2f(this.x, this.x)
-var Vector3f.xy get() = Vector2f(this.x, this.y); set(it) { this.x = it.x; this.y = it.y }
-var Vector3f.xz get() = Vector2f(this.x, this.z); set(it) { this.x = it.x; this.z = it.y }
-var Vector3f.yx get() = Vector2f(this.y, this.x); set(it) { this.y = it.x; this.x = it.y }
+var Vector3f.xy get() = Vector2f(this.x, this.y); set(v) { this.x = v.x; this.y = v.y }
+var Vector3f.xz get() = Vector2f(this.x, this.z); set(v) { this.x = v.x; this.z = v.y }
+var Vector3f.yx get() = Vector2f(this.y, this.x); set(v) { this.y = v.x; this.x = v.y }
 val Vector3f.yy get() = Vector2f(this.y, this.y)
-var Vector3f.yz get() = Vector2f(this.y, this.z); set(it) { this.y = it.x; this.z = it.y }
-var Vector3f.zx get() = Vector2f(this.z, this.x); set(it) { this.z = it.x; this.x = it.y }
-var Vector3f.zy get() = Vector2f(this.z, this.y); set(it) { this.z = it.x; this.y = it.y }
+var Vector3f.yz get() = Vector2f(this.y, this.z); set(v) { this.y = v.x; this.z = v.y }
+var Vector3f.zx get() = Vector2f(this.z, this.x); set(v) { this.z = v.x; this.x = v.y }
+var Vector3f.zy get() = Vector2f(this.z, this.y); set(v) { this.z = v.x; this.y = v.y }
 val Vector3f.zz get() = Vector2f(this.z, this.z)
 
 val Vector3f.xxx get() = Vector3f(this.x, this.x, this.x)
@@ -22,23 +22,23 @@ val Vector3f.xxy get() = Vector3f(this.x, this.x, this.y)
 val Vector3f.xxz get() = Vector3f(this.x, this.x, this.z)
 val Vector3f.xyx get() = Vector3f(this.x, this.y, this.x)
 val Vector3f.xyy get() = Vector3f(this.x, this.y, this.y)
-var Vector3f.xyz get() = Vector3f(this.x, this.y, this.z); set(it) { this.x = it.x; this.y = it.y; this.z = it.z }
+var Vector3f.xyz get() = Vector3f(this.x, this.y, this.z); set(v) { this.x = v.x; this.y = v.y; this.z = v.z }
 val Vector3f.xzx get() = Vector3f(this.x, this.z, this.x)
-var Vector3f.xzy get() = Vector3f(this.x, this.z, this.y); set(it) { this.x = it.x; this.z = it.y; this.y = it.z }
+var Vector3f.xzy get() = Vector3f(this.x, this.z, this.y); set(v) { this.x = v.x; this.z = v.y; this.y = v.z }
 val Vector3f.xzz get() = Vector3f(this.x, this.z, this.z)
 val Vector3f.yxx get() = Vector3f(this.y, this.x, this.x)
 val Vector3f.yxy get() = Vector3f(this.y, this.x, this.y)
-var Vector3f.yxz get() = Vector3f(this.y, this.x, this.z); set(it) { this.y = it.x; this.x = it.y; this.z = it.z }
+var Vector3f.yxz get() = Vector3f(this.y, this.x, this.z); set(v) { this.y = v.x; this.x = v.y; this.z = v.z }
 val Vector3f.yyx get() = Vector3f(this.y, this.y, this.x)
 val Vector3f.yyy get() = Vector3f(this.y, this.y, this.y)
 val Vector3f.yyz get() = Vector3f(this.y, this.y, this.z)
-var Vector3f.yzx get() = Vector3f(this.y, this.z, this.x); set(it) { this.y = it.x; this.z = it.y; this.x = it.z }
+var Vector3f.yzx get() = Vector3f(this.y, this.z, this.x); set(v) { this.y = v.x; this.z = v.y; this.x = v.z }
 val Vector3f.yzy get() = Vector3f(this.y, this.z, this.y)
 val Vector3f.yzz get() = Vector3f(this.y, this.z, this.z)
 val Vector3f.zxx get() = Vector3f(this.z, this.x, this.x)
-var Vector3f.zxy get() = Vector3f(this.z, this.x, this.y); set(it) { this.z = it.x; this.x = it.y; this.y = it.z }
+var Vector3f.zxy get() = Vector3f(this.z, this.x, this.y); set(v) { this.z = v.x; this.x = v.y; this.y = v.z }
 val Vector3f.zxz get() = Vector3f(this.z, this.x, this.z)
-var Vector3f.zyx get() = Vector3f(this.z, this.y, this.x); set(it) { this.z = it.x; this.y = it.y; this.x = it.z }
+var Vector3f.zyx get() = Vector3f(this.z, this.y, this.x); set(v) { this.z = v.x; this.y = v.y; this.x = v.z }
 val Vector3f.zyy get() = Vector3f(this.z, this.y, this.y)
 val Vector3f.zyz get() = Vector3f(this.z, this.y, this.z)
 val Vector3f.zzx get() = Vector3f(this.z, this.z, this.x)
@@ -133,13 +133,13 @@ var Vector3f.g: Float get() = this.y; set(it) { this.y = it }
 var Vector3f.b: Float get() = this.z; set(it) { this.z = it }
 
 val Vector3f.rr get() = Vector2f(this.x, this.x)
-var Vector3f.rg get() = Vector2f(this.x, this.y); set(it) { this.x = it.r; this.y = it.g }
-var Vector3f.rb get() = Vector2f(this.x, this.z); set(it) { this.x = it.r; this.z = it.g }
-var Vector3f.gr get() = Vector2f(this.y, this.x); set(it) { this.y = it.r; this.x = it.g }
+var Vector3f.rg get() = Vector2f(this.x, this.y); set(v) { this.x = v.x; this.y = v.y }
+var Vector3f.rb get() = Vector2f(this.x, this.z); set(v) { this.x = v.x; this.z = v.y }
+var Vector3f.gr get() = Vector2f(this.y, this.x); set(v) { this.y = v.x; this.x = v.y }
 val Vector3f.gg get() = Vector2f(this.y, this.y)
-var Vector3f.gb get() = Vector2f(this.y, this.z); set(it) { this.y = it.r; this.z = it.g }
-var Vector3f.br get() = Vector2f(this.z, this.x); set(it) { this.z = it.r; this.x = it.g }
-var Vector3f.bg get() = Vector2f(this.z, this.y); set(it) { this.z = it.r; this.y = it.g }
+var Vector3f.gb get() = Vector2f(this.y, this.z); set(v) { this.y = v.x; this.z = v.y }
+var Vector3f.br get() = Vector2f(this.z, this.x); set(v) { this.z = v.x; this.x = v.y }
+var Vector3f.bg get() = Vector2f(this.z, this.y); set(v) { this.z = v.x; this.y = v.y }
 val Vector3f.bb get() = Vector2f(this.z, this.z)
 
 val Vector3f.rrr get() = Vector3f(this.x, this.x, this.x)
@@ -147,23 +147,23 @@ val Vector3f.rrg get() = Vector3f(this.x, this.x, this.y)
 val Vector3f.rrb get() = Vector3f(this.x, this.x, this.z)
 val Vector3f.rgr get() = Vector3f(this.x, this.y, this.x)
 val Vector3f.rgg get() = Vector3f(this.x, this.y, this.y)
-var Vector3f.rgb get() = Vector3f(this.x, this.y, this.z); set(it) { this.x = it.r; this.y = it.g; this.z = it.b }
+var Vector3f.rgb get() = Vector3f(this.x, this.y, this.z); set(v) { this.x = v.x; this.y = v.y; this.z = v.z }
 val Vector3f.rbr get() = Vector3f(this.x, this.z, this.x)
-var Vector3f.rbg get() = Vector3f(this.x, this.z, this.y); set(it) { this.x = it.r; this.z = it.g; this.y = it.b }
+var Vector3f.rbg get() = Vector3f(this.x, this.z, this.y); set(v) { this.x = v.x; this.z = v.y; this.y = v.z }
 val Vector3f.rbb get() = Vector3f(this.x, this.z, this.z)
 val Vector3f.grr get() = Vector3f(this.y, this.x, this.x)
 val Vector3f.grg get() = Vector3f(this.y, this.x, this.y)
-var Vector3f.grb get() = Vector3f(this.y, this.x, this.z); set(it) { this.y = it.r; this.x = it.g; this.z = it.b }
+var Vector3f.grb get() = Vector3f(this.y, this.x, this.z); set(v) { this.y = v.x; this.x = v.y; this.z = v.z }
 val Vector3f.ggr get() = Vector3f(this.y, this.y, this.x)
 val Vector3f.ggg get() = Vector3f(this.y, this.y, this.y)
 val Vector3f.ggb get() = Vector3f(this.y, this.y, this.z)
-var Vector3f.gbr get() = Vector3f(this.y, this.z, this.x); set(it) { this.y = it.r; this.z = it.g; this.x = it.b }
+var Vector3f.gbr get() = Vector3f(this.y, this.z, this.x); set(v) { this.y = v.x; this.z = v.y; this.x = v.z }
 val Vector3f.gbg get() = Vector3f(this.y, this.z, this.y)
 val Vector3f.gbb get() = Vector3f(this.y, this.z, this.z)
 val Vector3f.brr get() = Vector3f(this.z, this.x, this.x)
-var Vector3f.brg get() = Vector3f(this.z, this.x, this.y); set(it) { this.z = it.r; this.x = it.g; this.y = it.b }
+var Vector3f.brg get() = Vector3f(this.z, this.x, this.y); set(v) { this.z = v.x; this.x = v.y; this.y = v.z }
 val Vector3f.brb get() = Vector3f(this.z, this.x, this.z)
-var Vector3f.bgr get() = Vector3f(this.z, this.y, this.x); set(it) { this.z = it.r; this.y = it.g; this.x = it.b }
+var Vector3f.bgr get() = Vector3f(this.z, this.y, this.x); set(v) { this.z = v.x; this.y = v.y; this.x = v.z }
 val Vector3f.bgg get() = Vector3f(this.z, this.y, this.y)
 val Vector3f.bgb get() = Vector3f(this.z, this.y, this.z)
 val Vector3f.bbr get() = Vector3f(this.z, this.z, this.x)

@@ -8,9 +8,9 @@ fun Pair<Float, Float>.toVector() = Vector2f(this.first, this.second)
 
 // ===================================== XY =====================================
 val Vector2f.xx get() = Vector2f(this.x, this.x)
+var Vector2f.xy get() = Vector2f(this.x, this.y); set(v) { this.x = v.x; this.y = v.y }
+var Vector2f.yx get() = Vector2f(this.y, this.x); set(v) { this.y = v.x; this.x = v.y }
 val Vector2f.yy get() = Vector2f(this.y, this.y)
-var Vector2f.xy get() = Vector2f(this.x, this.y); set(it) { this.x = it.x; this.y = it.y }
-var Vector2f.yx get() = Vector2f(this.y, this.x); set(it) { this.x = it.y; this.y = it.x }
 
 val Vector2f.xxx get() = Vector3f(this.x, this.x, this.x)
 val Vector2f.xxy get() = Vector3f(this.x, this.x, this.y)
@@ -43,9 +43,9 @@ var Vector2f.r: Float get() = this.x; set(it) { this.x = it }
 var Vector2f.g: Float get() = this.y; set(it) { this.y = it }
 
 val Vector2f.rr get() = Vector2f(this.x, this.x)
+var Vector2f.rg get() = Vector2f(this.x, this.y); set(v) { this.x = v.x; this.y = v.y }
+var Vector2f.gr get() = Vector2f(this.y, this.x); set(v) { this.y = v.x; this.x = v.y }
 val Vector2f.gg get() = Vector2f(this.y, this.y)
-var Vector2f.rg get() = Vector2f(this.x, this.y); set(it) { this.x = it.x; this.y = it.y }
-var Vector2f.gr get() = Vector2f(this.y, this.x); set(it) { this.x = it.y; this.y = it.x }
 
 val Vector2f.rrr get() = Vector3f(this.x, this.x, this.x)
 val Vector2f.rrg get() = Vector3f(this.x, this.x, this.y)
