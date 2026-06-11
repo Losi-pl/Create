@@ -9,9 +9,10 @@ import kotlin.streams.asStream
 {
     companion object {
         private val _empty = Vector2iArray(IntArray(0))
+        private const val SIZE = 2
         val empty: Vector2iArray get() = _empty
-        private fun IntArray.isAt(ind: Int, vec: Vector2i): Boolean =
-            this[ind*2] == vec.x && this[ind*2+1] == vec.y
+
+        private fun IntArray.isAt(ind: Int, vec: Vector2i) = this[ind*2] == vec.x && this[ind*2+1] == vec.y
 
         @JvmExposeBoxed @JvmStatic fun of(count: Int): Vector2iArray = Vector2iArray(count)
         @JvmExposeBoxed @JvmStatic fun of(vararg elements: Vector2i): Vector2iArray {
@@ -21,18 +22,18 @@ import kotlin.streams.asStream
         }
         @JvmExposeBoxed @JvmStatic fun of(vararg elements: Pair<Int, Int>): Vector2iArray {
             val arr = Vector2iArray(elements.size)
-            elements.forEachIndexed { index, (x, y) -> arr[index] = Vector2i(x, y) }
+            elements.forEachIndexed { index, pair -> arr[index] = pair }
             return arr
         }
     }
 
-    val size: Int get() = elements.size / 2
+    val size: Int get() = elements.size / SIZE
 
-    constructor(count: Int) : this(IntArray(count * 2))
-    constructor(vararg elements: Vector2i): this(IntArray(elements.size * 2))
+    constructor(count: Int) : this(IntArray(count * SIZE))
+    constructor(vararg elements: Vector2i): this(IntArray(elements.size * SIZE))
     { elements.forEachIndexed { index, it -> this[index] = it } }
-    constructor(vararg elements: Pair<Int, Int>): this(IntArray(elements.size * 2))
-    { elements.forEachIndexed { index, (x, y) -> this.elements[index*2]=x; this.elements[index*2+1]=y }}
+    constructor(vararg elements: Pair<Int, Int>): this(IntArray(elements.size * SIZE))
+    { elements.forEachIndexed { index, pair -> this[index] = pair }}
 
     operator fun get(index: Int): Vector2i {
         checkIndex(index)
@@ -43,11 +44,16 @@ import kotlin.streams.asStream
         elements[index * 2] = value.x
         elements[index * 2 + 1] = value.y
     }
+    operator fun set(index: Int, value: Pair<Int, Int>) {
+        checkIndex(index)
+        elements[index * 2] = value.first
+        elements[index * 2 + 1] = value.second
+    }
 
-    operator fun iterator(): Vector2iIterator = Vector2iIterator(elements)
+    operator fun iterator(): Vector2iIterator = Vector2iIterator(this)
     @ConsistentCopyVisibility
-    data class Vector2iIterator internal constructor(private val array: IntArray, private var cursor: Int = 0) : Iterator<Vector2i> {
-        override fun next(): Vector2i = if (hasNext()) Vector2i(array[cursor++], array[cursor++]) else throw NoSuchElementException()
+    data class Vector2iIterator internal constructor(private val array: Vector2iArray, private var cursor: Int = 0) : Iterator<Vector2i> {
+        override fun next(): Vector2i = if (hasNext()) array[cursor++] else throw NoSuchElementException()
         override fun hasNext(): Boolean = cursor < array.size
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -68,6 +74,10 @@ import kotlin.streams.asStream
 
         fun asStream() = this.asSequence().asStream()
     }
+
+    fun contentEquals(array: Vector2iArray) = this.elements.contentEquals(array.elements)
+    fun contentHashCode() = this.elements.contentHashCode()
+
     fun asSequence(): Sequence<Vector2i> {
         if (isEmpty()) return emptySequence()
         return Sequence { this.iterator() }
@@ -85,15 +95,15 @@ import kotlin.streams.asStream
         override fun isEmpty() = array.size == 0
         override fun iterator() = array.iterator()
         override fun lastIndexOf(element: Vector2i) = array.lastIndexOf(element)
-        override fun listIterator() = ListIterator(array.elements)
-        override fun listIterator(index: Int) = ListIterator(array.elements, index)
+        override fun listIterator() = ListIterator(array)
+        override fun listIterator(index: Int) = ListIterator(array, index)
         override fun toString(): String = array.toString()
         override fun subList(fromIndex: Int, toIndex: Int): SpanList {
             val from = fromIndex.coerceIn(0 until array.size)
             val to = toIndex.coerceIn(0 until array.size)
             return SpanList(array, from, to - from)
         }
-        override val size: Int get() = array.elements.size / 2
+        override val size: Int get() = array.elements.size / SIZE
     }
 
     @ConsistentCopyVisibility
@@ -162,11 +172,11 @@ import kotlin.streams.asStream
     }
 
     @ConsistentCopyVisibility
-    data class ListIterator internal constructor(private val array: IntArray, private var index: Int = 0): kotlin.collections.ListIterator<Vector2i> {
-        fun get(index: Int) = Vector2i(array[index * 2], array[index * 2 + 1])
+    data class ListIterator internal constructor(private val array: Vector2iArray, private var index: Int = 0): kotlin.collections.ListIterator<Vector2i> {
+        fun get(index: Int) = array[index]
         override fun next() = get(index++)
         override fun previous() = get(index--)
-        override fun hasNext() = index < array.size / 2
+        override fun hasNext() = index < array.size
         override fun hasPrevious() = index > 0
         override fun nextIndex() = index
         override fun previousIndex() = index - 1
@@ -209,9 +219,9 @@ import kotlin.streams.asStream
         var left = 0
         var right = size - 1
         while (left < right) {
-            val temp = get(left)
-            set(left, get(right))
-            set(right, temp)
+            val temp = this[left]
+            this[left] = this[right]
+            this[right] = temp
             left++
             right--
         }
@@ -236,9 +246,8 @@ import kotlin.streams.asStream
         val count = BooleanArray(elements.size)
         for (i in fromIndex until toIndex)
         {
-            val x = this.elements[i*2]; val y = this.elements[i*2+1]
             elements.forEachIndexed { index, ele ->
-                if(x == ele.x && y == ele.y)
+                if(this.elements.isAt(i, ele))
                     count[index] = true
             }
             if(count.all { it })
