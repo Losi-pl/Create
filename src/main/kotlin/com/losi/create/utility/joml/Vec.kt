@@ -1,4 +1,4 @@
-@file:Suppress("unused", "SpellCheckingInspection")
+@file:Suppress("unused", "SpellCheckingInspection", "FunctionName")
 package com.losi.create.utility.joml
 
 import com.losi.create.math.*
@@ -50,3 +50,19 @@ fun Vector4i(x: Int, y: Int, zw: Vector2i) = Vector4i(x, y, zw.x, zw.y)
 fun Vector4i(x: Int, yz: Vector2i, w: Int) = Vector4i(x, yz.x, yz.y, w)
 fun Vector4i(xyz: Vector3i, w: Int) = Vector4i(xyz.x, xyz.y, xyz.z, w)
 fun Vector4i(x: Int, yzw: Vector3i) = Vector4i(x, yzw.x, yzw.y, yzw.z)
+
+
+// ===================================== Long =====================================
+fun Vector2l(x: Long, y: Long) = Vector2l().apply { this.x = x; this.y = y }
+
+fun Vector3l(x: Long, y: Long, z: Long) = Vector3l().apply { this.x = x; this.y = y; this.z = z }
+fun Vector3l(xy: Vector2l, z: Long) = Vector3l(xy.x, xy.y, z)
+fun Vector3l(x: Long, yz: Vector2l) = Vector3l(x, yz.x, yz.y)
+
+fun Vector4l(x: Long, y: Long, z: Long, w: Long) = Vector4l().apply { this.x = x; this.y = y; this.z = z; this.w = w }
+fun Vector4l(xy: Vector2l, zw: Vector2l) = Vector4l(xy.x, xy.y, zw.x, zw.y)
+fun Vector4l(xy: Vector2l, z: Long, w: Long) = Vector4l(xy.x, xy.y, z, w)
+fun Vector4l(x: Long, y: Long, zw: Vector2l) = Vector4l(x, y, zw.x, zw.y)
+fun Vector4l(x: Long, yz: Vector2l, w: Long) = Vector4l(x, yz.x, yz.y, w)
+fun Vector4l(xyz: Vector3l, w: Long) = Vector4l(xyz.x, xyz.y, xyz.z, w)
+fun Vector4l(x: Long, yzw: Vector3l) = Vector4l(x, yzw.x, yzw.y, yzw.z)
