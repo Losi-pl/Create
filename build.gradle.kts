@@ -6,6 +6,7 @@ plugins {
     id("java")
     id("application")
     kotlin("jvm") version "2.3.21"
+    id("com.zwendo.restrikt") version "4.0.0"
 }
 
 group = "com.losi.create"
@@ -126,6 +127,10 @@ tasks.compileJava {
 
 tasks.test { jvmArgs = listOf("--enable-native-access=ALL-UNNAMED", "--enable-preview"); useJUnitPlatform() }
 tasks.run { args = listOf("--version") }
+
+restrikt {
+    automaticInternalHiding = true
+}
 
 /* TODO: See about including JRE into the game compilation
 * Non-modular app: https://github.com/beryx/badass-runtime-plugin
