@@ -437,7 +437,6 @@ val Vector4f.aaa get() = Vector3f(this.w, this.w, this.w)
 
 val Vector4f.rrrr get() = Vector4f(this.x, this.x, this.x, this.x)
 val Vector4f.rrrg get() = Vector4f(this.x, this.x, this.x, this.y)
-
 val Vector4f.rrrb get() = Vector4f(this.x, this.x, this.x, this.z)
 val Vector4f.rrra get() = Vector4f(this.x, this.x, this.x, this.w)
 val Vector4f.rrgr get() = Vector4f(this.x, this.x, this.y, this.x)
@@ -498,7 +497,6 @@ val Vector4f.rabb get() = Vector4f(this.x, this.w, this.z, this.z)
 val Vector4f.raba get() = Vector4f(this.x, this.w, this.z, this.w)
 val Vector4f.raar get() = Vector4f(this.x, this.w, this.w, this.x)
 val Vector4f.raag get() = Vector4f(this.x, this.w, this.w, this.y)
-
 val Vector4f.raab get() = Vector4f(this.x, this.w, this.w, this.z)
 val Vector4f.raaa get() = Vector4f(this.x, this.w, this.w, this.w)
 val Vector4f.grrr get() = Vector4f(this.y, this.x, this.x, this.x)
@@ -651,7 +649,6 @@ var Vector4f.agrb get() = Vector4f(this.w, this.y, this.x, this.z); set(v) { thi
 val Vector4f.agra get() = Vector4f(this.w, this.y, this.x, this.w)
 val Vector4f.aggr get() = Vector4f(this.w, this.y, this.y, this.x)
 val Vector4f.aggg get() = Vector4f(this.w, this.y, this.y, this.y)
-
 val Vector4f.aggb get() = Vector4f(this.w, this.y, this.y, this.z)
 val Vector4f.agga get() = Vector4f(this.w, this.y, this.y, this.w)
 var Vector4f.agbr get() = Vector4f(this.w, this.y, this.z, this.x); set(v) { this.w = v.x; this.y = v.y; this.z = v.z; this.x = v.w }
