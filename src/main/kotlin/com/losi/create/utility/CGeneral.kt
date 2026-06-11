@@ -75,10 +75,3 @@ inline fun <T> T.require(value: Boolean, lazyMessage: () -> Any): T {
     kotlin.require(value) { lazyMessage() }
     return this
 }
-
-/**Turns a [Sequence] into a [MutableMap]*/
-fun <K, V> Sequence<Pair<K, V>>.toMutableMap(): MutableMap<K, V> {
-    val map = mutableMapOf<K, V>()
-    this.forEach { (key, value) -> map[key] = value }
-    return map
-}

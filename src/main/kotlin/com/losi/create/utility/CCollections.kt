@@ -1,4 +1,5 @@
-@file:JvmName("CLists")
+@file:JvmName("CCollections")
+@file:Suppress("unused")
 package com.losi.create.utility
 
 import java.util.Collections
@@ -23,8 +24,7 @@ fun <T> Sequence<T>.chunkedReuse(size: Int) = sequence {
         ++i
     }
     if (i > 0) {
-        for(j in i until size)
-            buffer.removeLast()
+        (i until size).forEach { _ -> buffer.removeLast() }
         yield(buffer)
     }
 }
@@ -77,4 +77,11 @@ inline fun <T: Comparable<T>> Sequence<T>.assertAllEqual(negative: () -> T): T {
 inline fun <T> java.util.Enumeration<T>.forEach(action: (T) -> Unit) {
     while (this.hasMoreElements())
         action(this.nextElement())
+}
+
+/**Turns a [Sequence] into a [MutableMap]*/
+fun <K, V> Sequence<Pair<K, V>>.toMutableMap(): MutableMap<K, V> {
+    val map = mutableMapOf<K, V>()
+    this.forEach { (key, value) -> map[key] = value }
+    return map
 }
