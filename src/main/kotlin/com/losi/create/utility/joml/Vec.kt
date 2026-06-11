@@ -38,3 +38,15 @@ fun Vector4b(x: Boolean, y: Boolean, zw: Vector2b) = Vector4b(x, y, zw.x, zw.y)
 fun Vector4b(x: Boolean, yz: Vector2b, w: Boolean) = Vector4b(x, yz.x, yz.y, w)
 fun Vector4b(xyz: Vector3b, w: Boolean) = Vector4b(xyz.x, xyz.y, xyz.z, w)
 fun Vector4b(x: Boolean, yzw: Vector3b) = Vector4b(x, yzw.x, yzw.y, yzw.z)
+
+
+// ===================================== Int =====================================
+fun Vector3i(xy: Vector2i, z: Int) = Vector3i(xy.x, xy.y, z)
+fun Vector3i(x: Int, yz: Vector2i) = Vector3i(x, yz.x, yz.y)
+
+fun Vector4i(xy: Vector2i, zw: Vector2i) = Vector4i(xy.x, xy.y, zw.x, zw.y)
+fun Vector4i(xy: Vector2i, z: Int, w: Int) = Vector4i(xy.x, xy.y, z, w)
+fun Vector4i(x: Int, y: Int, zw: Vector2i) = Vector4i(x, y, zw.x, zw.y)
+fun Vector4i(x: Int, yz: Vector2i, w: Int) = Vector4i(x, yz.x, yz.y, w)
+fun Vector4i(xyz: Vector3i, w: Int) = Vector4i(xyz.x, xyz.y, xyz.z, w)
+fun Vector4i(x: Int, yzw: Vector3i) = Vector4i(x, yzw.x, yzw.y, yzw.z)
