@@ -1,6 +1,7 @@
 package com.losi.create.assets
 
 import com.losi.create.ModSpace
+import com.losi.create.assets.AssetTypeProcessor.Companion.cutExtent
 import com.losi.create.graphics.Shader
 import com.losi.create.registry.ElementIdent
 
@@ -14,7 +15,7 @@ internal object ShaderProcessor: AssetTypeProcessor<Shader>
     override fun processResources(resources: AssetTypeProcessor.Resources) {
         val shaderGroups = resources.overlayed(getResourceOrder())
             .entries.groupBy(
-                { ElementIdent(it.key.first, it.key.second.substringBeforeLast('.')) },
+                { it.key.cutExtent() },
                 { Pair(it.key.second, it.value) })
 
         shaderGroups.forEach { (shader, parts) ->
