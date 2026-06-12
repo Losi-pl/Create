@@ -6,6 +6,7 @@ import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.isSubclassOf
 import com.losi.create.ModSpace
 import com.losi.create.Version
+import com.losi.create.registry.RegisterProcess
 import com.losi.create.utility.forEach
 import kotlin.reflect.KClass
 import java.util.jar.JarFile
@@ -27,7 +28,7 @@ object AssetManager {
     private val typeProcessors = HashMap<KClass<*>, Pair<AssetTypeProcessor<*>, String>>()
     private var assetsLoaded = false
 
-    /**A data class made for organization of resources during processing in [processAssets]
+    /**A data class made for organization of resources during processing in [assetParsing] precess
      *
      * It can store known and unknown types of data, whether the type is known or not is determined by the presence of the path to it in [typeProcessors]*/
     private abstract class ProcType {
@@ -60,16 +61,25 @@ object AssetManager {
         }
     }
 
-    /**It's meant for loading all path from where the assets can be loaded
+    /**It's meant for loading all path from where the file assets can be loaded
      *
      * At the moment the only available path is the module of the game itself, but in the future it is planet do add things like mods or resource packs*/
-    @JvmStatic
-    internal fun constructAssetLoader() {
+    val findingAssetSources = RegisterProcess("Looking For File Asset Sources") {
         val mods = ModSpace.modules
         for (mod in mods)
         {
             assetLoaders[mod.value.resourceSpace] = { Version::class.java.module.getResourceAsStream(it) }
         }
+    }
+
+    /**Adds to register, the known processors for the Assets
+     *
+     * Currently present:
+     *  - [Shader][com.losi.create.graphics.Shader] -> `shaders/`
+     *  - [BlockTexture] -> `textures/blocks/`*/
+    val assetParsers = RegisterProcess("Registering File Asset Parsers") {
+        registerProcessor(ShaderProcessor, "shaders")
+        registerProcessor(BlockTexture.BlockAtlasProcessor, "textures/blocks")
     }
 
     /**This method an entry point to processing all resources into assets.
@@ -97,7 +107,7 @@ object AssetManager {
      *   |  +-<Path...>
      * ```
      * */
-    internal fun processAssets() {
+    val assetParsing = RegisterProcess("Parsing File Assets") {
         /**Splits a path into identifier of [ModSpace] and the in type path to the resource itself
          * @param it A full path in the resources, `<ModSpace>/<DataType>/<Path...>`
          * @param offset A length of `<DataType>` acquired from [ProcType]

@@ -2,11 +2,12 @@ package com.losi.create
 
 import com.losi.create.assets.*
 import com.losi.create.graphics.*
+import com.losi.create.registry.RegisterOrder
 import com.losi.create.utility.*
 import org.lwjgl.glfw.GLFW
 import kotlin.concurrent.thread
 
-internal object App {
+private object App {
     /**The main game window */
     private var main: Window? = null
 
@@ -42,7 +43,15 @@ internal object App {
 
             //Create Assets loading thread
             context = GLContext(this)
-            thread(name = "Assets loading", block = App::buildAssets)
+            thread(name = "Resource Constructing") {
+                context?.use { context ->
+                    context.threadBind()
+                    RegisterOrder.registerAssetPrecesses()
+                    RegisterOrder.precesses().forEach {
+                        it.first.run()
+                    }
+                }
+            }
 
             run()
         }
@@ -51,15 +60,20 @@ internal object App {
         GLFW.glfwSetErrorCallback(null)?.free()
     }
 
-    /**The method executed in the parallel thread, it is meant to load all resources of the game.
-     *
-     * At the moment including:
-     * - Type: [Shader]: Assets: `shaders/` */
-    fun buildAssets() = context?.use { context ->
-        context.threadBind()
-        AssetManager.constructAssetLoader()
-        AssetManager.registerProcessor(ShaderProcessor, "shaders")
-        AssetManager.registerProcessor(BlockTexture.BlockAtlasProcessor, "textures/blocks")
-        AssetManager.processAssets()
+    /**The manifests of all processes during loading that are part of this project*/
+    fun RegisterOrder.registerAssetPrecesses() {
+        /*For loading of sources for all file resources*/
+        registerProcess(AssetManager.findingAssetSources)
+
+        /*For registering parsers of file assets*/
+        registerProcess(AssetManager.assetParsers) {
+            dependsOn(AssetManager.findingAssetSources)
+        }
+
+        /*Parsing of the file assets*/
+        registerProcess(AssetManager.assetParsing) {
+            dependsOn(AssetManager.assetParsers)
+        }
+
     }
 }
