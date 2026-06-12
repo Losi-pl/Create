@@ -2,6 +2,7 @@ package com.losi.create.assets
 
 import com.koloboke.collect.set.hash.HashLongSets
 import com.losi.create.ModSpace
+import com.losi.create.registry.ElementIdent
 import com.losi.create.utility.forceAdd
 import com.losi.create.utility.longHashCode
 
@@ -22,7 +23,7 @@ interface AssetTypeProcessor<T>
         internal val order = ThreadLocal<List<ResourceSpace>>()
 
         /**The standard file identity contains its file extension, this method is meant purely for removing that extension*/
-        fun Pair<ModSpace, String>.cutExtent() = Pair(this.first, this.second.substringBeforeLast('.'))
+        fun Pair<ModSpace, String>.cutExtent() = ElementIdent(this.first, this.second.substringBeforeLast('.'))
 
         /**An extension of [AssetTypeProcessor.getAsset]
          *
