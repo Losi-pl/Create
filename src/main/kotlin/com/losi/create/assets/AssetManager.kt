@@ -19,7 +19,8 @@ import java.util.*
  * ---
  *
  * Currently supported:
- * - [Shader][com.losi.create.graphics.Shader] -> `shaders/`*/
+ * - [Shader][com.losi.create.graphics.Shader] -> `shaders/`
+ * - [BlockTexture] -> `textures/blocks/`*/
 @Suppress("unused")
 object AssetManager {
     private val assetLoaders = HashMap<ResourceSpace, (String) -> InputStream?>()

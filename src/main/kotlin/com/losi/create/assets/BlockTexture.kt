@@ -8,17 +8,21 @@ import com.losi.create.utility.orElse
 import java.io.InputStream
 import kotlin.collections.forEach
 
-
+/**A handler to a specific texture in the [atlas] used for efficient texture handling*/
 @JvmInline
 value class BlockTexture private constructor(val index: UInt){
     companion object {
+        /**The standard pixel size of a block texture, all textures that don't meat this standard will cause an error*/
         const val TEXTURE_SIZE = 16u
+        /**The atlas with all loaded block textures*/
         val atlas: Texture2DAtlas get() = BlockAtlasProcessor.atlas?: throw NullPointerException("Atlas with textures of blocks was not yet created")
+        /**Default texture returned if their specific texture couldn't be located*/
         val NOT_FOUND = BlockTexture(0u)
     }
 
-
-    /**A processor responsible for parsing shaders in the resources into assets
+    /**A processor responsible for parsing block textures and combining them into a single array that can later be used in shaders
+     *
+     * Returns instances of [BlockTexture] that serve as markers to that specific texture in the atlas
      *
      * Path in assets: `textures/blocks/`*/
     internal object BlockAtlasProcessor: AssetTypeProcessor<BlockTexture> {
@@ -61,6 +65,7 @@ value class BlockTexture private constructor(val index: UInt){
         override fun getAsset(mod: ModSpace, name: String) = atlasMap.orElse {
             throw NullPointerException("Texture atlas was not yet created") }[Pair(mod, name)]?: NOT_FOUND
 
+        /**A stream with the texture used in [NOT_FOUND]*/
         private val NULL_TEXTURE_STREAM: InputStream get() =
             """<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
               |    <rect x="0" y="0" width="16" height="16" fill="black"/>
