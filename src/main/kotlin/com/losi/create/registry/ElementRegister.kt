@@ -3,7 +3,6 @@ package com.losi.create.registry
 
 import com.koloboke.collect.map.hash.HashObjObjMaps
 import com.losi.create.ModSpace
-import com.losi.create.utility.findFirst
 import java.util.HashMap
 
 /**A registry for elements of a specified type has two types of keys an identifier and a handler
