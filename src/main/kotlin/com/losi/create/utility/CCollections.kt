@@ -85,3 +85,10 @@ fun <K, V> Sequence<Pair<K, V>>.toMutableMap(): MutableMap<K, V> {
     this.forEach { (key, value) -> map[key] = value }
     return map
 }
+
+fun <T> Sequence<T>.exclude(coll: Collection<T>) = sequence {
+    this@exclude.forEach {
+        if(!coll.contains(it))
+            yield(it)
+    }
+}
