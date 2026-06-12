@@ -2,7 +2,7 @@ package com.losi.create.graphics
 
 import com.losi.create.assets.AssetManager
 import com.losi.create.assets.BlockTexture
-import com.losi.create.graphics.gl.bindErrorCather
+import com.losi.create.graphics.gl.*
 import com.losi.create.utility.ExpandedConsumer
 import org.joml.*
 import org.lwjgl.glfw.*
@@ -15,7 +15,6 @@ import java.lang.ref.Cleaner
 import java.nio.*
 import java.util.ArrayList
 import org.lwjgl.glfw.GLFW.*
-import org.lwjgl.opengl.GL30.*
 import org.lwjgl.system.MemoryUtil.*
 
 /**An OpenGL Window and a Context, contains mechanisms for interaction with the user*/
@@ -156,7 +155,7 @@ class Window: InternalGLContext {
     }
     /**Used as an event for when the window was resized*/
     private fun onResize(width: Int, height: Int) {
-        glViewport(0, 0, width, height)
+        glViewport(0..width, 0..height)
         size?.x = width; size?.y = height
     }
     /**Starts up the window logic
@@ -164,7 +163,7 @@ class Window: InternalGLContext {
      * Run's in the current thread*/
     fun run() {
         glfwShowWindow(window)
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
+        glClearColor(Color.black)
 
         val timer = Timer()
         val targetTime = 1000L / targetFPS
@@ -216,13 +215,13 @@ class Window: InternalGLContext {
 
             logicUpdate.accept(delta)
 
-            glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
+            glClear(ClearTarget.Color and ClearTarget.Depth)
 
             if(!atlasUsed && AssetManager.isLoaded)
             {
                 shaderProgram.setUniform("atlas", BlockTexture.atlas)
                 shaderProgram.setUniform("useAtlas", true)
-                shaderProgram.setUniform("textureInd", AssetManager.get<BlockTexture>("create:abba")!!.index)
+                shaderProgram.setUniform("textureInd", BlockTexture.NOT_FOUND.index)
                 atlasUsed = true
             }
 
@@ -287,7 +286,7 @@ class Window: InternalGLContext {
         currentContext.set(this)
         glfwMakeContextCurrent(window)
         GL.createCapabilities()
-        size?.let{ glViewport(0, 0, it.x, it.y) }
+        size?.let{ glViewport(0..it.x, 0..it.y) }
         bindErrorCather()
 
         threadBound = true

@@ -6,6 +6,7 @@ package com.losi.create.graphics.gl
 import com.losi.create.graphics.Texture2D.Companion.processForGL
 import org.lwjgl.opengl.GL11C
 import org.lwjgl.system.MemoryStack
+import java.awt.Color
 import java.awt.image.BufferedImage
 
 /**A quick test to see if OpenGL works on the current [Thread]*/
@@ -47,3 +48,12 @@ fun glTexImage2D(image: BufferedImage) = MemoryStack.stackPush().use { stack ->
         data.second.third.gl,
         data.first)
 }
+
+/**`void glClearColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)`*/
+fun glClearColor(color: Color) = GL11C.glClearColor(color.red / 255f, color.green / 255f, color.blue / 255f, color.alpha / 255f)
+
+/**`void glClear(GLbitfield mask)`*/
+fun glClear(target: ClearTarget) = GL11C.glClear(target.gl)
+
+/**`void glViewport(GLint x, GLint y, GLsizei w, GLsizei h)`*/
+fun glViewport(horiz: IntRange, vertical: IntRange) = GL11C.glViewport(horiz.first, vertical.first, horiz.last, vertical.last)
