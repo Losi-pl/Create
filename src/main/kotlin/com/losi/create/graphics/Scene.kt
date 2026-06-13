@@ -2,6 +2,7 @@
 package com.losi.create.graphics
 
 import com.losi.create.graphics.gl.*
+import com.losi.create.utility.OnMainThread
 import com.losi.create.utility.unaccessible
 import org.joml.Vector2i
 import java.awt.Color
@@ -47,6 +48,41 @@ abstract class Scene {
 
     open fun logicUpdate(timeDelta: Float) { }
     open fun renderUpdate(timeDelta: Float) { }
+
+    /**Creates a thread that runs the specified block of code. This is a variation
+     * @param start if `true`, the thread is immediately started.
+     * @param isDaemon if `true`, the thread is created as a daemon thread. The Java Virtual Machine exits when the only threads running are all daemon threads.
+     * @param contextClassLoader - the class loader to use for loading classes and resources in this thread.
+     * @param name the name of the thread.
+     * @param priority the priority of the thread.*/
+    protected fun thread(start: Boolean = true,
+                         isDaemon: Boolean = false,
+                         contextClassLoader: ClassLoader? = null,
+                         name: String? = null,
+                         priority: Int = -1,
+                         block: () -> Unit): Thread {
+        check(_win != null) { "The scene is not currently utilized" }
+
+        val context = OnMainThread.query { GLContext(_win!!) }
+        val thread = object : Thread() {
+            override fun run() {
+                context.threadBind()
+                context.use { block() }
+            }
+        }
+
+        if (isDaemon)
+            thread.isDaemon = true
+        if (priority > 0)
+            thread.priority = priority
+        if (name != null)
+            thread.name = name
+        if (contextClassLoader != null)
+            thread.contextClassLoader = contextClassLoader
+        if (start)
+            thread.start()
+        return thread
+    }
 
     internal fun update(timeDelta: Float) {
         val me = this
