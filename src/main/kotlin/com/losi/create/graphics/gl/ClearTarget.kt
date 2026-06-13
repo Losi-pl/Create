@@ -53,6 +53,18 @@ sealed interface ClearTarget {
          *
          * `GL_ACCUM_BUFFER_BIT`*/
         val Accum: ClearTarget get() = EnumTarget.Accum
+
+        /**Returns an immutable [EnumEntries][kotlin.enums.EnumEntries] list containing the constants of this enum type, in the order they're declared.*/
+        val entries: List<ClearTarget> get() = EnumTarget.entries
+
+        val ALL: ClearTarget get() = lazy_all.value
+        private val lazy_all = lazy {
+            var gl = 0
+            EnumTarget.entries.forEach {
+                gl = gl or it.gl
+            }
+            Composite(gl)
+        }
     }
 
     infix fun and(other: ClearTarget): ClearTarget {
