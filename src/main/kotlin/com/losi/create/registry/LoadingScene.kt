@@ -92,6 +92,16 @@ internal class LoadingScene: Scene() {
         registerProcess(AssetManager.assetParsing) {
             dependsOn(AssetManager.assetParsers)
         }
+
+        /*Loading of all game elements and their logic*/
+        registerProcess(ElementRegister.loadingGameElements) {
+            dependsOn(AssetManager.assetParsers)
+        }
+
+        /*Closes all ElementRegister's making them faster and read-only*/
+        registerProcess(ElementRegister.completeElementRegisters) {
+            dependsOn(ElementRegister.loadingGameElements)
+        }
     }
 
     private fun findResource(path: String) = LoadingScene::class.java.module.getResourceAsStream(path)?: throw java.io.IOException("Unable to find $path")
