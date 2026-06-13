@@ -94,8 +94,8 @@ dependencies {
     //https://xmlgraphics.apache.org/batik/
     implementation("org.apache.xmlgraphics:batik-transcoder:1.19")
 
-    //TODO: ============== Kunion ===================
-    //implementation("com.github.renatoathaydes:kunion:0bd9cbfe38")
+    // =================== Kunion ===================
+    implementation("com.github.renatoathaydes:kunion:0bd9cbfe38")
 
     // =================== Kotlin ===================
     implementation(kotlin("stdlib"))
