@@ -1,9 +1,8 @@
 package com.losi.create.graphics
 
-import com.losi.create.assets.AssetManager
-import com.losi.create.assets.BlockTexture
 import com.losi.create.graphics.gl.*
 import com.losi.create.utility.ExpandedConsumer
+import com.losi.create.utility.orElse
 import org.joml.*
 import org.lwjgl.glfw.*
 import org.lwjgl.opengl.GL
@@ -56,7 +55,7 @@ class Window: InternalGLContext {
     /**Title of this window*/
     private var _title: String? = null
     /**Size of this window*/
-    private var size: Vector2i? = null
+    private var _size: Vector2i? = null
     /**The monitor on which the window was set to be present*/
     private var monitor: Monitor? = null
     /**A flag, is the V-Sync mechanism enabled*/
@@ -64,9 +63,11 @@ class Window: InternalGLContext {
     /**The stream to the icon of this window*/
     private var _icon: InputStream? = null
     /**Targeted frame rate for this window*/
-    private var _targetFPS = 60
+    private var _targetFPS = 60u
     /**A collective lambda that it called every frame*/
     private val logicUpdate = ExpandedConsumer<Float>()
+    /**A mechanism used to dynamically handle the content of this window*/
+    private var usedScene: Scene? = null
 
     /**The standard constructor for the Window
      * Will ensure that OpenGL is initiated before finishing construction*/
@@ -93,9 +94,20 @@ class Window: InternalGLContext {
             loadIcon(_icon!!)
     }
     /**The targeted frame rate of the window*/
-    var targetFPS: Int get() = _targetFPS; set(it) { _targetFPS = it }
+    var targetFPS: UInt get() = _targetFPS; set(it) { _targetFPS = it }
     /**The handler of this window*/
     internal val handle: Long get() = window
+
+    var size: Vector2i
+        get() = _size.orElse {
+            val mon = monitor?: Monitor.list.first()
+            Vector2i(mon.width * 2 / 3, mon.height * 2 / 3) }
+        set(value) {
+            _size = value
+            //TODO: Window resize event
+        }
+
+    var scene: Scene? = null
 
     /**Registers a lambda to be executed every frame as a part of logic update
      * @param logic Logic lambda*/
@@ -156,7 +168,7 @@ class Window: InternalGLContext {
     /**Used as an event for when the window was resized*/
     private fun onResize(width: Int, height: Int) {
         glViewport(0..width, 0..height)
-        size?.x = width; size?.y = height
+        _size?.x = width; _size?.y = height
     }
     /**Starts up the window logic
      *
@@ -166,43 +178,14 @@ class Window: InternalGLContext {
         glClearColor(Color.black)
 
         val timer = Timer()
-        val targetTime = 1000L / targetFPS
-
-        val shaderProgram = run {
-            val vertex = Window::class.java.module.getResourceAsStream("assets/create/shaders/basic.vert") ?: throw IOException("Unable to open shaders")
-            val fragment = Window::class.java.module.getResourceAsStream("assets/create/shaders/basic.frag") ?: throw IOException("Unable to open shaders")
-            val xml = Window::class.java.module.getResourceAsStream("assets/create/shaders/basic.xml") ?: throw IOException("Unable to open shaders")
-
-            Shader(vertex, fragment, xml)
-        }
-
-        shaderProgram.setUniform("model", Matrix4f())
-        shaderProgram.setUniform("view", Matrix4f())
-
-        val ratio = size!!.x / size!!.y.toFloat()
-        shaderProgram.setUniform("projection", Matrix4f().setOrtho(-ratio, ratio, -1f, 1f, -1f, 1f))
-
-        val mesh = Mesh(shaderProgram)
-        mesh.setAttribute("position", arrayOf(
-                Vector3f(-1f, 1f, 0f),
-                Vector3f( 1f, -1f, 0f),
-                Vector3f( -1f  ,  -1f, 0f),
-                Vector3f(-1f, 1f, 0f),
-                Vector3f( 1f, -1f, 0f),
-                Vector3f( 1f  ,  1f, 0f)))
-
-        mesh.burnModel()
-        mesh.flushBuffers()
-
-        val texture = Texture2D(Window::class.java.module.getResourceAsStream("assets/create/textures/blocks/debug3.svg"))
-        shaderProgram.setUniform("image", texture)
+        val targetTime = 1000L / targetFPS.toLong()
 
         @Suppress("unused")
         glfwSetKeyCallback(window) { wind, key, scancode, action, mods ->
-            if(key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
-                glfwSetWindowShouldClose(wind, true)
-            if(key == GLFW_KEY_D && action == GLFW_RELEASE)
-                shaderProgram.release()
+            //if(key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
+            //    glfwSetWindowShouldClose(wind, true)
+            //if(key == GLFW_KEY_D && action == GLFW_RELEASE)
+            //    shaderProgram.release()
         }
 
         var atlasUsed = false
@@ -217,15 +200,7 @@ class Window: InternalGLContext {
 
             glClear(ClearTarget.Color and ClearTarget.Depth)
 
-            if(!atlasUsed && AssetManager.isLoaded)
-            {
-                shaderProgram.setUniform("atlas", BlockTexture.atlas)
-                shaderProgram.setUniform("useAtlas", true)
-                shaderProgram.setUniform("textureInd", BlockTexture.NOT_FOUND.index)
-                atlasUsed = true
-            }
-
-            mesh.draw()
+            scene?.update(delta)
 
             glfwSwapBuffers(window)
             glfwPollEvents()
@@ -249,9 +224,9 @@ class Window: InternalGLContext {
             glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE)
 
             monitor = monitor ?: Monitor.list.first()
-            size = size ?: Vector2i(monitor!!.width * 2 / 3, monitor!!.height * 2 / 3)
+            _size = _size ?: Vector2i(monitor!!.width * 2 / 3, monitor!!.height * 2 / 3)
 
-            window = glfwCreateWindow(size!!.x, size!!.y, _title ?: "", NULL, NULL)
+            window = glfwCreateWindow(_size!!.x, _size!!.y, _title ?: "", NULL, NULL)
             if ( window == NULL )
                 throw RuntimeException("Failed to create the GLFW window")
         }
@@ -260,7 +235,7 @@ class Window: InternalGLContext {
         handleDestroyer = cleaner.register(this) { glfwDestroyWindow(handler) }
         val pos = monitor?.position ?: Vector2i(0, 0)
         val work = monitor!!.workArea
-        glfwSetWindowPos(window, pos.x() + (work.width - size!!.x) / 2, pos.y() + (work.height - size!!.y) / 2)
+        glfwSetWindowPos(window, pos.x() + (work.width - _size!!.x) / 2, pos.y() + (work.height - _size!!.y) / 2)
 
         icon?.let { loadIcon(it) }
 
@@ -286,7 +261,7 @@ class Window: InternalGLContext {
         currentContext.set(this)
         glfwMakeContextCurrent(window)
         GL.createCapabilities()
-        size?.let{ glViewport(0..it.x, 0..it.y) }
+        _size?.let{ glViewport(0..it.x, 0..it.y) }
         bindErrorCather()
 
         threadBound = true
