@@ -32,6 +32,9 @@ class ElementRegister<T: GameElement>
         if(rawElementsByName?.putIfAbsent(ElementIdent(space, name), element) != null)
             throw IllegalArgumentException("Element \"${space.identity}:$name\" already exists")
         element.name = name
+        element.space = space
+
+        element.onRegister()
     }
     /**Looks for an element by [name] in the register*/
     fun retrieve(name: String): T =

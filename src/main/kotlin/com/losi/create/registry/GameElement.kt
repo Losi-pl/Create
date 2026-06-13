@@ -32,4 +32,7 @@ abstract class GameElement
     /**A flag, telling if the element was registered*/
     @get:JvmName("isRegistered")
     val isRegistered: Boolean get() = _name != null
+
+    /**This event is called when this element is registered*/
+    open fun onRegister() { }
 }
