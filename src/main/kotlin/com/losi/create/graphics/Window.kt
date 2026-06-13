@@ -175,12 +175,14 @@ class Window: InternalGLContext {
     }
 
 
+
     /**Used as an event for when the window was resized*/
     private fun onResize(width: Int, height: Int) {
         glViewport(0..width, 0..height)
         _size?.x = width; _size?.y = height
     }
 
+    /**Used when a keyboard key is pressed or released*/
     private fun onKeyAction(key: KeyboardKey, action: KeyboardAction, mods: KeyMods) {
         usedScene?.let { scene ->
             scene.onKeyAction(key, action, mods)
@@ -191,6 +193,8 @@ class Window: InternalGLContext {
             }
         }
     }
+
+
 
     /**Starts up the window logic
      *
@@ -230,6 +234,8 @@ class Window: InternalGLContext {
             if(timeOut > 0)
                 Thread.sleep(timeOut)
         }
+
+        usedScene?.unbindingScene()
     }
 
     /**Creates a new OpenGL window instance and it's related logic*/
