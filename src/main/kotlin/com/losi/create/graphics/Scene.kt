@@ -26,11 +26,16 @@ abstract class Scene {
         set(value) { _win?.let { it.size = value } }
         get() = _win?.size?: Vector2i()
 
+    typealias Key = KeyboardKey
+    typealias KeyCode = KeyboardKeyCode
+    typealias KeyMods = com.losi.create.graphics.gl.KeyMods
+    typealias KeyAction = KeyboardAction
+
     open fun onSceneInit() { }
-    open fun onKeyAction(key: KeyboardKey, action: KeyboardAction, mods: KeyMods) { }
-    open fun onKeyDown(key: KeyboardKey, mods: KeyMods) { }
-    open fun onKeyUp(key: KeyboardKey, mods: KeyMods) { }
-    open fun onKeyRepeat(key: KeyboardKey, mods: KeyMods) { }
+    open fun onKeyAction(key: Key, action: KeyAction, mods: KeyMods) { }
+    open fun onKeyDown(key: Key, mods: KeyMods) { }
+    open fun onKeyUp(key: Key, mods: KeyMods) { }
+    open fun onKeyRepeat(key: Key, mods: KeyMods) { }
 
     open fun logicUpdate(timeDelta: Float) { }
     open fun renderUpdate(timeDelta: Float) { }
