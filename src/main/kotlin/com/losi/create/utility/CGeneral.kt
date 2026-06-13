@@ -77,11 +77,17 @@ inline fun <T> T.require(value: Boolean, lazyMessage: () -> Any): T {
     return this
 }
 
+/**Called if the method before has a value but the value itself is not relevant
+ *
+ * Can be used in chaning methods with only one `?.` before the first call
+ *
+ * ```kotlin
+ * value?.let { print(it) }.after { value = null }
+ * ```*/
 @OptIn(ExperimentalContracts::class)
-fun Unit?.after(action: () -> Unit) {
+fun <T> T?.after(action: () -> Unit): Unit? {
     contract {
         callsInPlace(action, InvocationKind.AT_MOST_ONCE)
     }
-    if(this != null)
-        action()
+    return if(this != null) action() else null
 }
