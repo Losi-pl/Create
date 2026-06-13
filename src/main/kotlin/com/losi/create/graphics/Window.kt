@@ -2,6 +2,7 @@ package com.losi.create.graphics
 
 import com.losi.create.graphics.gl.*
 import com.losi.create.utility.ExpandedConsumer
+import com.losi.create.utility.after
 import com.losi.create.utility.orElse
 import com.losi.create.utility.unaccessible
 import org.joml.*
@@ -256,7 +257,7 @@ class Window: InternalGLContext {
         val work = monitor!!.workArea
         glfwSetWindowPos(window, pos.x() + (work.width - _size!!.x) / 2, pos.y() + (work.height - _size!!.y) / 2)
 
-        _icon?.let { loadIcon(it) }?.apply { _icon = null }
+        _icon?.let { loadIcon(it) }.after { _icon?.close(); _icon = null }
 
         glfwSetFramebufferSizeCallback(window) { _, width, height -> this.onResize(width, height) }
         glfwSetKeyCallback(window) { _, _, scancode, action, mods ->

@@ -2,15 +2,13 @@ package com.losi.create
 
 import com.losi.create.assets.*
 import com.losi.create.graphics.*
+import com.losi.create.registry.LoadingScene
 import com.losi.create.registry.RegisterOrder
 import com.losi.create.utility.*
 import org.lwjgl.glfw.GLFW
 import kotlin.concurrent.thread
 
 private object App {
-    /**The main game window */
-    private var main: Window? = null
-
     /**The context allowing for the OpenGL operations during the construction of the resources */
     private var context: GLContext? = null
 
@@ -30,16 +28,16 @@ private object App {
 
         OnMainThread.mainThread = Thread.currentThread()
 
-        main = Window()
-        main.mustRun {
-            //Configure the window icon and title
-            title = "Create: ${Version.version}"
-            icon = Version::class.java.module.getResourceAsStream("Icon.ico").autoClosable()
+        val window = Window().apply {
+            //Set game icon
+            icon = Version::class.java.module.getResourceAsStream("Icon.ico")
 
             //Connect OpenGL logic and thread logic
             create()
             threadBind()
             registerLogic(OnMainThread::callAction)
+
+            scene = LoadingScene()
 
             //Create Assets loading thread
             context = GLContext(this)
@@ -52,9 +50,8 @@ private object App {
                     }
                 }
             }
-
-            run()
         }
+        window.run()
 
         GLFW.glfwTerminate()
         GLFW.glfwSetErrorCallback(null)?.free()
