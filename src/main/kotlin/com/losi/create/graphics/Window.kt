@@ -104,7 +104,7 @@ class Window: InternalGLContext {
             Vector2i(mon.width * 2 / 3, mon.height * 2 / 3) }
         set(value) {
             _size = value
-            //TODO: Window resize event
+            glfwSetWindowSize(window, value.x, value.y)
         }
 
     var scene: Scene? = null
