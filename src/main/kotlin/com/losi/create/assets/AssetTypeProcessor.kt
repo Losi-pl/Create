@@ -3,6 +3,7 @@ package com.losi.create.assets
 import com.koloboke.collect.set.hash.HashLongSets
 import com.losi.create.ModSpace
 import com.losi.create.registry.ElementIdent
+import com.losi.create.utility.autoClosable
 import com.losi.create.utility.forceAdd
 import com.losi.create.utility.longHashCode
 
@@ -44,12 +45,11 @@ interface AssetTypeProcessor<T>
      * @param mod The specific [ModSpace] the resource is attached to
      * @param name The path to or name of the resource you want to load within the type*/
     fun loadResource(space: ResourceSpace, mod: ModSpace, name: String) =
-        AssetManager.getStream(space, "assets/${mod.identity}/${nameType.get()}$name")
+        AssetManager.getStream(space, "assets/${mod.identity}/${nameType.get()}$name")?.autoClosable()
     /**This is used to get an [java.io.InputStream] to a specified resource
      * @param space The specific [ResourceSpace] you want to load from
      * @param path A combination of the [ModSpace] and the path within this type to the searched resource*/
-    fun loadResource(space: ResourceSpace, path: Pair<ModSpace, String>) =
-        AssetManager.getStream(space, "assets/${path.first.identity}/${nameType.get()}${path.second}")
+    fun loadResource(space: ResourceSpace, path: Pair<ModSpace, String>) = loadResource(space, path.first, path.second)
     /**Created a map with the paths to specific resources serving as keys and leading to [ResourceSpace]'s containing the most relevant version of that resource
      * @param order the order of relevance of the resources, can  be obtained from [getResourceOrder]*/
     fun Resources.overlayed(order: List<ResourceSpace>) = this.let { resources-> object : Map<Pair<ModSpace, String>, ResourceSpace> {

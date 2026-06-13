@@ -33,8 +33,8 @@ private object App {
         main = Window()
         main.mustRun {
             //Configure the window icon and title
-            icon = Version::class.java.module.getResourceAsStream("Icon.ico")
             title = "Create: ${Version.version}"
+            icon = Version::class.java.module.getResourceAsStream("Icon.ico").autoClosable()
 
             //Connect OpenGL logic and thread logic
             create()
