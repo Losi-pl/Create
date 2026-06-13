@@ -23,7 +23,7 @@ object RegisterOrder {
 
     /**Registers a new process to be done during resources loading and it's requirements if there are any
      * @param process The process to be executed*/
-    fun registerProcess(process: RegisterProcess) {
+    fun registerProcess(process: LoadingProcess) {
         @OptIn(ExperimentalUuidApi::class)
         registerProcess(process.uuid, process.action, process.name, null)
     }
@@ -31,7 +31,7 @@ object RegisterOrder {
     /**Registers a new process to be done during resources loading and it's requirements if there are any
      * @param process The process to be executed
      * @param requirements The additional requirements of this process*/
-    fun registerProcess(process: RegisterProcess, requirements: Requirements.() -> Unit) {
+    fun registerProcess(process: LoadingProcess, requirements: Requirements.() -> Unit) {
         @OptIn(ExperimentalUuidApi::class)
         registerProcess(process.uuid, process.action, process.name, Consumer<Requirements> { it.requirements() })
     }
@@ -39,7 +39,7 @@ object RegisterOrder {
     /**Registers a new process to be done during resources loading and it's requirements if there are any
      * @param process The process to be executed
      * @param requirements The additional requirements of this process*/
-    fun registerProcess(process: RegisterProcess, requirements: Consumer<Requirements>?) {
+    fun registerProcess(process: LoadingProcess, requirements: Consumer<Requirements>?) {
         @OptIn(ExperimentalUuidApi::class)
         registerProcess(process.uuid, process.action, process.name, requirements)
     }
@@ -156,7 +156,7 @@ object RegisterOrder {
 
     /**Meant for [processes] ut is used to specify requirements of a process*/
     interface Requirements {
-        fun dependsOn(process: RegisterProcess) {
+        fun dependsOn(process: LoadingProcess) {
             @OptIn(ExperimentalUuidApi::class)
             dependsOn(process.uuid)
         }
@@ -166,7 +166,7 @@ object RegisterOrder {
         }
         @OptIn(ExperimentalUuidApi::class)
         fun dependsOn(uuid: Uuid)
-        fun justAfter(process: RegisterProcess) {
+        fun justAfter(process: LoadingProcess) {
             @OptIn(ExperimentalUuidApi::class)
             justAfter(process.uuid)
         }

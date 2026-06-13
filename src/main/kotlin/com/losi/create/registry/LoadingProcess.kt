@@ -6,7 +6,7 @@ import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
 import kotlin.uuid.toKotlinUuid
 
-class RegisterProcess {
+class LoadingProcess {
 
     @OptIn(ExperimentalUuidApi::class)
     val uuid: Uuid
@@ -51,7 +51,7 @@ class RegisterProcess {
     }
 
     override infix operator fun equals(other: Any?): Boolean {
-        if(other !is RegisterProcess)
+        if(other !is LoadingProcess)
             return false
 
         @OptIn(ExperimentalUuidApi::class)

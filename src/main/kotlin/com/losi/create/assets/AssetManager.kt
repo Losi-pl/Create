@@ -6,7 +6,7 @@ import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.isSubclassOf
 import com.losi.create.ModSpace
 import com.losi.create.Version
-import com.losi.create.registry.RegisterProcess
+import com.losi.create.registry.LoadingProcess
 import com.losi.create.utility.forEach
 import kotlin.reflect.KClass
 import java.util.jar.JarFile
@@ -64,7 +64,7 @@ object AssetManager {
     /**It's meant for loading all path from where the file assets can be loaded
      *
      * At the moment the only available path is the module of the game itself, but in the future it is planet do add things like mods or resource packs*/
-    val findingAssetSources = RegisterProcess("Looking For File Asset Sources") {
+    val findingAssetSources = LoadingProcess("Looking For File Asset Sources") {
         val mods = ModSpace.modules
         for (mod in mods)
         {
@@ -77,7 +77,7 @@ object AssetManager {
      * Currently present:
      *  - [Shader][com.losi.create.graphics.Shader] -> `shaders/`
      *  - [BlockTexture] -> `textures/blocks/`*/
-    val assetParsers = RegisterProcess("Registering File Asset Parsers") {
+    val assetParsers = LoadingProcess("Registering File Asset Parsers") {
         registerProcessor(ShaderProcessor, "shaders")
         registerProcessor(BlockTexture.BlockAtlasProcessor, "textures/blocks")
     }
@@ -107,7 +107,7 @@ object AssetManager {
      *   |  +-<Path...>
      * ```
      * */
-    val assetParsing = RegisterProcess("Parsing File Assets") {
+    val assetParsing = LoadingProcess("Parsing File Assets") {
         /**Splits a path into identifier of [ModSpace] and the in type path to the resource itself
          * @param it A full path in the resources, `<ModSpace>/<DataType>/<Path...>`
          * @param offset A length of `<DataType>` acquired from [ProcType]
