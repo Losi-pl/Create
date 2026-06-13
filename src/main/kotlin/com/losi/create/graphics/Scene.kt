@@ -2,8 +2,10 @@
 package com.losi.create.graphics
 
 import com.losi.create.graphics.gl.*
+import com.losi.create.utility.unaccessible
 import org.joml.Vector2i
 import java.awt.Color
+import java.io.InputStream
 
 abstract class Scene {
     private var _win: Window? = null
@@ -25,6 +27,12 @@ abstract class Scene {
     protected var windowSize: Vector2i
         set(value) { _win?.let { it.size = value } }
         get() = _win?.size?: Vector2i()
+
+    /**A setter for the [Window]'s icon the icon, it can only be set and not got back*/
+    @get:Deprecated("The getter of this variable does not exist", level = DeprecationLevel.ERROR)
+    protected var icon: InputStream?
+        set(value) { _win?.let { it.icon = value } }
+        get() = unaccessible()
 
     typealias Key = KeyboardKey
     typealias KeyCode = KeyboardKeyCode

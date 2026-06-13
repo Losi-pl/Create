@@ -3,6 +3,7 @@ package com.losi.create.graphics
 import com.losi.create.graphics.gl.*
 import com.losi.create.utility.ExpandedConsumer
 import com.losi.create.utility.orElse
+import com.losi.create.utility.unaccessible
 import org.joml.*
 import org.lwjgl.glfw.*
 import org.lwjgl.opengl.GL
@@ -87,11 +88,17 @@ class Window: InternalGLContext {
     }
     /**A flag, is V-Sync mechanism enabled*/
     var vSync: Boolean get() = _vSync; set(it) { _vSync = it }
-    /**An [InputStream] to the icon currently set in this window*/
-    var icon: InputStream? get() = _icon; set(it) = synchronized (sync) {
-        _icon = it
-        if(_icon != null && window != NULL)
-            loadIcon(_icon!!)
+    /**A setter for the [Window]'s icon the icon, it can only be set and not got back*/@get:Deprecated("The getter is unavailable as the Stream is disconnected after it is used", level = DeprecationLevel.ERROR)
+    var icon: InputStream? get() = unaccessible(); set(it) = synchronized (sync) {
+        if(window != NULL)
+        {
+            if(it != null)
+                loadIcon(it)
+            else
+                glfwSetWindowIcon(window, null)
+        }
+        else
+            _icon = it
     }
     /**The targeted frame rate of the window*/
     var targetFPS: UInt get() = _targetFPS; set(it) { _targetFPS = it }
@@ -249,7 +256,7 @@ class Window: InternalGLContext {
         val work = monitor!!.workArea
         glfwSetWindowPos(window, pos.x() + (work.width - _size!!.x) / 2, pos.y() + (work.height - _size!!.y) / 2)
 
-        icon?.let { loadIcon(it) }
+        _icon?.let { loadIcon(it) }?.apply { _icon = null }
 
         glfwSetFramebufferSizeCallback(window) { _, width, height -> this.onResize(width, height) }
         glfwSetKeyCallback(window) { _, _, scancode, action, mods ->

@@ -92,3 +92,8 @@ fun <T> Sequence<T>.exclude(coll: Collection<T>) = sequence {
             yield(it)
     }
 }
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun <T> unaccessible(): T {
+    throw Error("This method should be unaccessible")
+}
