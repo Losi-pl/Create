@@ -94,12 +94,14 @@ dependencies {
     //https://xmlgraphics.apache.org/batik/
     implementation("org.apache.xmlgraphics:batik-transcoder:1.19")
 
-    //TODO: ============== Kunion ===================
-    //implementation("com.github.renatoathaydes:kunion:0bd9cbfe38")
+    // =================== Kunion ===================
+    implementation("com.github.renatoathaydes:kunion:0bd9cbfe38")
 
     // =================== Kotlin ===================
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.2")
 
     // =================== Guava ===================
     implementation("com.google.guava:guava:33.6.0-jre")

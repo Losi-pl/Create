@@ -4,6 +4,7 @@ package com.losi.create.utility
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
 import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 /**Performs the given action on each element.
@@ -74,4 +75,13 @@ inline fun <T> T.require(value: Boolean, lazyMessage: () -> Any): T {
 
     kotlin.require(value) { lazyMessage() }
     return this
+}
+
+@OptIn(ExperimentalContracts::class)
+fun Unit?.after(action: () -> Unit) {
+    contract {
+        callsInPlace(action, InvocationKind.AT_MOST_ONCE)
+    }
+    if(this != null)
+        action()
 }

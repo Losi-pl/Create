@@ -72,8 +72,8 @@ value class BlockTexture private constructor(val index: UInt){
         private val NULL_TEXTURE_STREAM: InputStream get() =
             """<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
               |    <rect x="0" y="0" width="16" height="16" fill="black"/>
-              |    <rect x="0" y="0" width="8" height="8" fill="magenta"/>
-              |    <rect x="8" y="8" width="8" height="8" fill="magenta"/>
+              |    <rect x="0" y="8" width="8" height="8" fill="magenta"/>
+              |    <rect x="8" y="0" width="8" height="8" fill="magenta"/>
               |</svg>""".trimMargin().byteInputStream()
     }
 }

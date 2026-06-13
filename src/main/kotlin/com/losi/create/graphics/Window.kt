@@ -1,9 +1,10 @@
 package com.losi.create.graphics
 
-import com.losi.create.assets.AssetManager
-import com.losi.create.assets.BlockTexture
-import com.losi.create.graphics.gl.bindErrorCather
+import com.losi.create.graphics.gl.*
 import com.losi.create.utility.ExpandedConsumer
+import com.losi.create.utility.after
+import com.losi.create.utility.orElse
+import com.losi.create.utility.unaccessible
 import org.joml.*
 import org.lwjgl.glfw.*
 import org.lwjgl.opengl.GL
@@ -15,7 +16,6 @@ import java.lang.ref.Cleaner
 import java.nio.*
 import java.util.ArrayList
 import org.lwjgl.glfw.GLFW.*
-import org.lwjgl.opengl.GL30.*
 import org.lwjgl.system.MemoryUtil.*
 
 /**An OpenGL Window and a Context, contains mechanisms for interaction with the user*/
@@ -57,7 +57,7 @@ class Window: InternalGLContext {
     /**Title of this window*/
     private var _title: String? = null
     /**Size of this window*/
-    private var size: Vector2i? = null
+    private var _size: Vector2i? = null
     /**The monitor on which the window was set to be present*/
     private var monitor: Monitor? = null
     /**A flag, is the V-Sync mechanism enabled*/
@@ -65,9 +65,11 @@ class Window: InternalGLContext {
     /**The stream to the icon of this window*/
     private var _icon: InputStream? = null
     /**Targeted frame rate for this window*/
-    private var _targetFPS = 60
+    private var _targetFPS = 60u
     /**A collective lambda that it called every frame*/
     private val logicUpdate = ExpandedConsumer<Float>()
+    /**A mechanism used to dynamically handle the content of this window*/
+    private var usedScene: Scene? = null
 
     /**The standard constructor for the Window
      * Will ensure that OpenGL is initiated before finishing construction*/
@@ -87,16 +89,33 @@ class Window: InternalGLContext {
     }
     /**A flag, is V-Sync mechanism enabled*/
     var vSync: Boolean get() = _vSync; set(it) { _vSync = it }
-    /**An [InputStream] to the icon currently set in this window*/
-    var icon: InputStream? get() = _icon; set(it) = synchronized (sync) {
-        _icon = it
-        if(_icon != null && window != NULL)
-            loadIcon(_icon!!)
+    /**A setter for the [Window]'s icon the icon, it can only be set and not got back*/@get:Deprecated("The getter is unavailable as the Stream is disconnected after it is used", level = DeprecationLevel.ERROR)
+    var icon: InputStream? get() = unaccessible(); set(it) = synchronized (sync) {
+        if(window != NULL)
+        {
+            if(it != null)
+                loadIcon(it)
+            else
+                glfwSetWindowIcon(window, null)
+        }
+        else
+            _icon = it
     }
     /**The targeted frame rate of the window*/
-    var targetFPS: Int get() = _targetFPS; set(it) { _targetFPS = it }
+    var targetFPS: UInt get() = _targetFPS; set(it) { _targetFPS = it }
     /**The handler of this window*/
     internal val handle: Long get() = window
+
+    var size: Vector2i
+        get() = _size.orElse {
+            val mon = monitor?: Monitor.list.first()
+            Vector2i(mon.width * 2 / 3, mon.height * 2 / 3) }
+        set(value) {
+            _size = value
+            glfwSetWindowSize(window, value.x, value.y)
+        }
+
+    var scene: Scene? = null
 
     /**Registers a lambda to be executed every frame as a part of logic update
      * @param logic Logic lambda*/
@@ -154,59 +173,38 @@ class Window: InternalGLContext {
         }
         finally { buffers.forEach { MemoryUtil.memFree(it) }}
     }
+
+
+
     /**Used as an event for when the window was resized*/
     private fun onResize(width: Int, height: Int) {
-        glViewport(0, 0, width, height)
-        size?.x = width; size?.y = height
+        glViewport(0..width, 0..height)
+        _size?.x = width; _size?.y = height
     }
+
+    /**Used when a keyboard key is pressed or released*/
+    private fun onKeyAction(key: KeyboardKey, action: KeyboardAction, mods: KeyMods) {
+        usedScene?.let { scene ->
+            scene.onKeyAction(key, action, mods)
+            when (action) {
+                KeyboardAction.Press -> scene.onKeyDown(key, mods)
+                KeyboardAction.Release -> scene.onKeyUp(key, mods)
+                KeyboardAction.Repeat -> scene.onKeyRepeat(key, mods)
+            }
+        }
+    }
+
+
+
     /**Starts up the window logic
      *
      * Run's in the current thread*/
     fun run() {
         glfwShowWindow(window)
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
+        glClearColor(Color.black)
 
         val timer = Timer()
-        val targetTime = 1000L / targetFPS
-
-        val shaderProgram = run {
-            val vertex = Window::class.java.module.getResourceAsStream("assets/create/shaders/basic.vert") ?: throw IOException("Unable to open shaders")
-            val fragment = Window::class.java.module.getResourceAsStream("assets/create/shaders/basic.frag") ?: throw IOException("Unable to open shaders")
-            val xml = Window::class.java.module.getResourceAsStream("assets/create/shaders/basic.xml") ?: throw IOException("Unable to open shaders")
-
-            Shader(vertex, fragment, xml)
-        }
-
-        shaderProgram.setUniform("model", Matrix4f())
-        shaderProgram.setUniform("view", Matrix4f())
-
-        val ratio = size!!.x / size!!.y.toFloat()
-        shaderProgram.setUniform("projection", Matrix4f().setOrtho(-ratio, ratio, -1f, 1f, -1f, 1f))
-
-        val mesh = Mesh(shaderProgram)
-        mesh.setAttribute("position", arrayOf(
-                Vector3f(-1f, 1f, 0f),
-                Vector3f( 1f, -1f, 0f),
-                Vector3f( -1f  ,  -1f, 0f),
-                Vector3f(-1f, 1f, 0f),
-                Vector3f( 1f, -1f, 0f),
-                Vector3f( 1f  ,  1f, 0f)))
-
-        mesh.burnModel()
-        mesh.flushBuffers()
-
-        val texture = Texture2D(Window::class.java.module.getResourceAsStream("assets/create/textures/blocks/debug3.svg"))
-        shaderProgram.setUniform("image", texture)
-
-        @Suppress("unused")
-        glfwSetKeyCallback(window) { wind, key, scancode, action, mods ->
-            if(key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
-                glfwSetWindowShouldClose(wind, true)
-            if(key == GLFW_KEY_D && action == GLFW_RELEASE)
-                shaderProgram.release()
-        }
-
-        var atlasUsed = false
+        val targetTime = 1000L / targetFPS.toLong()
 
         glfwSwapInterval(if(vSync) 1 else 0)
         timer.init()
@@ -216,17 +214,17 @@ class Window: InternalGLContext {
 
             logicUpdate.accept(delta)
 
-            glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
-
-            if(!atlasUsed && AssetManager.isLoaded)
+            if(usedScene !== scene)
             {
-                shaderProgram.setUniform("atlas", BlockTexture.atlas)
-                shaderProgram.setUniform("useAtlas", true)
-                shaderProgram.setUniform("textureInd", AssetManager.get<BlockTexture>("create:abba")!!.index)
-                atlasUsed = true
+                usedScene?.unbindingScene()
+                scene?.bindingScene(this)
+
+                usedScene = scene
             }
 
-            mesh.draw()
+            glClear(ClearTarget.Color and ClearTarget.Depth)
+
+            usedScene?.update(delta)
 
             glfwSwapBuffers(window)
             glfwPollEvents()
@@ -236,6 +234,8 @@ class Window: InternalGLContext {
             if(timeOut > 0)
                 Thread.sleep(timeOut)
         }
+
+        usedScene?.unbindingScene()
     }
 
     /**Creates a new OpenGL window instance and it's related logic*/
@@ -250,9 +250,9 @@ class Window: InternalGLContext {
             glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE)
 
             monitor = monitor ?: Monitor.list.first()
-            size = size ?: Vector2i(monitor!!.width * 2 / 3, monitor!!.height * 2 / 3)
+            _size = _size ?: Vector2i(monitor!!.width * 2 / 3, monitor!!.height * 2 / 3)
 
-            window = glfwCreateWindow(size!!.x, size!!.y, _title ?: "", NULL, NULL)
+            window = glfwCreateWindow(_size!!.x, _size!!.y, _title ?: "", NULL, NULL)
             if ( window == NULL )
                 throw RuntimeException("Failed to create the GLFW window")
         }
@@ -261,12 +261,17 @@ class Window: InternalGLContext {
         handleDestroyer = cleaner.register(this) { glfwDestroyWindow(handler) }
         val pos = monitor?.position ?: Vector2i(0, 0)
         val work = monitor!!.workArea
-        glfwSetWindowPos(window, pos.x() + (work.width - size!!.x) / 2, pos.y() + (work.height - size!!.y) / 2)
+        glfwSetWindowPos(window, pos.x() + (work.width - _size!!.x) / 2, pos.y() + (work.height - _size!!.y) / 2)
 
-        icon?.let { loadIcon(it) }
+        _icon?.let { loadIcon(it) }.after { _icon?.close(); _icon = null }
 
-        glfwSetFramebufferSizeCallback(window) {_, width, height ->
-            this.onResize(width, height)
+        glfwSetFramebufferSizeCallback(window) { _, width, height -> this.onResize(width, height) }
+        glfwSetKeyCallback(window) { _, _, scancode, action, mods ->
+            @Suppress("SpellCheckingInspection", "RedundantSuppression")
+            this.onKeyAction(
+                KeyboardKey(scancode),
+                KeyboardAction.of(action)?: throw RuntimeException("Unknown action occurred in GLFWkeyfun"),
+                KeyMods.of(mods))
         }
 
     }
@@ -287,7 +292,7 @@ class Window: InternalGLContext {
         currentContext.set(this)
         glfwMakeContextCurrent(window)
         GL.createCapabilities()
-        size?.let{ glViewport(0, 0, it.x, it.y) }
+        _size?.let{ glViewport(0..it.x, 0..it.y) }
         bindErrorCather()
 
         threadBound = true
