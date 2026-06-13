@@ -1,9 +1,7 @@
 @file:Suppress("unused")
 package com.losi.create.graphics
 
-import com.losi.create.graphics.gl.ClearTarget
-import com.losi.create.graphics.gl.glClear
-import com.losi.create.graphics.gl.glClearColor
+import com.losi.create.graphics.gl.*
 import org.joml.Vector2i
 import java.awt.Color
 
@@ -29,6 +27,10 @@ abstract class Scene {
         get() = _win?.size?: Vector2i()
 
     open fun onSceneInit() { }
+    open fun onKeyAction(key: KeyboardKey, action: KeyboardAction, mods: KeyMods) { }
+    open fun onKeyDown(key: KeyboardKey, mods: KeyMods) { }
+    open fun onKeyUp(key: KeyboardKey, mods: KeyMods) { }
+    open fun onKeyRepeat(key: KeyboardKey, mods: KeyMods) { }
 
     open fun logicUpdate(timeDelta: Float) { }
     open fun renderUpdate(timeDelta: Float) { }

@@ -9,6 +9,7 @@ sealed interface ClearTarget {
         Stencil(GL11.GL_STENCIL_BUFFER_BIT, "GL_STENCIL_BUFFER_BIT"),
         Accum(GL11.GL_ACCUM_BUFFER_BIT, "GL_ACCUM_BUFFER_BIT"),
     }
+    @Suppress("DuplicatedCode")
     private data class Composite(override val gl: Int): ClearTarget {
         override val glName: String get() {
             val builder = StringBuilder()

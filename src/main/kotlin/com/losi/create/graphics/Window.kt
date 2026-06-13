@@ -165,11 +165,25 @@ class Window: InternalGLContext {
         }
         finally { buffers.forEach { MemoryUtil.memFree(it) }}
     }
+
+
     /**Used as an event for when the window was resized*/
     private fun onResize(width: Int, height: Int) {
         glViewport(0..width, 0..height)
         _size?.x = width; _size?.y = height
     }
+
+    private fun onKeyAction(key: KeyboardKey, action: KeyboardAction, mods: KeyMods) {
+        usedScene?.let { scene ->
+            scene.onKeyAction(key, action, mods)
+            when (action) {
+                KeyboardAction.Press -> scene.onKeyDown(key, mods)
+                KeyboardAction.Release -> scene.onKeyUp(key, mods)
+                KeyboardAction.Repeat -> scene.onKeyRepeat(key, mods)
+            }
+        }
+    }
+
     /**Starts up the window logic
      *
      * Run's in the current thread*/
@@ -179,16 +193,6 @@ class Window: InternalGLContext {
 
         val timer = Timer()
         val targetTime = 1000L / targetFPS.toLong()
-
-        @Suppress("unused")
-        glfwSetKeyCallback(window) { wind, key, scancode, action, mods ->
-            //if(key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
-            //    glfwSetWindowShouldClose(wind, true)
-            //if(key == GLFW_KEY_D && action == GLFW_RELEASE)
-            //    shaderProgram.release()
-        }
-
-        var atlasUsed = false
 
         glfwSwapInterval(if(vSync) 1 else 0)
         timer.init()
@@ -208,7 +212,7 @@ class Window: InternalGLContext {
 
             glClear(ClearTarget.Color and ClearTarget.Depth)
 
-            scene?.update(delta)
+            usedScene?.update(delta)
 
             glfwSwapBuffers(window)
             glfwPollEvents()
@@ -247,8 +251,13 @@ class Window: InternalGLContext {
 
         icon?.let { loadIcon(it) }
 
-        glfwSetFramebufferSizeCallback(window) {_, width, height ->
-            this.onResize(width, height)
+        glfwSetFramebufferSizeCallback(window) { _, width, height -> this.onResize(width, height) }
+        glfwSetKeyCallback(window) { _, _, scancode, action, mods ->
+            @Suppress("SpellCheckingInspection", "RedundantSuppression")
+            this.onKeyAction(
+                KeyboardKey(scancode),
+                KeyboardAction.of(action)?: throw RuntimeException("Unknown action occurred in GLFWkeyfun"),
+                KeyMods.of(mods))
         }
 
     }
