@@ -198,6 +198,14 @@ class Window: InternalGLContext {
 
             logicUpdate.accept(delta)
 
+            if(usedScene !== scene)
+            {
+                usedScene?.unbindingScene()
+                scene?.bindingScene(this)
+
+                usedScene = scene
+            }
+
             glClear(ClearTarget.Color and ClearTarget.Depth)
 
             scene?.update(delta)

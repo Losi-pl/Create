@@ -47,11 +47,12 @@ abstract class Scene {
         glClear(ClearTarget.Color and ClearTarget.Depth)
         me.renderUpdate(timeDelta)
     }
-    internal fun bindingScene() {
+    internal fun bindingScene(window: Window) {
         val me = this
+        _win = window
         me.onSceneInit()
     }
     internal fun unbindingScene() {
-
+        _win = null
     }
 }
