@@ -5,7 +5,7 @@ import org.gradle.internal.os.OperatingSystem
 plugins {
     id("java")
     id("application")
-    kotlin("jvm") version "2.3.21"
+    kotlin("jvm") version "2.4.0"
 }
 
 group = "com.losi.create"
@@ -106,12 +106,7 @@ dependencies {
     // =================== Guava ===================
     implementation("com.google.guava:guava:33.6.0-jre")
 }
-kotlin { jvmToolchain(25) }
-java {
-    sourceCompatibility = JavaVersion.VERSION_25
-    targetCompatibility = JavaVersion.VERSION_25
-    toolchain { languageVersion = JavaLanguageVersion.of(25) }
-}
+kotlin { jvmToolchain(26) }
 
 tasks.jar {
     manifest {
