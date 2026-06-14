@@ -2,8 +2,7 @@
 package com.losi.create.graphics
 
 import com.losi.create.graphics.gl.*
-import com.losi.create.utility.OnMainThread
-import com.losi.create.utility.unaccessible
+import com.losi.create.utility.*
 import org.joml.Vector2i
 import java.awt.Color
 import java.io.InputStream
@@ -140,5 +139,9 @@ abstract class Scene {
     /**Used when this scene is being disconnected from a [Window]*/
     internal fun unbindingScene() {
         _win = null
+    }
+    /**Marks this window to close after this frame*/
+    fun close() {
+        _win?.let { glfwWindowShouldClose(it) }
     }
 }

@@ -57,9 +57,8 @@ internal class LoadingScene: Scene() {
     }
 
     override fun onKeyDown(key: Key, mods: KeyMods) {
-        if(key isKey KeyCode.Escape) {
-            //glfwSetWindowShouldClose(wind, true)
-        }
+        if(key isKey KeyCode.Escape)
+            close()
         else if(key isKey KeyCode.D)
             shader.release()
 
