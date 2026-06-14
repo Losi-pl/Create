@@ -1,6 +1,5 @@
 package com.losi.create.world
 
-import com.losi.create.assets.bases.Block
 import com.losi.create.registry.GameElement
 
 open class Realm : GameElement() {
@@ -15,11 +14,11 @@ open class Realm : GameElement() {
         override val rangeAlonX: IntRange get() = Int.MIN_VALUE..Int.MAX_VALUE
         override val rangeAlonZ: IntRange get() = Int.MIN_VALUE..Int.MAX_VALUE
 
-        override fun get(x: Int, y: Int, z: Int): Block {
+        override fun get(x: Int, y: Int, z: Int): PlacedBlock {
             TODO("Not yet implemented")
         }
 
-        override fun set(x: Int, y: Int, z: Int, block: Block) {
+        override fun set(x: Int, y: Int, z: Int, block: PlacedBlock) {
             TODO("Not yet implemented")
         }
 
