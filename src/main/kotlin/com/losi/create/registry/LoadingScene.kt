@@ -3,12 +3,14 @@ package com.losi.create.registry
 import com.losi.create.assets.*
 import com.losi.create.graphics.*
 import com.losi.create.utility.joml.*
+import com.losi.create.world.GameSession
 import org.joml.*
 
 internal class LoadingScene: Scene() {
     lateinit var shader:Shader
     lateinit var mesh: Mesh
     var atlasUsed = false
+    lateinit var loadingThread: Thread
 
     override fun onSceneInit() {
         findResource("Icon.ico").use { icon = it }
@@ -48,7 +50,7 @@ internal class LoadingScene: Scene() {
             flushBuffers()
         }
 
-        thread {
+        loadingThread = thread {
             RegisterOrder.registerAssetPrecesses()
             RegisterOrder.precesses().forEach {
                 it.first.run()
@@ -82,6 +84,9 @@ internal class LoadingScene: Scene() {
             shader.setUniform("textureInd", BlockTexture.NOT_FOUND.index)
             atlasUsed = true
         }
+
+        if(!loadingThread.isAlive)
+            goTo(GameSession())
     }
 
     override fun renderUpdate(timeDelta: Float) {

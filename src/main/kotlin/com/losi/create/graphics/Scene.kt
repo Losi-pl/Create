@@ -120,6 +120,9 @@ abstract class Scene {
         return thread
     }
 
+    /**Switches to a new scene after the current frame update*/
+    protected fun goTo(scene: Scene) { _win?.scene = scene }
+
     /**The set of per frame logic put in correct order
      * @param timeDelta Time since last call*/
     internal fun update(timeDelta: Float) {
