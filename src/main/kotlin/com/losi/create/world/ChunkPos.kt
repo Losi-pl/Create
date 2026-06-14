@@ -3,7 +3,7 @@ package com.losi.create.world
 @JvmInline
 value class ChunkPos(val combined: Long) {
     constructor(x: Int, z: Int): this(z.toLong() or (x.toLong() shl 32))
-    constructor(x: Int, @Suppress("unused") y: Int, z: Int): this(
+    @Suppress("unused") constructor(x: Int, @Suppress("unused") y: Int, z: Int): this(
     if(x >= 0)
             x / Realm.CHUNK_CUBE_SIZE
         else
@@ -12,6 +12,15 @@ value class ChunkPos(val combined: Long) {
             z / Realm.CHUNK_CUBE_SIZE
         else
             (z  + 1) / Realm.CHUNK_CUBE_SIZE - 1)
+    constructor(x: Long, @Suppress("unused") y: Long, z: Long): this(
+    (if(x >= 0)
+            x / Realm.CHUNK_CUBE_SIZE
+        else
+            (x  + 1) / Realm.CHUNK_CUBE_SIZE - 1).toInt(),
+    (if(z >= 0)
+            z / Realm.CHUNK_CUBE_SIZE
+        else
+            (z  + 1) / Realm.CHUNK_CUBE_SIZE - 1).toInt(),)
 
     val x: Int inline get() = (combined shr 32).toInt()
     val z: Int inline get() = combined.toInt()
