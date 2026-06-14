@@ -4,9 +4,12 @@ package com.losi.create.registry
 import com.koloboke.collect.map.hash.HashObjObjMaps
 import com.losi.create.ModSpace
 import com.losi.create.assets.Blocks
+import com.losi.create.utility.splitCamelCase
+import com.losi.create.world.Realms
 import java.util.HashMap
-import kotlin.reflect.KClass
-import kotlin.reflect.full.isSuperclassOf
+import kotlin.reflect.*
+import kotlin.reflect.full.*
+import kotlin.sequences.forEach
 
 /**A registry for elements of a specified type has two types of keys an identifier and a handler
  *
@@ -19,7 +22,7 @@ class ElementRegister<T: GameElement>
          * Registered:
          *  - [Block][Blocks]*/
         val loadingGameElements = LoadingProcess(name = "Registering Game Elements") {
-            Blocks.registerElements()
+            loadFromObject(Blocks, Blocks.manifest)
         }
 
         /**When all elements are loaded, the registers are closed. This preventing them from being further modified and makes them faster to read*/
@@ -35,6 +38,35 @@ class ElementRegister<T: GameElement>
 
         /**Works as a constructor*/
         inline operator fun <reified T: GameElement> invoke() = ElementRegister(T::class)
+
+        @PublishedApi @JvmSynthetic /**Internal processing logic of [loadFromObject]*/
+        internal fun <S: Any, T: GameElement> loadFromObjectTernal(source: S, objKlass: KClass<S>, tarKlass: KClass<T>) =
+            objKlass.declaredMemberProperties.asSequence().filter {
+                if(it is KMutableProperty<*>)
+                    return@filter false
+
+                if(it.returnType == tarKlass.starProjectedType)
+                    return@filter true
+
+                return@filter it.returnType.isSubtypeOf(tarKlass.starProjectedType)
+            }.map {
+                it.name to (it.get(source)?: return@map null)
+            }.filterNotNull()
+
+        /**Used to conveniently load all elements of [Target] type to a [ElementRegister]*/
+        inline fun <reified Target: GameElement, reified Source: Any> loadFromObject(source: Source, target: ElementRegister<Target>) {
+            val list = loadFromObjectTernal(source, Source::class, Target::class)
+            val space = ModSpace.modules["create"]!!
+            val regexS1 = "[^\\p{L}0-9-_]+".toRegex()
+            val regexS2 = "\\p{Mn}+".toRegex()
+
+            list.forEach {
+                val name = java.text.Normalizer.normalize(
+                    it.first.splitCamelCase().lowercase().replace(regexS1, "-"),
+                    java.text.Normalizer.Form.NFD).replace(regexS2, "")
+                target.register(it.second as Target, space, name)
+            }
+        }
     }
 
     @PublishedApi
