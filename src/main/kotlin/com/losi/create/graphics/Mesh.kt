@@ -403,7 +403,7 @@ class Mesh: GLBound {
         val vertexSize = vertFormat.values.sum().toInt()
 
         @OptIn(ExperimentalUnsignedTypes::class)
-        MemoryStack.stackPush().use { stack ->
+        MemoryStack.create(vertexSize * vertexCount).push().use { stack ->
             val fullBuffer = stack.malloc(vertexSize * vertexCount)
             variables.forEach { (attribute, list) ->
                 val dataSet = Triple(attribute, vertexSize, attribute.type.byteCount.toInt())
@@ -457,7 +457,7 @@ class Mesh: GLBound {
                 }
             }
 
-            glBinds = GLBinds(0, 0, 0).apply  {
+            glBinds = GLBinds(0, glGenBuffers(), vertexCount).apply {
                 cleaner = Mesh.cleaner.register(this) {
                     val onContext = try { glGetError(); true } catch (ignored: NullPointerException) { false }
                     if(onContext)
@@ -465,8 +465,6 @@ class Mesh: GLBound {
                     else
                         OnMainThread.schedule { garbageCollect(this)}
                 }
-                this.vertexCount = vertexCount
-                vbo = glGenBuffers()
                 glBindBuffer(GL_ARRAY_BUFFER, vbo)
                 glBufferData(GL_ARRAY_BUFFER, fullBuffer, GL_STATIC_DRAW)
             }
@@ -491,5 +489,5 @@ class Mesh: GLBound {
      * @property vao Vertex Array, stores bindings to of variables to proper attributes in the model
      * @property vbo Array Buffer, stores the actual data of the model
      * @property vertexCount Stores the count of vertexes in the burned model*/
-    private data class GLBinds(var vao: Int, var vbo: Int, var vertexCount: Int)
+    private data class GLBinds(var vao: Int = 0, var vbo: Int = 0, var vertexCount: Int = 0)
 }

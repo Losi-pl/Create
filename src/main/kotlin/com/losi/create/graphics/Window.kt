@@ -8,14 +8,12 @@ import com.losi.create.utility.unaccessible
 import org.joml.*
 import org.lwjgl.glfw.*
 import org.lwjgl.opengl.GL
-import org.lwjgl.system.MemoryUtil
 import java.awt.*
 import java.awt.image.*
 import java.io.*
 import java.lang.ref.Cleaner
-import java.nio.*
-import java.util.ArrayList
 import org.lwjgl.glfw.GLFW.*
+import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.MemoryUtil.*
 
 /**An OpenGL Window and a Context, contains mechanisms for interaction with the user*/
@@ -29,20 +27,6 @@ class Window: InternalGLContext {
         private var initialized = false
         /**List of recommend sized of an icon*/
         private var ICON_SIZES = listOf(16, 32, 48, 64, 128, 256)
-        /**Takes in an [BufferedImage] and returns a new version of it resized to [size]x[size]
-         * @param image An initial image to be resized
-         * @param size Expected size on an image
-         * @return If the input image is already of an expected size the original will be returned, otherwise a new instance will be created*/
-        private fun scaleImage(image: BufferedImage, size: Int): BufferedImage {
-            if(image.width == size && image.height == size)
-                return image
-            val scaled = image.getScaledInstance(size, size, Image.SCALE_SMOOTH)
-            val result = BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB)
-            val graphic = result.createGraphics()
-            graphic.drawImage(scaled, 0, 0, null)
-            graphic.dispose()
-            return result
-        }
     }
 
     /**For some flimsy thread synchronization*/
@@ -131,47 +115,41 @@ class Window: InternalGLContext {
      * Automatically creates multiple sizes of the icon using [ICON_SIZES] and up to the size of the icon in [InputStream]
      * @param icon Contains the data of the icon to be processed*/
     private fun loadIcon(icon: InputStream) {
-        val image = javax.imageio.ImageIO.read(icon) ?: throw RuntimeException("Unable to parse icon")
-        val buffers = ArrayList<ByteBuffer>()
-        try
-        {
-            @Suppress("LocalVariableName")
-            ICON_SIZES.forEach { SIZE->
-                if(SIZE > image.width || SIZE > image.height)
-                    return@forEach
-
-                val pixBuff = scaleImage(image, SIZE).raster.dataBuffer as DataBufferInt
-                val buffer = memAlloc(SIZE * SIZE * 4)
-                buffers.add(buffer)
-                buffer.order(ByteOrder.nativeOrder())
-
-                pixBuff.data.forEach {
-                    buffer.put((it and 0xFF).toByte())         //R
-                    buffer.put(((it shr 8) and 0xFF).toByte()) //G
-                    buffer.put(((it shr 16) and 0xFF).toByte())//B
-                    buffer.put(((it shr 24) and 0xFF).toByte())//A
-                }
-                buffer.flip()
-            }
-            val images = ArrayList<GLFWImage>()
-            try
-            {
-                buffers.forEach { buffer->
-                    val img = GLFWImage.malloc()
-                    images.add(img)
-                    val size = Math.sqrt(buffer.capacity().toDouble() / 4).toInt()
-                    img.set(size, size, buffer)
-                }
-
-                GLFWImage.malloc(buffers.size).use { set->
-                    for (i in buffers.indices)
-                        set.put(i, images[i])
-                    glfwSetWindowIcon(window, set)
-                }
-            }
-            finally { images.forEach { it.free() }}
+        /**Takes in an [BufferedImage] and returns a new version of it resized to [size]x[size]
+         * @param image An initial image to be resized
+         * @param size Expected size on an image
+         * @return If the input image is already of an expected size the original will be returned, otherwise a new instance will be created*/
+        fun scaleImage(image: BufferedImage, size: Int): BufferedImage {
+            if(image.width == size && image.height == size)
+                return image
+            val scaled = image.getScaledInstance(size, size, Image.SCALE_SMOOTH)
+            val result = BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB)
+            val graphic = result.createGraphics()
+            graphic.drawImage(scaled, 0, 0, null)
+            graphic.dispose()
+            return result
         }
-        finally { buffers.forEach { MemoryUtil.memFree(it) }}
+
+        val image = javax.imageio.ImageIO.read(icon) ?: throw RuntimeException("Unable to parse icon")
+        val usedSizes = ICON_SIZES.filter { it <= image.width && it <= image.height }
+        val stackSize = usedSizes.sumOf { (it * it * 4) + 32 }
+
+        MemoryStack.create(stackSize).push().use { stack ->
+            val buffers = Array(usedSizes.size) { stack.malloc(usedSizes[it] * usedSizes[it] * 4) }
+            usedSizes.forEachIndexed { index, size ->
+                val pixBuff = scaleImage(image, size).raster.dataBuffer as DataBufferInt
+                buffers[index].asIntBuffer().put(pixBuff.data).flip()
+            }
+
+            val full = GLFWImage.malloc(buffers.size, stack)
+            buffers.forEachIndexed { index, buffer ->
+                val img = GLFWImage.malloc(stack)
+                img.set(ICON_SIZES[index], ICON_SIZES[index], buffer)
+                full.put(index, img)
+            }
+
+            glfwSetWindowIcon(window, full)
+        }
     }
 
 
