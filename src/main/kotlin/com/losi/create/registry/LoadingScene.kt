@@ -2,6 +2,7 @@ package com.losi.create.registry
 
 import com.losi.create.assets.*
 import com.losi.create.graphics.*
+import com.losi.create.utility.joml.*
 import org.joml.*
 
 internal class LoadingScene: Scene() {
@@ -23,8 +24,7 @@ internal class LoadingScene: Scene() {
                 setUniform("model", Matrix4f())
                 setUniform("view", Matrix4f())
 
-                val ratio = windowSize.x / windowSize.y.toFloat()
-                setUniform("projection", Matrix4f().setOrtho(-ratio, ratio, -1f, 1f, -1f, 1f))
+                setUniform("projection", Matrix4f().setOrtho(windowSize.x, windowSize.y))
 
                 val texture = findResource("assets/create/textures/blocks/debug3.svg").use { Texture2D(it) }
                 setUniform("image", texture)
