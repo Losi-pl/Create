@@ -123,9 +123,7 @@ abstract class Scene {
     /**The set of per frame logic put in correct order
      * @param timeDelta Time since last call*/
     internal fun update(timeDelta: Float) {
-        val me = this
-
-        me.logicUpdate(timeDelta)
+        logicUpdate(timeDelta)
 
         if(backgroundChanged)
         {
@@ -134,13 +132,12 @@ abstract class Scene {
         }
 
         glClear(ClearTarget.Color and ClearTarget.Depth)
-        me.renderUpdate(timeDelta)
+        renderUpdate(timeDelta)
     }
     /**Used when this scene is being connected to a [Window]*/
     internal fun bindingScene(window: Window) {
-        val me = this
         _win = window
-        me.onSceneInit()
+        onSceneInit()
     }
     /**Used when this scene is being disconnected from a [Window]*/
     internal fun unbindingScene() {
