@@ -50,6 +50,10 @@ sealed interface KeyMods {
         val Alt: KeyMods get() = EnumTarget.Alt
         /**`GLFW_MOD_SUPER`*/
         val Super: KeyMods get() = EnumTarget.Super
+        /**`GLFW_MOD_CAPS_LOCK`*/
+        val CapsLock: KeyMods get() = EnumTarget.CapsLock
+        /**`GLFW_MOD_NUM_LOCK`*/
+        val NumPad: KeyMods get() = EnumTarget.NumPad
 
         val ALL: KeyMods get() = lazy_all.value
         private val lazy_all = lazy {
@@ -73,8 +77,10 @@ sealed interface KeyMods {
     val glfwName: String
     val name: String
 
-    val isShift: Boolean get() = this contains Shift
-    val isControl: Boolean get() = this contains Control
-    val isAlt: Boolean get() = this contains Alt
-    val isSuper: Boolean get() = this contains Super
+    val isShiftPressed: Boolean get() = this contains Shift
+    val isControlPressed: Boolean get() = this contains Control
+    val isAltPressed: Boolean get() = this contains Alt
+    val isSuperPressed: Boolean get() = this contains Super
+    val isCapsLockPressed: Boolean get() = this contains CapsLock
+    val isNumPadPressed: Boolean get() = this contains NumPad
 }
