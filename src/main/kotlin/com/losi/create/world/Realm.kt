@@ -10,9 +10,9 @@ open class Realm : GameElement() {
     }
 
     val world = object: World {
-        override val rangeAlonY: IntRange get() = 0..<WORLD_HEIGHT
-        override val rangeAlonX: IntRange get() = Int.MIN_VALUE..Int.MAX_VALUE
-        override val rangeAlonZ: IntRange get() = Int.MIN_VALUE..Int.MAX_VALUE
+        override val rangeAlonY: IntRange = 0..<WORLD_HEIGHT
+        override val rangeAlonX: IntRange = Int.MIN_VALUE..Int.MAX_VALUE
+        override val rangeAlonZ: IntRange = Int.MIN_VALUE..Int.MAX_VALUE
 
         override fun get(x: Int, y: Int, z: Int): PlacedBlock {
             TODO("Not yet implemented")
