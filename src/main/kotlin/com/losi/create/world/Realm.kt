@@ -1,5 +1,6 @@
 package com.losi.create.world
 
+import com.losi.create.assets.Blocks
 import com.losi.create.registry.GameElement
 
 open class Realm : GameElement() {
@@ -9,18 +10,7 @@ open class Realm : GameElement() {
         const val WORLD_HEIGHT = CHUNK_CUBE_SIZE * CHUNK_CUBE_COUNT
     }
 
-    val world = object: World {
-        override val rangeAlonY: IntRange = 0..<WORLD_HEIGHT
-        override val rangeAlonX: IntRange = Int.MIN_VALUE..Int.MAX_VALUE
-        override val rangeAlonZ: IntRange = Int.MIN_VALUE..Int.MAX_VALUE
+    open fun generateChunk(pos: ChunkPos): Chunk { return Chunk256(PlacedBlock(Blocks.Stone)); }
 
-        override fun get(x: Int, y: Int, z: Int): PlacedBlock {
-            TODO("Not yet implemented")
-        }
-
-        override fun set(x: Int, y: Int, z: Int, block: PlacedBlock) {
-            TODO("Not yet implemented")
-        }
-
-    }
+    val world = RealmWorld(this)
 }
