@@ -57,3 +57,6 @@ fun glClear(target: ClearTarget) = GL11C.glClear(target.gl)
 
 /**`void glViewport(GLint x, GLint y, GLsizei w, GLsizei h)`*/
 fun glViewport(horiz: IntRange, vertical: IntRange) = GL11C.glViewport(horiz.first, vertical.first, horiz.last, vertical.last)
+
+/**`void glFinish(void)`*/
+fun glFinish() = GL11C.glFinish()

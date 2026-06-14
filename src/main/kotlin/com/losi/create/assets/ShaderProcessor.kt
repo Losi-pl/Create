@@ -3,6 +3,7 @@ package com.losi.create.assets
 import com.losi.create.ModSpace
 import com.losi.create.assets.AssetTypeProcessor.Companion.cutExtent
 import com.losi.create.graphics.Shader
+import com.losi.create.graphics.gl.glFinish
 import com.losi.create.registry.ElementIdent
 
 /**A processor responsible for parsing shaders in the resources into assets
@@ -29,6 +30,7 @@ internal object ShaderProcessor: AssetTypeProcessor<Shader>
             val shaderPr = xml?.let { Shader(vert, frag, it) } ?: Shader(vert, frag)
             shaders[shader] = shaderPr
         }
+        glFinish()
     }
 
     override fun clearAssets() {

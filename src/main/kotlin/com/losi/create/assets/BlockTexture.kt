@@ -57,6 +57,7 @@ value class BlockTexture private constructor(val index: UInt){
                     map[identity.cutExtent()] = BlockTexture(count)
                 }
             }
+            glFinish()
             atlasMap = map.toMap()
         }
 

@@ -62,6 +62,13 @@ internal class LoadingScene: Scene() {
         }
         else if(key isKey KeyCode.D)
             shader.release()
+
+        if(AssetManager.isLoaded){
+            if(key isKey KeyCode.E)
+                shader.setUniform("useAtlas", true)
+            if(key isKey KeyCode.Q)
+                shader.setUniform("useAtlas", false)
+        }
     }
 
     override fun logicUpdate(timeDelta: Float) {
