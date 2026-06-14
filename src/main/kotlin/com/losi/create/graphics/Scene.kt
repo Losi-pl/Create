@@ -7,6 +7,7 @@ import org.joml.Vector2i
 import java.awt.Color
 import java.io.InputStream
 
+/**A base for containing dynamic logic for the game not related to underlying mechanisms of the window itself*/
 abstract class Scene {
     /**The window this [Scene] is currently connected to*/
     private var _win: Window? = null
