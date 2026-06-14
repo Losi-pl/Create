@@ -20,9 +20,11 @@ class ElementRegister<T: GameElement>
         /**This is the process of registering all game elements into the registers to be used
          *
          * Registered:
-         *  - [Block][Blocks]*/
+         *  - [Blocks][Blocks] -> [Block][com.losi.create.assets.bases.Block]
+         *  - [Realms][Realms] -> [Realm][com.losi.create.world.Realm]*/
         val loadingGameElements = LoadingProcess(name = "Registering Game Elements") {
             loadFromObject(Blocks, Blocks.manifest)
+            loadFromObject(Realms, Realms.manifest)
         }
 
         /**When all elements are loaded, the registers are closed. This preventing them from being further modified and makes them faster to read*/
