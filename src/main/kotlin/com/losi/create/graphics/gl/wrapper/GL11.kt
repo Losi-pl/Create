@@ -60,3 +60,5 @@ fun glViewport(horiz: IntRange, vertical: IntRange) = GL11C.glViewport(horiz.fir
 
 /**`void glFinish(void)`*/
 fun glFinish() = GL11C.glFinish()
+
+//TODO: Investigate glFenceSync
