@@ -222,8 +222,6 @@ class Window: InternalGLContext {
                 usedScene = scene
             }
 
-            glClear(ClearTarget.Color and ClearTarget.Depth)
-
             usedScene?.update(delta)
 
             glfwSwapBuffers(window)
