@@ -62,6 +62,7 @@ class ElementRegister<T: GameElement>
     {
         check(rawElementsByName != null) { "Register has been closed" }
         require(!element.isRegistered) { "Element was already registered" }
+        require("[^a-zA-Z0-9-_]+".toRegex().find(name) == null) { "Name is using illegal characters, Allowed characters [A-Z] [a-z] [0-9] '_' '-'" }
 
         rawElementsByName?.putIfAbsent(ElementIdent(space, name), element)?.run {
             throw IllegalArgumentException("Element \"${space.identity}:$name\" already exists")

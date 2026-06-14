@@ -39,7 +39,10 @@ object Blocks {
         val regex = "[^\\p{L}0-9-_]+".toRegex()
 
         list.forEach {
-            manifest.register(it.second, space, it.first.splitCamelCase().lowercase().replace(regex, "-"))
+            val name = java.text.Normalizer.normalize(
+                it.first.splitCamelCase().lowercase().replace(regex, "-"),
+                java.text.Normalizer.Form.NFD).replace("\\p{Mn}+".toRegex(), "")
+            manifest.register(it.second, space, name)
         }
     }
 }
