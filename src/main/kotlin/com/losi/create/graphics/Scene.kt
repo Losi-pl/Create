@@ -80,6 +80,11 @@ abstract class Scene {
      * @param timeDelta Time since last call*/
     open fun renderUpdate(timeDelta: Float) { }
 
+    /**Called when the window is resized
+     * @param width The new width of the window
+     * @param height The new height of the window*/
+    open fun onResize(width: Int, height: Int) { }
+
     /**Creates a thread that runs the specified block of code. This is a variation for [Scene]'s automatically connecting with the OpenGL
      * @param start if `true`, the thread is immediately started.
      * @param isDaemon if `true`, the thread is created as a daemon thread. The Java Virtual Machine exits when the only threads running are all daemon threads.

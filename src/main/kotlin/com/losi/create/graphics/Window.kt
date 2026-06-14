@@ -178,6 +178,7 @@ class Window: InternalGLContext {
 
     /**Used as an event for when the window was resized*/
     private fun onResize(width: Int, height: Int) {
+        usedScene?.onResize(width, height)
         glViewport(0..width, 0..height)
         _size?.x = width; _size?.y = height
     }

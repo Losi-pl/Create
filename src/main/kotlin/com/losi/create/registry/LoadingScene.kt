@@ -70,6 +70,10 @@ internal class LoadingScene: Scene() {
         }
     }
 
+    override fun onResize(width: Int, height: Int) {
+        shader.setUniform("projection", Matrix4f().setOrtho(width, height))
+    }
+
     override fun logicUpdate(timeDelta: Float) {
         if(!atlasUsed && AssetManager.isLoaded)
         {
