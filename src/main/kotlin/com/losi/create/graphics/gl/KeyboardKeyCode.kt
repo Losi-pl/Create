@@ -262,10 +262,10 @@ enum class KeyboardKeyCode(val glfw: Int, val glfwName: String) {
         init {
             OnMainThread.query {
                 entries.forEach {
-                if(it.glfw == GLFW.GLFW_KEY_UNKNOWN) {
+                if(it.glfw == GLFW.GLFW_KEY_UNKNOWN)
                     it.scan_code = 0
-                }
-                it.scan_code = GLFW.glfwGetKeyScancode(it.glfw)
+                else
+                    it.scan_code = GLFW.glfwGetKeyScancode(it.glfw)
             }}
         }
     }
