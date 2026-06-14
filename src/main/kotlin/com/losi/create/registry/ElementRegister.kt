@@ -1,10 +1,12 @@
 @file:Suppress("unused")
 package com.losi.create.registry
 
-import com.koloboke.collect.map.hash.HashObjObjMaps
+import com.koloboke.collect.map.LongObjMap
+import com.koloboke.collect.map.hash.*
+import com.koloboke.collect.set.hash.HashLongSets
 import com.losi.create.ModSpace
 import com.losi.create.assets.Blocks
-import com.losi.create.utility.splitCamelCase
+import com.losi.create.utility.*
 import com.losi.create.world.Realms
 import java.util.HashMap
 import kotlin.reflect.*
@@ -34,6 +36,17 @@ class ElementRegister<T: GameElement>
             }
         }
 
+        /**Loads Uuid's for [all] elements in the game
+         *
+         * It is meant for when the game gets to a stage where saves can be made and is meant for more compact data storage*/
+        internal fun loadElementUuids(uuids: Sequence<Pair<String, Sequence<Pair<String, ULong>>>>) {
+            val toAssign = all.toMutableMap()
+            uuids.forEach { (target, uuids) ->
+                val current = toAssign.findFirst { it.key.java.typeName == target }?.apply { toAssign.remove(this.key) }.orElse { return@forEach }.value
+                current.assignUuids(uuids)
+            }
+            toAssign.forEach { (_, register) -> register.assignUuids(sequenceOf()) }
+        }
 
         /**Al created registers regardles of where*/
         private val all = mutableMapOf<KClass<*>, ElementRegister<*>>()
@@ -81,11 +94,11 @@ class ElementRegister<T: GameElement>
     }
 
     /**Unfinished map of elements in the register*/
-    private var rawElementsByName: HashMap<ElementIdent, T>? = HashMap<ElementIdent, T>()
+    private var rawElementsByName: MutableMap<ElementIdent, T>? = HashMap<ElementIdent, T>()
     /**Finished and optimized for read only map of elements*/
     private var elementsByName: Map<ElementIdent, T>? = null
     /**Map of elements by the handler optimized for efficient reading from storage and space usage*/
-    private var elementsById: Map<ULong, T>? = null
+    private var elementsByUuid: LongObjMap<T>? = null
     /**For thread synchronization*/
     private val sync = Any()
     /**Add a new element the registry
@@ -125,4 +138,27 @@ class ElementRegister<T: GameElement>
     /**The count of elements registered in this register*/
     val count: Int get() = elementsByName?.count() ?: synchronized(sync)
         { rawElementsByName?.count() ?: elementsByName?.count() ?: throw Error("Register is compromised") }
+    /**Loads uuid's of all elements from the [Sequence] and loads them to the registry */
+    private fun assignUuids(ids: Sequence<Pair<String, ULong>>): Set<Pair<String, ULong>> {
+        val used = HashLongSets.newMutableSet()
+        fun findFree(): ULong { var l = ULong.MAX_VALUE
+            while(true) { if(used.add((++l).toLong())) return l }
+        }
+
+        val unknown = mutableSetOf<Pair<String, ULong>>()
+        val elements = elementsByName?: rawElementsByName!!
+        elementsByUuid = HashLongObjMaps.newImmutableMap { yield ->
+            ids.forEach { id ->
+                used.add(id.second.toLong())
+                elements[ElementIdent(id.first)]?.apply { uuid = id.second; yield(id.second.toLong(), this) }
+                    .orElse { unknown.add(id) }
+            }
+            elements.asSequence().filter { !it.value.hasUuid }.forEach {
+                val next = findFree()
+                it.value.uuid = next
+                yield(next.toLong(), it.value)
+            }
+        }
+        return unknown
+    }
 }

@@ -32,6 +32,11 @@ abstract class GameElement
     /**A flag, telling if the element was registered*/
     @get:JvmName("isRegistered")
     val isRegistered: Boolean get() = _name != null
+    /**A flag telling if this element already has created Uuid.
+     *
+     * Uuid's are only assigned when the game session starts*/
+    @get:JvmName("hasUuid")
+    val hasUuid: Boolean get() = _uuid != null
 
     /**This event is called when this element is registered*/
     open fun onRegister() { }
