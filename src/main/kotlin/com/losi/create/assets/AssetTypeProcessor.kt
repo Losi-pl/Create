@@ -3,9 +3,7 @@ package com.losi.create.assets
 import com.koloboke.collect.set.hash.HashLongSets
 import com.losi.create.ModSpace
 import com.losi.create.registry.ElementIdent
-import com.losi.create.utility.autoClosable
-import com.losi.create.utility.forceAdd
-import com.losi.create.utility.longHashCode
+import com.losi.create.utility.*
 
 /**The interface used to create a mechanism used in [AssetManager] to process objects of type [T]*/
 interface AssetTypeProcessor<T>
@@ -59,7 +57,7 @@ interface AssetTypeProcessor<T>
             {
                 val map = resources[order[i]]
                 map?.forEach { (space, strings) ->
-                    strings.forEach { hash.forceAdd(Pair(space, it).longHashCode()) }
+                    strings.forEach { hash.add(Pair(space, it).longHashCode()) }
                 }
             }
             return@lazy hash.size
@@ -120,7 +118,7 @@ interface AssetTypeProcessor<T>
                     map?.forEach { (space, strings) ->
                         strings.forEach {
                             val pair = Pair(space, it)
-                            if(hash.forceAdd(pair.longHashCode()))
+                            if(hash.add(pair.longHashCode()))
                                 yield(java.util.Map.entry(pair, order[i]))
                         }
                     }
