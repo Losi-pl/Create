@@ -51,8 +51,10 @@ abstract class Scene {
      * `Press`ed, `Releas`ed, `Repeat`ed*/
     typealias KeyAction = KeyboardAction
 
-    /**Called when the scene is first bound to the window used primarily to change the window specific settings or load Scene content if not done before*/
+    /**Called when the [Scene] is first bound to the window used primarily to change the window specific settings or load Scene content if not done before*/
     open fun onSceneInit() { }
+    /**Called when the [Scene] is unbound from the window, used primarily to dispose of all unnecessary elements of the window without the need to wait for garbage collection*/
+    open fun onSceneDispose() { }
     /**Called when any keyboard related action is taken
      *
      * `Key Pressed`, `Key Released`, `Key Double Pressed`
@@ -144,6 +146,7 @@ abstract class Scene {
     }
     /**Used when this scene is being disconnected from a [Window]*/
     internal fun unbindingScene() {
+        onSceneDispose()
         _win = null
     }
     /**Marks this window to close after this frame*/

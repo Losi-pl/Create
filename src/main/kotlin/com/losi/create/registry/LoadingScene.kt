@@ -58,6 +58,11 @@ internal class LoadingScene: Scene() {
         }
     }
 
+    override fun onSceneDispose() {
+        mesh.release()
+        shader.release()
+    }
+
     override fun onKeyDown(key: Key, mods: KeyMods) {
         if(key isKey KeyCode.Escape)
             close()
