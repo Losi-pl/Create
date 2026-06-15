@@ -38,11 +38,10 @@ class GameSession: Scene() {
         //Placeholder
         ElementRegister.loadElementUuids(sequenceOf())
 
+        val projection = Matrix4f().perspectiveLH(Math.toRadians(45f), windowSize.x / windowSize.y.toFloat(), 0.1f, 100f)
+        val view = Matrix4f().lookAtLH(Vector3f(0f, 0f, -10f), Vector3f(0f, 0f, 0f), Vector3f(0f, 1f, 0f))
 
-        val perspective = Matrix4f().perspective(Math.toRadians(45f), windowSize.x / windowSize.y.toFloat(), 0.1f, 100f)
-        val view = Matrix4f().lookAt(Vector3f(0f, 0f, 10f), Vector3f(0f, 0f, 0f), Vector3f(0f, 1f, 0f))
-
-        shader.setUniform("projection", perspective)
+        shader.setUniform("projection", projection)
         shader.setUniform("view", view)
         shader.setUniform("model", Matrix4f())
     }
