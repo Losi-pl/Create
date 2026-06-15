@@ -10,7 +10,7 @@ open class Realm : GameElement() {
         const val WORLD_HEIGHT = CHUNK_CUBE_SIZE * CHUNK_CUBE_COUNT
     }
 
-    open fun generateChunk(pos: ChunkPos): Chunk { return Chunk256(PlacedBlock(Blocks.Stone)); }
+    open fun generateChunk(pos: ChunkPos): Chunk { return Chunk256(PlacedBlock(Blocks.Air)); }
 
     val world = RealmWorld(this)
 }

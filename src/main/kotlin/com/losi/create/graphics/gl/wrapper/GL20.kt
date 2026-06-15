@@ -256,3 +256,9 @@ fun glUniform4(location: UniformLocation, value: Vector4f) = GL20C.glUniform4f(l
 fun glUniform4(location: UniformLocation, v1: Float, v2: Float, v3: Float, v4: Float) = GL20C.glUniform4f(location.handle, v1, v2, v3, v4)
 
 //endregion
+
+
+fun glVertexAttribPointer(location: AttributeLocation, type: GLSLVar, stride: Int, offsetr: Long) {
+    GL20C.glEnableVertexAttribArray(location.handle)
+    GL20C.glVertexAttribPointer(location.handle, type.primitivesCount.toInt(), type.primitive.gl, false, stride, offsetr)
+}

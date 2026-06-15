@@ -1,11 +1,9 @@
 package com.losi.create.graphics
 
-import com.losi.create.graphics.gl.GLBound
-import com.losi.create.graphics.gl.GLSLVar
+import com.losi.create.graphics.gl.*
 import com.losi.create.math.collections.*
 import com.losi.create.utility.*
 import org.joml.*
-import org.lwjgl.opengl.GL40.*
 import org.lwjgl.system.MemoryStack
 import java.lang.ref.Cleaner
 
@@ -71,8 +69,8 @@ class Mesh: GLBound {
         /**The method used to dissolve the OpenGL data of the model releasing that space in GPU
          * @param data The bindings to specific objects in OpenGL*/
         private fun garbageCollect(data: GLBinds) {
-            glDeleteBuffers(data.vbo)
-            glDeleteVertexArrays(data.vao)
+            glDeleteBuffer(data.vbo)
+            glDeleteVertexArray(data.vao)
         }
     }
 
@@ -102,8 +100,8 @@ class Mesh: GLBound {
         glBindVertexArray(bin.vao)
         shader.use()
         shader.assignObjects()
-        glDrawArrays(GL_TRIANGLES, 0, bin.vertexCount)
-        glBindVertexArray(0)
+        glDrawArrays(DrawMode.Triangles, bin.vertexCount)
+        glUnbindVertexArray()
     }
 
     /**Finds the attribute by its name
@@ -458,30 +456,27 @@ class Mesh: GLBound {
                 }
             }
 
-            glBinds = GLBinds(0, glGenBuffers(), vertexCount).apply {
-                cleaner = Mesh.cleaner.register(this) {
-                    val onContext = try { glGetError(); true } catch (ignored: NullPointerException) { false }
-                    if(onContext)
+            glBinds = GLBinds(VertexArray.NONE, glGenBuffer(BufferType.Array), vertexCount.toUInt()).apply {
+                cleaner = Mesh.cleaner.register(this@Mesh) {
+                    if(glTest())
                         garbageCollect(this)
                     else
                         OnMainThread.schedule { garbageCollect(this)}
                 }
-                glBindBuffer(GL_ARRAY_BUFFER, vbo)
-                glBufferData(GL_ARRAY_BUFFER, fullBuffer, GL_STATIC_DRAW)
+                glBindBuffer(vbo)
+                glBufferData(BufferType.Array, fullBuffer, BufferUsage.StaticDraw)
             }
         }
 
         glBinds?.let { bind ->
-            bind.vao = glGenVertexArrays()
+            bind.vao = glGenVertexArray()
             glBindVertexArray(bind.vao)
             shader.use()
             shader.attributes.values.forEach {
-                glEnableVertexAttribArray(it.location.handle)
-                glVertexAttribPointer(it.location.handle, it.type.primitivesCount.toInt(),
-                    it.type.primitive.gl, false,
-                    vertexSize, it.offset.toLong())
+                glVertexAttribPointer(it.location, it.type, vertexSize, it.offset.toLong())
             }
-            glBindVertexArray(0)
+            Shader.release()
+            glUnbindVertexArray()
         }
     }
     /**A check if there is a burned model connected to this Mesh*/
@@ -491,5 +486,5 @@ class Mesh: GLBound {
      * @property vao Vertex Array, stores bindings to of variables to proper attributes in the model
      * @property vbo Array Buffer, stores the actual data of the model
      * @property vertexCount Stores the count of vertexes in the burned model*/
-    private data class GLBinds(var vao: Int = 0, var vbo: Int = 0, var vertexCount: Int = 0)
+    private data class GLBinds(var vao: VertexArray = VertexArray.NONE, var vbo: BufferObject, var vertexCount: UInt)
 }

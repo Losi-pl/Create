@@ -62,3 +62,9 @@ fun glViewport(horiz: IntRange, vertical: IntRange) = GL11C.glViewport(horiz.fir
 fun glFinish() = GL11C.glFinish()
 
 //TODO: Investigate glFenceSync
+
+/**`void glDrawArrays(GLenum mode, GLint first, GLsizei count)`*/
+fun glDrawArrays(mode: DrawMode, start: UInt, count: UInt) = GL11C.glDrawArrays(mode.gl, start.toInt(), count.toInt())
+
+/**`void glDrawArrays(GLenum mode, GLint first, GLsizei count)`*/
+fun glDrawArrays(mode: DrawMode, count: UInt) = GL11C.glDrawArrays(mode.gl, 0, count.toInt())
