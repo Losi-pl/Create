@@ -16,7 +16,7 @@ internal class LoadingScene: Scene() {
 
     override fun onSceneInit() {
         findResource("Icon.ico").use { icon = it }
-        title = "Create: Loading..."
+        title = "Create: Loading"
 
 
         shader = run {
