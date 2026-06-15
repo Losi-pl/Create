@@ -122,8 +122,13 @@ class ElementRegister<T: GameElement>
     }
     /**Looks for an element by [name] in the register*/
     fun retrieve(name: String): T =
-        elementsByName?.let { return it[ElementIdent(name)] ?: throw IllegalArgumentException("Element $name not found") } ?: synchronized(sync)
+        elementsByName?.let { it[ElementIdent(name)] ?: throw IllegalArgumentException("Element $name not found") } ?: synchronized(sync)
         { rawElementsByName?.get(ElementIdent(name)) ?: throw IllegalArgumentException("Element $name not found") }
+    /**Looks for an element by [uuid] in the register*/
+    fun retrieve(uuid: ULong): T =
+        elementsByUuid.orElse { throw IllegalStateException("Game session has not yes been started") }.get(uuid.toLong())?:
+            throw IllegalArgumentException("Element with uuid:$uuid not found")
+
     /**A flag, is the register completed*/
     val isCompleted: Boolean get() = elementsByName != null
     /**Finalizes the registry, making it impossible to register new elements in it*/
