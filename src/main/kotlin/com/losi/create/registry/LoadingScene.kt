@@ -11,6 +11,7 @@ internal class LoadingScene: Scene() {
     lateinit var mesh: Mesh
     var atlasUsed = false
     lateinit var loadingThread: Thread
+    var loadingError: Throwable? = null
 
     override fun onSceneInit() {
         findResource("Icon.ico").use { icon = it }
@@ -50,11 +51,14 @@ internal class LoadingScene: Scene() {
             flushBuffers()
         }
 
-        loadingThread = thread {
+        loadingThread = thread(start = false) {
             RegisterOrder.registerAssetPrecesses()
             RegisterOrder.precesses().forEach {
                 it.first.run()
             }
+        }.apply {
+            uncaughtExceptionHandler = { _, e -> loadingError = e }
+            start()
         }
     }
 
@@ -91,7 +95,10 @@ internal class LoadingScene: Scene() {
         }
 
         if(!loadingThread.isAlive)
+        {
+            loadingError?.printStackTrace(System.err)
             goTo(GameSession())
+        }
     }
 
     override fun renderUpdate(timeDelta: Float) {
