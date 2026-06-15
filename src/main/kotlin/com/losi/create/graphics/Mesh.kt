@@ -103,6 +103,7 @@ class Mesh: GLBound {
         shader.use()
         shader.assignObjects()
         glDrawArrays(GL_TRIANGLES, 0, bin.vertexCount)
+        glBindVertexArray(0)
     }
 
     /**Finds the attribute by its name
@@ -480,6 +481,7 @@ class Mesh: GLBound {
                     it.type.primitive.gl, false,
                     vertexSize, it.offset.toLong())
             }
+            glBindVertexArray(0)
         }
     }
     /**A check if there is a burned model connected to this Mesh*/
