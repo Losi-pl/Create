@@ -1,7 +1,6 @@
 @file:Suppress("unused")
 package com.losi.create.utility
 
-import com.koloboke.function.LongObjConsumer
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
 import kotlin.contracts.ExperimentalContracts
@@ -94,5 +93,3 @@ fun <T> T?.after(action: () -> Unit): Unit? {
     }
     return if(this != null) action() else null
 }
-/**Mostly because I can*/ @Suppress("NOTHING_TO_INLINE")
-inline operator fun <T> LongObjConsumer<T>.invoke(key: Long, value: T) = this.accept(key, value)

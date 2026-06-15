@@ -1,14 +1,14 @@
 @file:Suppress("unused")
 package com.losi.create.registry
 
-import com.koloboke.collect.map.LongObjMap
-import com.koloboke.collect.map.hash.*
-import com.koloboke.collect.set.hash.HashLongSets
 import com.losi.create.ModSpace
 import com.losi.create.assets.Blocks
 import com.losi.create.utility.*
 import com.losi.create.world.Realms
-import java.util.HashMap
+import org.eclipse.collections.api.factory.primitive.LongObjectMaps
+import org.eclipse.collections.api.map.ImmutableMap
+import org.eclipse.collections.api.map.primitive.ImmutableLongObjectMap
+import org.eclipse.collections.impl.map.mutable.UnifiedMap
 import kotlin.reflect.*
 import kotlin.reflect.full.*
 import kotlin.sequences.forEach
@@ -94,11 +94,11 @@ class ElementRegister<T: GameElement>
     }
 
     /**Unfinished map of elements in the register*/
-    private var rawElementsByName: MutableMap<ElementIdent, T>? = HashMap<ElementIdent, T>()
+    private var rawElementsByName: UnifiedMap<ElementIdent, T>? = UnifiedMap.newMap()
     /**Finished and optimized for read only map of elements*/
-    private var elementsByName: Map<ElementIdent, T>? = null
+    private var elementsByName: ImmutableMap<ElementIdent, T>? = null
     /**Map of elements by the handler optimized for efficient reading from storage and space usage*/
-    private var elementsByUuid: LongObjMap<T>? = null
+    private var elementsByUuid: ImmutableLongObjectMap<T>? = null
     /**For thread synchronization*/
     private val sync = Any()
     /**Add a new element the registry
@@ -137,33 +137,35 @@ class ElementRegister<T: GameElement>
         if(isCompleted)
             return
 
-        elementsByName = HashObjObjMaps.newImmutableMap(rawElementsByName!!)
+        elementsByName = rawElementsByName!!.toImmutable()
         rawElementsByName = null
     }
     /**The count of elements registered in this register*/
     val count: Int get() = elementsByName?.count() ?: synchronized(sync)
-        { rawElementsByName?.count() ?: elementsByName?.count() ?: throw Error("Register is compromised") }
+        { rawElementsByName?.size ?: elementsByName?.size() ?: throw Error("Register is compromised") }
     /**Loads uuid's of all elements from the [Sequence] and loads them to the registry */
     private fun assignUuids(ids: Sequence<Pair<String, ULong>>): Set<Pair<String, ULong>> {
-        val used = HashLongSets.newMutableSet()
+        val used = org.eclipse.collections.api.factory.primitive.LongSets.mutable.empty()
         fun findFree(): ULong { var l = ULong.MAX_VALUE
             while(true) { if(used.add((++l).toLong())) return l }
         }
 
         val unknown = mutableSetOf<Pair<String, ULong>>()
         val elements = elementsByName?: rawElementsByName!!
-        elementsByUuid = HashLongObjMaps.newImmutableMap { yield ->
+
+        val byUuid = LongObjectMaps.mutable.of<T>().apply {
             ids.forEach { id ->
                 used.add(id.second.toLong())
-                elements[ElementIdent(id.first)]?.apply { uuid = id.second; yield(id.second.toLong(), this) }
+                elements[ElementIdent(id.first)]?.apply { uuid = id.second; put(uuid.toLong(), this) }
                     .orElse { unknown.add(id) }
             }
-            elements.asSequence().filter { !it.value.hasUuid }.forEach {
+            elements.valuesView().asSequence().filter { !it.hasUuid }.forEach {
                 val next = findFree()
-                it.value.uuid = next
-                yield(next.toLong(), it.value)
+                it.uuid = next
+                put(next.toLong(), it)
             }
         }
+        elementsByUuid = LongObjectMaps.immutable.ofAll(byUuid)
         return unknown
     }
 }

@@ -1,8 +1,8 @@
 @file:Suppress("unused")
 package com.losi.create.world
 
-import com.koloboke.collect.map.hash.HashLongObjMaps
 import com.losi.create.assets.Blocks
+import org.eclipse.collections.api.factory.primitive.LongObjectMaps
 
 /**The variant of [World] used by the [Realm]'s*/
 class RealmWorld: World {
@@ -21,11 +21,11 @@ class RealmWorld: World {
 
     internal constructor(realm: Realm) { this.realm = realm; }
 
-    private val chunks = HashLongObjMaps.newMutableMap<Chunk>()
+    private val chunks = LongObjectMaps.mutable.of<Chunk>()
 
     fun getChunk(pos: ChunkPos) = chunks[pos.combined]
     fun isChungLoaded(pos: ChunkPos): Boolean = chunks.containsKey(pos.combined)
-    fun loadChunk(pos: ChunkPos) = chunks[pos.combined]?: realm.generateChunk(pos).apply { chunks[pos.combined] = this }
+    fun loadChunk(pos: ChunkPos) = chunks[pos.combined]?: realm.generateChunk(pos).apply { chunks.put(pos.combined, this) }
     fun unloadChunk(pos: ChunkPos) = chunks.remove(pos.combined) != null
 
     override val rangeAlonX get() = RealmWorld.rangeAlonX

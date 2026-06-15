@@ -79,9 +79,9 @@ dependencies {
     // =================== Annotations ===================
     compileOnly("org.jetbrains:annotations:26.0.2")
 
-    // =================== Koloboke ===================
-    compileOnly("com.koloboke:koloboke-api-jdk8:1.0.0")
-    runtimeOnly("com.koloboke:koloboke-impl-jdk8:1.0.0")
+    // =================== Collections ===================
+    implementation("org.eclipse.collections:eclipse-collections-api:13.0.0")
+    implementation("org.eclipse.collections:eclipse-collections:13.0.0")
 
     // =================== TwelveMonkeys ===================
     //https://github.com/haraldk/TwelveMonkeys

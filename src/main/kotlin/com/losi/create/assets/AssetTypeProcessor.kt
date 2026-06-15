@@ -1,9 +1,9 @@
 package com.losi.create.assets
 
-import com.koloboke.collect.set.hash.HashLongSets
 import com.losi.create.ModSpace
 import com.losi.create.registry.ElementIdent
 import com.losi.create.utility.*
+import org.eclipse.collections.api.factory.primitive.LongSets
 
 /**The interface used to create a mechanism used in [AssetManager] to process objects of type [T]*/
 interface AssetTypeProcessor<T>
@@ -52,7 +52,7 @@ interface AssetTypeProcessor<T>
      * @param order the order of relevance of the resources, can  be obtained from [getResourceOrder]*/
     fun Resources.overlayed(order: List<ResourceSpace>) = this.let { resources-> object : Map<Pair<ModSpace, String>, ResourceSpace> {
         val lazySize = lazy {
-            val hash = HashLongSets.newMutableSet()
+            val hash = LongSets.mutable.empty()
             for(i in order.size-1 downTo 0)
             {
                 val map = resources[order[i]]
@@ -60,7 +60,7 @@ interface AssetTypeProcessor<T>
                     strings.forEach { hash.add(Pair(space, it).longHashCode()) }
                 }
             }
-            return@lazy hash.size
+            return@lazy hash.size()
         }
         val lazyIsEmpty = lazy {
             if(lazySize.isInitialized())
@@ -111,7 +111,7 @@ interface AssetTypeProcessor<T>
                 return false
             }
             override fun iterator(): Iterator<Map.Entry<Pair<ModSpace, String>, ResourceSpace>> = iterator {
-                val hash = HashLongSets.newMutableSet()
+                val hash = LongSets.mutable.empty()
                 for(i in order.size-1 downTo 0)
                 {
                     val map = resources[order[i]]
