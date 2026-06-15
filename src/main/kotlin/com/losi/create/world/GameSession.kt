@@ -9,7 +9,7 @@ import java.awt.Color
 
 class GameSession: Scene() {
 
-    val shader = AssetManager.get<Shader>("create:single-texture").orElse { throw RuntimeException("Required shader not found (create:single-texture)") }
+    val shader = AssetManager.get<Shader>("create:blocks/single-texture").orElse { throw RuntimeException("Required shader not found (create:single-texture)") }
     val mesh = Mesh(shader).apply {
         setAttribute("pos", arrayOf(
             Vector3f(-1f,1f, 0f),
