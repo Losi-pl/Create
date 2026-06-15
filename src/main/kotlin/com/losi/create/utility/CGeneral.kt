@@ -67,7 +67,9 @@ private val camelCaseRegex = "(?<=[a-z])(?=[A-Z])".toRegex()
  * `ItsAnSentence` -> `Its An Sentence`*/
 fun String.splitCamelCase()= split(camelCaseRegex).joinToString(separator = " ")
 
-/**An overload of [require][kotlin.require] that can be used in a line of code*/
+/**Throws an [IllegalArgumentException] with the result of calling [lazyMessage] if the value is false.
+ *
+ * An overload of [require][kotlin.require] that can be used in a line of code*/
 @OptIn(ExperimentalContracts::class)
 inline fun <T> T.require(value: Boolean, lazyMessage: () -> Any): T {
     contract {

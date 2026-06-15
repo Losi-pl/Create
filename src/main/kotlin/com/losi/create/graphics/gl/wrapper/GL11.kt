@@ -65,6 +65,24 @@ fun glFinish() = GL11C.glFinish()
 
 /**`void glDrawArrays(GLenum mode, GLint first, GLsizei count)`*/
 fun glDrawArrays(mode: DrawMode, start: UInt, count: UInt) = GL11C.glDrawArrays(mode.gl, start.toInt(), count.toInt())
-
 /**`void glDrawArrays(GLenum mode, GLint first, GLsizei count)`*/
 fun glDrawArrays(mode: DrawMode, count: UInt) = GL11C.glDrawArrays(mode.gl, 0, count.toInt())
+
+/**`void glDrawElements(GLenum mode, GLsizei count, GLenum type, void const * indices)`*/
+fun glDrawElements(mode: DrawMode, type: GLSLVar, start: ULong, count: UInt) = GL11C.glDrawElements(mode.gl, count.toInt(), type.let {
+    when (it) {
+        GLSLVar.UByte -> it
+        GLSLVar.UShort -> it
+        GLSLVar.UInt -> it
+        GLSLVar.ULong -> it
+        else -> throw IllegalArgumentException("")
+    }}.gl, start.toLong())
+/**`void glDrawElements(GLenum mode, GLsizei count, GLenum type, void const * indices)`*/
+fun glDrawElements(mode: DrawMode, type: GLSLVar, count: UInt) = GL11C.glDrawElements(mode.gl, count.toInt(), type.let {
+    when (it) {
+        GLSLVar.UByte -> it
+        GLSLVar.UShort -> it
+        GLSLVar.UInt -> it
+        GLSLVar.ULong -> it
+        else -> throw IllegalArgumentException("")
+    }}.gl, 0)

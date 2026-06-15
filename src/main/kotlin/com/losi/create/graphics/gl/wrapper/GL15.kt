@@ -15,6 +15,11 @@ fun glDeleteBuffer(buffer: BufferObject) = GL15C.glDeleteBuffers(buffer.handle.t
 /**`void glBindBuffer(GLenum target, GLuint buffer)`*/
 fun glBindBuffer(buffer: BufferObject) = GL15C.glBindBuffer(buffer.type.gl, buffer.handle.toInt())
 
+/**`void glBindBuffer(GLenum target, GLuint buffer)`*/
+fun glUnbindBuffer(buffer: BufferObject) = GL15C.glBindBuffer(buffer.type.gl, 0)
+/**`void glBindBuffer(GLenum target, GLuint buffer)`*/
+fun glUnbindBuffer(target: BufferType) = GL15C.glBindBuffer(target.gl, 0)
+
 /**`void glBufferData(GLenum target, GLsizeiptr size, void const * data, GLenum usage)`*/
 fun glBufferData(target: BufferType, data: ByteBuffer, usage: BufferUsage) = GL15C.glBufferData(target.gl, data, usage.gl)
 /**`void glBufferData(GLenum target, GLsizeiptr size, void const * data, GLenum usage)`*/

@@ -13,19 +13,19 @@ class GameSession: Scene() {
     val mesh = Mesh(shader).apply {
         setAttribute("pos", arrayOf(
             Vector3f(-1f,1f, 0f),
-            Vector3f(1f, -1f,0f),
-            Vector3f(-1f,-1f,0f),
-            Vector3f(1f, 1f, 0f),
-            Vector3f(1f, -1f,0f),
-            Vector3f(-1f,1f, 0f)))
+            Vector3f(1f, 1f,0f),
+            Vector3f(1f,-1f,0f),
+            Vector3f(-1f, -1f, 0f)))
 
         setAttribute("uvPos", arrayOf(
             Vector2f(0f, 1f),
-            Vector2f(1f, 0f),
-            Vector2f(0f, 0f),
             Vector2f(1f, 1f),
             Vector2f(1f, 0f),
-            Vector2f(0f, 1f)))
+            Vector2f(0f, 0f)))
+
+        triangles(arrayOf(
+                  0,1,3,
+                  1,2,3))
 
         burnModel()
         flushBuffers()

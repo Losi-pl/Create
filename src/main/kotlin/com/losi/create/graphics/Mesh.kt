@@ -81,6 +81,10 @@ class Mesh: GLBound {
     /**A map of all attributes specified in the [Shader] of this Mesh and the content of those attributes*/
     private val variables: MutableMap<Shader.Attribute, Any?>
     private var cleaner: Cleaner.Cleanable? = null
+    /**Holds a list of vertexes if its null it is assumed that it's not specified and to draw using the Array mode*/
+    private var elements: Any? = null
+    /**Specifies in which mode this mesh is supposed to be drawn*/
+    private var drawMode = DrawMode.Triangles
 
     /**Creates a Mesh connected to a [Shader]*/
     constructor(shader: Shader) {
@@ -100,7 +104,10 @@ class Mesh: GLBound {
         glBindVertexArray(bin.vao)
         shader.use()
         shader.assignObjects()
-        glDrawArrays(DrawMode.Triangles, bin.vertexCount)
+        if(bin.ebo == null)
+            glDrawArrays(drawMode, bin.drawCount)
+        else
+            glDrawElements(drawMode, GLSLVar.UInt, bin.drawCount)
         glUnbindVertexArray()
     }
 
@@ -366,43 +373,56 @@ class Mesh: GLBound {
     fun setAttribute(name: String, value: Array<Matrix2d>) = setAttribute(name, GLSLVar.Matrix2d, value)
     //endregion
 
+    fun triangles()                   { drawMode = DrawMode.Triangles; }
+    fun triangles(array: IntArray)    { drawMode = DrawMode.Triangles; elements = array }
+    @OptIn(ExperimentalUnsignedTypes::class)
+    fun triangles(array: UIntArray)   { drawMode = DrawMode.Triangles; elements = array }
+    fun triangles(array: List<Int>)   { drawMode = DrawMode.Triangles; elements = array }
+    @JvmSynthetic @JvmName("tra_UInt") fun triangles(array: List<UInt>)  { drawMode = DrawMode.Triangles; elements = array }
+    fun triangles(array: Array<Int>)  { drawMode = DrawMode.Triangles; elements = array }
+    @JvmSynthetic @JvmName("arr_UInt") fun triangles(array: Array<UInt>) { drawMode = DrawMode.Triangles; elements = array }
+
     /**Used to finish the model
      *
      * Using all data set with [setAttribute] a model will be calculated and passed on to OpenGL. If attributes are modified again after that the model in OpenGL has to be dissolved and the model has to be reburned*/
     fun burnModel() = synchronized(variables) {
-        if(glBinds != null)
-            throw IllegalArgumentException("The previous model still persists")
-        if(shader.released)
-            throw NullPointerException("The shader used by this mesh was destroyed")
+        fun getSize(coll: Any) = @OptIn(ExperimentalUnsignedTypes::class) when (coll) {
+            is List<*> ->       coll.size
+            is Array<*> ->      coll.size
+            is ByteArray ->     coll.size
+            is UByteArray ->    coll.size
+            is ShortArray ->    coll.size
+            is UShortArray ->   coll.size
+            is IntArray ->      coll.size
+            is UIntArray ->     coll.size
+            is LongArray ->     coll.size
+            is ULongArray ->    coll.size
+            is FloatArray ->    coll.size
+            is DoubleArray ->   coll.size
+            is Vector2iArray -> coll.size
+            else -> throw Error("Unknown collection type")
+        }
+
+        check(glBinds == null) { "The previous model still exists" }
+        check(!shader.released) { "The shader used by this mesh was destroyed" }
 
         /**TODO: Add an recognition of all other types of Arrays*/
         val vertexCount = variables.asSequence().map {
-            @OptIn(ExperimentalUnsignedTypes::class)
-            val c = it.value.let { at-> when (at) {
-                is List<*> -> at.size
-                is Array<*> -> at.size
-                is ByteArray -> at.size
-                is UByteArray -> at.size
-                is ShortArray -> at.size
-                is UShortArray -> at.size
-                is IntArray -> at.size
-                is UIntArray -> at.size
-                is LongArray -> at.size
-                is ULongArray -> at.size
-                is FloatArray -> at.size
-                is DoubleArray -> at.size
-                is Vector2iArray -> at.size
-                else -> -1
-            }}
-            if(c % it.key.count.toInt() == 0) c / it.key.count.toInt() else -1
+            if(it.value == null)
+                -1
+            else
+            {
+                val s = getSize(it.value!!)
+                if(s % it.key.count.toInt() == 0) s / it.key.count.toInt() else -1
+            }
         }.assertAllEqual { -1 }
-        if(vertexCount == -1) throw RuntimeException("Not all vertexes have data specified")
+        require(vertexCount >= 0) { "Not all vertexes have specified data" }
 
-        val vertFormat = shader.attributes.values.associateWithTo(mutableMapOf()) { it.type.byteCount }
-        val vertexSize = vertFormat.values.sum().toInt()
+        val vertexSize = shader.attributes.values.sumOf { it.type.byteCount }.toInt()
+        val stackSize = (vertexSize * vertexCount) + (elements?.let { getSize(it) * 4 } ?: 0)
 
         @OptIn(ExperimentalUnsignedTypes::class)
-        MemoryStack.create(vertexSize * vertexCount).push().use { stack ->
+        MemoryStack.create(stackSize).push().use { stack ->
             val fullBuffer = stack.malloc(vertexSize * vertexCount)
             variables.forEach { (attribute, list) ->
                 val dataSet = Triple(attribute, vertexSize, attribute.type.byteCount.toInt())
@@ -456,27 +476,60 @@ class Mesh: GLBound {
                 }
             }
 
-            glBinds = GLBinds(VertexArray.NONE, glGenBuffer(BufferType.Array), vertexCount.toUInt()).apply {
+            val elementBuff = elements?.let { elements ->
+                val buf = stack.mallocInt(getSize(elements))
+                when (elements) {
+                    is IntArray -> buf.put(elements)
+                    is UIntArray -> elements.forEach { buf.put(it.toInt()) }
+                    is List<*> -> {
+                        when (elements.first()) {
+                            is Int -> elements.forEach { buf.put(it as Int) }
+                            is UInt -> elements.forEach { buf.put((it as UInt).toInt()) }
+                            else -> throw Error("Unknown Element Type")
+                        }
+                    }
+
+                    is Array<*> -> {
+                        when (elements.first()) {
+                            is Int -> elements.forEach { buf.put(it as Int) }
+                            is UInt -> elements.forEach { buf.put((it as UInt).toInt()) }
+                            else -> throw Error("Unknown Element Type")
+                        }
+                    }
+                }
+                buf.flip()
+            }
+
+            glBinds = GLBinds(glGenVertexArray(), glGenBuffer(BufferType.Array), null, vertexCount.toUInt()).apply {
                 cleaner = Mesh.cleaner.register(this@Mesh) {
                     if(glTest())
                         garbageCollect(this)
                     else
                         OnMainThread.schedule { garbageCollect(this)}
                 }
+
+                glBindVertexArray(vao)
+
                 glBindBuffer(vbo)
                 glBufferData(BufferType.Array, fullBuffer, BufferUsage.StaticDraw)
-            }
-        }
+                shader.use()
+                shader.attributes.values.forEach {
+                    glVertexAttribPointer(it.location, it.type, vertexSize, it.offset.toLong())
+                }
 
-        glBinds?.let { bind ->
-            bind.vao = glGenVertexArray()
-            glBindVertexArray(bind.vao)
-            shader.use()
-            shader.attributes.values.forEach {
-                glVertexAttribPointer(it.location, it.type, vertexSize, it.offset.toLong())
+                elementBuff?.let { buff ->
+                    ebo = glGenBuffer(BufferType.ElementArray).apply {
+                        glBindBuffer(this)
+                        glBufferData(BufferType.ElementArray, buff, BufferUsage.StaticDraw)
+                    }
+                    drawCount = getSize(elements!!).toUInt()
+                }
+
+                Shader.release()
+                glUnbindVertexArray()
+                glUnbindBuffer(BufferType.Array)
+                glUnbindBuffer(BufferType.ElementArray)
             }
-            Shader.release()
-            glUnbindVertexArray()
         }
     }
     /**A check if there is a burned model connected to this Mesh*/
@@ -485,6 +538,6 @@ class Mesh: GLBound {
     /**OpenGL handlers connected to this model
      * @property vao Vertex Array, stores bindings to of variables to proper attributes in the model
      * @property vbo Array Buffer, stores the actual data of the model
-     * @property vertexCount Stores the count of vertexes in the burned model*/
-    private data class GLBinds(var vao: VertexArray = VertexArray.NONE, var vbo: BufferObject, var vertexCount: UInt)
+     * @property drawCount Stores the count of things to drawn that's eather vertex count or element count*/
+    private data class GLBinds(var vao: VertexArray, var vbo: BufferObject, var ebo: BufferObject?, var drawCount: UInt)
 }
