@@ -81,7 +81,7 @@ dependencies {
 
     // =================== Collections ===================
     implementation("org.eclipse.collections:eclipse-collections-api:13.0.0")
-    implementation("org.eclipse.collections:eclipse-collections:13.0.0")
+    implementation("org.eclipse.collections:eclipse-collections:13.0.0") //TODO: Make an API to be more Kotlin frendly
 
     // =================== TwelveMonkeys ===================
     //https://github.com/haraldk/TwelveMonkeys
