@@ -27,7 +27,7 @@ object OnMainThread
      *
      * Will not wait for the lambda to be finished*/
     @JvmStatic
-    fun schedule(action: Runnable) = queue.offer(action)
+    fun schedule(action: Runnable) { queue.offer(action) }
     /**Registers a lambda to be executed in the main thread
      *
      * Will wait until the lambda is done before continuing*/

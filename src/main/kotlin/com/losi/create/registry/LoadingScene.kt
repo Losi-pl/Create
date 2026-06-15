@@ -2,6 +2,7 @@ package com.losi.create.registry
 
 import com.losi.create.assets.*
 import com.losi.create.graphics.*
+import com.losi.create.utility.OnMainThread
 import com.losi.create.utility.joml.*
 import com.losi.create.world.GameSession
 import org.joml.*
@@ -54,6 +55,7 @@ internal class LoadingScene: Scene() {
         loadingThread = thread(start = false) {
             RegisterOrder.registerAssetPrecesses()
             RegisterOrder.precesses().forEach {
+                OnMainThread.schedule { title = "Create: Loading: ${it.second}" }
                 it.first.run()
             }
         }.apply {
