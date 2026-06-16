@@ -6,6 +6,8 @@ package com.losi.create.graphics.gl
 import com.losi.create.math.*
 import org.joml.*
 import org.lwjgl.opengl.GL20C
+import org.lwjgl.opengl.GL30C
+import org.lwjgl.opengl.GL41C
 import org.lwjgl.system.MemoryStack
 
 /** `void glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, GLfloat const * value)`  */
@@ -260,5 +262,10 @@ fun glUniform4(location: UniformLocation, v1: Float, v2: Float, v3: Float, v4: F
 
 fun glVertexAttribPointer(location: AttributeLocation, type: GLSLVar, stride: Int, offsetr: Long) {
     GL20C.glEnableVertexAttribArray(location.handle)
-    GL20C.glVertexAttribPointer(location.handle, type.primitivesCount.toInt(), type.primitive.gl, false, stride, offsetr)
+    when (type.primitive)
+    {
+        GLSLVar.Float -> GL20C.glVertexAttribPointer(location.handle, type.primitivesCount.toInt(), type.primitive.gl, false, stride, offsetr)
+        GLSLVar.Double -> GL41C.glVertexAttribLPointer(location.handle, type.primitivesCount.toInt(), type.primitive.gl, stride, offsetr)
+        else -> GL30C.glVertexAttribIPointer(location.handle, type.primitivesCount.toInt(), type.primitive.gl, stride, offsetr)
+    }
 }
