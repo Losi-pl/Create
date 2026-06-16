@@ -23,7 +23,7 @@ class RealmWorld: World {
 
     private val chunks = LongObjectMaps.mutable.of<Chunk>()
 
-    fun getChunk(pos: ChunkPos) = chunks[pos.combined]
+    fun getChunk(pos: ChunkPos): Chunk? = chunks[pos.combined]
     fun isChungLoaded(pos: ChunkPos): Boolean = chunks.containsKey(pos.combined)
     fun loadChunk(pos: ChunkPos) = chunks[pos.combined]?: realm.generateChunk(pos).apply { chunks.put(pos.combined, this) }
     fun unloadChunk(pos: ChunkPos) = chunks.remove(pos.combined) != null
