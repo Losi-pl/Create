@@ -19,6 +19,15 @@ value class BlockTexture private constructor(val index: UInt){
         val atlas: Texture2DAtlas get() = BlockAtlasProcessor.atlas?: throw NullPointerException("Atlas with textures of blocks was not yet created")
         /**Default texture returned if their specific texture couldn't be located*/
         val NOT_FOUND = BlockTexture(0u)
+        /**Goes through the register to find texture of this identity
+         * @param identity A compact name of the asset in format of `<ModSpace>:<Path...>`
+         * @throws RuntimeException if the [AssetManager] has not yet finished loading*/
+        fun find(identity: String) = AssetManager.get<BlockTexture>(identity)!!
+        /**Goes through the register to find texture of this identity
+         * @param space The specific modification you are tying from`
+         * @param identity Name or path to the specific object with the ModSpace
+         * @throws RuntimeException if the [AssetManager] has not yet finished loading*/
+        fun find(space: ModSpace, identity: String) = AssetManager.get<BlockTexture>(space, identity)!!
     }
 
     /**A processor responsible for parsing block textures and combining them into a single array that can later be used in shaders

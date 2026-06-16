@@ -1,10 +1,12 @@
-#version 100
-precision highp float;
+#version 130
 
 in vec2 uv;
 
-varying out vec4 fragColor;
+out vec4 fragColor;
+
+uniform sampler2DArray atlas;
+uniform uint texIndex;
 
 void main() {
-    fragColor = vec4(uv, .0, 1.0);
+    fragColor = texture(atlas, vec3(uv, texIndex));
 }
