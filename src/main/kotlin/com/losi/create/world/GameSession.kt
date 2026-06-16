@@ -2,6 +2,7 @@ package com.losi.create.world
 
 import com.losi.create.assets.AssetManager
 import com.losi.create.assets.BlockTexture
+import com.losi.create.assets.Blocks
 import com.losi.create.graphics.*
 import com.losi.create.registry.ElementRegister
 import com.losi.create.utility.orElse
@@ -17,7 +18,6 @@ class GameSession: Scene() {
         setUniform("view", view)
         setUniform("model", Matrix4f())
 
-        setUniform("texIndex", BlockTexture.find("create:dirt").index)
         setUniform("atlas", BlockTexture.atlas)
     }
     val mesh = Mesh(shader).apply {
@@ -91,6 +91,10 @@ class GameSession: Scene() {
             Vector2f(1f, 0f),
             Vector2f(0f, 0f),
         ))
+
+        val texture = BlockTexture.find("create:dirt").index
+        @OptIn(ExperimentalUnsignedTypes::class)
+        setAttribute("atlasInd", UIntArray(6*4) { texture })
 
         triangles(arrayOf(
             //South
