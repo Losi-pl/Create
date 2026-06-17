@@ -22,7 +22,7 @@ object OnMainThread
     }
     /**Test if the caller of the method in calling from the main thread*/
     @JvmStatic
-    fun isMain(): Boolean = mainThread == Thread.currentThread()
+    fun isMain(): Boolean = mainThread === Thread.currentThread()
     /**Registers a lambda to be executed in the main thread
      *
      * Will not wait for the lambda to be finished*/

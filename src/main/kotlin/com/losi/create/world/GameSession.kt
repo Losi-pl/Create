@@ -19,20 +19,8 @@ class GameSession: Scene() {
 
         setUniform("atlas", BlockTexture.atlas)
     }
-    val model = run {
-        val ch = Realms.Earth.world.loadChunk(ChunkPos(0, 0))
-        val dirt = PlacedBlock(Blocks.Dirt)
-        val dirt2 = PlacedBlock(Blocks.Dirt)
-        ch[0, 0, 0] = dirt
-        ch[0, 0, 1] = dirt
-        ch[1, 0, 0] = dirt
-        ch[1, 0, 1] = dirt
-
-        ch[0, 1, 0] = dirt2
-        ch[1, 1, 1] = dirt2
-
-        ChunkModeler(Realms.Earth, ChunkPos(0, 0)).generate()
-    }
+    var model: ChunkModel? = null
+    var rebound = false
 
     var rot: Float = 0f
     var isRot = true
@@ -56,6 +44,21 @@ class GameSession: Scene() {
 
         //Temporary
         GL11.glEnable(GL11.GL_DEPTH_TEST)
+
+        thread {
+            val ch = Realms.Earth.world.loadChunk(ChunkPos(0, 0))
+            val dirt = PlacedBlock(Blocks.Dirt)
+            val dirt2 = PlacedBlock(Blocks.Dirt)
+            ch[0, 0, 0] = dirt
+            ch[0, 0, 1] = dirt
+            ch[1, 0, 0] = dirt
+            ch[1, 0, 1] = dirt
+
+            ch[0, 1, 0] = dirt2
+            ch[1, 1, 1] = dirt2
+
+            model = ChunkModeler(Realms.Earth, ChunkPos(0, 0)).generate()
+        }
     }
 
     override fun logicUpdate(timeDelta: Float) {
@@ -65,6 +68,12 @@ class GameSession: Scene() {
     }
 
     override fun renderUpdate(timeDelta: Float) {
-        model.draw()
+        model?.let {
+            if(!rebound) {
+                it.redoBindings()
+                rebound = true
+            }
+            it.draw()
+        }
     }
 }

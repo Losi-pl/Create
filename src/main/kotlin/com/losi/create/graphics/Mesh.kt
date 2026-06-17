@@ -107,7 +107,10 @@ class Mesh: GLBound {
         if(bin.ebo == null)
             glDrawArrays(drawMode, bin.drawCount)
         else
+        {
+            glBindBuffer(bin.ebo!!)
             glDrawElements(drawMode, GLSLVar.UInt, bin.drawCount)
+        }
         glUnbindVertexArray()
     }
 
@@ -508,14 +511,8 @@ class Mesh: GLBound {
                         OnMainThread.schedule { garbageCollect(this)}
                 }
 
-                glBindVertexArray(vao)
-
                 glBindBuffer(vbo)
                 glBufferData(BufferType.Array, fullBuffer, BufferUsage.StaticDraw)
-                shader.use()
-                shader.attributes.values.forEach {
-                    glVertexAttribPointer(it.location, it.type, vertexSize, it.offset.toLong())
-                }
 
                 elementBuff?.let { buff ->
                     ebo = glGenBuffer(BufferType.ElementArray).apply {
@@ -524,16 +521,30 @@ class Mesh: GLBound {
                     }
                     drawCount = getSize(elements!!).toUInt()
                 }
-
-                Shader.release()
-                glUnbindVertexArray()
-                glUnbindBuffer(BufferType.Array)
-                glUnbindBuffer(BufferType.ElementArray)
             }
+            redoBindings()
         }
     }
     /**A check if there is a burned model connected to this Mesh*/
     val isBurned: Boolean get() = synchronized(variables) { glBinds != null }
+
+    /**NVIDIA does not know how to make Vertex Array's work in muti threaded environment call this method before using any mesh generated on a different thread*/
+    fun redoBindings() {
+        glBinds?.let { binds ->
+            glBindVertexArray(binds.vao)
+            val vertexSize = shader.attributes.values.sumOf { it.type.byteCount }.toInt()
+            glBindBuffer(binds.vbo)
+            binds.ebo?.let { glBindBuffer(it) }
+            shader.use()
+            shader.attributes.values.forEach {
+                glVertexAttribPointer(it.location, it.type, vertexSize, it.offset.toLong())
+            }
+            glUnbindVertexArray()
+            Shader.release()
+            glUnbindBuffer(BufferType.Array)
+            glUnbindBuffer(BufferType.ElementArray)
+        }
+    }
 
     /**OpenGL handlers connected to this model
      * @property vao Vertex Array, stores bindings to of variables to proper attributes in the model

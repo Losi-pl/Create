@@ -3,6 +3,7 @@ package com.losi.create.world.geometry
 import com.losi.create.assets.Blocks
 import com.losi.create.assets.bases.Block
 import com.losi.create.graphics.*
+import com.losi.create.graphics.gl.glFinish
 import com.losi.create.world.*
 import org.eclipse.collections.impl.list.mutable.FastList
 import org.eclipse.collections.impl.multimap.list.FastListMultimap
@@ -115,6 +116,7 @@ class ChunkModeler: WorldModeler {
         models.asSequence().flatMap { it.values }.forEach { model ->
             sortedModels.add(Tuples.pair(model.shader, model))
         }
+        glFinish()
         return ChunkModel(sortedModels)
     }
 }

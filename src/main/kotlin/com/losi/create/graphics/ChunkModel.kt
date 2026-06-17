@@ -14,4 +14,10 @@ class ChunkModel {
             it.draw()
         }
     }
+
+    fun redoBindings() {
+        content.valuesView().forEach {
+            it.redoBindings()
+        }
+    }
 }
