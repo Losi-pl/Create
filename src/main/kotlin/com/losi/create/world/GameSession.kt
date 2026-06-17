@@ -1,11 +1,10 @@
 package com.losi.create.world
 
-import com.losi.create.assets.AssetManager
-import com.losi.create.assets.BlockTexture
-import com.losi.create.assets.Blocks
+import com.losi.create.assets.*
 import com.losi.create.graphics.*
 import com.losi.create.registry.ElementRegister
 import com.losi.create.utility.orElse
+import com.losi.create.world.geometry.ChunkModeler
 import org.joml.*
 import org.lwjgl.opengl.GL11
 import java.awt.Color
@@ -20,110 +19,19 @@ class GameSession: Scene() {
 
         setUniform("atlas", BlockTexture.atlas)
     }
-    val mesh = Mesh(shader).apply {
-        setAttribute("pos", arrayOf(
+    val model = run {
+        val ch = Realms.Earth.world.loadChunk(ChunkPos(0, 0))
+        val dirt = PlacedBlock(Blocks.Dirt)
+        val dirt2 = PlacedBlock(Blocks.Dirt)
+        ch[0, 0, 0] = dirt
+        ch[0, 0, 1] = dirt
+        ch[1, 0, 0] = dirt
+        ch[1, 0, 1] = dirt
 
-            //South
-            Vector3f(-1f,1f, -1f),
-            Vector3f(1f, 1f,-1f),
-            Vector3f(1f, -1f,-1f),
-            Vector3f(-1f,-1f, -1f),
+        ch[0, 1, 0] = dirt2
+        ch[1, 1, 1] = dirt2
 
-            //North
-            Vector3f(1f,1f, 1f),
-            Vector3f(-1f, 1f,1f),
-            Vector3f(-1f, -1f,1f),
-            Vector3f(1f,-1f, 1f),
-
-            //East
-            Vector3f(1f, 1f,  -1f),
-            Vector3f(1f, 1f,  1f),
-            Vector3f(1f, -1f, 1f),
-            Vector3f(1f, -1f, -1f),
-
-            //West
-            Vector3f(-1f, 1f,  1f),
-            Vector3f(-1f, 1f,  -1f),
-            Vector3f(-1f, -1f, -1f),
-            Vector3f(-1f, -1f, 1f),
-
-            //Top
-            Vector3f(-1f,1f, 1f),
-            Vector3f(1f, 1f,1f),
-            Vector3f(1f, 1f,-1f),
-            Vector3f(-1f,1f, -1f),
-
-            //Bottom
-            Vector3f(-1f,-1f, -1f),
-            Vector3f(1f, -1f,-1f),
-            Vector3f(1f, -1f,1f),
-            Vector3f(-1f,-1f, 1f),
-        ))
-
-        setAttribute("uvPos", arrayOf(
-            Vector2f(0f, 1f),
-            Vector2f(1f, 1f),
-            Vector2f(1f, 0f),
-            Vector2f(0f, 0f),
-
-            Vector2f(0f, 1f),
-            Vector2f(1f, 1f),
-            Vector2f(1f, 0f),
-            Vector2f(0f, 0f),
-
-            Vector2f(0f, 1f),
-            Vector2f(1f, 1f),
-            Vector2f(1f, 0f),
-            Vector2f(0f, 0f),
-
-            Vector2f(0f, 1f),
-            Vector2f(1f, 1f),
-            Vector2f(1f, 0f),
-            Vector2f(0f, 0f),
-
-            Vector2f(0f, 1f),
-            Vector2f(1f, 1f),
-            Vector2f(1f, 0f),
-            Vector2f(0f, 0f),
-
-            Vector2f(0f, 1f),
-            Vector2f(1f, 1f),
-            Vector2f(1f, 0f),
-            Vector2f(0f, 0f),
-        ))
-
-        val texture = BlockTexture.find("create:dirt").index
-        @OptIn(ExperimentalUnsignedTypes::class)
-        setAttribute("atlasInd", UIntArray(6*4) { texture })
-
-        triangles(arrayOf(
-            //South
-            0  + 0,  0  + 1,  0  + 3,
-            0  + 1,  0  + 2,  0  + 3,
-
-            //North
-            4  + 0,  4  + 1,  4  + 3,
-            4  + 1,  4  + 2,  4  + 3,
-
-            //East
-            8  + 0,  8  + 1,  8  + 3,
-            8  + 1,  8  + 2,  8  + 3,
-
-            //West
-            12 + 0,  12 + 1,  12 + 3,
-            12 + 1,  12 + 2,  12 + 3,
-
-            //Top
-            16 + 0,  16 + 1,  16 + 3,
-            16 + 1,  16 + 2,  16 + 3,
-
-            //Bottom
-            20 + 0,  20 + 1,  20 + 3,
-            20 + 1,  20 + 2,  20 + 3,
-        ))
-
-        burnModel()
-        flushBuffers()
+        ChunkModeler(Realms.Earth, ChunkPos(0, 0)).generate()
     }
 
     var rot: Float = 0f
@@ -153,10 +61,10 @@ class GameSession: Scene() {
     override fun logicUpdate(timeDelta: Float) {
         if(isRot)
             rot += timeDelta
-        shader.setUniform("model", Matrix4f().rotateX(Math.toRadians(-45f)).rotateY(rot))
+        shader.setUniform("model", Matrix4f().setRotationXYZ(Math.toRadians(-45f), rot, 0f).translate(-1f, -1f, -1f))
     }
 
     override fun renderUpdate(timeDelta: Float) {
-        mesh.draw()
+        model.draw()
     }
 }

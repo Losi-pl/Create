@@ -21,13 +21,13 @@ class Chunk256: Chunk {
         if(knownBlocks[whereWhatBlock[ind].toInt()].block == block)
             return
 
-        decrement(ind)
+        decrement(whereWhatBlock[ind])
         val where = increment(block)
         whereWhatBlock[ind] = where.toByte()
     }
 
-    fun decrement(ind: Int) {
-        val placedBlock = knownBlocks[ind]
+    fun decrement(ind: Byte) {
+        val placedBlock = knownBlocks[ind.toInt()]
         placedBlock.count--
     }
 

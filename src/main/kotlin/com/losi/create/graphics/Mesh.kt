@@ -77,7 +77,7 @@ class Mesh: GLBound {
     /**The [GLBinds] related to this specific Mesh*/
     private var glBinds: GLBinds? = null
     /**The [Shader] this Mesh is being dependent on and is based of*/
-    private val shader: Shader
+    val shader: Shader
     /**A map of all attributes specified in the [Shader] of this Mesh and the content of those attributes*/
     private val variables: MutableMap<Shader.Attribute, Any?>
     private var cleaner: Cleaner.Cleanable? = null
