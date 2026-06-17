@@ -1,15 +1,17 @@
 package com.losi.create.graphics
 
+import org.eclipse.collections.impl.multimap.list.FastListMultimap
+
 /**A list of all [Mesh]es that go into the construction of the shader*/
 class ChunkModel {
-    val content: Map<Shader, List<Mesh>>
+    val content: FastListMultimap<Shader, Mesh>
 
-    internal constructor(content: Map<Shader, List<Mesh>>) { this.content = content }
+    internal constructor(content: FastListMultimap<Shader, Mesh>) { this.content = content }
 
     /**Draws the model*/
     fun draw() {
-        content.values.forEach { list ->
-            list.forEach { it.draw() }
+        content.valuesView().forEach {
+            it.draw()
         }
     }
 }

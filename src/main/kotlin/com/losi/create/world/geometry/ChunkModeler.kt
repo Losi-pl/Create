@@ -115,11 +115,6 @@ class ChunkModeler: WorldModeler {
         models.asSequence().flatMap { it.values }.forEach { model ->
             sortedModels.add(Tuples.pair(model.shader, model))
         }
-
-        /**Finalizes by swishing out the storages from `Fast` to `Immutable` TODO: Verify if its worth it*/
-        val finished = sortedModels.keysView().associateWith {
-            sortedModels[it].toImmutableList().castToList()
-        }
-        return ChunkModel(finished)
+        return ChunkModel(sortedModels)
     }
 }
