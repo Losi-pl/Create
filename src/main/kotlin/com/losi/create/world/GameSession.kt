@@ -75,6 +75,11 @@ class GameSession: Scene() {
         }
     }
 
+    override fun onResize(width: Int, height: Int) {
+        val projection = Matrix4f().perspectiveLH(Math.toRadians(45f), width / height.toFloat(), 0.1f, 100f)
+        shader.setUniform("projection", projection)
+    }
+
     override fun logicUpdate(timeDelta: Float) {
         if(isRot)
             rot += timeDelta
