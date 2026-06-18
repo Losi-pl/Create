@@ -1,7 +1,6 @@
 package com.losi.create.assets.bases
 
 import com.losi.create.assets.*
-import com.losi.create.math.collections.Vector2fArray
 import com.losi.create.registry.GameElement
 import com.losi.create.world.World
 import com.losi.create.world.geometry.*

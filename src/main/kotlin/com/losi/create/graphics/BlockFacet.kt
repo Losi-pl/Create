@@ -1,8 +1,7 @@
 package com.losi.create.graphics
 
-import com.losi.create.world.geometry.AutoModelFill
-import com.losi.create.world.geometry.FillModelData
-import com.losi.create.world.geometry.WorldModeler
+import com.losi.create.world.geometry.*
+import org.lwjgl.system.MemoryStack
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
@@ -20,6 +19,10 @@ abstract class BlockFacet {
         val t = modeler.getObject(type, name)?: factory().apply { modeler.addObject(type, name, this) }
         return t as? T ?: factory().apply { modeler.addObject(type, name, this) }
     }
+
+    protected fun MemoryStack.mallocPositions(count: UInt) = FillModelData.PositionStorage(count.toInt(), this)
+    protected fun MemoryStack.mallocUVs(count: UInt) = FillModelData.UVsStorage(count.toInt(), this)
+    protected fun MemoryStack.mallocTriangles(count: UInt) = FillModelData.ElementIndexes(count.toInt() * 3, this)
 
     /**For use of this [BlockFacet] during model generation
      * @param vertexCount The amount of vertexes that are to be added

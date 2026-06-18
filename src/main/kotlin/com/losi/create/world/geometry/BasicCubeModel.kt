@@ -1,7 +1,6 @@
 package com.losi.create.world.geometry
 
 import com.losi.create.assets.BlockDirection
-import com.losi.create.math.collections.*
 import org.joml.Vector2f
 import org.joml.Vector3f
 import org.joml.Vector3l
@@ -13,12 +12,14 @@ class BasicCubeModel: AutoModelFill {
     var direction = BlockDirection.South
     /**The position of the block in the world*/
     var position: Vector3l
+    /**For positions*/
     val tmp = Vector3f()
+    /**For UVs*/
     val tmp2 = Vector2f()
 
     constructor(position: Vector3l) { this.position = position }
 
-    override fun fill(positions: Vector3fArray, uvs: Vector2fArray, elements: UIntArray) {
+    override fun fill(positions: FillModelData.PositionStorage, uvs: FillModelData.UVsStorage, elements: FillModelData.ElementIndexes) {
         fun Vector3f.add(vec: Vector3l) = this.add(vec.x.toFloat(), vec.y.toFloat(), vec.z.toFloat())
 
         when (direction) {

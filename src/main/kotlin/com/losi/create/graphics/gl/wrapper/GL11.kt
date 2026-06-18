@@ -10,7 +10,7 @@ import java.awt.Color
 import java.awt.image.BufferedImage
 
 /**A quick test to see if OpenGL works on the current [Thread]*/
-fun glTest() = try { GL11C.glGetError(); true } catch (ignored: NullPointerException) { false }
+fun glTest() = org.lwjgl.glfw.GLFW.glfwGetCurrentContext() != 0L
 
 /**`void glGenTextures(GLsizei n, GLuint * textures)`*/
 fun glGenTexture(type: TextureType) = TextureObject(type, GL11C.glGenTextures())

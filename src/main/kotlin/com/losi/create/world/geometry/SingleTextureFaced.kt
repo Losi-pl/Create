@@ -2,10 +2,9 @@ package com.losi.create.world.geometry
 
 import com.losi.create.assets.*
 import com.losi.create.graphics.*
-import com.losi.create.math.collections.*
 import com.losi.create.utility.*
-import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList
-import org.eclipse.collections.impl.list.mutable.primitive.FloatArrayList
+import org.eclipse.collections.impl.list.mutable.primitive.*
+import org.lwjgl.system.MemoryStack
 
 /**A standard texture type holding only the index of the texture in atlas with no additional modifiers*/
 class SingleTextureFaced: BlockFacet {
@@ -15,26 +14,31 @@ class SingleTextureFaced: BlockFacet {
     @OptIn(ExperimentalUnsignedTypes::class)
     context(modeler: WorldModeler)
     override fun draw(vertexCount: UInt, elementCount: UInt, specifier: FillModelData) {
-        val positions = Vector3fArray(vertexCount.toInt())
-        val uvs = Vector2fArray(vertexCount.toInt())
-        val elements = UIntArray(elementCount.toInt() * 3)
-        specifier.fill(positions, uvs, elements)
+        val memNeeded = vertexCount.toInt() * (UInt.SIZE_BYTES * (3 + 2 + 1)) + elementCount.toInt() * 3 * 4
+        MemoryStack.create(memNeeded).push().use { stack ->
+            val positions = stack.mallocPositions(vertexCount)
+            val uvs = stack.mallocUVs(vertexCount)
+            val elements = stack.mallocTriangles(elementCount)
+            specifier.fill(positions, uvs, elements)
 
-        val allInd = atlasIndexes
+            val allInd = atlasIndexes
+            elements.apply {
+                val count = allInd.size().toUInt()
+                indices.forEach {
+                    elements[it] += count
+                }
+            }
 
-        elements.apply {
-            val count = allInd.size().toUInt()
-            indices.forEach {
-                elements[it] += count
+            allElements.addAll(elements.buffer)
+            allPositions.addAll(positions.buffer)
+            allUvs.addAll(uvs.buffer)
+            allInd.let { list ->
+                list.ensureCapacity(list.size() + vertexCount.toInt())
+                (0u..<vertexCount).forEach { _ ->
+                    list.add(texture.index.toInt())
+                }
             }
         }
-
-        allElements.ensureCapacity(allElements.size() + elements.size)
-        allElements.addAll(elements.toIntArray())
-
-        allInd.addAll(IntArray(vertexCount.toInt()) { texture.index.toInt() })
-        allPositions.addAll(positions.asFloatArray())
-        allUvs.addAll(uvs.asFloatArray())
     }
 
     companion object: FacetModeler() {
@@ -50,9 +54,9 @@ class SingleTextureFaced: BlockFacet {
         override fun finish(): Mesh {
             val mesh = Mesh(shader.value)
 
-            mesh.setAttribute("pos", allPositions.toArray().asVector3Array())
             @Suppress("SpellCheckingInspection", "RedundantSuppression")
             mesh.setAttribute("uvPos", allUvs.toArray().asVector2Array())
+            mesh.setAttribute("pos", allPositions.toArray().asVector3Array())
             mesh.setAttribute("atlasInd", atlasIndexes.toArray().asUIntArray())
             mesh.triangles(allElements.toArray().asUIntArray())
 
