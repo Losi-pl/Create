@@ -1,8 +1,8 @@
 package com.losi.create.graphics
 
+import com.losi.create.world.geometry.AutoModelFill
+import com.losi.create.world.geometry.FillModelData
 import com.losi.create.world.geometry.WorldModeler
-import org.apache.commons.io.function.IOTriConsumer
-import org.joml.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
@@ -21,9 +21,16 @@ abstract class BlockFacet {
         return t as? T ?: factory().apply { modeler.addObject(type, name, this) }
     }
 
-    @OptIn(ExperimentalUnsignedTypes::class)
+    /**For use of this [BlockFacet] during model generation
+     * @param vertexCount The amount of vertexes that are to be added
+     * @param elementCount The amount of triangles to be added to the model, they have to be specified from index `0`*/
     context(modeler: WorldModeler)
-    abstract fun draw(vertexCount: UInt, elementCount: UInt, specifier: IOTriConsumer<Array<Vector3f>, Array<Vector2f>, UIntArray>)
+    abstract fun draw(vertexCount: UInt, elementCount: UInt, specifier: FillModelData)
+
+    /**For use of this [BlockFacet] during model generation
+     * @param data Has all needed data to add the model*/
+    context(modeler: WorldModeler)
+    fun draw(data: AutoModelFill) = draw(data.vertexCount, data.elementCount, data)
 
     /**This is meant to be applied to a companion object of an [BlockFacet] it stores the method used to generate a final model for this type of faced*/
     abstract class FacetModeler {

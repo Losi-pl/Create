@@ -1,64 +1,69 @@
 @file:Suppress("unused", "DuplicatedCode")
 package com.losi.create.math.collections
 
-import kotlin.streams.asStream
-
-private typealias Vector2i = org.joml.Vector2i
+import com.google.common.collect.Streams
+private typealias Vector2f = org.joml.Vector2f
 @OptIn(ExperimentalStdlibApi::class)
-@JvmInline @JvmExposeBoxed value class Vector2iArray private constructor(private val elements: IntArray)
+@JvmInline @JvmExposeBoxed value class Vector2fArray private constructor(private val elements: FloatArray)
 {
     companion object {
-        private val _empty = Vector2iArray(IntArray(0))
+
+
+        private val _empty = Vector2fArray(FloatArray(0))
         private const val SIZE = 2
-        val empty: Vector2iArray get() = _empty
+        val empty: Vector2fArray get() = _empty
 
-        private fun IntArray.isAt(ind: Int, vec: Vector2i) = this[ind*2] == vec.x && this[ind*2+1] == vec.y
+        private fun FloatArray.isAt(ind: Int, vec: Vector2f) = this[ind * SIZE] == vec.x && this[ind * SIZE + 1] == vec.y
 
-        @JvmExposeBoxed @JvmStatic fun of(count: Int): Vector2iArray = Vector2iArray(count)
-        @JvmExposeBoxed @JvmStatic fun of(vararg elements: Vector2i): Vector2iArray {
-            val arr = Vector2iArray(elements.size)
+        @JvmExposeBoxed @JvmStatic fun of(count: Int): Vector2fArray = Vector2fArray(count)
+        @JvmExposeBoxed @JvmStatic fun of(vararg elements: Vector2f): Vector2fArray {
+            val arr = Vector2fArray(elements.size)
             elements.forEachIndexed { index, it -> arr[index] = it }
             return arr
         }
-        @JvmExposeBoxed @JvmStatic fun of(vararg elements: Pair<Int, Int>): Vector2iArray {
-            val arr = Vector2iArray(elements.size)
+        @JvmExposeBoxed @JvmStatic fun of(vararg elements: Pair<Float, Float>): Vector2fArray {
+            val arr = Vector2fArray(elements.size)
             elements.forEachIndexed { index, pair -> arr[index] = pair }
             return arr
         }
+
+        /**Wraps around an existing array changes [array] will reflect in created [Vector2fArray] and vice versa*/
+        fun around(array: FloatArray) = Vector2fArray(array)
     }
 
     val size: Int get() = elements.size / SIZE
 
-    constructor(count: Int) : this(IntArray(count * SIZE))
-    constructor(vararg elements: Vector2i): this(IntArray(elements.size * SIZE))
+    constructor(count: Int) : this(FloatArray(count * SIZE))
+    constructor(vararg elements: Vector2f): this(FloatArray(elements.size * SIZE))
     { elements.forEachIndexed { index, it -> this[index] = it } }
-    constructor(vararg elements: Pair<Int, Int>): this(IntArray(elements.size * SIZE))
+    constructor(vararg elements: Pair<Float, Float>): this(FloatArray(elements.size * SIZE))
     { elements.forEachIndexed { index, pair -> this[index] = pair }}
 
-    operator fun get(index: Int): Vector2i {
+    operator fun get(index: Int): Vector2f {
         checkIndex(index)
-        return Vector2i(elements, index * 2)
+        return Vector2f(elements, index * SIZE)
     }
-    operator fun set(index: Int, value: Vector2i) {
+    operator fun set(index: Int, value: Vector2f) {
         checkIndex(index)
         value.get(elements, index * SIZE)
     }
-    operator fun set(index: Int, value: Pair<Int, Int>) {
+    operator fun set(index: Int, value: Pair<Float, Float>) {
         checkIndex(index)
-        elements[index * SIZE] = value.first
-        elements[index * SIZE + 1] = value.second
+        elements[index * 2] = value.first
+        elements[index * 2 + 1] = value.second
     }
 
-    operator fun iterator(): Vector2iIterator = Vector2iIterator(this)
+    operator fun iterator(): Iterator = Iterator(this)
     @ConsistentCopyVisibility
-    data class Vector2iIterator internal constructor(private val array: Vector2iArray, private var cursor: Int = 0) : Iterator<Vector2i> {
-        override fun next(): Vector2i = if (hasNext()) array[cursor++] else throw NoSuchElementException()
-        override fun hasNext(): Boolean = cursor < array.size
+    data class Iterator internal constructor(private val array: Vector2fArray, private var cursor: Int = 0):
+        kotlin.collections.Iterator<Vector2f> {
+        override fun next() = if (hasNext()) array[cursor++] else throw NoSuchElementException()
+        override fun hasNext() = cursor < array.size
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
 
-            other as Vector2iIterator
+            other as Iterator
 
             if (cursor != other.cursor) return false
             if (!array.contentEquals(other.array)) return false
@@ -71,23 +76,24 @@ private typealias Vector2i = org.joml.Vector2i
             return result
         }
 
-        fun asStream() = this.asSequence().asStream()
+        /**After using this command do not use that instance of [Iterator]*/
+        fun asStream() = Streams.stream(this)
     }
 
-    fun contentEquals(array: Vector2iArray) = this.elements.contentEquals(array.elements)
+    fun contentEquals(array: Vector2fArray) = this.elements.contentEquals(array.elements)
     fun contentHashCode() = this.elements.contentHashCode()
 
-    fun asSequence(): Sequence<Vector2i> {
+    fun asSequence(): Sequence<Vector2f> {
         if (isEmpty()) return emptySequence()
         return Sequence { this.iterator() }
     }
-    fun asSequence(reuseObjects: Boolean = true): Sequence<Vector2i> {
+    fun asSequence(reuseObjects: Boolean = true): Sequence<Vector2f> {
         if (!reuseObjects)
             return asSequence()
-        return object : Sequence<Vector2i> {
-            override fun iterator() = object : Iterator<Vector2i> {
-                val obj = Vector2i()
-                val array = this@Vector2iArray
+        return object : Sequence<Vector2f> {
+            override fun iterator() = object : kotlin.collections.Iterator<Vector2f> {
+                val obj = Vector2f()
+                val array = this@Vector2fArray
                 var index = 0
 
                 override fun next() = obj.set(array.elements, index++ * SIZE)
@@ -99,15 +105,20 @@ private typealias Vector2i = org.joml.Vector2i
     fun isEmpty(): Boolean = size == 0
     fun isNotEmpty(): Boolean = !isEmpty()
 
+    /**Returns the underlying array of this object
+     *
+     * Warning! Modifying that array will affect this object as well*/
+    fun asFloatArray() = elements
+
     fun asList() = List(this)
-    @JvmInline value class List internal constructor(private val array: Vector2iArray):  kotlin.collections.List<Vector2i> {
-        override fun contains(element: Vector2i) = array.contains(element)
-        override fun containsAll(elements: Collection<Vector2i>) = array.containsAll(elements)
+    @JvmInline value class List internal constructor(private val array: Vector2fArray):  kotlin.collections.List<Vector2f> {
+        override fun contains(element: Vector2f) = array.contains(element)
+        override fun containsAll(elements: Collection<Vector2f>) = array.containsAll(elements)
         override fun get(index: Int) = array[index]
-        override fun indexOf(element: Vector2i) = array.indexOf(element)
-        override fun isEmpty() = array.size == 0
+        override fun indexOf(element: Vector2f) = array.indexOf(element)
+        override fun isEmpty() = array.isEmpty()
         override fun iterator() = array.iterator()
-        override fun lastIndexOf(element: Vector2i) = array.lastIndexOf(element)
+        override fun lastIndexOf(element: Vector2f) = array.lastIndexOf(element)
         override fun listIterator() = ListIterator(array)
         override fun listIterator(index: Int) = ListIterator(array, index)
         override fun toString(): String = array.toString()
@@ -120,23 +131,23 @@ private typealias Vector2i = org.joml.Vector2i
     }
 
     @ConsistentCopyVisibility
-    data class SpanList internal constructor(private val array: Vector2iArray, private val start: Int, private val count: Int): kotlin.collections.List<Vector2i> {
-        override fun contains(element: Vector2i): Boolean = indexOf(element) >= 0
-        override fun containsAll(elements: Collection<Vector2i>) = array.containsAll(elements, start, start + count)
-        override fun get(index: Int): Vector2i { checkIndex(index); return array[index + start] }
+    data class SpanList internal constructor(private val array: Vector2fArray, private val start: Int, private val count: Int): kotlin.collections.List<Vector2f> {
+        override fun contains(element: Vector2f): Boolean = indexOf(element) >= 0
+        override fun containsAll(elements: Collection<Vector2f>) = array.containsAll(elements, start, start + count)
+        override fun get(index: Int): Vector2f { checkIndex(index); return array[index + start] }
         override fun toString(): String = array.toString()
-        override fun indexOf(element: Vector2i): Int {
+        override fun indexOf(element: Vector2f): Int {
             for (i in start until start + count)
                 if(array.elements.isAt(i, element))
                     return i - start
             return -1
         }
         override fun isEmpty(): Boolean = count == 0
-        override fun iterator(): Iterator<Vector2i> = iterator {
+        override fun iterator(): kotlin.collections.Iterator<Vector2f> = iterator {
             for (i in start until start + count)
                 yield(array[i])
         }
-        override fun lastIndexOf(element: Vector2i): Int {
+        override fun lastIndexOf(element: Vector2f): Int {
             for (i in start + count - 1 downTo start)
                 if(array.elements.isAt(i, element))
                     return i - start
@@ -172,8 +183,8 @@ private typealias Vector2i = org.joml.Vector2i
         }
 
         @ConsistentCopyVisibility
-        data class ListIterator internal constructor(private val array: Vector2iArray, private val start: Int, private val count: Int, private var index: Int = 0):
-                kotlin.collections.ListIterator<Vector2i> {
+        data class ListIterator internal constructor(private val array: Vector2fArray, private val start: Int, private val count: Int, private var index: Int = 0):
+                kotlin.collections.ListIterator<Vector2f> {
             fun get(index: Int) = array[index + start]
             override fun next() = get(index++)
             override fun previous() = get(index--)
@@ -185,7 +196,7 @@ private typealias Vector2i = org.joml.Vector2i
     }
 
     @ConsistentCopyVisibility
-    data class ListIterator internal constructor(private val array: Vector2iArray, private var index: Int = 0): kotlin.collections.ListIterator<Vector2i> {
+    data class ListIterator internal constructor(private val array: Vector2fArray, private var index: Int = 0): kotlin.collections.ListIterator<Vector2f> {
         fun get(index: Int) = array[index]
         override fun next() = get(index++)
         override fun previous() = get(index--)
@@ -211,18 +222,18 @@ private typealias Vector2i = org.joml.Vector2i
         }
     }
 
-    fun copyOf() = Vector2iArray(elements.copyOf())
-    fun copyOf(newSize: Int): Vector2iArray {
-        val result = Vector2iArray(newSize)
+    fun copyOf() = Vector2fArray(elements.copyOf())
+    fun copyOf(newSize: Int): Vector2fArray {
+        val result = Vector2fArray(newSize)
         for (i in 0 until minOf(size, newSize)) result[i] = this[i]
         return result
     }
 
-    fun fill(value: Vector2i, fromIndex: Int = 0, toIndex: Int = size) {
+    fun fill(value: Vector2f, fromIndex: Int = 0, toIndex: Int = size) {
         require(fromIndex in 0..size && toIndex in fromIndex..size)
         for (i in fromIndex until toIndex) this[i] = value
     }
-    fun filled(value: Vector2i, fromIndex: Int, toIndex: Int): Vector2iArray {
+    fun filled(value: Vector2f, fromIndex: Int, toIndex: Int): Vector2fArray {
         val copy = copyOf()
         copy.fill(value, fromIndex, toIndex)
         return copy
@@ -239,23 +250,23 @@ private typealias Vector2i = org.joml.Vector2i
             right--
         }
     }
-    fun reversed(): Vector2iArray {
+    fun reversed(): Vector2fArray {
         val copy = copyOf()
         copy.reverse()
         return copy
     }
 
-    fun indexOf(element: Vector2i): Int {
+    fun indexOf(element: Vector2f): Int {
         for (i in 0 until size) if (elements.isAt(i, element)) return i
         return -1
     }
-    fun lastIndexOf(element: Vector2i): Int {
+    fun lastIndexOf(element: Vector2f): Int {
         for (i in size - 1 downTo 0) if (elements.isAt(i, element)) return i
         return -1
     }
 
-    fun contains(element: Vector2i): Boolean = indexOf(element) >= 0
-    fun containsAll(elements: Collection<Vector2i>, fromIndex: Int = 0, toIndex: Int = size): Boolean {
+    fun contains(element: Vector2f): Boolean = indexOf(element) >= 0
+    fun containsAll(elements: Collection<Vector2f>, fromIndex: Int = 0, toIndex: Int = size): Boolean {
         val count = BooleanArray(elements.size)
         for (i in fromIndex until toIndex)
         {
@@ -269,10 +280,10 @@ private typealias Vector2i = org.joml.Vector2i
         return false
     }
 
-    inline fun forEach(action: (Vector2i) -> Unit) {
+    inline fun forEach(action: (Vector2f) -> Unit) {
         for (i in 0 until size) action(get(i))
     }
-    inline fun forEachIndexed(action: (index: Int, value: Vector2i) -> Unit) {
+    inline fun forEachIndexed(action: (index: Int, value: Vector2f) -> Unit) {
         for (i in 0 until size) action(i, get(i))
     }
 
@@ -282,7 +293,7 @@ private typealias Vector2i = org.joml.Vector2i
         val sb = StringBuilder(prefix)
         for (i in fromIndex until toIndex) {
             if (i > fromIndex) sb.append(separator)
-            sb.append("(").append(elements[i*SIZE]).append(", ").append(elements[i*SIZE+1]).append(")")
+            sb.append("(").append(elements[i*2]).append(", ").append(elements[i*2+1]).append(")")
         }
         sb.append(postfix)
         return sb.toString()

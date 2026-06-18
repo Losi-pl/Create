@@ -276,12 +276,16 @@ class Mesh: GLBound {
     fun setAttribute(name: String, value: List<Vector2f>) = setAttribute(name, GLSLVar.Vector2f, value)
     /**Set's an attribute by [name] with [value]'s. If an attribute takes in multiple values per vertex they should be listed consecutively*/
     fun setAttribute(name: String, value: Array<Vector2f>) = setAttribute(name, GLSLVar.Vector2f, value)
+    /**Set's an attribute by [name] with [value]'s. If an attribute takes in multiple values per vertex they should be listed consecutively*/
+    fun setAttribute(name: String, value: Vector2fArray) = setAttribute(name, GLSLVar.Vector2f, value)
 
     /**Set's an attribute by [name] with [value]'s. If an attribute takes in multiple values per vertex they should be listed consecutively*/
     @JvmName("setAttributeVector3fList")
     fun setAttribute(name: String, value: List<Vector3f>) = setAttribute(name, GLSLVar.Vector3f, value)
     /**Set's an attribute by [name] with [value]'s. If an attribute takes in multiple values per vertex they should be listed consecutively*/
     fun setAttribute(name: String, value: Array<Vector3f>) = setAttribute(name, GLSLVar.Vector3f, value)
+    /**Set's an attribute by [name] with [value]'s. If an attribute takes in multiple values per vertex they should be listed consecutively*/
+    fun setAttribute(name: String, value: Vector3fArray) = setAttribute(name, GLSLVar.Vector3f, value)
 
     /**Set's an attribute by [name] with [value]'s. If an attribute takes in multiple values per vertex they should be listed consecutively*/
     @JvmName("setAttributeVector4fList")
@@ -403,6 +407,8 @@ class Mesh: GLBound {
             is FloatArray ->    coll.size
             is DoubleArray ->   coll.size
             is Vector2iArray -> coll.size
+            is Vector2fArray -> coll.size
+            is Vector3fArray -> coll.size
             else -> throw Error("Unknown collection type")
         }
 
@@ -440,16 +446,16 @@ class Mesh: GLBound {
                     GLSLVar.Float ->  list.aSequence<Float, FloatArray>   { it.asSequence() }.putIntoBuffer(dataSet) { i, v-> fullBuffer.putFloat(i, v) }
                     GLSLVar.Double -> list.aSequence<Double, DoubleArray> { it.asSequence() }.putIntoBuffer(dataSet) { i, v-> fullBuffer.putDouble(i, v) }
 
-                    GLSLVar.Vector2i -> list.aSequence<Vector2i, Vector2iArray> { it.asSequence() }.putIntoBuffer(dataSet) { i, v-> fullBuffer.putVector2i(i, v) }
-                    GLSLVar.Vector3i -> list.aSequence<Vector3i/*TODO:Vector3iArray*/>().           putIntoBuffer(dataSet) { i, v-> fullBuffer.putVector3i(i, v) }
-                    GLSLVar.Vector4i -> list.aSequence<Vector4i/*TODO:Vector4iArray*/>().           putIntoBuffer(dataSet) { i, v-> fullBuffer.putVector4i(i, v) }
+                    GLSLVar.Vector2i -> list.aSequence<Vector2i, Vector2iArray> { it.asSequence(true) }.putIntoBuffer(dataSet) { i, v-> fullBuffer.putVector2i(i, v) }
+                    GLSLVar.Vector3i -> list.aSequence<Vector3i/*TODO:Vector3iArray*/>()           .putIntoBuffer(dataSet) { i, v-> fullBuffer.putVector3i(i, v) }
+                    GLSLVar.Vector4i -> list.aSequence<Vector4i/*TODO:Vector4iArray*/>()           .putIntoBuffer(dataSet) { i, v-> fullBuffer.putVector4i(i, v) }
 
-                    GLSLVar.Vector2l -> list.aSequence<Vector2L/*TODO:Vector2LArray*/>().           putIntoBuffer(dataSet) { i, v-> fullBuffer.putVector2L(i, v) }
-                    GLSLVar.Vector3l -> list.aSequence<Vector3L/*TODO:Vector3LArray*/>().           putIntoBuffer(dataSet) { i, v-> fullBuffer.putVector3L(i, v) }
-                    GLSLVar.Vector4l -> list.aSequence<Vector4L/*TODO:Vector4LArray*/>().           putIntoBuffer(dataSet) { i, v-> fullBuffer.putVector4L(i, v) }
+                    GLSLVar.Vector2l -> list.aSequence<Vector2L/*TODO:Vector2LArray*/>()           .putIntoBuffer(dataSet) { i, v-> fullBuffer.putVector2L(i, v) }
+                    GLSLVar.Vector3l -> list.aSequence<Vector3L/*TODO:Vector3LArray*/>()           .putIntoBuffer(dataSet) { i, v-> fullBuffer.putVector3L(i, v) }
+                    GLSLVar.Vector4l -> list.aSequence<Vector4L/*TODO:Vector4LArray*/>()           .putIntoBuffer(dataSet) { i, v-> fullBuffer.putVector4L(i, v) }
 
-                    GLSLVar.Vector2f -> list.aSequence<Vector2f/*TODO:Vector2fArray*/>().putIntoBuffer(dataSet) { i, v-> fullBuffer.putVector2f(i, v) }
-                    GLSLVar.Vector3f -> list.aSequence<Vector3f/*TODO:Vector3fArray*/>().putIntoBuffer(dataSet) { i, v-> fullBuffer.putVector3f(i, v) }
+                    GLSLVar.Vector2f -> list.aSequence<Vector2f, Vector2fArray> { it.asSequence(true) }.putIntoBuffer(dataSet) { i, v-> fullBuffer.putVector2f(i, v) }
+                    GLSLVar.Vector3f -> list.aSequence<Vector3f, Vector3fArray> { it.asSequence(true) }.putIntoBuffer(dataSet) { i, v-> fullBuffer.putVector3f(i, v) }
                     GLSLVar.Vector4f -> list.aSequence<Vector4f/*TODO:Vector4fArray*/>().putIntoBuffer(dataSet) { i, v-> fullBuffer.putVector4f(i, v) }
 
                     GLSLVar.Vector2d -> list.aSequence<Vector2d/*TODO:Vector2dArray*/>().putIntoBuffer(dataSet) { i, v-> fullBuffer.putVector2d(i, v) }

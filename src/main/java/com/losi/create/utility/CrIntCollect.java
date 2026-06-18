@@ -8,4 +8,5 @@ import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList;
 class CrIntCollect {
     static IntIterable wrapper(int[] array) { return new IntArrayList(array); }
     static void addAll(MutableIntList list, int[] array) { list.addAll(array); }
+    static void addAll(MutableFloatList list, float[] array) { list.addAll(array); }
 }

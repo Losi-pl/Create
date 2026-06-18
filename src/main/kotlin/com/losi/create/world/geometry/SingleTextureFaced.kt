@@ -1,14 +1,11 @@
 package com.losi.create.world.geometry
 
-import com.losi.create.assets.AssetManager
-import com.losi.create.assets.BlockTexture
-import com.losi.create.graphics.BlockFacet
-import com.losi.create.graphics.Mesh
-import com.losi.create.graphics.Shader
-import org.apache.commons.io.function.IOTriConsumer
-import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList
-import org.joml.*
+import com.losi.create.assets.*
+import com.losi.create.graphics.*
+import com.losi.create.math.collections.*
 import com.losi.create.utility.*
+import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList
+import org.eclipse.collections.impl.list.mutable.primitive.FloatArrayList
 
 /**A standard texture type holding only the index of the texture in atlas with no additional modifiers*/
 class SingleTextureFaced: BlockFacet {
@@ -17,11 +14,11 @@ class SingleTextureFaced: BlockFacet {
 
     @OptIn(ExperimentalUnsignedTypes::class)
     context(modeler: WorldModeler)
-    override fun draw(vertexCount: UInt, elementCount: UInt, specifier: IOTriConsumer<Array<Vector3f>, Array<Vector2f>, UIntArray>) {
-        val positions = Array(vertexCount.toInt()) { Vector3f() }
-        val uvs = Array(vertexCount.toInt()) { Vector2f() }
+    override fun draw(vertexCount: UInt, elementCount: UInt, specifier: FillModelData) {
+        val positions = Vector3fArray(vertexCount.toInt())
+        val uvs = Vector2fArray(vertexCount.toInt())
         val elements = UIntArray(elementCount.toInt() * 3)
-        specifier.accept(positions, uvs, elements)
+        specifier.fill(positions, uvs, elements)
 
         val allInd = atlasIndexes
 
@@ -36,15 +33,15 @@ class SingleTextureFaced: BlockFacet {
         allElements.addAll(elements.toIntArray())
 
         allInd.addAll(IntArray(vertexCount.toInt()) { texture.index.toInt() })
-        allPositions.addAll(positions)
-        allUvs.addAll(uvs)
+        allPositions.addAll(positions.asFloatArray())
+        allUvs.addAll(uvs.asFloatArray())
     }
 
     companion object: FacetModeler() {
         val shader = lazy { AssetManager.get<Shader>("create:blocks/single-texture").orElse { throw RuntimeException("Required shader not found (create:single-texture)") }}
 
-        context(_: WorldModeler) val allPositions get() = getObject("positions") { mutableListOf<Vector3f>() }
-        context(_: WorldModeler) val allUvs get() = getObject("uvs") { mutableListOf<Vector2f>() }
+        context(_: WorldModeler) val allPositions get() = getObject("positions") { FloatArrayList.newListWith()!! }
+        context(_: WorldModeler) val allUvs get() = getObject("uvs") { FloatArrayList.newListWith()!! }
         context(_: WorldModeler) val atlasIndexes get() = getObject("atlas") { IntArrayList.newListWith()!! }
         context(_: WorldModeler) val allElements get() = getObject("elements") { IntArrayList.newListWith()!! }
 
@@ -53,9 +50,9 @@ class SingleTextureFaced: BlockFacet {
         override fun finish(): Mesh {
             val mesh = Mesh(shader.value)
 
-            mesh.setAttribute("pos", allPositions)
+            mesh.setAttribute("pos", allPositions.toArray().asVector3Array())
             @Suppress("SpellCheckingInspection", "RedundantSuppression")
-            mesh.setAttribute("uvPos", allUvs)
+            mesh.setAttribute("uvPos", allUvs.toArray().asVector2Array())
             mesh.setAttribute("atlasInd", atlasIndexes.toArray().asUIntArray())
             mesh.triangles(allElements.toArray().asUIntArray())
 

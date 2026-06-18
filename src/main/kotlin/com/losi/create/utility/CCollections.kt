@@ -2,6 +2,7 @@
 @file:Suppress("unused")
 package com.losi.create.utility
 
+import com.losi.create.math.collections.*
 import java.util.Collections
 
 /**Creates a reflection of a list that is read only but still reflects changes to the original*/
@@ -97,3 +98,8 @@ fun <T> Sequence<T>.exclude(coll: Collection<T>) = sequence {
 inline fun <T> unaccessible(): T {
     throw Error("This method should be unaccessible")
 }
+
+/**Wraps this [FloatArray] to be treated as an [Vector2fArray]*/
+fun FloatArray.asVector2Array() = Vector2fArray.around(this)
+/**Wraps this [FloatArray] to be treated as an [Vector3fArray]*/
+fun FloatArray.asVector3Array() = Vector3fArray.around(this)

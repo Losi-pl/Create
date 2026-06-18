@@ -1,10 +1,10 @@
 @file:Suppress("unused", "DuplicatedCode")
 package com.losi.create.math.collections
 
-import com.losi.create.math.Vector4b
 import kotlin.experimental.and
 import kotlin.streams.asStream
 
+private typealias Vector4b = com.losi.create.math.Vector4b
 @OptIn(ExperimentalStdlibApi::class)
 @JvmInline @JvmExposeBoxed value class Vector4bArray private constructor(private val elements: ByteArray)
 {

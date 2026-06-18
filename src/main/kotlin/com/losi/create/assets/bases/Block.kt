@@ -1,6 +1,7 @@
 package com.losi.create.assets.bases
 
 import com.losi.create.assets.*
+import com.losi.create.math.collections.Vector2fArray
 import com.losi.create.registry.GameElement
 import com.losi.create.world.World
 import com.losi.create.world.geometry.*
@@ -17,27 +18,27 @@ abstract class Block: GameElement() {
      * @param data The data used to generate the model
      * @param modeler Mechanism used to generate the model passed onto [BlockFacet][com.losi.create.graphics.BlockFacet]*/
     context(modeler: WorldModeler)
-    open fun generateModel(data: ModelGeneration): Unit = @OptIn(ExperimentalUnsignedTypes::class) run {
+    open fun generateModel(data: ModelGeneration) {
         val texture = SingleTextureFaced(BlockTexture.find("create:dirt"))
 
-        val model = BasicCubeModel().apply { position = data.position }
+        val model = BasicCubeModel(data.position)
 
         model.direction = BlockDirection.North
-        texture.draw(4u, 2u, model)
+        texture.draw(model)
 
         model.direction = BlockDirection.East
-        texture.draw(4u, 2u, model)
+        texture.draw(model)
 
         model.direction = BlockDirection.South
-        texture.draw(4u, 2u, model)
+        texture.draw(model)
 
         model.direction = BlockDirection.West
-        texture.draw(4u, 2u, model)
+        texture.draw(model)
 
         model.direction = BlockDirection.Top
-        texture.draw(4u, 2u, model)
+        texture.draw(model)
 
         model.direction = BlockDirection.Bottom
-        texture.draw(4u, 2u, model)
+        texture.draw(model)
     }
 }
