@@ -107,7 +107,7 @@ dependencies {
     implementation("com.google.guava:guava:33.6.0-jre")
 }
 kotlin { jvmToolchain(26) }
-
+//TODO: https://openjdk.org/projects/valhalla/
 tasks.jar {
     manifest {
         attributes(
