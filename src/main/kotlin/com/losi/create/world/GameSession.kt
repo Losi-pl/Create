@@ -48,14 +48,28 @@ class GameSession: Scene() {
         thread(name = "Initial World Generation") {
             val ch = Realms.Earth.world.loadChunk(ChunkPos(0, 0))
             val dirt = PlacedBlock(Blocks.Dirt)
-            val dirt2 = PlacedBlock(Blocks.Dirt)
-            ch[0, 0, 0] = dirt
-            ch[0, 0, 1] = dirt
-            ch[1, 0, 0] = dirt
+            val stone = PlacedBlock(Blocks.Stone)
+            val bedrock = PlacedBlock(Blocks.Bedrock)
             ch[1, 0, 1] = dirt
+            ch[1, 0, 2] = dirt
+            ch[2, 0, 1] = dirt
+            ch[2, 0, 2] = dirt
 
-            ch[0, 1, 0] = dirt2
-            ch[1, 1, 1] = dirt2
+            ch[2, 1, 2] = PlacedBlock(Blocks.GrassBlock)
+
+            ch[1, 0, 0] = stone
+            ch[2, 0, 0] = stone
+            ch[0, 0, 1] = stone
+            ch[0, 0, 2] = stone
+            ch[1, 0, 3] = stone
+            ch[2, 0, 3] = stone
+            ch[3, 0, 1] = stone
+            ch[3, 0, 2] = stone
+
+            ch[0, 0, 0] = bedrock
+            ch[3, 0, 0] = bedrock
+            ch[0, 0, 3] = bedrock
+            ch[3, 0, 3] = bedrock
 
             model = ChunkModeler(Realms.Earth, ChunkPos(0, 0)).generate()
         }
@@ -64,7 +78,7 @@ class GameSession: Scene() {
     override fun logicUpdate(timeDelta: Float) {
         if(isRot)
             rot += timeDelta
-        shader.setUniform("model", Matrix4f().setRotationXYZ(Math.toRadians(-45f), rot, 0f).translate(-1f, -1f, -1f))
+        shader.setUniform("model", Matrix4f().setRotationXYZ(Math.toRadians(-45f), rot, 0f).translate(-2f, -2f, -2f))
     }
 
     override fun renderUpdate(timeDelta: Float) {

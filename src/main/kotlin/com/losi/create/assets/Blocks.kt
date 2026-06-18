@@ -2,7 +2,9 @@
 package com.losi.create.assets
 
 import com.losi.create.assets.bases.Block
+import com.losi.create.graphics.BlockFacet
 import com.losi.create.registry.ElementRegister
+import com.losi.create.world.geometry.SingleTextureFaced
 import com.losi.create.world.geometry.WorldModeler
 
 object Blocks {
@@ -13,8 +15,20 @@ object Blocks {
         // Air has no model
         context(modeler: WorldModeler) override fun generateModel(data: ModelGeneration) { }
     }
-    val Stone = object: Block() { }
-    val Dirt = object: Block() { }
+    val Stone = object: Block() {
+        lateinit var texture: BlockFacet
+        override fun onRegister() { texture = SingleTextureFaced(BlockTexture.find("create:stone")) }
+        override fun getSideFaced(data: SideFacedQuery) = texture
+    }
+    val Dirt = object: Block() {
+        lateinit var texture: BlockFacet
+        override fun onRegister() { texture = SingleTextureFaced(BlockTexture.find("create:dirt")) }
+        override fun getSideFaced(data: SideFacedQuery) = texture
+    }
     val GrassBlock = object: Block() { }
-    val Bedrock = object: Block() { }
+    val Bedrock = object: Block() {
+        lateinit var texture: BlockFacet
+        override fun onRegister() { texture = SingleTextureFaced(BlockTexture.find("create:bedrock")) }
+        override fun getSideFaced(data: SideFacedQuery) = texture
+    }
 }
