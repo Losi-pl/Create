@@ -98,15 +98,15 @@ class ChunkModeler: WorldModeler {
     fun generate(): ChunkModel {
         val spanX = centerPoint.toBlockSpanX()
         val spanZ = centerPoint.toBlockSpanZ()
-        val data = Block.ModelGeneration(Vector3l(), world)
+        val data = Block.ModelGeneration(Vector3l(), world, unloadedBlock.value)
         val models = FastList.newList<Map<KClass<*>, Mesh>>(Realm.CHUNK_CUBE_COUNT)
         for(c in 0 until Realm.CHUNK_CUBE_COUNT) {
             for (y in c * Realm.CHUNK_CUBE_SIZE until (c + 1) * Realm.CHUNK_CUBE_SIZE.toLong())
                 for (x in spanX)
                     for (z in spanZ) {
                         data.position.set(x, y, z)
-                        val block = world[x, y, z]
-                        block.block.generateModel(data)
+                        data.block = world[x, y, z]
+                        data.block.block.generateModel(data)
                     }
             models.add(finish())
         }

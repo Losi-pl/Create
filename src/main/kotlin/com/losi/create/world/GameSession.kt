@@ -45,7 +45,7 @@ class GameSession: Scene() {
         //Temporary
         GL11.glEnable(GL11.GL_DEPTH_TEST)
 
-        thread {
+        thread(name = "Initial World Generation") {
             val ch = Realms.Earth.world.loadChunk(ChunkPos(0, 0))
             val dirt = PlacedBlock(Blocks.Dirt)
             val dirt2 = PlacedBlock(Blocks.Dirt)

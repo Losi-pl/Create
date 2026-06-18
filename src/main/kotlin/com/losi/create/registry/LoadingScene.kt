@@ -52,7 +52,7 @@ internal class LoadingScene: Scene() {
             flushBuffers()
         }
 
-        loadingThread = thread(start = false) {
+        loadingThread = thread(start = false, name = "Element Loading") {
             RegisterOrder.registerAssetPrecesses()
             RegisterOrder.precesses().forEach {
                 OnMainThread.schedule { title = "Create: Loading: ${it.second}" }
@@ -67,6 +67,7 @@ internal class LoadingScene: Scene() {
     override fun onSceneDispose() {
         mesh.release()
         shader.release()
+        System.gc()
     }
 
     override fun onKeyDown(key: Key, mods: KeyMods) {
