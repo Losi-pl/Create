@@ -122,7 +122,7 @@ tasks.compileJava {
 }
 
 tasks.test { jvmArgs = listOf("--enable-native-access=ALL-UNNAMED", "--enable-preview"); useJUnitPlatform() }
-tasks.run { args = listOf("--version") }
+tasks.run { args = listOf("--version"); standardInput = System.`in` }
 
 /* TODO: See about including JRE into the game compilation
 * Non-modular app: https://github.com/beryx/badass-runtime-plugin

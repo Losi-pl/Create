@@ -10,6 +10,17 @@ private object App {
      * @param args The parameters of the game startup
      */
     @JvmStatic fun main(vararg args: String) {
+        if(System.getenv("LAZY-START").let {
+            if(it == "true")
+                return@let true
+            if(it == "1")
+                return@let true
+            if(it == "yes")
+                return@let true
+            return@let false }) {
+            readln()
+        }
+
         println("Welcome to Create!")
 
         args.find { it.equals("--version", true) }?.let {
