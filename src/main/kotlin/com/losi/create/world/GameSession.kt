@@ -45,6 +45,7 @@ class GameSession: Scene() {
 
         val projection = Matrix4f().perspectiveLH(Math.toRadians(45f), windowSize.x / windowSize.y.toFloat(), 0.1f, 100f)
         shader.setUniform("projection", projection)
+        shader2.setUniform("projection", projection)
 
         //Placeholder
         ElementRegister.loadElementUuids(sequenceOf())
