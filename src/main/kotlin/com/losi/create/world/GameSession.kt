@@ -106,7 +106,7 @@ class GameSession: Scene() {
     override fun renderUpdate(timeDelta: Float) {
         model?.let {
             if(!rebound) {
-                it.redoBindings()
+                it.threadBind()
                 rebound = true
             }
             it.draw()

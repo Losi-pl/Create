@@ -10,15 +10,15 @@ class ChunkModel {
 
     /**Draws the model*/
     fun draw() {
-        println("Model draw:")
         content.valuesView().forEach {
             it.draw()
-            println(it.shader.attributes.size)
         }
     }
 
-    fun redoBindings() {
-        content.valuesView().last().threadBind()
-        content.valuesView().first().threadBind()
+    /**Ensures that all meshes constructing this model are properly bound to the main thread*/
+    fun threadBind() {
+        content.valuesView().forEach {
+            it.threadBind()
+        }
     }
 }
