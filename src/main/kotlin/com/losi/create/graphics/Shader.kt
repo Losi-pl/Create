@@ -181,7 +181,7 @@ class Shader: GLBound {
             throw Exception("Uniform \"$name\" requires ${uninfo.count} values to be passed to it while only 1 was provided")
         use()
         setter(uninfo)
-        glUseProgram(ShaderProgram.NONE)
+        Shader.release()
     }
 
     //region Primitive Uniform's

@@ -70,7 +70,7 @@ class Mesh: GLBound {
          * @param data The bindings to specific objects in OpenGL*/
         private fun garbageCollect(data: GLBinds) {
             glDeleteBuffer(data.vbo)
-            glDeleteVertexArray(data.vao)
+            data.vao?.let { glDeleteVertexArray(it.second) }
         }
     }
 
@@ -101,7 +101,8 @@ class Mesh: GLBound {
         if(shader.released)
             throw NullPointerException("The Shader used by this Mesh was destroyed")
         val bin = glBinds ?: throw NullPointerException("This Mesh does not have a burned model to draw")
-        glBindVertexArray(bin.vao)
+        check(bin.vao?.first == Thread.currentThread()) { "This Mesh is not bound to the current thread" }
+        glBindVertexArray(bin.vao!!.second)
         shader.use()
         shader.assignObjects()
         if(bin.ebo == null)
@@ -509,7 +510,7 @@ class Mesh: GLBound {
                 buf.flip()
             }
 
-            glBinds = GLBinds(glGenVertexArray(), glGenBuffer(BufferType.Array), null, vertexCount.toUInt()).apply {
+            glBinds = GLBinds(null, glGenBuffer(BufferType.Array), null, vertexCount.toUInt()).apply {
                 cleaner = Mesh.cleaner.register(this@Mesh) {
                     if(glTest())
                         garbageCollect(this)
@@ -528,16 +529,20 @@ class Mesh: GLBound {
                     drawCount = getSize(elements!!).toUInt()
                 }
             }
-            redoBindings()
         }
     }
     /**A check if there is a burned model connected to this Mesh*/
     val isBurned: Boolean get() = synchronized(variables) { glBinds != null }
 
     /**NVIDIA does not know how to make Vertex Array's work in muti threaded environment call this method before using any mesh generated on a different thread*/
-    fun redoBindings() {
+    fun threadBind() {
         glBinds?.let { binds ->
-            glBindVertexArray(binds.vao)
+            if(binds.vao != null) {
+                check(binds.vao!!.first == Thread.currentThread()) { "This mesh is already bound to a different thread" }
+                return
+            }
+            binds.vao = Thread.currentThread() to glGenVertexArray()
+            glBindVertexArray(binds.vao!!.second)
             val vertexSize = shader.attributes.values.sumOf { it.type.byteCount }.toInt()
             glBindBuffer(binds.vbo)
             binds.ebo?.let { glBindBuffer(it) }
@@ -549,12 +554,12 @@ class Mesh: GLBound {
             Shader.release()
             glUnbindBuffer(BufferType.Array)
             glUnbindBuffer(BufferType.ElementArray)
-        }
+        }?: throw IllegalStateException("This mesh has no burned model to bind")
     }
 
     /**OpenGL handlers connected to this model
      * @property vao Vertex Array, stores bindings to of variables to proper attributes in the model
      * @property vbo Array Buffer, stores the actual data of the model
      * @property drawCount Stores the count of things to drawn that's eather vertex count or element count*/
-    private data class GLBinds(var vao: VertexArray, var vbo: BufferObject, var ebo: BufferObject?, var drawCount: UInt)
+    private data class GLBinds(var vao: Pair<Thread, VertexArray>?, var vbo: BufferObject, var ebo: BufferObject?, var drawCount: UInt)
 }

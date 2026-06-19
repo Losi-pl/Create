@@ -10,14 +10,15 @@ class ChunkModel {
 
     /**Draws the model*/
     fun draw() {
+        println("Model draw:")
         content.valuesView().forEach {
             it.draw()
+            println(it.shader.attributes.size)
         }
     }
 
     fun redoBindings() {
-        content.valuesView().forEach {
-            it.redoBindings()
-        }
+        content.valuesView().last().threadBind()
+        content.valuesView().first().threadBind()
     }
 }

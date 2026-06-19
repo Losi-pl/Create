@@ -50,6 +50,7 @@ internal class LoadingScene: Scene() {
 
             burnModel()
             flushBuffers()
+            threadBind()
         }
 
         loadingThread = thread(start = false, name = "Element Loading") {

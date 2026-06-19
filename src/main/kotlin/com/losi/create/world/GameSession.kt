@@ -25,6 +25,7 @@ class GameSession: Scene() {
         setUniform("model", Matrix4f())
         setUniform("atlas", BlockTexture.atlas)
     }
+
     var model: ChunkModel? = null
     var rebound = false
 
@@ -90,6 +91,7 @@ class GameSession: Scene() {
     override fun onResize(width: Int, height: Int) {
         val projection = Matrix4f().perspectiveLH(Math.toRadians(45f), width / height.toFloat(), 0.1f, 100f)
         shader.setUniform("projection", projection)
+        shader2.setUniform("projection", projection)
     }
 
     override fun logicUpdate(timeDelta: Float) {

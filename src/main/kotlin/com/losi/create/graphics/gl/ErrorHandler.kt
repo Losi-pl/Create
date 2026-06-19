@@ -9,11 +9,16 @@ import org.lwjgl.opengl.GL43
  * When it is called in a thread it will connect to the context
  * The caught error will be pushed to the console, it the error in question is critical it will be thrown as an Exception */
 fun bindErrorCather() {
+    GL11.glEnable(GL43.GL_DEBUG_OUTPUT)
     GL11.glEnable(GL43.GL_DEBUG_OUTPUT_SYNCHRONOUS)
     glDebugMessageCallback { source, type, id, severity, message ->
-        System.err.println("[OpenGL Debug] Source: ${source.name.splitCamelCase()
-        } | Type: ${type.name.splitCamelCase()
-        } | ID: ${id.id} | Severity: $severity | Message: $message") }
+        (if(severity == DebugMessageSeverity.Notification) System.out else System.err)
+            .println("[OpenGL Debug] Source: ${source.name.splitCamelCase()
+            } | Type: ${type.name.splitCamelCase()
+            } | ID: ${id.id} | Severity: $severity | Message: $message")
+        if(severity == DebugMessageSeverity.Critical)
+            throw CriticalOpenGLException(source, type, id, message)
+    }
 }
 
 enum class DebugMessageSource(val gl: Int, val glName: String) {
@@ -68,4 +73,10 @@ enum class DebugMessageSeverity(val gl: Int, val glName: String) {
 @JvmInline
 value class DebugMessageId(val id: Int) {
     override fun toString() = String.format("0x%X", id)
+}
+
+class CriticalOpenGLException (val source: DebugMessageSource, val type: DebugMessageType, val id: DebugMessageId, message: String): Exception() {
+    override val message = "[OpenGL Debug] Source: ${source.name.splitCamelCase()
+                           } | Type: ${type.name.splitCamelCase()
+                           } | ID: ${id.id} | Message: $message"
 }
