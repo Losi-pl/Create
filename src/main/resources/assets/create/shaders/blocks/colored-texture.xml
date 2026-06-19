@@ -1,0 +1,5 @@
+<shader>
+    <fragment>
+        <output name="fragColor" location="0"/>
+    </fragment>
+</shader>

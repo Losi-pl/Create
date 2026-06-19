@@ -57,7 +57,7 @@ abstract class Block: GameElement() {
      * @param side The side of the blocks that is queried for the answer*/
     data class AmIVisible(var position: Vector3l, var world: World, var block: PlacedBlock, var side: BlockDirection)
     /**Allows to determine if this blocks hides the face of its neighbor from the specified [AmIVisible.side]*/
-    open fun imVisibleFrom(data: AmIVisible): Boolean { return true }
+    open fun imVisibleFrom(data: AmIVisible): Boolean { return false }
 
     /**Data for [getSideFaced], Note that all mutable classes in this object along with this object itself are meant to be reused repeatedly
      * @param position The coordinates of the queried block
@@ -66,9 +66,10 @@ abstract class Block: GameElement() {
      * @param side The side of the blocks that is queried for the answer*/
     data class SideFacedQuery(var position: Vector3l, var world: World, var block: PlacedBlock, var side: BlockDirection)
     /**Returns the texture of this [SideFacedQuery.side] of this block*/
-    open fun getSideFaced(data: SideFacedQuery): BlockFacet { return noTexture.value }
+    open fun getSideFaced(data: SideFacedQuery): BlockFacet { return NO_TEXTURE }
 
     companion object {
         private val noTexture = lazy { SingleTextureFaced(BlockTexture.NOT_FOUND) }
+        val NO_TEXTURE get() = noTexture.value
     }
 }

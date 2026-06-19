@@ -1,6 +1,8 @@
 package com.losi.create.graphics
 
-import com.losi.create.world.geometry.*
+import com.losi.create.world.geometry.AutoModelFill
+import com.losi.create.world.geometry.FillModelData
+import com.losi.create.world.geometry.WorldModeler
 import org.lwjgl.system.MemoryStack
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf

@@ -16,7 +16,13 @@ class GameSession: Scene() {
 
         setUniform("view", view)
         setUniform("model", Matrix4f())
+        setUniform("atlas", BlockTexture.atlas)
+    }
+    val shader2 = AssetManager.get<Shader>("create:blocks/colored-texture").orElse { throw RuntimeException("Required shader not found (create:colored-texture)") }.apply {
+        val view = Matrix4f().lookAtLH(Vector3f(0f, 0f, -10f), Vector3f(0f, 0f, 0f), Vector3f(0f, 1f, 0f))
 
+        setUniform("view", view)
+        setUniform("model", Matrix4f())
         setUniform("atlas", BlockTexture.atlas)
     }
     var model: ChunkModel? = null
@@ -44,9 +50,15 @@ class GameSession: Scene() {
 
         //Temporary
         GL11.glEnable(GL11.GL_DEPTH_TEST)
+        GL11.glEnable(GL11.GL_CULL_FACE)
+        GL11.glCullFace(GL11.GL_FRONT)
 
         thread(name = "Initial World Generation") {
             val ch = Realms.Earth.world.loadChunk(ChunkPos(0, 0))
+
+            Realms.Earth.world.loadChunk(ChunkPos(-1, 0))
+            Realms.Earth.world.loadChunk(ChunkPos(0, -1))
+
             val dirt = PlacedBlock(Blocks.Dirt)
             val stone = PlacedBlock(Blocks.Stone)
             val bedrock = PlacedBlock(Blocks.Bedrock)
@@ -83,7 +95,9 @@ class GameSession: Scene() {
     override fun logicUpdate(timeDelta: Float) {
         if(isRot)
             rot += timeDelta
-        shader.setUniform("model", Matrix4f().setRotationXYZ(Math.toRadians(-45f), rot, 0f).translate(-2f, -2f, -2f))
+        val map = Matrix4f().setRotationXYZ(Math.toRadians(-5f), rot, 0f).translate(-2f, -2f, -2f)
+        shader.setUniform("model", map)
+        shader2.setUniform("model", map)
     }
 
     override fun renderUpdate(timeDelta: Float) {
