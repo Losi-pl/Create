@@ -47,7 +47,7 @@ public static class Server
     /// </summary>
     static void load_save()
     {
-        foreach (var d in Register.Dimentions)
+        foreach (var d in Register.Dimensions)
             dimentions.Add(new(d));
     }
     

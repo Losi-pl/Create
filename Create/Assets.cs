@@ -14,7 +14,8 @@ public static partial class Assets
     static MargedResources? resources;
 
     /// <summary>
-    /// Ładuje wszystkie pakiety zasobów i łączy je w jeden globalny pakiet
+    /// Takes all available sources of assets and merges them into a single source<br/>
+    /// TODO Stop that and separate them back out
     /// </summary>
     internal static void LoadGlobalResources()
     {
