@@ -1,0 +1,10 @@
+<shader>
+    <fragment>
+        <output name="fragColor" location="0"/>
+    </fragment>
+    <uniform>
+        <projection name="projection"/>
+        <model name="model"/>
+        <view name="view"/>
+    </uniform>
+</shader>

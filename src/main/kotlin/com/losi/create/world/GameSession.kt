@@ -3,7 +3,6 @@ package com.losi.create.world
 import com.losi.create.assets.*
 import com.losi.create.graphics.*
 import com.losi.create.registry.ElementRegister
-import com.losi.create.utility.orElse
 import com.losi.create.world.geometry.ChunkModeler
 import org.joml.*
 import org.lwjgl.opengl.GL11
@@ -36,6 +35,7 @@ class GameSession: Scene() {
 
         AssetManager.get<Shader>("create:blocks/single-texture")?.setUniform("atlas", BlockTexture.atlas)
         AssetManager.get<Shader>("create:blocks/colored-texture")?.setUniform("atlas", BlockTexture.atlas)
+        AssetManager.get<Shader>("create:blocks/double-colored-textures")?.setUniform("atlas", BlockTexture.atlas)
 
         //Placeholder
         ElementRegister.loadElementUuids(sequenceOf())

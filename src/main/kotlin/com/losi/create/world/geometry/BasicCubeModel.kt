@@ -61,10 +61,10 @@ class BasicCubeModel: AutoModelFill {
             }
         }
 
-        uvs[0] = tmp2.set(0f, 1f)
-        uvs[1] = tmp2.set(1f, 1f)
-        uvs[2] = tmp2.set(1f, 0f)
-        uvs[3] = tmp2.set(0f, 0f)
+        uvs[0] = tmp2.set(0f, 0f)
+        uvs[1] = tmp2.set(1f, 0f)
+        uvs[2] = tmp2.set(1f, 1f)
+        uvs[3] = tmp2.set(0f, 1f)
 
         elements[0] = 0u
         elements[1] = 1u

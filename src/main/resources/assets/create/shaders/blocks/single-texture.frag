@@ -8,5 +8,5 @@ out vec4 fragColor;
 uniform sampler2DArray atlas;
 
 void main() {
-    fragColor = texture(atlas, vec3(uv, float(ind)));
+    fragColor = texture(atlas, vec3(uv, ind));
 }
