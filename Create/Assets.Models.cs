@@ -27,7 +27,11 @@ partial class Assets
 
             var stream = resources!.GetPath($"{group}/models/blocks/{path}").GetFile(file).GetStream();
 
-            var xml = XDocument.Load(stream).Root;
+            XElement? xml;
+            using (var reader = new StreamReader(stream))
+            {
+                xml = XDocument.Parse(reader.ReadToEnd()).Root;
+            }
             var modSource = find_mod(xml?.Name?.Namespace?.NamespaceName ?? "create");
             var converter = xml?.Name.LocalName;
 

@@ -40,7 +40,10 @@ partial class Assets
             path = path.Length - file.Length - 1 < 0 ? string.Empty : path.Remove(path.Length - file.Length - 1);
 
             var stream = resources!.GetPath($"{group}/interfaces/{path}").GetFile(file).GetStream();
-            return XDocument.Load(stream);
+            using (var reader = new StreamReader(stream))
+            {
+                return XDocument.Parse(reader.ReadToEnd());
+            }
         }
         SpacePoint point(XElement element)
         {

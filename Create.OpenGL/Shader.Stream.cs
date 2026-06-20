@@ -16,7 +16,13 @@ namespace Create.OpenGL
         /// <param name="shader">Dodatkowe operacje do wykonania na gotowym <see cref="Shader"/>ze</param>
         public static Shader Load(Stream stream, Action<Constructor>? constructor, Action<Shader>? shader)
         {
-            var xml = XDocument.Load(stream);
+            String content;
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                content = reader.ReadToEnd();
+            }
+            
+            var xml = XDocument.Parse(content);
 
             var shader_version = xml.Root!.Element("version")?.Cast(v => (v.Attribute("number")?.Value, v.Attribute("core")?.Value)).Cast(v =>
             {
