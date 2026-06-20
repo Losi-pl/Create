@@ -53,7 +53,7 @@ public abstract class SlabBase : Block
             return (placedBlock.Block, Register.Blocks.ByName[placedBlock.Meta]);
     }
     
-    public override sealed bool IsSideVisible(StandardBlockSet sideSet, BlockSide side)
+    public sealed override bool IsSideVisible(StandardBlockSet sideSet, BlockSide side)
     {
         // Confirm that this block is a slab
         if (!InterpretPlacedBlock(sideSet.block).IsNotNull(out var info))
@@ -195,29 +195,22 @@ public abstract class SlabBase : Block
                 var along_the_X = args.TargetSide is BlockSide.North or BlockSide.South;
 
                 // Check if the targeted location alredy has a slab present
-                if (InterpretPlacedBlock(args.World.GetBlock(args.TargetBlockPozition)).IsNotNull(out var info))
-                {
-                    // Check if the slab/s in that place is vertical
-                    if (!info.IsT1)
-                        return false;
-
-                    // Check if the slab/s in that place are in the same orientation as intended
-                    if (along_the_X != info.AsT1.IsAlongTheXAxis)
-                        return false;
-
-                    // Check if the place if free
-                    if ((is_upper ? info.AsT1.Column2 : info.AsT1.Column1) is not null)
-                        return false;
-
-                    // Update the block placed in the world
-                    if (is_upper)
-                        args.World.SetBlock(args.TargetBlockPozition, new(info.AsT1.Column1!, 0, (along_the_X ? "/" : "|") + this.CodeName));
-                    else
-                        args.World.SetBlock(args.TargetBlockPozition, new(this, 0, (along_the_X ? "/" : "|") + info.AsT1.Column2!.CodeName));
-                }
+                if (IsThereASlab(args.TargetedBlockPozition, out var info))
+                    if(DoesItHaveSpace(info, along_the_X, is_upper))
+                    {
+                        is_upper = !is_upper;
+                     
+                        // Update the block placed in the world
+                        if (is_upper)
+                            args.World.SetBlock(args.TargetedBlockPozition, new(info.AsT1.Column1!, 0, (along_the_X ? "/" : "|") + this.CodeName));
+                        else
+                            args.World.SetBlock(args.TargetedBlockPozition, new(this, 0, (along_the_X ? "/" : "|") + info.AsT1.Column2!.CodeName));
+                        
+                        return true;
+                    }
 
                 // If the location is empty then just set the block
-                else if (args.World.GetBlock(args.TargetBlockPozition).Block == Elements.Blocks.AIR)
+                if (args.World.GetBlock(args.TargetBlockPozition).Block == Elements.Blocks.AIR)
                     args.World.SetBlock(args.TargetBlockPozition, new(this, 0, (along_the_X ? "/" : "|") + (is_upper ? "+" : string.Empty)));
 
                 // The location is alredy taken by something else
@@ -226,6 +219,25 @@ public abstract class SlabBase : Block
             }
 
             return true;
+
+            bool IsThereASlab((int x, int y, int z) position, out SlabInfo info) =>
+                InterpretPlacedBlock(args.World.GetBlock(position)).IsNotNull(out info);
+            bool DoesItHaveSpace(SlabInfo info, bool alongX, bool isUpper)
+            {
+                // Check if the slab/s in that place is vertical
+                if (!info.IsT1)
+                    return false;
+                
+                // Check if the slab/s in that place are in the same orientation as intended
+                if (alongX != info.AsT1.IsAlongTheXAxis)
+                    return false;
+                
+                // Check if the place if free
+                if ((isUpper ? info.AsT1.Column1 /*Order reversed*/ : info.AsT1.Column2) is not null)
+                    return false;
+                
+                return true;
+            }
         }
 
         // Placing a new slab on top of a targeted block
