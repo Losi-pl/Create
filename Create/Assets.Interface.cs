@@ -39,7 +39,7 @@ partial class Assets
             string file = name.Substring(name.LastIndexOfAny(new[] { ':', '\\' }) + 1);
             path = path.Length - file.Length - 1 < 0 ? string.Empty : path.Remove(path.Length - file.Length - 1);
 
-            var stream = resources!.GetPath($"{group}/interfaces/{path}").GetFile(file).GetStream();
+            var stream = _resources!.GetPath($"{group}/interfaces/{path}").GetFile(file).GetStream();
             using (var reader = new StreamReader(stream))
             {
                 return XDocument.Parse(reader.ReadToEnd());

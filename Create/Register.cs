@@ -14,7 +14,7 @@ using Create.Registry;
 namespace Create;
 
 /// <summary>
-/// Podstawowa klasa zawierająca rejesty elementów
+/// Base class containing all Registers and an entry point for logic of their loading 
 /// </summary>
 [Mod("1.0.0.0", "create")]
 public static class Register
@@ -35,10 +35,10 @@ public static class Register
     internal static readonly Dictionary<(string name, Type type), Func<UserInterface.InterfaceCreatorArgs, (UserInterface status, OpenGL.GUI.SpacePoint point)>> userinterfaces = new();
 
     /// <summary>
-    /// Załadowanie podstawowego pakietu zasobów
+    /// Loads resources of the Game itself
     /// </summary>
     /// <returns></returns>
-    internal static Resources create_resource()
+    internal static Resources GetPrimaryResources()
     {
         #if DEBUG
         // Get path to the resources folder
@@ -59,9 +59,7 @@ public static class Register
                 file = tPath.Substring(poz + 1);
             }
             else
-            {
                 (root, file) = ("", tPath);
-            }
 
             // Removing extension
             if (file[0] != '.')
@@ -78,33 +76,33 @@ public static class Register
         var resources = Resources.CreateFromFile().FromFile(resourcesPath).Finish();
         #endif
 
-        load_icon();
-        load_main_shaders();
+        LoadIcon();
+        LoadMainShaders();
 
         return resources;
 
         // Load data components
-        void load_icon()
+        void LoadIcon()
         {
             // Accessing icon file
-            var icon_file = resources.GetPath("assets/create/textures/create").GetFile("icon");
+            var iconFile = resources.GetPath("assets/create/textures/create").GetFile("icon");
 
             // Load icon
-            var icon = Image.Load(icon_file.GetStream());
+            var icon = Image.Load(iconFile.GetStream());
 
             // Set icon
             OpenGL.Engine.SetIcon(icon);
         }
-        void load_main_shaders()
+        void LoadMainShaders()
         {
-            var renderLayer = load_shader("assets/create/shaders/bazic", "renderlayer");
-            var imageElement = load_shader("assets/create/shaders/interface", "image");
+            var renderLayer = LoadShader("assets/create/shaders/basic", "render-layer");
+            var imageElement = LoadShader("assets/create/shaders/interface", "image");
             MainTask.Run(() => RenderLayer.set_shader(renderLayer));
             MainTask.Run(() => OpenGL.GUI.Elements.Image.set_shader(imageElement));
 
-            Shader load_shader(string path, string file)
+            Shader LoadShader(string path, string file)
             {
-                var stream = resources!.GetPath(path).GetFile(file).GetStream();
+                var stream = resources.GetPath(path).GetFile(file).GetStream();
                 return MainTask.Run(() => Shader.Load(stream));
             }
         }

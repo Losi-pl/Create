@@ -16,7 +16,7 @@ internal sealed class Loading : Scean
 
         loading_task = Task.Run(() =>
         {
-            (Assembly?, Resource.Resources) main_mod = (Assembly.GetExecutingAssembly(), Register.create_resource());
+            (Assembly?, Resource.Resources) main_mod = (Assembly.GetExecutingAssembly(), Register.GetPrimaryResources());
             Register.load_mods(new[] { main_mod });
         });
         OpenGL.Engine.Title = $"Create - {Engine.Version}";

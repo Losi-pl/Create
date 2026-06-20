@@ -25,7 +25,7 @@ partial class Assets
             string file = name.Substring(name.LastIndexOfAny(new[] { ':', '\\' }) + 1);
             path = path.Length - file.Length - 1 < 0 ? string.Empty : path.Remove(path.Length - file.Length - 1);
 
-            var stream = resources!.GetPath($"{group}/font/{path}").GetFile(file).GetStream();
+            var stream = _resources!.GetPath($"{group}/font/{path}").GetFile(file).GetStream();
             font = Font.Load(stream);
             fonts.Remove(name);
             fonts.Add(name, new(font));
