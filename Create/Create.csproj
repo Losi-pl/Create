@@ -6,6 +6,7 @@
     <LangVersion>13</LangVersion>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PackageLicenseUrl>https://github.com/Losi-pl/Create/blob/4481b55c5a2205765544f90f4c016859bd69b969/LICENSE</PackageLicenseUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

@@ -2,7 +2,7 @@
   "profiles": {
     "Create.Resource.Compiler": {
       "commandName": "Project",
-      "commandLineArgs": "Create.App.Windows Release win-x64"
+      "commandLineArgs": ""
     }
   }
 }
