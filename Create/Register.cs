@@ -229,7 +229,7 @@ public static class Register
     [ModIniter(InitjalizationStage.Initial)]
     static void bazic_setup(Mod mod)
     {
-        MainTask.Run(() => RenderLayer.set_shader(Assets.GetShader("create:bazic/renderlayer")));
+        MainTask.Run(() => RenderLayer.set_shader(Assets.GetShader("create:basic/render-layer")));
         MainTask.Run(() => OpenGL.GUI.Elements.Image.set_shader(Assets.GetShader("create:interface/image")));
     }
 

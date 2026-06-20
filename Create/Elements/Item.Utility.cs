@@ -33,7 +33,7 @@ file class BazeItemModel : IDrawable
 {
     public static Dictionary<string, Texture2D> loadetTextures = new();
     
-    static Shader shader = Assets.GetShader("create:bazic/item");
+    static Shader shader = Assets.GetShader("create:basic/item");
     static Mesh mesh = Mesh.Create(shader).SetVertex("uv", new Vector2[] { new(0, 1), new(1, 1), new(0, 0), new(1, 0) })
         .SetTrangles(new[] { 0, 1, 2, 1, 2, 3 })
         .Finish();
