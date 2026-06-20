@@ -7,8 +7,6 @@ namespace Create.OpenGL.GUI;
 /// <summary>
 /// Interfejs interakcji z użytkownikiem
 /// </summary>
-
-// TODO - Something about the new version of OpenTK is causing the cursor positioning to be misaligned
 public sealed class Interface
 {
     RenderLayer main_layer;
