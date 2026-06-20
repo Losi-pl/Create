@@ -426,8 +426,8 @@ public static class Engine
     /// </summary>
     public static Vector2i Size
     {
-        get => window.Size;
-        set => window.Size = value;
+        get => window.ClientSize;
+        set => window.ClientSize = value;
     }
     #endregion
 

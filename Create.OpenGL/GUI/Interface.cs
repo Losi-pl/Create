@@ -7,8 +7,6 @@ namespace Create.OpenGL.GUI;
 /// <summary>
 /// Interfejs interakcji z użytkownikiem
 /// </summary>
-
-// TODO - Something about the new version of OpenTK is causing the cursor positioning to be misaligned
 public sealed class Interface
 {
     RenderLayer main_layer;
@@ -79,25 +77,25 @@ public sealed class Interface
 
     public void Phizic()
     {
-        var cursor = (CursorGet ?? (() => (0, 0))).Invoke();
-        var mouseleft = (MouseLeft ?? (() => (false, false, false))).Invoke();
-        var mouseright = (MouseRight ?? (() => (false, false, false))).Invoke();
-        var mousescroll = (MouseScroll ?? (() => (false, false, false, 0))).Invoke();
+        var cursor = CursorGet?.Invoke() ?? (0, 0);
+        var mouseLeft = MouseLeft?.Invoke() ?? (false, false, false);
+        var mouseRight = MouseRight?.Invoke() ?? (false, false, false);
+        var mouseScroll = MouseScroll?.Invoke() ?? (false, false, false, 0);
 
         var element = pointingAt(main, new())!;
 
-        if (mouseleft.down || mouseright.down || mousescroll.down)
+        if (mouseLeft.down || mouseRight.down || mouseScroll.down)
             if (element is not null)
             {
                 var el = element;
                 while (el.Parent is not null)
                 {
                     el._onClick?.Invoke(el, 
-                        mouseleft.down? 
+                        mouseLeft.down? 
                             ClickEventButton.Left: 
-                       (mouseright.down? 
+                       (mouseRight.down? 
                             ClickEventButton.Right: 
-                       (mousescroll.down? 
+                       (mouseScroll.down? 
                             ClickEventButton.Scroll: 
                         ClickEventButton.Unknown)));
 
