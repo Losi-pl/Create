@@ -13,8 +13,6 @@ public static class Mouse
 {
     static bool is_mouse_lock = false, is_visible_cursor = true;
     static (Vector2 delata, Vector2 tmp, bool clear) mouse;
-    static MouseCursor cursor = Engine.window.Cursor;
-    static MouseCursor no_cur = new(0, 0, 1, 1, new byte[] { 0, 0, 0, 0 });
     static bool last_left, last_right, last_scrol, current_left, current_right, current_scrol;
 
     /// <summary>
@@ -42,29 +40,9 @@ public static class Mouse
         set
         {
             if (is_visible_cursor != value)
-                if (value)
-                    show_cursor();
-                else
-                    hide_cursor();
+                Engine.window.CursorState = value ? CursorState.Normal : CursorState.Hidden;
             is_visible_cursor = value;
         }
-    }
-
-    /// <summary>
-    /// Zmienia kursor na niewidoczny
-    /// </summary>
-    static void hide_cursor()
-    {
-        cursor = Engine.window.Cursor;
-        Engine.window.Cursor = no_cur;
-    }
-
-    /// <summary>
-    /// Zmienia kursor na ten przed ukryciem w <see cref="hide_cursor"/>
-    /// </summary>
-    static void show_cursor()
-    {
-        Engine.window.Cursor = cursor;
     }
 
     /// <summary>
