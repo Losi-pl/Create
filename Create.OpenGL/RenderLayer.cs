@@ -4,8 +4,6 @@ using Create.Virtuals;
 using OpenTK.Mathematics;
 using System.Diagnostics;
 using System.Drawing;
-using System.Runtime.CompilerServices;
-using static Create.OpenGL.RenderLayer.Constructor;
 
 namespace Create.OpenGL;
 
@@ -98,7 +96,7 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
     {
         public int width, height;
         public bool draw_only;
-        public BufferChanel[] chanels;
+        public Constructor.BufferChanel[] chanels;
     }
 
     #region buffers
@@ -160,7 +158,7 @@ public sealed partial class RenderLayer : IDisposable, IDrawable
                 FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, handle);
             return handle;
         }
-        int gen_image_atatchment(int width, int height, bool draw_only, BufferChanel data)
+        int gen_image_atatchment(int width, int height, bool draw_only, Constructor.BufferChanel data)
         {
             int handle = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, handle);

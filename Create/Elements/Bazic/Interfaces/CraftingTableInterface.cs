@@ -3,8 +3,6 @@ using Create.Elements.Gui;
 using Create.Conteiner.Items;
 using Create.Conteiner;
 using Create.Net;
-using OpenTK.Graphics.OpenGL;
-using Create.Input;
 using Create.Linq;
 using Create.Elements.Recipes;
 
@@ -84,14 +82,12 @@ internal class CraftingTableInterface : UserInterface, IUserInterface<CraftingTa
             ItemSlot.GetAllSlots(root.Childs.Find("Crafting", true) ?? new()).Find(s => s.ID == 9)
                 .ItemStack = recipe.Value.rezult;
             usedRecipe = recipe;
-            return;
         }
         else
         {
             ItemSlot.GetAllSlots(root.Childs.Find("Crafting", true) ?? new()).Find(s => s.ID == 9)
                 .ItemStack = null;
             usedRecipe = recipe;
-            return;
         }
     }
 
