@@ -11,20 +11,9 @@ import java.awt.Color
 
 class GameSession: Scene() {
 
-    val shader = AssetManager.get<Shader>("create:blocks/single-texture").orElse { throw RuntimeException("Required shader not found (create:single-texture)") }.apply {
-        val view = Matrix4f().lookAtLH(Vector3f(0f, 0f, -10f), Vector3f(0f, 0f, 0f), Vector3f(0f, 1f, 0f))
-
-        setUniform("view", view)
-        setUniform("model", Matrix4f())
-        setUniform("atlas", BlockTexture.atlas)
-    }
-    val shader2 = AssetManager.get<Shader>("create:blocks/colored-texture").orElse { throw RuntimeException("Required shader not found (create:colored-texture)") }.apply {
-        val view = Matrix4f().lookAtLH(Vector3f(0f, 0f, -10f), Vector3f(0f, 0f, 0f), Vector3f(0f, 1f, 0f))
-
-        setUniform("view", view)
-        setUniform("model", Matrix4f())
-        setUniform("atlas", BlockTexture.atlas)
-    }
+    val view = Matrix4f().lookAtLH(Vector3f(0f, 0f, -10f), Vector3f(0f, 0f, 0f), Vector3f(0f, 1f, 0f))
+    val projection = Matrix4f()
+    val modelM = Matrix4f()
 
     var model: ChunkModel? = null
     var rebound = false
@@ -43,9 +32,10 @@ class GameSession: Scene() {
         title = "Create"
         backgroundColor = Color.ORANGE
 
-        val projection = Matrix4f().perspectiveLH(Math.toRadians(45f), windowSize.x / windowSize.y.toFloat(), 0.1f, 100f)
-        shader.setUniform("projection", projection)
-        shader2.setUniform("projection", projection)
+        projection.perspectiveLH(Math.toRadians(45f), windowSize.x / windowSize.y.toFloat(), 0.1f, 100f)
+
+        AssetManager.get<Shader>("create:blocks/single-texture")?.setUniform("atlas", BlockTexture.atlas)
+        AssetManager.get<Shader>("create:blocks/colored-texture")?.setUniform("atlas", BlockTexture.atlas)
 
         //Placeholder
         ElementRegister.loadElementUuids(sequenceOf())
@@ -90,17 +80,13 @@ class GameSession: Scene() {
     }
 
     override fun onResize(width: Int, height: Int) {
-        val projection = Matrix4f().perspectiveLH(Math.toRadians(45f), width / height.toFloat(), 0.1f, 100f)
-        shader.setUniform("projection", projection)
-        shader2.setUniform("projection", projection)
+        projection.setPerspectiveLH(Math.toRadians(45f), width / height.toFloat(), 0.1f, 100f)
     }
 
     override fun logicUpdate(timeDelta: Float) {
         if(isRot)
             rot += timeDelta
-        val map = Matrix4f().setRotationXYZ(Math.toRadians(-5f), rot, 0f).translate(-2f, -2f, -2f)
-        shader.setUniform("model", map)
-        shader2.setUniform("model", map)
+        modelM.identity().setRotationXYZ(Math.toRadians(-5f), rot, 0f).translate(-2f, -2f, -2f)
     }
 
     override fun renderUpdate(timeDelta: Float) {
@@ -109,7 +95,7 @@ class GameSession: Scene() {
                 it.threadBind()
                 rebound = true
             }
-            it.draw()
+            it.draw(modelM, view, projection)
         }
     }
 }

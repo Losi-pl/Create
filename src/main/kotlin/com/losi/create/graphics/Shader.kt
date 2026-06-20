@@ -30,10 +30,14 @@ class Shader: GLBound {
     /**Creates a new shader from scratch using the [InputStream]'s
      *
      * Accepts an extra XML with configuration*/
-    constructor(vertex: InputStream, fragment: InputStream, xml: InputStream) {
-        compile(vertex.readAsString(), fragment.readAsString())
+    constructor(vertex: InputStream, fragment: InputStream, xml: InputStream): this(vertex, fragment) {
         var prop = parseProperties(xml)
-        setFragmentShader(prop.getElementsByTagName("fragment").item(0))
+        prop.getElementsByTagName("fragment").firstOrNull()?.let {
+            setFragmentShader(it)
+        }
+        prop.getElementsByTagName("uniform").firstOrNull()?.let {
+            loadUniformSettings(it)
+        }
     }
 
     /**The [Handlers] of this instance*/
@@ -45,6 +49,9 @@ class Shader: GLBound {
     private lateinit var glObjects: Map<Uniform, MutablePair<Int, Texture?>>
     /**A list of dependency's that will be released along with this Shader*/
     private val subscribers = mutableListOf<WeakReference<GLBound>>()
+    private var projectionMat: Uniform? = null
+    private var viewMat: Uniform? = null
+    private var modelMat: Uniform? = null
     /**Sets up the even for when this object is Garbage Collected to ensure that it is also dissolved in the OpenGL memory*/
     private val cleanable: Cleaner.Cleanable = run {
         val hand = handlers
@@ -140,15 +147,42 @@ class Shader: GLBound {
      *
      *  Configuration specific to Fragment Shader*/
     private fun setFragmentShader(info: Node) {
-        if(info is Element)
-        {
-            info.getElementsByTagName("output").forEach {
-                val name : String = it.getAttribute("name").orElse {
-                    (it as Element).getElementsByTagName("name").first().textContent }
-                val location = it.getAttribute("location").orElse {
-                    (it as Element).getElementsByTagName("location").first().textContent }.toUInt()
-                glBindFragDataLocation(handlers.program, location, name)
+        if(info !is Element)
+        return
+        info.getElementsByTagName("output").forEach {
+            val name : String = it.getAttribute("name").orElse {
+                (it as Element).getElementsByTagName("name").firstOrNull()?.textContent?: throw NullPointerException("No name specified for fragment output")
             }
+            val location = it.getAttribute("location").orElse {
+                (it as Element).getElementsByTagName("location").firstOrNull()?.textContent?: throw NullPointerException("No location specified for fragment output $name") }.toUInt()
+            glBindFragDataLocation(handlers.program, location, name)
+        }
+    }
+    private fun loadUniformSettings(info: Node) {
+        fun Uniform?.verify(name: String): Uniform {
+            if(this == null)
+                throw NullPointerException("Uniform name $name not found")
+            if (this.type == GLSLVar.Matrix4f || this.type == GLSLVar.Matrix4d)
+                return this
+            throw IllegalArgumentException("Uniform $name is not a Matrix4x4")
+        }
+
+        if(info !is Element)
+            return
+        info.getElementsByTagName("projection").lastOrNull()?.let {
+            val name : String = it.getAttribute("name").orElse {
+                (it as Element).getElementsByTagName("name").firstOrNull()?.textContent?: throw NullPointerException("Incorrect format of specification of projection matrix") }
+            projectionMat = uniforms[name].verify(name)
+        }
+        info.getElementsByTagName("view").lastOrNull()?.let {
+            val name : String = it.getAttribute("name").orElse {
+                (it as Element).getElementsByTagName("name").firstOrNull()?.textContent?: throw NullPointerException("Incorrect format of specification of view matrix") }
+            viewMat = uniforms[name].verify(name)
+        }
+        info.getElementsByTagName("model").lastOrNull()?.let {
+            val name : String = it.getAttribute("name").orElse {
+                (it as Element).getElementsByTagName("name").firstOrNull()?.textContent?: throw NullPointerException("Incorrect format of specification of model matrix") }
+            modelMat = uniforms[name].verify(name)
         }
     }
     /**Loads data related to the attributes from a compiles shader*/
@@ -338,6 +372,7 @@ class Shader: GLBound {
     fun setUniform(name: String, value: Matrix2d) = setUniform(name, GLSLVar.Matrix2d) { glUniformMatrix(it.location, false, value) }
     //endregion
 
+    //region Texture Uniform's
     /**Used to set the [name] uniform with a [value]
      * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
     fun setUniform(name: String, value: Texture2D?) = setUniform(name, GLSLVar.Sampler2D) { glObjects[it]!!.second = value }
@@ -345,6 +380,41 @@ class Shader: GLBound {
     /**Used to set the [name] uniform with a [value]
      * @throws Exception If the attribute could not be found or if it's type is not matched with the [value]*/
     fun setUniform(name: String, value: Texture2DAtlas?) = setUniform(name, GLSLVar.Sampler2DArray) { glObjects[it]!!.second = value }
+    //endregion
+
+    val hasModelMatrix get() = modelMat != null
+    val hasViewMatrix get() = viewMat != null
+    val hasProjectionMatrix get() = projectionMat != null
+
+    private fun setMatrix(uniform: Uniform, matrix: Matrix4f) {
+        use()
+        when(uniform.type) {
+            GLSLVar.Matrix4f -> glUniformMatrix(uniform.location, false, matrix)
+            GLSLVar.Matrix4d -> MemoryStack.stackPush().use { stack ->
+                val bufferIn = stack.mallocFloat(4 * 4)
+                val bufferOut = stack.mallocDouble(4 * 4)
+                bufferIn.putMatrix4f(matrix).flip()
+                for(i in 0.. 4*4)
+                    bufferOut.put(bufferIn.get().toDouble())
+                bufferOut.flip()
+                org.lwjgl.opengl.ARBGPUShaderFP64.glUniformMatrix2dv(uniform.location.handle, false, bufferOut)
+            }
+            else -> throw Error("I do not know how you got here")
+        }
+        Shader.release()
+    }
+    fun setModelMatrix(matrix: Matrix4f) {
+        requireNotNull(modelMat) { "This shader has no Model Matrix specified" }
+        setMatrix(modelMat!!, matrix)
+    }
+    fun setViewMatrix(matrix: Matrix4f) {
+        requireNotNull(viewMat) { "This shader has no View Matrix specified" }
+        setMatrix(viewMat!!, matrix)
+    }
+    fun setProjectionMatrix(matrix: Matrix4f) {
+        requireNotNull(projectionMat) { "This shader has no Projection Matrix specified" }
+        setMatrix(projectionMat!!, matrix)
+    }
 
     /**Used to dissolve the Shader allowing the OpenGl data to be freed
      *

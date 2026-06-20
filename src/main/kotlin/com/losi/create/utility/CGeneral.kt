@@ -18,13 +18,11 @@ inline fun NodeList.forEach(action: (node: Node) -> Unit) {
  * @throws org.w3c.dom.DOMException DOMSTRING_SIZE_ERR: Raised when it would return more characters than fit in a DOMString variable on the implementation platform.*/
 fun Node.getAttribute(name: String): String? = this.attributes.getNamedItem(name).nodeValue
 
-/**Returns a first item of a [NodeList]
- * @throws NullPointerException If the list is empty*/
-fun NodeList.first(): Node = this.item(0)
+/**Returns a first item of a [NodeList] or null is there its empty*/
+fun NodeList.firstOrNull(): Node? = if(this.length > 0) this.item(0) else null
 
-/**Returns a last item of a [NodeList]
- * @throws NullPointerException If the list is empty*/
-fun NodeList.last(): Node = this.item(this.length - 1)
+/**Returns a last item of a [NodeList] or null is there its empty*/
+fun NodeList.lastOrNull(): Node? = if(this.length > 0) this.item(this.length - 1) else null
 
 /**If [this] value is `null` will return the [default]*/
 fun <T> T?.orElse(default: T): T = this ?: default

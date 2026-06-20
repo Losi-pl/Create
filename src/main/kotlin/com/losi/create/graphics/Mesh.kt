@@ -429,7 +429,7 @@ class Mesh: GLBound {
         require(vertexCount >= 0) { "Not all vertexes have specified data" }
 
         val vertexSize = shader.attributes.values.sumOf { it.type.byteCount }.toInt()
-        val stackSize = (vertexSize * vertexCount) + (elements?.let { getSize(it) * 4 } ?: 0)
+        val stackSize = (vertexSize * vertexCount) + (elements?.let { getSize(it) * 4 } ?: 0) + 128/*Error margin for safety*/
 
         @OptIn(ExperimentalUnsignedTypes::class)
         MemoryStack.create(stackSize).push().use { stack ->
