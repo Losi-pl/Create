@@ -27,4 +27,10 @@ public static class Guard
         if (!EqualityComparer<T>.Default.Equals(obj1, obj2))
             throw new InvalidOperationException(error(obj1, obj2).ToString());
     }
+
+    public static void NotNull(object? obj, Func<object> error)
+    {
+        if(obj is null)
+            throw new NullReferenceException(error().ToString());
+    }
 }

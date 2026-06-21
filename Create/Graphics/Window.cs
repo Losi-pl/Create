@@ -90,7 +90,7 @@ public sealed class Window
         if (_usedScene != Scene)
         {
             _usedScene?.Unbind();
-            Scene?.Unbind();
+            Scene?.Bind(this);
             _usedScene = Scene;
         }
         

@@ -1,4 +1,6 @@
-﻿using JetBrains.Annotations;
+﻿using Create.General;
+using JetBrains.Annotations;
+using Silk.NET.Core;
 
 namespace Create.Graphics;
 
@@ -58,5 +60,14 @@ public abstract class Scene
         [UsedImplicitly] get => _window?.InnerWindow.Title ?? 
                                 throw new NullReferenceException("This Scene is not connected to a window at the moment");
         set => _window?.InnerWindow.Title = value;
+    }
+
+    protected ReadOnlySpan<RawImage> Icon
+    {
+        set
+        {
+            Guard.NotNull(_window, () => "This Scene is not connected to a window at the moment");
+            _window!.InnerWindow.SetWindowIcon(value);
+        }
     }
 }
