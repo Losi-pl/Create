@@ -63,6 +63,7 @@ partial class Shader
                     Window.GL.ProgramUniform1(Handle, uniform.Location, uint.CreateTruncating(value));
                     break;
                 case UniformType.Float:
+                case (UniformType)0x8FF8: //Half Float
                     Window.GL.ProgramUniform1(Handle, uniform.Location, float.CreateTruncating(value));
                     break;
                 case UniformType.Double:
@@ -111,6 +112,7 @@ partial class Shader
                     Window.GL.ProgramUniform2(Handle, uniform.Location, uVec.X, uVec.Y);
                     break;
                 case UniformType.FloatVec2:
+                case (UniformType)0x8FF9: //Half Float Vector 2
                     var fVec = value as Vector2D<float>? ?? value.As<float>();
                     Window.GL.ProgramUniform2(Handle, uniform.Location, fVec.X, fVec.Y);
                     break;
@@ -161,6 +163,7 @@ partial class Shader
                     Window.GL.ProgramUniform3(Handle, uniform.Location, uVec.X, uVec.Y, uVec.Z);
                     break;
                 case UniformType.FloatVec3:
+                case (UniformType)0x8FFA: //Half Float Vector 3
                     var fVec = value as Vector3D<float>? ?? value.As<float>();
                     Window.GL.ProgramUniform3(Handle, uniform.Location, fVec.X, fVec.Y, fVec.Z);
                     break;
@@ -210,11 +213,12 @@ partial class Shader
                     var uVec = value as Vector4D<uint>? ?? value.As<uint>();
                     Window.GL.ProgramUniform4(Handle, uniform.Location, uVec.X, uVec.Y, uVec.Z, uVec.W);
                     break;
-                case UniformType.FloatVec2:
+                case UniformType.FloatVec4:
+                case (UniformType)0x8FFB: //Half Float Vector 4
                     var fVec = value as Vector4D<float>? ?? value.As<float>();
                     Window.GL.ProgramUniform4(Handle, uniform.Location, fVec.X, fVec.Y, fVec.Z, fVec.W);
                     break;
-                case UniformType.DoubleVec2:
+                case UniformType.DoubleVec4:
                     var dVec = value as Vector4D<double>? ?? value.As<double>();
                     Window.GL.ProgramUniform4(Handle, uniform.Location, dVec.X, dVec.Y, dVec.Z, dVec.W);
                     break;
@@ -281,8 +285,8 @@ partial class Shader
     public void SetUniform<T>(string name, Matrix2X3<T> value) where T : unmanaged, IBinaryInteger<T>
     {
         ref var uniform = ref uniforms.Find(name); //This is an extension method to make the look-up simpler
-        if (!uniform.IsArray)
-            throw new ArgumentException($"The uniform \"{name}\" has a single value.");
+        if(uniform.IsArray)
+            throw new ArgumentException($"The uniform \"{name}\" has expected an array of size {uniform.Count}.");
 
         var gl = Window.GL;
         
@@ -301,7 +305,7 @@ partial class Shader
                     2 * 3));
                 break;
             default:
-                throw new ArgumentException($"The uniform \"{name}\" is not a Matrix 2x2");
+                throw new ArgumentException($"The uniform \"{name}\" is not a Matrix 2x3");
         }
     }
     
@@ -336,7 +340,7 @@ partial class Shader
                     2 * 4));
                 break;
             default:
-                throw new ArgumentException($"The uniform \"{name}\" is not a Matrix 2x2");
+                throw new ArgumentException($"The uniform \"{name}\" is not a Matrix 2x4");
         }
     }
     
@@ -360,18 +364,18 @@ partial class Shader
         {
             case UniformType.FloatMat3x2:
                 var mat = value as Matrix3X2<float>? ?? value.As<float>();
-                gl.ProgramUniformMatrix2(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix3x2(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix3X2<float>, float>(ref mat),
                     3 * 2));
                 break;
             case UniformType.DoubleMat3x2:
                 var dMat = value as Matrix3X2<double>? ?? value.As<double>();
-                gl.ProgramUniformMatrix2(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix3x2(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix3X2<double>, double>(ref dMat),
                     3 * 2));
                 break;
             default:
-                throw new ArgumentException($"The uniform \"{name}\" is not a Matrix 2x2");
+                throw new ArgumentException($"The uniform \"{name}\" is not a Matrix 3x2");
         }
     }
     
@@ -397,21 +401,21 @@ partial class Shader
                 var mat = value as Matrix3X3<float>? ?? value.As<float>();
                 gl.ProgramUniformMatrix3(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix3X3<float>, float>(ref mat),
-                    2 * 3));
+                    3 * 3));
                 break;
             case UniformType.DoubleMat3:
                 var dMat = value as Matrix3X3<double>? ?? value.As<double>();
                 gl.ProgramUniformMatrix3(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix3X3<double>, double>(ref dMat),
-                    2 * 3));
+                    3 * 3));
                 break;
             default:
-                throw new ArgumentException($"The uniform \"{name}\" is not a Matrix 2x2");
+                throw new ArgumentException($"The uniform \"{name}\" is not a Matrix 3x3");
         }
     }
     
     /// <summary>
-    /// Used to set a single value uniform accepting <see cref="Matrix2X4{float}"/>, <see cref="Matrix2X4{uint}"/>
+    /// Used to set a single value uniform accepting <see cref="Matrix3X4{float}"/>, <see cref="Matrix3X4{uint}"/>
     /// </summary>
     /// <param name="name">Name of the uniform to be set</param>
     /// <param name="value">The value to set in this uniform</param>
@@ -430,18 +434,18 @@ partial class Shader
         {
             case UniformType.FloatMat3x4:
                 var mat = value as Matrix3X4<float>? ?? value.As<float>();
-                gl.ProgramUniformMatrix2x4(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix3x4(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix3X4<float>, float>(ref mat),
                     3 * 4));
                 break;
             case UniformType.DoubleMat3x4:
                 var dMat = value as Matrix3X4<double>? ?? value.As<double>();
-                gl.ProgramUniformMatrix2x4(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix3x4(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix3X4<double>, double>(ref dMat),
                     3 * 4));
                 break;
             default:
-                throw new ArgumentException($"The uniform \"{name}\" is not a Matrix 2x2");
+                throw new ArgumentException($"The uniform \"{name}\" is not a Matrix 3x4");
         }
     }
     
@@ -465,23 +469,23 @@ partial class Shader
         {
             case UniformType.FloatMat4x2:
                 var mat = value as Matrix4X2<float>? ?? value.As<float>();
-                gl.ProgramUniformMatrix2(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix4x2(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix4X2<float>, float>(ref mat),
                     4 * 2));
                 break;
             case UniformType.DoubleMat4x2:
                 var dMat = value as Matrix4X2<double>? ?? value.As<double>();
-                gl.ProgramUniformMatrix2(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix4x2(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix4X2<double>, double>(ref dMat),
                     4 * 2));
                 break;
             default:
-                throw new ArgumentException($"The uniform \"{name}\" is not a Matrix 2x2");
+                throw new ArgumentException($"The uniform \"{name}\" is not a Matrix 4x2");
         }
     }
     
     /// <summary>
-    /// Used to set a single value uniform accepting <see cref="Matrix3X3{float}"/>, <see cref="Matrix3X3{uint}"/>
+    /// Used to set a single value uniform accepting <see cref="Matrix4X3{float}"/>, <see cref="Matrix4X3{uint}"/>
     /// </summary>
     /// <param name="name">Name of the uniform to be set</param>
     /// <param name="value">The value to set in this uniform</param>
@@ -500,23 +504,23 @@ partial class Shader
         {
             case UniformType.FloatMat4x3:
                 var mat = value as Matrix4X3<float>? ?? value.As<float>();
-                gl.ProgramUniformMatrix3(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix4x3(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix4X3<float>, float>(ref mat),
                     4 * 3));
                 break;
             case UniformType.DoubleMat4x3:
                 var dMat = value as Matrix4X3<double>? ?? value.As<double>();
-                gl.ProgramUniformMatrix3(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix4x3(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix4X3<double>, double>(ref dMat),
                     4 * 3));
                 break;
             default:
-                throw new ArgumentException($"The uniform \"{name}\" is not a Matrix 2x2");
+                throw new ArgumentException($"The uniform \"{name}\" is not a Matrix 4x3");
         }
     }
     
     /// <summary>
-    /// Used to set a single value uniform accepting <see cref="Matrix2X4{float}"/>, <see cref="Matrix2X4{uint}"/>
+    /// Used to set a single value uniform accepting <see cref="Matrix4X4{float}"/>, <see cref="Matrix4X4{uint}"/>
     /// </summary>
     /// <param name="name">Name of the uniform to be set</param>
     /// <param name="value">The <paramref name="value"/> to set in this uniform</param>
@@ -535,18 +539,18 @@ partial class Shader
         {
             case UniformType.FloatMat4:
                 var mat = value as Matrix4X4<float>? ?? value.As<float>();
-                gl.ProgramUniformMatrix2x4(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix4(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix4X4<float>, float>(ref mat),
                     4 * 4));
                 break;
             case UniformType.DoubleMat4:
                 var dMat = value as Matrix4X4<double>? ?? value.As<double>();
-                gl.ProgramUniformMatrix2x4(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix4(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix4X4<double>, double>(ref dMat),
                     4 * 4));
                 break;
             default:
-                throw new ArgumentException($"The uniform \"{name}\" is not a Matrix 2x2");
+                throw new ArgumentException($"The uniform \"{name}\" is not a Matrix 4x4");
         }
     }
 }

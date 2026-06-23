@@ -6,7 +6,7 @@ using OneOf;
 
 namespace Create.Graphics;
 
-partial class Shader
+public sealed partial class Shader
 {
     internal uint Handle { get; }
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")] 
