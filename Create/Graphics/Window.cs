@@ -71,7 +71,7 @@ public sealed class Window
     public Scene? Scene { get; set; }
 
     /// <summary>
-    /// Creates a window instance and ataches required logic to it
+    /// Creates a window instance and attaches required logic to it
     /// </summary>
     private Window()
     {
@@ -86,7 +86,8 @@ public sealed class Window
                 Profile = ContextProfile.Compatability,
                 Flags = ContextFlags.ForwardCompatible,
                 Version = new APIVersion(4, 6)
-            }
+            },
+            FramesPerSecond = 60
         };
         InnerWindow = Silk.NET.Windowing.Window.Create(initOptions);
         InnerWindow.Initialize();
