@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Create.General;
 using Silk.NET.OpenGL;
+using Silk.NET.OpenGL.Extensions.ARB;
 using Silk.NET.Windowing;
 
 namespace Create.Graphics;
@@ -21,6 +22,11 @@ public sealed class Window
     [ThreadStatic] 
     private static GL? _currentGL;
     /// <summary>
+    /// Stores an OpenGL extension for support of Int 64-bit (Long) variables
+    /// </summary>
+    [ThreadStatic] 
+    private static ArbGpuShaderInt64? _contextGLInt64;
+    /// <summary>
     /// A global pointer to the main window of this game
     /// </summary>
     internal static Window Main { get; } = new();
@@ -29,11 +35,20 @@ public sealed class Window
     /// A reference to the current to the current OpenGL context of this thread
     /// </summary>
     /// <exception cref="ArgumentNullException">There is no OpenGL context connected to this Thread</exception>
-    internal static GL Context => _currentGL ?? throw new ArgumentNullException(nameof(Context), "There is no OpenGL context connected to this Thread");
+    internal static GL GL => _currentGL ?? throw new ArgumentNullException(nameof(GL), "There is no OpenGL context connected to this Thread");
+
+    /// <summary>
+    /// A reference to the current to the current OpenGL context of this thread
+    ///
+    /// Extension for Long (Int 64-bit)
+    /// </summary>
+    /// <exception cref="ArgumentNullException">There is no OpenGL context connected to this Thread</exception>
+    internal static ArbGpuShaderInt64 GLong => _contextGLInt64 ?? (GL.TryGetExtension(out ArbGpuShaderInt64 context) ? 
+        _contextGLInt64 = context : throw new Exception("The Int64 extension for OpenGL is not supported on this device"));
     /// <summary>
     /// A flag specifying if there is a OpenGL context available at the moment
     /// </summary>
-    public static bool HasContext => _currentGL != null;
+    internal static bool HasGL => _currentGL != null;
     /// <summary>
     /// A flag for startup telling if the Run initiation of the window already happened
     /// </summary>
@@ -64,8 +79,14 @@ public sealed class Window
         {
             IsVisible = false,
             VSync = false,
-            Size = new(1280, 720),
-            ShouldSwapAutomatically = true
+            Size = new(1280, 720), 
+            API = new GraphicsAPI
+            {
+                API = ContextAPI.OpenGL,
+                Profile = ContextProfile.Compatability,
+                Flags = ContextFlags.ForwardCompatible,
+                Version = new APIVersion(4, 6)
+            }
         };
         InnerWindow = Silk.NET.Windowing.Window.Create(initOptions);
         InnerWindow.Initialize();
@@ -102,7 +123,9 @@ public sealed class Window
     /// <param name="delta">Time from last update</param>
     private void RenderUpdate(double delta)
     {
-        Scene?.RenderUpdate(delta);
+        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        
+        _usedScene?.RenderUpdate(delta);
     }
 
     /// <summary>
