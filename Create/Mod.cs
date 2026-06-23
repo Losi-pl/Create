@@ -61,7 +61,7 @@ public sealed class Mod
     /// <param name="name">Nazwa bloku</param>
     /// <param name="block">Klasa bloku</param>
     /// <returns></returns>
-    public Mod RegisterElement(string name, Block block) => register_element(block, name, Register.blocks_console);
+    public Mod RegisterElement(string name, Block block) => register_element(block, name, Register.BlocksConsole);
 
     /// <summary>
     /// Metoda dodawanie <paramref name="dimention"/> do rejestru
@@ -69,7 +69,7 @@ public sealed class Mod
     /// <param name="name">Nazwa wymiaru</param>
     /// <param name="block">Klasa wymiaru</param>
     /// <returns></returns>
-    public Mod RegisterElement(string name, Dimention dimention) => register_element(dimention, name, Register.dimentions_console);
+    public Mod RegisterElement(string name, Dimention dimention) => register_element(dimention, name, Register.DimensionsConsole);
 
     /// <summary>
     /// Metoda dodawanie <paramref name="entity"/> do rejestru
@@ -77,7 +77,7 @@ public sealed class Mod
     /// <param name="name">Nazwa bytu</param>
     /// <param name="entity">Klasa bytu</param>
     /// <returns></returns>
-    public Mod RegisterElement(string name, Entity entity) => register_element(entity, name, Register.entitys_console);
+    public Mod RegisterElement(string name, Entity entity) => register_element(entity, name, Register.EntitiesConsole);
 
     /// <summary>
     /// Metoda dodawanie <paramref name="item"/> do rejestru
@@ -85,7 +85,7 @@ public sealed class Mod
     /// <param name="name">Nazwa itemu</param>
     /// <param name="item">Klasa itemu</param>
     /// <returns></returns>
-    public Mod RegisterElement(string name, Item item) => register_element(item, name, Register.items_console);
+    public Mod RegisterElement(string name, Item item) => register_element(item, name, Register.ItemsConsole);
 
     /// <summary>
     /// Metoda dodawanie <paramref name="creativeTab"/> do rejestru
@@ -93,7 +93,7 @@ public sealed class Mod
     /// <param name="name">Nazwa zakładki</param>
     /// <param name="creativeTab">Klasa zakładki</param>
     /// <returns></returns>
-    public Mod RegisterElement(string name, CreativeTab creativeTab) => register_element(creativeTab, name, Register.creativetab_console);
+    public Mod RegisterElement(string name, CreativeTab creativeTab) => register_element(creativeTab, name, Register.CreativeTabsConsole);
 
     /// <summary>
     /// Dodawanie interpretera który konwertuje element zapisany w zasobach w kawałek interfejsu
@@ -219,10 +219,10 @@ public sealed class Mod
     /// <param name="name">Nazwa elementu</param>
     /// <param name="console">Konsola do rejestru</param>
     /// <returns></returns>
-    Mod register_element<T>(T element, string name, Register.ElementRegister<T>.Console console) where T : Baze
+    Mod register_element<T>(T element, string name, Registry.ElementRegister<T>.Console console) where T : Baze
     {
-        ArgumentNullException.ThrowIfNull(element, nameof(element));
-        ArgumentNullException.ThrowIfNull(console, nameof(console));
+        ArgumentNullException.ThrowIfNull(element);
+        ArgumentNullException.ThrowIfNull(console);
         TestNameSpellingThrow(name);
         console.RegisterElement(element, name, this);
         return this;

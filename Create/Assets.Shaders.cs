@@ -26,7 +26,7 @@ partial class Assets
             string file = name.Substring(name.LastIndexOfAny(':', '\\') + 1);
             path = path.Length - file.Length - 1 < 0 ? string.Empty : path.Remove(path.Length - file.Length - 1);
 
-            var stream = resources!.GetPath($"{group}/shaders/{path}").GetFile(file).GetStream();
+            var stream = _resources!.GetPath($"{group}/shaders/{path}").GetFile(file).GetStream();
             var shade = Shader.Load(stream);
 
             shaders.Remove(name);

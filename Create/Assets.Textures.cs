@@ -27,7 +27,7 @@ partial class Assets
             path = path.Length - file.Length - 1 < 0 ? string.Empty : path.Remove(path.Length - file.Length - 1);
 
             // Load texture from resources
-            var stream = resources!.GetPath($"{group}/textures/{path}").GetFile(file).GetStream();
+            var stream = _resources!.GetPath($"{group}/textures/{path}").GetFile(file).GetStream();
             var img = Image.Load(stream);
             var tex = Texture2D.Create(img);
 

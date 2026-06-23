@@ -21,4 +21,7 @@ public static class StringsC
                 lasPos = i;
         return lasPos != -1;
     }
+
+    public static string SubstringBeforeLast(this string value, char end) =>
+        value.Remove(value.LastIndexOf(end));
 }

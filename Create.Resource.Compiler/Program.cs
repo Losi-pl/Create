@@ -3,18 +3,22 @@ using System.Reflection;
 
 try
 {
-    if (args[1] != "Release")
-        return;
+    var newArgs = new List<String>();
+    {
+        var rawArgs = args[0];
+        while (!string.IsNullOrEmpty(rawArgs))
+        {
+            newArgs.Add(rawArgs.Substring(0,rawArgs.IndexOf(';')));
+            rawArgs = rawArgs.Substring(rawArgs.IndexOf(';') + 1);
+        }
+    }
 
-    var compilation_path = Path.GetFullPath($"{Assembly.GetExecutingAssembly().Location}../../../../../../{args[0]}/bin/Release/net8.0/{args[2]}/create.resources");
-    var resource_path = Path.GetFullPath($"{Assembly.GetExecutingAssembly().Location}../../../../../../Create/Resources/");
+    var sourcePath = newArgs[0];
+    var destinationPath = newArgs[1];
 
-    Stream s;
-    if (File.Exists(compilation_path))
-        s = File.OpenWrite(compilation_path);
-    else
-        s = File.Create(compilation_path);
-    Resources.CreateFromDirectory().AddFolder(resource_path, "assets/create/", path =>
+    Stream s = File.Exists(destinationPath) ? File.OpenWrite(destinationPath) : File.Create(destinationPath);
+    
+    Resources.CreateFromDirectory().AddFolder(sourcePath, "assets/create/", path =>
     {
         string pat = path.RegisterPath.ToLower();
 
@@ -39,13 +43,14 @@ try
             }
         }
         path.SubPath($"{root}{file}");
+        
     }).Finish().CompresToOneFile().SaveTo(s);
+    
     s.Close();
     s.Dispose();
-    Console.WriteLine($"Resources compiled - \"{compilation_path}\"");
 }
 catch (Exception ex)
 {
-    Console.WriteLine(ex.Message);
-    Environment.Exit(-1);
+    Console.WriteLine(ex.StackTrace);
+    Environment.Exit(-13);
 }

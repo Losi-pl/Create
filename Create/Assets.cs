@@ -11,10 +11,11 @@ namespace Create;
 /// </summary>
 public static partial class Assets
 {
-    static MargedResources? resources;
+    static MargedResources? _resources;
 
     /// <summary>
-    /// Ładuje wszystkie pakiety zasobów i łączy je w jeden globalny pakiet
+    /// Takes all available sources of assets and merges them into a single source<br/>
+    /// TODO Stop that and separate them back out
     /// </summary>
     internal static void LoadGlobalResources()
     {
@@ -22,7 +23,7 @@ public static partial class Assets
         foreach (var r in LoadAllResources())
             cons.MargeFiles(r, "assets", "");
 
-        resources = cons.Finish();
+        _resources = cons.Finish();
 
         //Methods
         IEnumerable<Resources> LoadAllResources() => LoadModResources().Concat(LoadExternalResources());
@@ -33,7 +34,7 @@ public static partial class Assets
     /// <summary>
     /// Globalny pakiet zasobów
     /// </summary>
-    public static Resources? Resources => resources;
+    public static Resources? Resources => _resources;
 
     /// <summary>
     /// Pobiera dane z globalnedo pakieto i dystrybuuje je do odpowiednich elementów gry
@@ -43,10 +44,10 @@ public static partial class Assets
     /// </summary>
     internal static void first_proces_resources()
     {
-        if (resources == null)
+        if (_resources == null)
             return;
 
-        foreach (var resors in resources.MainDirectories)
+        foreach (var resors in _resources.MainDirectories)
         {
             #if DEBUG
             OnLoadPackage(resors);
