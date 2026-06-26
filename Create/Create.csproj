@@ -6,6 +6,7 @@
         <LangVersion>14</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <ApplicationIcon>Resources\Icon.ico</ApplicationIcon>
     </PropertyGroup>
 
@@ -48,6 +49,12 @@
       </Compile>
       <Compile Update="Graphics\Shader.Uniforms.cs">
         <DependentUpon>Shader.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Graphics\Mesh.Compiler.cs">
+        <DependentUpon>Mesh.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Graphics\Mesh.Constructor.cs">
+        <DependentUpon>Mesh.cs</DependentUpon>
       </Compile>
     </ItemGroup>
 

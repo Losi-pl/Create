@@ -4,6 +4,7 @@ using Create.General;
 using Create.Graphics;
 using Ico.Reader.Data;
 using Silk.NET.Core;
+using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using StbImageSharp;
 using Shader = Create.Graphics.Shader;
@@ -15,14 +16,10 @@ namespace Create.Registry;
 /// </summary>
 internal sealed class LoadingScene: Scene
 {
-    // Shader program handle
     private static Shader _shader = null!;
 
-    // Vertex array object and buffer
-    private static uint _vao;
-    private static uint _vbo;
-
-    // Vertex shader source
+    private static Mesh _mesh = null!;
+    
     private const string VertexShaderSource = @"
 #version 330 core
 layout (location = 0) in vec3 aPos;
@@ -65,35 +62,26 @@ void main()
             .Fragment(FragmentShaderSource)
             .Finish();
         
+        //_shader_deb = Shader.Create()
+        //    .Vertex(Assembly.GetCallingAssembly().GetManifestResourceStream("main/create/shaders/debug/base.vert")!)
+        //    .Fragment(Assembly.GetCallingAssembly().GetManifestResourceStream("main/create/shaders/debug/base.frag")!)
+        //    .Finish();
+        
         _shader.SetUniform("border", .5f);
-        
-        float[] vertices =
-        {
-            -0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
-            0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
-            0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f
-        };
 
-        var gl = Window.GL;
-        
-        _vao = gl.GenVertexArray();
-        _vbo = gl.GenBuffer();
-
-        gl.BindVertexArray(_vao);
-
-        gl.BindBuffer(BufferTargetARB.ArrayBuffer, _vbo);
-        gl.BufferData(BufferTargetARB.ArrayBuffer, vertices, BufferUsageARB.StaticDraw);
-
-        const int stride = 6 * sizeof(float);
-        gl.UseProgram(_shader.Handle);
-        gl.EnableVertexAttribArray(0);
-        gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, stride, 0);
-        gl.EnableVertexAttribArray(1);
-        gl.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, stride, 3 * sizeof(float));
-
-        gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
-        gl.BindVertexArray(0);
-        gl.UseProgram(0);
+        _mesh = Mesh.Create(_shader).ManualFillOut()
+            .SetDataLayout(Mesh.DataLayout.Interleaved)
+            .SetAttribute("aPos", new Vector3D<float>[]
+            {
+                new(-0.5f, -0.5f, 0.0f), 
+                new( 0.5f, -0.5f, 0.0f), 
+                new( 0.0f,  0.5f, 0.0f)
+            }).SetAttribute("aColor", new Vector3D<int>[]
+            {
+                new(1, 0, 0), 
+                new(0, 1, 0), 
+                new(0, 0, 1)
+            }).Finish().ThreadBind();
     }
 
     public override void RenderUpdate(double delta)
@@ -102,9 +90,7 @@ void main()
         
         gl.Clear(ClearBufferMask.ColorBufferBit);
 
-        gl.UseProgram(_shader.Handle);
-        gl.BindVertexArray(_vao);
-        gl.DrawArrays(PrimitiveType.Triangles, 0, 3);
+        _mesh.Draw();
     }
 
     /// <summary>
