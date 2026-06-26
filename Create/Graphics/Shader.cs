@@ -64,7 +64,7 @@ public sealed partial class Shader
                 return ref _attributes[i];
         }
 
-        throw new KeyNotFoundException("There is no Attribute by name \"{name}\"");
+        throw new KeyNotFoundException($"There is no Attribute by name \"{name}\"");
     }
 
     /// The count of used attributes in this Shader

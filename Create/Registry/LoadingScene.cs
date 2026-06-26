@@ -17,38 +17,7 @@ namespace Create.Registry;
 internal sealed class LoadingScene: Scene
 {
     private static Shader _shader = null!;
-
     private static Mesh _mesh = null!;
-    
-    private const string VertexShaderSource = @"
-#version 330 core
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aColor;
-
-out vec3 ourColor;
-
-void main()
-{
-    gl_Position = vec4(aPos, 1.0);
-    ourColor = aColor;
-}
-";
-
-    // Fragment shader source
-    private const string FragmentShaderSource = @"
-#version 330 core
-in vec3 ourColor;
-out vec4 FragColor;
-
-uniform float border;
-
-void main()
-{
-    FragColor = vec4(ourColor, 1.0);
-    if(FragColor.r < border && FragColor.g < border && FragColor.b < border)
-        FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-}
-";
     
     protected override void OnConnect()
     {
@@ -58,14 +27,9 @@ void main()
         Window.GL.ClearColor(Color.FromArgb(255, 27, 72, 8));
 
         _shader = Shader.Create()
-            .Vertex(VertexShaderSource)
-            .Fragment(FragmentShaderSource)
+            .Vertex(Assembly.GetCallingAssembly().GetManifestResourceStream("main/create/shaders/base.vert")!)
+            .Fragment(Assembly.GetCallingAssembly().GetManifestResourceStream("main/create/shaders/base.frag")!)
             .Finish();
-        
-        //_shader_deb = Shader.Create()
-        //    .Vertex(Assembly.GetCallingAssembly().GetManifestResourceStream("main/create/shaders/debug/base.vert")!)
-        //    .Fragment(Assembly.GetCallingAssembly().GetManifestResourceStream("main/create/shaders/debug/base.frag")!)
-        //    .Finish();
         
         _shader.SetUniform("border", .5f);
 
