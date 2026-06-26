@@ -1,6 +1,7 @@
 ﻿using Create.General;
 using JetBrains.Annotations;
 using Silk.NET.Core;
+using Silk.NET.Maths;
 
 namespace Create.Graphics;
 
@@ -51,6 +52,12 @@ public abstract class Scene
     /// <param name="delta">Time elapsed from last update</param>
     public virtual void RenderUpdate(double delta) { }
 
+    /// <summary>
+    /// Called when the window is resized;
+    /// </summary>
+    /// <param name="newSize"></param>
+    public virtual void WindowResize(Vector2D<int> newSize) { }
+    
     /// <summary>
     /// The title of the window
     /// </summary>

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Create.General;
+using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.OpenGL.Extensions.ARB;
 using Silk.NET.Windowing;
@@ -95,25 +96,36 @@ public sealed class Window
         
         InnerWindow.Update += RenderUpdate;
         InnerWindow.Render += LogicUpdate;
+        InnerWindow.Resize += WindowResize;
     }
 
+    /// <summary>
+    /// Contains all logic to be run then the window is being resized
+    /// </summary>
+    /// <param name="newSize"></param>
+    private void WindowResize(Vector2D<int> newSize)
+    {
+        MyGL.Viewport(new(0, 0), newSize);
+        _usedScene?.WindowResize(newSize);
+    }
+    
     /// <summary>
     /// Contains al logic related logic to be executed per frame
     /// </summary>
     /// <param name="delta">Time from last update</param>
     private void LogicUpdate(double delta)
     {
-        if (!_initialized)
-        {
-            OnInit();
-            _initialized = true;
-        }
-
         if (_usedScene != Scene)
         {
             _usedScene?.Unbind();
             Scene?.Bind(this);
             _usedScene = Scene;
+        }
+        
+        if (!_initialized)
+        {
+            OnInit();
+            _initialized = true;
         }
         
         _usedScene?.LogicUpdate(delta);
