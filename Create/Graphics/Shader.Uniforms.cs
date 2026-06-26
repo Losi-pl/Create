@@ -16,7 +16,7 @@ partial class Shader
     {
         var gl = Window.GL;
 
-        ref var target = ref uniforms.Find(name);
+        ref var target = ref _uniforms.Find(name);
         
         if(target.Type != type)
             throw new ArgumentException($"The uniform {name} does expects data of {type}.");
@@ -35,7 +35,7 @@ partial class Shader
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public void SetUniform<T>(string name, T value) where T : unmanaged, INumberBase<T>
     {
-        ref var uniform = ref uniforms.Find(name);//This is an extension method to make the look-up simpler
+        ref var uniform = ref _uniforms.Find(name);//This is an extension method to make the look-up simpler
         if(uniform.IsArray)
             throw new ArgumentException($"The uniform \"{name}\" has expected an array of size {uniform.Count}.");
         
@@ -82,9 +82,9 @@ partial class Shader
     /// <exception cref="ArgumentException">If the type expected by this uniform is none of the aforementioned and/or expected an array of data</exception>
     /// <exception cref="KeyNotFoundException">If there is no uniform by <see cref="name"/></exception>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public void SetUniform<T>(string name, Vector2D<T> value) where T : unmanaged, IBinaryInteger<T>
+    public void SetUniform<T>(string name, Vector2D<T> value) where T : unmanaged, IBinaryNumber<T>
     {
-        ref var uniform = ref uniforms.Find(name);//This is an extension method to make the look-up simpler
+        ref var uniform = ref _uniforms.Find(name);//This is an extension method to make the look-up simpler
         if(uniform.IsArray)
             throw new ArgumentException($"The uniform \"{name}\" has expected an array of size {uniform.Count}.");
         
@@ -133,9 +133,9 @@ partial class Shader
     /// <exception cref="ArgumentException">If the type expected by this uniform is none of the aforementioned and/or expected an array of data</exception>
     /// <exception cref="KeyNotFoundException">If there is no uniform by <see cref="name"/></exception>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public void SetUniform<T>(string name, Vector3D<T> value) where T : unmanaged, IBinaryInteger<T>
+    public void SetUniform<T>(string name, Vector3D<T> value) where T : unmanaged, IBinaryNumber<T>
     {
-        ref var uniform = ref uniforms.Find(name); //This is an extension method to make the look-up simpler
+        ref var uniform = ref _uniforms.Find(name); //This is an extension method to make the look-up simpler
         if(uniform.IsArray)
             throw new ArgumentException($"The uniform \"{name}\" has expected an array of size {uniform.Count}.");
 
@@ -184,9 +184,9 @@ partial class Shader
     /// <exception cref="ArgumentException">If the type expected by this uniform is none of the aforementioned and/or expected an array of data</exception>
     /// <exception cref="KeyNotFoundException">If there is no uniform by <see cref="name"/></exception>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public void SetUniform<T>(string name, Vector4D<T> value) where T : unmanaged, IBinaryInteger<T>
+    public void SetUniform<T>(string name, Vector4D<T> value) where T : unmanaged, IBinaryNumber<T>
     {
-        ref var uniform = ref uniforms.Find(name); //This is an extension method to make the look-up simpler
+        ref var uniform = ref _uniforms.Find(name); //This is an extension method to make the look-up simpler
         if(uniform.IsArray)
             throw new ArgumentException($"The uniform \"{name}\" has expected an array of size {uniform.Count}.");
 
@@ -247,9 +247,9 @@ partial class Shader
     /// <exception cref="ArgumentException">If the type expected by this uniform is none of the aforementioned and/or expected an array of data</exception>
     /// <exception cref="KeyNotFoundException">If there is no uniform by <see cref="name"/></exception>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public void SetUniform<T>(string name, Matrix2X2<T> value) where T : unmanaged, IBinaryInteger<T>
+    public void SetUniform<T>(string name, Matrix2X2<T> value) where T : unmanaged, IBinaryNumber<T>
     {
-        ref var uniform = ref uniforms.Find(name); //This is an extension method to make the look-up simpler
+        ref var uniform = ref _uniforms.Find(name); //This is an extension method to make the look-up simpler
         if(uniform.IsArray)
             throw new ArgumentException($"The uniform \"{name}\" has expected an array of size {uniform.Count}.");
 
@@ -282,9 +282,9 @@ partial class Shader
     /// <exception cref="ArgumentException">If the type expected by this uniform is none of the aforementioned and/or expected an array of data</exception>
     /// <exception cref="KeyNotFoundException">If there is no uniform by <see cref="name"/></exception>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public void SetUniform<T>(string name, Matrix2X3<T> value) where T : unmanaged, IBinaryInteger<T>
+    public void SetUniform<T>(string name, Matrix2X3<T> value) where T : unmanaged, IBinaryNumber<T>
     {
-        ref var uniform = ref uniforms.Find(name); //This is an extension method to make the look-up simpler
+        ref var uniform = ref _uniforms.Find(name); //This is an extension method to make the look-up simpler
         if(uniform.IsArray)
             throw new ArgumentException($"The uniform \"{name}\" has expected an array of size {uniform.Count}.");
 
@@ -317,9 +317,9 @@ partial class Shader
     /// <exception cref="ArgumentException">If the type expected by this uniform is none of the aforementioned and/or expected an array of data</exception>
     /// <exception cref="KeyNotFoundException">If there is no uniform by <see cref="name"/></exception>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public void SetUniform<T>(string name, Matrix2X4<T> value) where T : unmanaged, IBinaryInteger<T>
+    public void SetUniform<T>(string name, Matrix2X4<T> value) where T : unmanaged, IBinaryNumber<T>
     {
-        ref var uniform = ref uniforms.Find(name); //This is an extension method to make the look-up simpler
+        ref var uniform = ref _uniforms.Find(name); //This is an extension method to make the look-up simpler
         if(uniform.IsArray)
             throw new ArgumentException($"The uniform \"{name}\" has expected an array of size {uniform.Count}.");
 
@@ -352,9 +352,9 @@ partial class Shader
     /// <exception cref="ArgumentException">If the type expected by this uniform is none of the aforementioned and/or expected an array of data</exception>
     /// <exception cref="KeyNotFoundException">If there is no uniform by <see cref="name"/></exception>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public void SetUniform<T>(string name, Matrix3X2<T> value) where T : unmanaged, IBinaryInteger<T>
+    public void SetUniform<T>(string name, Matrix3X2<T> value) where T : unmanaged, IBinaryNumber<T>
     {
-        ref var uniform = ref uniforms.Find(name); //This is an extension method to make the look-up simpler
+        ref var uniform = ref _uniforms.Find(name); //This is an extension method to make the look-up simpler
         if(uniform.IsArray)
             throw new ArgumentException($"The uniform \"{name}\" has expected an array of size {uniform.Count}.");
 
@@ -387,9 +387,9 @@ partial class Shader
     /// <exception cref="ArgumentException">If the type expected by this uniform is none of the aforementioned and/or expected an array of data</exception>
     /// <exception cref="KeyNotFoundException">If there is no uniform by <see cref="name"/></exception>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public void SetUniform<T>(string name, Matrix3X3<T> value) where T : unmanaged, IBinaryInteger<T>
+    public void SetUniform<T>(string name, Matrix3X3<T> value) where T : unmanaged, IBinaryNumber<T>
     {
-        ref var uniform = ref uniforms.Find(name); //This is an extension method to make the look-up simpler
+        ref var uniform = ref _uniforms.Find(name); //This is an extension method to make the look-up simpler
         if(uniform.IsArray)
             throw new ArgumentException($"The uniform \"{name}\" has expected an array of size {uniform.Count}.");
 
@@ -422,9 +422,9 @@ partial class Shader
     /// <exception cref="ArgumentException">If the type expected by this uniform is none of the aforementioned and/or expected an array of data</exception>
     /// <exception cref="KeyNotFoundException">If there is no uniform by <see cref="name"/></exception>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public void SetUniform<T>(string name, Matrix3X4<T> value) where T : unmanaged, IBinaryInteger<T>
+    public void SetUniform<T>(string name, Matrix3X4<T> value) where T : unmanaged, IBinaryNumber<T>
     {
-        ref var uniform = ref uniforms.Find(name); //This is an extension method to make the look-up simpler
+        ref var uniform = ref _uniforms.Find(name); //This is an extension method to make the look-up simpler
         if(uniform.IsArray)
             throw new ArgumentException($"The uniform \"{name}\" has expected an array of size {uniform.Count}.");
 
@@ -457,9 +457,9 @@ partial class Shader
     /// <exception cref="ArgumentException">If the type expected by this uniform is none of the aforementioned and/or expected an array of data</exception>
     /// <exception cref="KeyNotFoundException">If there is no uniform by <see cref="name"/></exception>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public void SetUniform<T>(string name, Matrix4X2<T> value) where T : unmanaged, IBinaryInteger<T>
+    public void SetUniform<T>(string name, Matrix4X2<T> value) where T : unmanaged, IBinaryNumber<T>
     {
-        ref var uniform = ref uniforms.Find(name); //This is an extension method to make the look-up simpler
+        ref var uniform = ref _uniforms.Find(name); //This is an extension method to make the look-up simpler
         if(uniform.IsArray)
             throw new ArgumentException($"The uniform \"{name}\" has expected an array of size {uniform.Count}.");
 
@@ -492,9 +492,9 @@ partial class Shader
     /// <exception cref="ArgumentException">If the type expected by this uniform is none of the aforementioned and/or expected an array of data</exception>
     /// <exception cref="KeyNotFoundException">If there is no uniform by <see cref="name"/></exception>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public void SetUniform<T>(string name, Matrix4X3<T> value) where T : unmanaged, IBinaryInteger<T>
+    public void SetUniform<T>(string name, Matrix4X3<T> value) where T : unmanaged, IBinaryNumber<T>
     {
-        ref var uniform = ref uniforms.Find(name); //This is an extension method to make the look-up simpler
+        ref var uniform = ref _uniforms.Find(name); //This is an extension method to make the look-up simpler
         if(uniform.IsArray)
             throw new ArgumentException($"The uniform \"{name}\" has expected an array of size {uniform.Count}.");
 
@@ -527,9 +527,9 @@ partial class Shader
     /// <exception cref="ArgumentException">If the type expected by this uniform is none of the aforementioned and/or expected an array of data</exception>
     /// <exception cref="KeyNotFoundException">If there is no uniform by <see cref="name"/></exception>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public void SetUniform<T>(string name, Matrix4X4<T> value) where T : unmanaged, IBinaryInteger<T>
+    public void SetUniform<T>(string name, Matrix4X4<T> value) where T : unmanaged, IBinaryNumber<T>
     {
-        ref var uniform = ref uniforms.Find(name); //This is an extension method to make the look-up simpler
+        ref var uniform = ref _uniforms.Find(name); //This is an extension method to make the look-up simpler
         if(uniform.IsArray)
             throw new ArgumentException($"The uniform \"{name}\" has expected an array of size {uniform.Count}.");
 

@@ -9,22 +9,66 @@ namespace Create.Graphics;
 
 partial class Shader
 {
+    /// <summary>
+    /// Begins the creation of the shader
+    /// </summary>
+    /// <returns>A new struct <see cref="Constructor"/> for <see cref="Shader"/> creation.</returns>
     public static Constructor Create() => new();
     
+    /// <summary>
+    /// The constructor for a <see cref="Shader"/>
+    /// </summary>
     public struct Constructor
     {
-        private OneOf<String, Stream>? _vertex;
-        private OneOf<String, Stream>? _fragment;
+        /// Stores the vertex code for this shader. Eather as a stream to be loaded during compilation or as a preloaded string
+        private OneOf<String, (Stream, bool close)>? _vertex;
+        /// Stores the fragment code for this shader. Eather as a stream to be loaded during compilation or as a preloaded string
+        private OneOf<String, (Stream, bool close)>? _fragment;
+        /// Optional name for this shader if none is set, will default to #programId
         private string? _name;
 
-        public Constructor Vertex(string content) { _vertex = content; return this; }
-        public Constructor Vertex(Stream input)   { _vertex = input; return this; }
+        /// <summary>
+        /// Sets a code for the vertex stage of the <see cref="Shader"/>
+        /// </summary>
+        /// <param name="content">Vertex Shader Code</param>
+        /// <exception cref="ArgumentNullException">When the <paramref name="content"/> is null</exception>
+        public Constructor Vertex(string content) { _vertex = content ?? throw new ArgumentNullException(nameof(content)); return this; }
+        /// <summary>
+        /// Sets a Stream to load code of Vertex Shader, will be only loaded when the <see cref="Shader"/> is compiled.
+        /// </summary>
+        /// <param name="input">The source of Vertex Shader Code</param>
+        /// <param name="shouldClose">A flag telling if the <paramref name="input"/></param>
+        /// <exception cref="ArgumentNullException">When the <paramref name="input"/> is null</exception>
+        public Constructor Vertex(Stream input, bool shouldClose = false) { _vertex = (input ?? throw new ArgumentNullException(nameof(input)), shouldClose); return this; }
 
-        public Constructor Fragment(string content) { _fragment = content; return this; }
-        public Constructor Fragment(Stream input)   { _fragment = input;  return this; }
+        /// <summary>
+        /// Sets a code for the fragment stage of the <see cref="Shader"/>
+        /// </summary>
+        /// <param name="content">Fragment Shader Code</param>
+        /// <exception cref="ArgumentNullException">When the <paramref name="content"/> is null</exception>
+        public Constructor Fragment(string content) { _fragment = content ?? throw new ArgumentNullException(nameof(content)); return this; }
+        /// <summary>
+        /// Sets a Stream to load code of Fragment Shader, will be only loaded when the <see cref="Shader"/> is compiled.
+        /// </summary>
+        /// <param name="input">The source of Fragment Shader Code</param>
+        /// <param name="shouldClose">A flag telling if the <paramref name="input"/></param>
+        /// <exception cref="ArgumentNullException">When the <paramref name="input"/> is null</exception>
+        public Constructor Fragment(Stream input, bool shouldClose = false) { _fragment = (input ?? throw new ArgumentNullException(nameof(input)), shouldClose);  return this; }
         
-        public Constructor Name(string name) { _name = name; return this; }
+        /// <summary>
+        /// Specifies the name of this shader is none is set will default to <c>#programID</c>
+        /// <br/><br/>
+        /// Example: <c>#3</c>
+        /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
+        public Constructor Name(string name) { _name = name ?? throw new ArgumentNullException(); return this; }
         
+        /// <summary>
+        /// Compiles and returns the <see cref="Shader"/> from all data specified
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">If the current thread is not connected to OpenGL</exception>
+        /// <exception cref="GlfwException">If the Shader Compilation fails</exception>
         public Shader Finish()
         {
             if(!Window.HasGL)
@@ -49,15 +93,18 @@ partial class Shader
             return new(combined, _name, gl);
             
             // Helper methods
-            string GetCodeFrom(OneOf<String, Stream>? content, Func<string> name)
+            string GetCodeFrom(OneOf<String, (Stream, bool close)>? content, Func<string> name)
             {
                 if(!content.HasValue)
                     throw new InvalidOperationException($"The {name()} shader was not specified.");
                 
                 return content.Value.Match(s => s, stream =>
                 {
-                    using var reader = new StreamReader(stream);
-                    return reader.ReadToEnd();
+                    using var reader = new StreamReader(stream.Item1);
+                    var code = reader.ReadToEnd();
+                    if(stream.close)
+                        stream.Item1.Close();
+                    return code;
                 });
             }
 
