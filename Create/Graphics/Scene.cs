@@ -69,6 +69,24 @@ public abstract class Scene
         set => _window?.MeGLFW.Title = value;
     }
 
+    protected Vector2D<int> Size
+    {
+        get => _window!.MeGLFW.FramebufferSize;
+        set
+        {
+            var buff = _window!.MeGLFW.FramebufferSize;
+            var logical = _window!.MeGLFW.Size;
+
+            var scaleW = buff.X / (decimal)logical.X;
+            var scaleH = buff.Y / (decimal)logical.Y;
+            
+            _window!.MeGLFW.Size = new((int)(value.X * scaleW), (int)(value.Y * scaleH));
+        }
+    }
+    
+    /// <summary>
+    /// Used to set the Icon for the window
+    /// </summary>
     protected ReadOnlySpan<RawImage> Icon
     {
         set

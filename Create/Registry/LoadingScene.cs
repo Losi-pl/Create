@@ -1,7 +1,9 @@
 ﻿using System.Drawing;
+using System.Numerics;
 using System.Reflection;
 using Create.General;
 using Create.Graphics;
+using Create.World;
 using Ico.Reader.Data;
 using Silk.NET.Core;
 using Silk.NET.Maths;
@@ -16,8 +18,8 @@ namespace Create.Registry;
 /// </summary>
 internal sealed class LoadingScene: Scene
 {
-    private static Shader _shader = null!;
-    private static Mesh _mesh = null!;
+    private RealmWorld _world = null!;
+    private static Mesh _worldMesh = null!;
     
     protected override void OnConnect()
     {
@@ -26,26 +28,39 @@ internal sealed class LoadingScene: Scene
         
         Window.GL.ClearColor(Color.FromArgb(255, 27, 72, 8));
 
-        _shader = Shader.Create()
-            .Vertex(Assembly.GetCallingAssembly().GetManifestResourceStream("main/create/shaders/base.vert")!)
-            .Fragment(Assembly.GetCallingAssembly().GetManifestResourceStream("main/create/shaders/base.frag")!)
-            .Finish();
-        
-        _shader.SetUniform("border", .5f);
+        _world = new()
+        {
+            [0, 0, 0] = true,
+            [0, 0, 1] = true,
+            [1, 0, 0] = true,
+            [1, 0, 1] = true,
+            [0, 1, 0] = true,
+            [1, 1, 1] = true
+        };
 
-        _mesh = Mesh.Create(_shader).ManualFillOut()
-            .SetDataLayout(Mesh.DataLayout.Interleaved)
-            .SetAttribute("aPos", new Vector3D<float>[]
-            {
-                new(-0.5f, -0.5f, 0.0f), 
-                new( 0.5f, -0.5f, 0.0f), 
-                new( 0.0f,  0.5f, 0.0f)
-            }).SetAttribute("aColor", new Vector3D<int>[]
-            {
-                new(1, 0, 0), 
-                new(0, 1, 0), 
-                new(0, 0, 1)
-            }).Finish().ThreadBind();
+        _worldMesh = new ChunkModeler().GenerateModel(_world).ThreadBind();
+
+        var fovRadians = 70f * MathF.PI / 180f;
+        var aspect = Size.X / (float)Size.Y;
+
+        var projection = Matrix4x4.CreatePerspectiveFieldOfViewLeftHanded(fovRadians, aspect, .1f, 512f * 3 / 2);
+        var view = Matrix4x4.CreateLookAtLeftHanded(new(0, 5, -5), new(0, 0, 0), new(0, 1, 0));
+
+        _worldMesh.Shader.SetUniform("projection", projection);
+        _worldMesh.Shader.SetUniform("view", view);
+        _worldMesh.Shader.SetUniform("model", Matrix4X4<float>.Identity);
+        
+        Window.GL.Enable(EnableCap.DepthTest);
+    }
+
+    public override void WindowResize(Vector2D<int> newSize)
+    {
+        var fovRadians = 70f * MathF.PI / 180f;
+        var aspect = Size.X / (float)Size.Y;
+
+        var projection = Matrix4x4.CreatePerspectiveFieldOfViewLeftHanded(fovRadians, aspect, .1f, 512f * 3 / 2);
+        
+        _worldMesh.Shader.SetUniform("projection", projection);
     }
 
     public override void RenderUpdate(double delta)
@@ -54,7 +69,15 @@ internal sealed class LoadingScene: Scene
         
         gl.Clear(ClearBufferMask.ColorBufferBit);
 
-        _mesh.Draw();
+        _worldMesh.Draw();
+    }
+
+    private double _rotate;
+    public override void LogicUpdate(double delta)
+    {
+        _rotate += delta * 90;
+        var mod = Matrix4x4.CreateTranslation(-1, -1, -1) * Matrix4x4.CreateRotationY((float)_rotate * (MathF.PI / 180f));
+        _worldMesh.Shader.SetUniform("model", mod);
     }
 
     /// <summary>
@@ -70,7 +93,7 @@ internal sealed class LoadingScene: Scene
 
         var ico = new Ico.Reader.IcoReader().Read(stream);
         if(ico == null)
-            throw new FileLoadException("Game failed to load properly");
+            throw new FileLoadException("Game icon failed to load properly");
 
         var icons = new RawImage[ico.ImageReferences.Count(i => i.IcoType == IcoType.Icon)];
         int index = 0;
