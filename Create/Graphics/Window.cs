@@ -57,7 +57,7 @@ public sealed class Window
     /// <summary>
     /// The Silk.NET handler for the window mechanics
     /// </summary>
-    internal IWindow InnerWindow { get; }
+    internal IWindow MeGLFW { get; }
     /// <summary>
     /// The GL context of this specific window
     /// </summary>
@@ -90,13 +90,13 @@ public sealed class Window
             },
             FramesPerSecond = 60
         };
-        InnerWindow = Silk.NET.Windowing.Window.Create(initOptions);
-        InnerWindow.Initialize();
-        MyGL = InnerWindow.CreateOpenGL();
+        MeGLFW = Silk.NET.Windowing.Window.Create(initOptions);
+        MeGLFW.Initialize();
+        MyGL = MeGLFW.CreateOpenGL();
         
-        InnerWindow.Update += RenderUpdate;
-        InnerWindow.Render += LogicUpdate;
-        InnerWindow.Resize += WindowResize;
+        MeGLFW.Update += RenderUpdate;
+        MeGLFW.Render += LogicUpdate;
+        MeGLFW.Resize += WindowResize;
     }
 
     /// <summary>
@@ -146,8 +146,8 @@ public sealed class Window
     /// </summary>
     private void OnInit()
     {
-        InnerWindow.Center();
-        InnerWindow.IsVisible = true;
+        MeGLFW.Center();
+        MeGLFW.IsVisible = true;
     }
     /// <summary>
     /// Connects this window to a thread and sets the thread local context
@@ -158,7 +158,7 @@ public sealed class Window
         {
             Guard.IsNull(_currentGL, () => "A Window or a context is already bound to this thread");
             
-            InnerWindow.MakeCurrent();
+            MeGLFW.MakeCurrent();
             _currentGL = MyGL;
         }
     }
@@ -168,6 +168,6 @@ public sealed class Window
     public void Run()
     {
         Guard.Equal(MyGL, _currentGL, (_, _) => "This window is not bound to this thread");
-        InnerWindow.Run();
+        MeGLFW.Run();
     }
 }

@@ -64,9 +64,9 @@ public abstract class Scene
     /// <exception cref="NullReferenceException">If this Scene is not bound to a Window</exception>
     protected string Title
     {
-        [UsedImplicitly] get => _window?.InnerWindow.Title ?? 
+        [UsedImplicitly] get => _window?.MeGLFW.Title ?? 
                                 throw new NullReferenceException("This Scene is not connected to a window at the moment");
-        set => _window?.InnerWindow.Title = value;
+        set => _window?.MeGLFW.Title = value;
     }
 
     protected ReadOnlySpan<RawImage> Icon
@@ -74,7 +74,7 @@ public abstract class Scene
         set
         {
             Guard.NotNull(_window, () => "This Scene is not connected to a window at the moment");
-            _window!.InnerWindow.SetWindowIcon(value);
+            _window!.MeGLFW.SetWindowIcon(value);
         }
     }
 }
