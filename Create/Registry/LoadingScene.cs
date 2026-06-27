@@ -9,7 +9,6 @@ using Silk.NET.Core;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using StbImageSharp;
-using Shader = Create.Graphics.Shader;
 
 namespace Create.Registry;
 
