@@ -9,7 +9,7 @@ partial class Mesh
 {
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void CompileVertexData(Span<byte> content, Shader shader, DataLayout mode, Dictionary<string, Array> attributes, uint vertexCount)
-    {
+    { //TODO: Figure out what to do with the Matrix's Row major order 
         int attribIndex = 0;
 
         foreach (ref var attribute in shader.EnumAttrib())

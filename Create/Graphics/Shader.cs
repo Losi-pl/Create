@@ -80,6 +80,7 @@ public sealed partial class Shader
         
         public struct Enumerator(Shader shader)
         {
+            // ReSharper disable once InconsistentNaming
             private int index = -1;
             public bool MoveNext() => ++index < shader._attributes.Length;
             public ref Attribute Current => ref shader._attributes[index];

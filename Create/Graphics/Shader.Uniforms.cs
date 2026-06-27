@@ -259,13 +259,13 @@ partial class Shader
         {
             case UniformType.FloatMat2:
                 var mat = value as Matrix2X2<float>? ?? value.As<float>();
-                gl.ProgramUniformMatrix2(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix2(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix2X2<float>, float>(ref mat),
                     2 * 2));
                 break;
             case UniformType.DoubleMat2:
                 var dMat = value as Matrix2X2<double>? ?? value.As<double>();
-                gl.ProgramUniformMatrix2(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix2(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix2X2<double>, double>(ref dMat),
                     2 * 2));
                 break;
@@ -294,13 +294,13 @@ partial class Shader
         {
             case UniformType.FloatMat2x3:
                 var mat = value as Matrix2X3<float>? ?? value.As<float>();
-                gl.ProgramUniformMatrix2x3(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix2x3(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix2X3<float>, float>(ref mat),
                     2 * 3));
                 break;
             case UniformType.DoubleMat2x3:
                 var dMat = value as Matrix2X3<double>? ?? value.As<double>();
-                gl.ProgramUniformMatrix2x3(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix2x3(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix2X3<double>, double>(ref dMat),
                     2 * 3));
                 break;
@@ -329,13 +329,13 @@ partial class Shader
         {
             case UniformType.FloatMat2x4:
                 var mat = value as Matrix2X4<float>? ?? value.As<float>();
-                gl.ProgramUniformMatrix2x4(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix2x4(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix2X4<float>, float>(ref mat),
                     2 * 4));
                 break;
             case UniformType.DoubleMat2x4:
                 var dMat = value as Matrix2X4<double>? ?? value.As<double>();
-                gl.ProgramUniformMatrix2x4(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix2x4(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix2X4<double>, double>(ref dMat),
                     2 * 4));
                 break;
@@ -364,13 +364,13 @@ partial class Shader
         {
             case UniformType.FloatMat3x2:
                 var mat = value as Matrix3X2<float>? ?? value.As<float>();
-                gl.ProgramUniformMatrix3x2(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix3x2(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix3X2<float>, float>(ref mat),
                     3 * 2));
                 break;
             case UniformType.DoubleMat3x2:
                 var dMat = value as Matrix3X2<double>? ?? value.As<double>();
-                gl.ProgramUniformMatrix3x2(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix3x2(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix3X2<double>, double>(ref dMat),
                     3 * 2));
                 break;
@@ -399,13 +399,13 @@ partial class Shader
         {
             case UniformType.FloatMat3:
                 var mat = value as Matrix3X3<float>? ?? value.As<float>();
-                gl.ProgramUniformMatrix3(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix3(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix3X3<float>, float>(ref mat),
                     3 * 3));
                 break;
             case UniformType.DoubleMat3:
                 var dMat = value as Matrix3X3<double>? ?? value.As<double>();
-                gl.ProgramUniformMatrix3(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix3(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix3X3<double>, double>(ref dMat),
                     3 * 3));
                 break;
@@ -434,13 +434,13 @@ partial class Shader
         {
             case UniformType.FloatMat3x4:
                 var mat = value as Matrix3X4<float>? ?? value.As<float>();
-                gl.ProgramUniformMatrix3x4(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix3x4(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix3X4<float>, float>(ref mat),
                     3 * 4));
                 break;
             case UniformType.DoubleMat3x4:
                 var dMat = value as Matrix3X4<double>? ?? value.As<double>();
-                gl.ProgramUniformMatrix3x4(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix3x4(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix3X4<double>, double>(ref dMat),
                     3 * 4));
                 break;
@@ -469,13 +469,13 @@ partial class Shader
         {
             case UniformType.FloatMat4x2:
                 var mat = value as Matrix4X2<float>? ?? value.As<float>();
-                gl.ProgramUniformMatrix4x2(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix4x2(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix4X2<float>, float>(ref mat),
                     4 * 2));
                 break;
             case UniformType.DoubleMat4x2:
                 var dMat = value as Matrix4X2<double>? ?? value.As<double>();
-                gl.ProgramUniformMatrix4x2(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix4x2(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix4X2<double>, double>(ref dMat),
                     4 * 2));
                 break;
@@ -504,13 +504,13 @@ partial class Shader
         {
             case UniformType.FloatMat4x3:
                 var mat = value as Matrix4X3<float>? ?? value.As<float>();
-                gl.ProgramUniformMatrix4x3(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix4x3(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix4X3<float>, float>(ref mat),
                     4 * 3));
                 break;
             case UniformType.DoubleMat4x3:
                 var dMat = value as Matrix4X3<double>? ?? value.As<double>();
-                gl.ProgramUniformMatrix4x3(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix4x3(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix4X3<double>, double>(ref dMat),
                     4 * 3));
                 break;
@@ -539,14 +539,53 @@ partial class Shader
         {
             case UniformType.FloatMat4:
                 var mat = value as Matrix4X4<float>? ?? value.As<float>();
-                gl.ProgramUniformMatrix4(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix4(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix4X4<float>, float>(ref mat),
                     4 * 4));
                 break;
             case UniformType.DoubleMat4:
                 var dMat = value as Matrix4X4<double>? ?? value.As<double>();
-                gl.ProgramUniformMatrix4(Handle, uniform.Location, false, MemoryMarshal.CreateSpan(
+                gl.ProgramUniformMatrix4(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
                     ref Unsafe.As<Matrix4X4<double>, double>(ref dMat),
+                    4 * 4));
+                break;
+            default:
+                throw new ArgumentException($"The uniform \"{name}\" is not a Matrix 4x4");
+        }
+    }
+    
+    
+    
+    /// <summary>
+    /// Used to set a single value uniform accepting <see cref="Matrix4X4{float}"/>, <see cref="Matrix4X4{uint}"/>
+    /// </summary>
+    /// <param name="name">Name of the uniform to be set</param>
+    /// <param name="value">The value to set in this uniform</param>
+    /// <exception cref="ArgumentException">If the type expected by this uniform is none of the aforementioned and/or expected an array of data</exception>
+    /// <exception cref="KeyNotFoundException">If there is no uniform by <see cref="name"/></exception>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    public void SetUniform(string name, Matrix4x4 value)
+    {
+        ref var uniform = ref _uniforms.Find(name); //This is an extension method to make the look-up simpler
+        if(uniform.IsArray)
+            throw new ArgumentException($"The uniform \"{name}\" has expected an array of size {uniform.Count}.");
+
+        var gl = Window.GL;
+        
+        switch (uniform.Type)
+        {
+            case UniformType.FloatMat4:
+                gl.ProgramUniformMatrix4(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
+                    ref Unsafe.As<Matrix4x4, float>(ref value),
+                    4 * 4));
+                break;
+            case UniformType.DoubleMat4:
+                var mat = new Matrix4X4<double>(value.M11, value.M12, value.M13, value.M14, 
+                                                value.M21, value.M22, value.M23, value.M24, 
+                                                value.M31, value.M32, value.M33, value.M34, 
+                                                value.M41, value.M42, value.M43, value.M44);
+                gl.ProgramUniformMatrix4(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
+                    ref Unsafe.As<Matrix4X4<double>, double>(ref mat),
                     4 * 4));
                 break;
             default:
