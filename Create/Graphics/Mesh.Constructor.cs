@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
@@ -7,6 +8,7 @@ namespace Create.Graphics;
 
 partial class Mesh
 {
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public readonly struct Constructor(Shader shader)
     {
         public PiceMeal ManualFillOut() => new PiceMeal(shader);
@@ -14,9 +16,11 @@ partial class Mesh
         public class PiceMeal(Shader shader)
         {
             private readonly Dictionary<string, Array> _attributes = new();
-            private DataLayout _mode = DataLayout.NonInterleaved;
+            private DataLayout _dataMode = DataLayout.NonInterleaved;
+            private PrimitiveType _drawMode = PrimitiveType.Triangles;
+            private uint[]? _elements;
 
-            public PiceMeal SetDataLayout(DataLayout layout) { _mode = layout; return this; }
+            public PiceMeal SetDataLayout(DataLayout layout) { _dataMode = layout; return this; }
 
             [MethodImpl(MethodImplOptions.AggressiveOptimization)]
             public PiceMeal SetAttribute<T>(string name, T[] values) where T : INumberBase<T>
@@ -777,6 +781,29 @@ partial class Mesh
                 return this;
             }
 
+            public PiceMeal Triangles()
+            {
+                _drawMode = PrimitiveType.Triangles;
+                return this;
+            }
+            
+            [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+            public PiceMeal Triangles<T>(T[] triangles) where T: IBinaryInteger<T>
+            {
+                _drawMode = PrimitiveType.Triangles;
+                if (triangles is uint[] uTriangles)
+                    _elements = uTriangles;
+                else
+                {
+                    var copy = new uint[triangles.Length];
+                    for (int i = 0; i < triangles.Length; i++)
+                        copy[i] = Scalar.As<T, uint>(triangles[i]);
+                    _elements = copy;
+                }
+
+                return this;
+            }
+            
             public Mesh Finish()
             {
                 int VertexCount()
@@ -793,13 +820,21 @@ partial class Mesh
                 foreach (ref var attribute in shader.EnumAttrib())
                     vertSize += (int)(attribute.Type.SizeOf * attribute.Count);
                 Span<byte> buffer = stackalloc byte[vertSize * vertexCount];
-                CompileVertexData(buffer, shader, _mode, _attributes, (uint)vertexCount);
+                CompileVertexData(buffer, shader, _dataMode, _attributes, (uint)vertexCount);
                 var vbo = gl.CreateBuffer();
                 gl.BindBuffer(BufferTargetARB.ArrayBuffer, vbo);
                 gl.BufferData(BufferTargetARB.ArrayBuffer, buffer, BufferUsageARB.StaticDraw);
                 gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
+
+                if (_elements == null)
+                    return new(shader, vbo, null, _drawMode, _dataMode, (uint)vertexCount, null);
                 
-                return new(shader, vbo, _mode, (uint)vertexCount);
+                var ebo = gl.CreateBuffer();
+                gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, ebo);
+                gl.BufferData(BufferTargetARB.ElementArrayBuffer, _elements, BufferUsageARB.StaticDraw);
+                gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, 0);
+
+                return new(shader, vbo, ebo, _drawMode, _dataMode, (uint)vertexCount, (uint)_elements.Length);
             }
         }
     }

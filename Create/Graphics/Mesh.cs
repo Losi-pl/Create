@@ -9,19 +9,27 @@ public sealed partial class Mesh
 {
     private readonly Shader _shader;
     private readonly uint _vbo;
+    private readonly uint? _ebo;
+    private readonly PrimitiveType _drawMode;
     private readonly DataLayout _dataLayout;
     private readonly uint _vertexCount;
-    private (uint vao, GL context)? _binding = null;
+    private readonly uint _drawCount;
+    private (uint vao, GL context)? _binding;
 
-    private Mesh(Shader shader, uint vbo, DataLayout  dataLayout, uint vertexCount)
+    private Mesh(Shader shader, uint vbo, uint? ebo, PrimitiveType drawMode, DataLayout  dataLayout, uint vertexCount, uint? elementCount)
     {
         ArgumentNullException.ThrowIfNull(shader);
 
         _shader = shader;
         _vbo = vbo;
+        _ebo = ebo;
+        _drawMode = drawMode;
         _vertexCount = vertexCount;
+        _drawCount = elementCount ?? _vertexCount;
         _dataLayout = dataLayout;
     }
+    
+    public Shader Shader => _shader;
     
     public static Constructor Create(Shader shader) => new(shader);
     
@@ -41,7 +49,11 @@ public sealed partial class Mesh
         var gl = Window.GL;
         var vao = gl.CreateVertexArray();
         gl.BindVertexArray(vao);
+        
         gl.BindBuffer(BufferTargetARB.ArrayBuffer, _vbo);
+        if(_ebo.HasValue)
+            gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, _ebo.Value);
+        
         gl.UseProgram(_shader.Handle);
         nint offset = 0;
         switch (_dataLayout)
@@ -87,7 +99,10 @@ public sealed partial class Mesh
             
         gl.UseProgram(_shader.Handle);
         gl.BindVertexArray(_binding.Value.vao);
-        gl.DrawArrays(PrimitiveType.Triangles, 0, _vertexCount);
+        if(_ebo.HasValue)
+            unsafe { gl.DrawElements(_drawMode, _drawCount, DrawElementsType.UnsignedInt, (void*)0); }
+        else
+            gl.DrawArrays(_drawMode, 0, _drawCount);
         gl.BindVertexArray(0);
         gl.UseProgram(0);
     }
