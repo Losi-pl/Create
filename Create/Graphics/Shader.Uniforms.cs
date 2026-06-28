@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Silk.NET.OpenGL.Extensions.ARB;
 using Silk.NET.OpenGL;
-using Create.General;
 using Silk.NET.Maths;
 
 namespace Create.Graphics;

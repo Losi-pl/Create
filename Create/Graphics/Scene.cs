@@ -57,6 +57,12 @@ public abstract class Scene
     /// </summary>
     /// <param name="newSize"></param>
     public virtual void WindowResize(Vector2D<int> newSize) { }
+
+    /// <summary>
+    /// Allows to change the scene currently used in the window the change will be only applied during the next logic update
+    /// </summary>
+    /// <param name="scene"></param>
+    protected void SwapScene(Scene scene) => _window!.Scene = scene;
     
     /// <summary>
     /// The title of the window
@@ -69,6 +75,9 @@ public abstract class Scene
         set => _window?.MeGLFW.Title = value;
     }
 
+    /// <summary>
+    /// The size of the game window in buffer pixels and excluding window border
+    /// </summary>
     protected Vector2D<int> Size
     {
         get => _window!.MeGLFW.FramebufferSize;

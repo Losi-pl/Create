@@ -1,6 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using OneOf;
-using OneOf.Types;
 using Silk.NET.GLFW;
 using Silk.NET.OpenGL;
 using ShaderParam = Silk.NET.OpenGL.ShaderParameterName;

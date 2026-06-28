@@ -1,9 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using Create.General;
 using Silk.NET.OpenGL;
-using OneOf.Types;
-using OneOf;
 
 namespace Create.Graphics;
 [DebuggerDisplay("Shader: {Name, nq}")]
