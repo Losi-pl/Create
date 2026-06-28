@@ -1,4 +1,4 @@
-﻿using Create.General;
+﻿using Create.Input;
 using JetBrains.Annotations;
 using Silk.NET.Core;
 using Silk.NET.Maths;
@@ -53,16 +53,30 @@ public abstract class Scene
     public virtual void RenderUpdate(double delta) { }
 
     /// <summary>
-    /// Called when the window is resized;
+    /// Called when the window is resized
     /// </summary>
-    /// <param name="newSize"></param>
     public virtual void WindowResize(Vector2D<int> newSize) { }
 
+    /// <summary>
+    /// Called when a key is pressed
+    /// </summary>
+    public virtual void KeyPressed(Key key) { }
+    
+    /// <summary>
+    /// Called when a key is released
+    /// </summary>
+    public virtual void KeyReleased(Key key) { }
+    
     /// <summary>
     /// Allows to change the scene currently used in the window the change will be only applied during the next logic update
     /// </summary>
     /// <param name="scene"></param>
     protected void SwapScene(Scene scene) => _window!.Scene = scene;
+    
+    /// <summary>
+    /// Keyboard inputs of this window
+    /// </summary>
+    protected Keyboard Keyboard => _window!.Keyboard;
     
     /// <summary>
     /// The title of the window

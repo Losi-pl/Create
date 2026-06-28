@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Create.General;
+using Create.Input;
+using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.OpenGL.Extensions.ARB;
@@ -63,6 +64,16 @@ public sealed class Window
     /// </summary>
     private GL MyGL { get; }
     /// <summary>
+    /// General context of inputs for this window
+    /// </summary>
+    // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
+    private readonly IInputContext _inputContext;
+    /// <summary>
+    /// Keyboard inputs of this window
+    /// </summary>
+    public Keyboard Keyboard { get; }
+
+    /// <summary>
     /// The scene that is being actively used by this window
     /// </summary>
     private Scene? _usedScene;
@@ -93,12 +104,29 @@ public sealed class Window
         MeGLFW = Silk.NET.Windowing.Window.Create(initOptions);
         MeGLFW.Initialize();
         MyGL = MeGLFW.CreateOpenGL();
+
+        _inputContext = MeGLFW.CreateInput();
+        Keyboard = new(_inputContext);
         
         MeGLFW.Update += RenderUpdate;
         MeGLFW.Render += LogicUpdate;
         MeGLFW.Resize += WindowResize;
+
+        var kb = _inputContext.Keyboards.First();
+        kb.KeyDown += KeyDown;
+        kb.KeyUp += KeyUp;
     }
 
+    private void KeyDown(IKeyboard _, Silk.NET.Input.Key key, int scanCode)
+    { 
+        Keyboard.MarkPressedKey((Input.Key)key);
+    }
+    
+    private void KeyUp(IKeyboard _, Silk.NET.Input.Key key, int scanCode)
+    {
+        Keyboard.MarkReleasedKey((Input.Key)key);
+    }
+    
     /// <summary>
     /// Contains all logic to be run then the window is being resized
     /// </summary>
