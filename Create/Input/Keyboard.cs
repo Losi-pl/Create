@@ -5,12 +5,17 @@ namespace Create.Input;
 
 public class Keyboard
 {
-    private readonly IKeyboard _context;
+    private readonly IKeyboard _keyboard;
     private Keys _keys;
 
-    internal Keyboard(IInputContext context)
+    // ReSharper disable EventNeverSubscribedTo.Global
+    public event Action<Input.Key>? KeyPressed;
+    public event Action<Input.Key>? KeyReleased;
+    // ReSharper restore EventNeverSubscribedTo.Global
+    
+    internal Keyboard(IKeyboard keyboard)
     {
-        _context = context.Keyboards[0];
+        _keyboard = keyboard;
         
         foreach (var key in Enum.GetValues<Input.Key>())
         {
@@ -19,8 +24,11 @@ public class Keyboard
                 continue;
             
             _keys[ind] = new(key);
-            _keys[ind].Combined = (_context.IsKeyPressed((Silk.NET.Input.Key)key), false, false, false);
+            _keys[ind].Combined = (keyboard.IsKeyPressed((Silk.NET.Input.Key)key), false, false, false);
         }
+
+        keyboard.KeyDown += PressedKey;
+        keyboard.KeyUp += ReleasedKey;
     }
 
     // ReSharper disable once UnusedMember.Global
@@ -35,26 +43,44 @@ public class Keyboard
         }
     }
     
-    internal void MarkPressedKey(Input.Key key)
+    void PressedKey(IKeyboard _, Silk.NET.Input.Key key, int scancode)
     {
-        var ind = KeyToIndex(key);
+        var ind = KeyToIndex((Input.Key)key);
         if (ind is < 0 or >= 120)
             throw new KeyNotFoundException();
-        var status = _keys[ind].Combined;
-        status.status = true;
-        status.pressed = true;
-        _keys[ind].Combined = status;
+        
+        _keys[ind].Combined = _keys[ind].Combined with { status = true, pressed = true };
+        KeyPressed?.Invoke((Input.Key)key);
     }
     
-    internal void MarkReleasedKey(Input.Key key)
+    void ReleasedKey(IKeyboard _, Silk.NET.Input.Key key, int scancode)
     {
-        var ind = KeyToIndex(key);
+        var ind = KeyToIndex((Input.Key)key);
         if (ind is < 0 or >= 120)
             throw new KeyNotFoundException();
-        var status = _keys[ind].Combined;
-        status.status = false;
-        status.released = true;
-        _keys[ind].Combined = status;
+        
+        _keys[ind].Combined = _keys[ind].Combined with { status = false, released = true };
+        KeyReleased?.Invoke((Input.Key)key);
+    }
+
+    internal void ClearEvents()
+    {
+        for (var i = 0; i < 120; i++)
+        {
+            ref var key = ref _keys[i];
+            key.Combined = (key.IsPressed, false, false, false);
+        }
+    }
+
+    internal void RefreshKeyStates()
+    {
+        for (var i = 0; i < 120; i++)
+        {
+            ref var key = ref _keys[i];
+            var stat = key.Combined;
+            stat.status = _keyboard.IsKeyPressed((Silk.NET.Input.Key)key.KeyCode);
+            key.Combined = stat;
+        }
     }
     
     private int KeyToIndex(Input.Key key) => key switch

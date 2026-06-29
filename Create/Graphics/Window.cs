@@ -106,27 +106,13 @@ public sealed class Window
         MyGL = MeGLFW.CreateOpenGL();
 
         _inputContext = MeGLFW.CreateInput();
-        Keyboard = new(_inputContext);
+        Keyboard = new(_inputContext.Keyboards[0]);
         
         MeGLFW.Update += RenderUpdate;
         MeGLFW.Render += LogicUpdate;
         MeGLFW.Resize += WindowResize;
-
-        var kb = _inputContext.Keyboards.First();
-        kb.KeyDown += KeyDown;
-        kb.KeyUp += KeyUp;
     }
 
-    private void KeyDown(IKeyboard _, Silk.NET.Input.Key key, int scanCode)
-    { 
-        Keyboard.MarkPressedKey((Input.Key)key);
-    }
-    
-    private void KeyUp(IKeyboard _, Silk.NET.Input.Key key, int scanCode)
-    {
-        Keyboard.MarkReleasedKey((Input.Key)key);
-    }
-    
     /// <summary>
     /// Contains all logic to be run then the window is being resized
     /// </summary>
@@ -157,6 +143,7 @@ public sealed class Window
         }
         
         _usedScene?.LogicUpdate(delta);
+        Keyboard.ClearEvents();
     }
     /// <summary>
     /// Contains all rendering related logic to be executed per frame
