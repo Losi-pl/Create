@@ -4,26 +4,43 @@ namespace Create.Graphics;
 
 public class Camera
 {
-    public Vector2 Orientation
+    private Vector2 _orie;
+    private Vector3 _pos;
+    
+    public (Vector3 position, Vector2 orientation) View
     {
-        get;
+        get => (Position, Orientation);
         set
         {
-            if(field == value)
+            if (View == value)
                 return;
-            field = value;
+            _pos = value.position;
+            _orie = value.orientation;
+            
+            RecalculateView();
+        }
+    }
+    
+    public Vector2 Orientation
+    {
+        get => _orie;
+        set
+        {
+            if(_orie == value)
+                return;
+            _orie = value;
             RecalculateView();
         }
     }
     
     public Vector3 Position
     {
-        get;
+        get => _pos;
         set
         {
-            if(field == value)
+            if(_pos == value)
                 return;
-            field = value;
+            _pos = value;
             RecalculateView();
         }
     }
@@ -50,6 +67,41 @@ public class Camera
         }
     }
 
+    public Vector2? MovementVector(bool forward, bool back, bool left, bool right)
+    {
+        float? d = null;
+        
+        if ((forward || left || right || back) && (!forward || !left || !back || !right))
+        {
+            if (forward && !back)
+            {
+                if (left == right)
+                    d = 0;
+                else if (left)
+                    d = 7;
+                else if (right)
+                    d = 1;
+            }
+            else if (back && !forward)
+            {
+                if (left == right)
+                    d = 4;
+                else if (left)
+                    d = 5;
+                else if (right)
+                    d = 3;
+            }
+            else if (left && !right)
+                d = 6;
+            else if (right && !left)
+                d = 2;
+        }
+
+        if (!d.HasValue)
+            return null;
+        d = (d.Value / 4f + Orientation.X / -180f) * MathF.PI;
+        return new(MathF.Sin(d.Value), MathF.Cos(d.Value));
+    }
     
     public Matrix4x4 ProjectionMatrix { get; private set; } = Matrix4x4.Identity;
     public Matrix4x4 ViewMatrix { get; private set; } = Matrix4x4.Identity;

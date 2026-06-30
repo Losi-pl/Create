@@ -85,69 +85,23 @@ public sealed class GameSession: Scene
         var up = k.Space.IsPressed;
         var down = k.ShiftLeft.IsPressed;
 
-        if ((forward || left || right || back) && (!forward || !left || !back || !right))
+        var movementHor = _camera.MovementVector(forward, back, left, right);
+
+        Vector3 move = new(movementHor?.X ?? 0, 0, movementHor?.Y ?? 0);
+
+        if (down != up)
         {
-            var d = -1f;
-
-            if (forward && !back)
-            {
-                if (left == right)
-                    d = 0;
-                else if (left)
-                    d = 7;
-                else if (right)
-                    d = 1;
-            }
-            else if (back && !forward)
-            {
-                if (left == right)
-                    d = 4;
-                else if (left)
-                    d = 5;
-                else if (right)
-                    d = 3;
-            }
-            else if (left && !right)
-                d = 6;
-            else if (right && !left)
-                d = 2;
-
-            // ReSharper disable once CompareOfFloatsByEqualityOperator
-            if (d != -1)
-            {
-                d = d * MathF.PI / 4;
-                var move = new Vector3(MathF.Sin(d), 0, MathF.Cos(d));
-                {
-                
-                    if (up && !down)
-                        move.Y = 1;
-                    if (down && !up)
-                        move.Y = -1;
-                    if (down != up)
-                    {
-                        var rad = MathF.PI / 4;
-                        move *= MathF.Sin(rad);
-                    }
-                }
-            
-                _camera.Position += move * (float)delta * 5f;
-            
-                _worldMesh.Shader.SetUniform("view", _camera.ViewMatrix);
-            }
+            const float sin45 = 0.70710678f; //Sin(45°)
+            move *= sin45;
+            if(up)
+                move.Y = sin45;
+            else if (down)
+                move.Y = -sin45;
         }
-        else if(up != down)
-        {
-            if (up)
-                _camera.Position += new Vector3(0, (float)delta * 5f, 0);
-            if (down)
-                _camera.Position += new Vector3(0, -(float)delta * 5f, 0);
-            
-            _worldMesh.Shader.SetUniform("view", _camera.ViewMatrix);
-        }
-
+        
         var mDelta = Mouse.Delta;
-        Console.WriteLine($"X: {mDelta.X}, Y: {mDelta.Y}");
-        _camera.Orientation += -mDelta / 4f;
+        _camera.View = (_camera.Position + move * (float)delta * 5f, _camera.Orientation + -mDelta / 4f);
+        
         _worldMesh.Shader.SetUniform("view", _camera.ViewMatrix);
     }
 }
