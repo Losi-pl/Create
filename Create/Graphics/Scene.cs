@@ -1,7 +1,9 @@
-﻿using Create.Input;
+﻿using System.Numerics;
+using Create.Input;
 using JetBrains.Annotations;
 using Silk.NET.Core;
 using Silk.NET.Maths;
+// ReSharper disable VirtualMemberNeverOverridden.Global
 
 namespace Create.Graphics;
 
@@ -60,23 +62,55 @@ public abstract class Scene
     /// <summary>
     /// Called when a key is pressed
     /// </summary>
-    public virtual void KeyPressed(Key key) { }
+    public virtual void OnKeyboardPress(Key key) { }
     
     /// <summary>
     /// Called when a key is released
     /// </summary>
-    public virtual void KeyReleased(Key key) { }
+    public virtual void OnKeyboardRelease(Key key) { }
     
     /// <summary>
-    /// Allows to change the scene currently used in the window the change will be only applied during the next logic update
+    /// Called when a button on the mouse is pressed
     /// </summary>
-    /// <param name="scene"></param>
+    public virtual void OnMousePress(MouseButton button) { }
+    
+    /// <summary>
+    /// Called when a button on the mouse is pressed
+    /// </summary>
+    public virtual void OnMouseRelease(MouseButton button) { }
+    
+    /// <summary>
+    /// Called when a click even is registered on the mouse
+    /// </summary>
+    public virtual void OnMouseClick(MouseButton button, Vector2 position) { }
+    
+    /// <summary>
+    /// Called when a click even is registered on the mouse
+    /// </summary>
+    /// <remarks>Is exclusive with <see cref="OnMouseDoubleClick"/> and will only be called if it's certain tha the prior method will not be</remarks>
+    public virtual void OnMouseExclusiveClick(MouseButton button, Vector2 position) { }
+    
+    /// <summary>
+    /// Called when a button on the mouse is pressed
+    /// </summary>
+    public virtual void OnMouseDoubleClick(MouseButton button, Vector2 position) { }
+    
+    /// <summary>
+    /// Allows to change the scene currently used in the window
+    /// </summary>
+    /// <remarks>Change will be only applied during the next logic update</remarks>
+    /// <param name="scene">Target To swap to</param>
     protected void SwapScene(Scene scene) => _window!.Scene = scene;
     
     /// <summary>
-    /// Keyboard inputs of this window
+    /// Keyboard inputs of the window
     /// </summary>
     protected Keyboard Keyboard => _window!.Keyboard;
+    
+    /// <summary>
+    /// Mouse inputs of the window
+    /// </summary>
+    protected Mouse Mouse => _window!.Mouse;
     
     /// <summary>
     /// The title of the window

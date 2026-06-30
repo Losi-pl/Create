@@ -72,6 +72,10 @@ public sealed class Window
     /// Keyboard inputs of this window
     /// </summary>
     public Keyboard Keyboard { get; }
+    /// <summary>
+    /// Mouse inputs of this window
+    /// </summary>
+    public Mouse Mouse { get; }
 
     /// <summary>
     /// The scene that is being actively used by this window
@@ -107,10 +111,20 @@ public sealed class Window
 
         _inputContext = MeGLFW.CreateInput();
         Keyboard = new(_inputContext.Keyboards[0]);
+        Mouse = new(_inputContext.Mice[0], this);
         
         MeGLFW.Update += RenderUpdate;
         MeGLFW.Render += LogicUpdate;
         MeGLFW.Resize += WindowResize;
+
+        Keyboard.KeyPressed += key => _usedScene?.OnKeyboardPress(key);
+        Keyboard.KeyReleased += key => _usedScene?.OnKeyboardRelease(key);
+
+        Mouse.ButtonPressed += button => _usedScene?.OnMousePress(button);
+        Mouse.ButtonReleased += button => _usedScene?.OnMouseRelease(button);
+        Mouse.Click += (button, pos) => _usedScene?.OnMouseClick(button, pos);
+        Mouse.ExclusiveClick += (button, pos) => _usedScene?.OnMouseExclusiveClick(button, pos);
+        Mouse.DoubleClick += (button, pos) => _usedScene?.OnMouseDoubleClick(button, pos);
     }
 
     /// <summary>
@@ -144,6 +158,7 @@ public sealed class Window
         
         _usedScene?.LogicUpdate(delta);
         Keyboard.ClearEvents();
+        Mouse.ClearEvents();
     }
     /// <summary>
     /// Contains all rendering related logic to be executed per frame

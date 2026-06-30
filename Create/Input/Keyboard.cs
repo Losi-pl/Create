@@ -11,6 +11,7 @@ public class Keyboard
     // ReSharper disable EventNeverSubscribedTo.Global
     public event Action<Input.Key>? KeyPressed;
     public event Action<Input.Key>? KeyReleased;
+    public event Action<char>? CharInputted;
     // ReSharper restore EventNeverSubscribedTo.Global
     
     internal Keyboard(IKeyboard keyboard)
@@ -29,6 +30,7 @@ public class Keyboard
 
         keyboard.KeyDown += PressedKey;
         keyboard.KeyUp += ReleasedKey;
+        keyboard.KeyChar += CharInput;
     }
 
     // ReSharper disable once UnusedMember.Global
@@ -42,8 +44,8 @@ public class Keyboard
             return ref _keys[ind];
         }
     }
-    
-    void PressedKey(IKeyboard _, Silk.NET.Input.Key key, int scancode)
+
+    private void PressedKey(IKeyboard _, Silk.NET.Input.Key key, int scancode)
     {
         var ind = KeyToIndex((Input.Key)key);
         if (ind is < 0 or >= 120)
@@ -53,7 +55,7 @@ public class Keyboard
         KeyPressed?.Invoke((Input.Key)key);
     }
     
-    void ReleasedKey(IKeyboard _, Silk.NET.Input.Key key, int scancode)
+    private void ReleasedKey(IKeyboard _, Silk.NET.Input.Key key, int scancode)
     {
         var ind = KeyToIndex((Input.Key)key);
         if (ind is < 0 or >= 120)
@@ -62,6 +64,8 @@ public class Keyboard
         _keys[ind].Combined = _keys[ind].Combined with { status = false, released = true };
         KeyReleased?.Invoke((Input.Key)key);
     }
+
+    private void CharInput(IKeyboard _, char @char) => CharInputted?.Invoke(@char);
 
     internal void ClearEvents()
     {

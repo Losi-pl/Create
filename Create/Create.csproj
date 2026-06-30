@@ -18,10 +18,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Math\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="Arch" Version="2.1.0" PrivateAssets="all" />
       <PackageReference Include="Ico.Reader" Version="1.2.5" PrivateAssets="all" />
       <PackageReference Include="JetBrains.Annotations" Version="2026.2.0" PrivateAssets="all" />
