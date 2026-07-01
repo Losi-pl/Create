@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Create.Input;
+﻿using Create.Input;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
@@ -11,8 +10,8 @@ namespace Create.Graphics;
 /// <summary>
 /// The primary window mechanic creating the window instance and providing some tools for context management
 /// </summary>
-[SuppressMessage("ReSharper", "InconsistentNaming")]
-public sealed class Window
+// ReSharper disable InconsistentNaming
+public sealed partial class Window
 {
     /// <summary>
     /// Ensures that when there is any context manipulation done only one can be done at a time to prevent cases where correctly aligned call can confuse the program
@@ -150,6 +149,7 @@ public sealed class Window
     /// <param name="delta">Time from last update</param>
     private void LogicUpdate(double delta)
     {
+        RunQueuedTasks();
         if (_usedScene != Scene)
         {
             _usedScene?.Unbind();

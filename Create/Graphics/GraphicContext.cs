@@ -37,17 +37,17 @@ public class GraphicContext: IDisposable
         }
         else
         {
-            (_window, _glContext) = ((IWindow, GL))Window.Main.MeGLFW.Invoke((WindowOptions o) =>
+            (_window, _glContext) = Window.Query(() =>
             {
                 Window.Main.MeGLFW.ClearContext();
                 try
                 {
-                    var w = Silk.NET.Windowing.Window.Create(initOptions);
-                    w.Initialize();
-                    return (w, w.CreateOpenGL());
+                    var win = Silk.NET.Windowing.Window.Create(initOptions);
+                    win.Initialize();
+                    return (win, win.CreateOpenGL());
                 }
                 finally { Window.Main.MeGLFW.MakeCurrent(); }
-            }, initOptions);
+            }).Result;
         }
     }
     

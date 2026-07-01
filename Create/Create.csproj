@@ -52,6 +52,9 @@
       <Compile Update="Graphics\Mesh.Constructor.cs">
         <DependentUpon>Mesh.cs</DependentUpon>
       </Compile>
+      <Compile Update="Graphics\Window.Queue.cs">
+        <DependentUpon>Window.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>
