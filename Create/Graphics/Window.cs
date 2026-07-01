@@ -17,7 +17,7 @@ public sealed class Window
     /// <summary>
     /// Ensures that when there is any context manipulation done only one can be done at a time to prevent cases where correctly aligned call can confuse the program
     /// </summary>
-    private static readonly Lock _contextOperations = new();
+    internal static readonly Lock ContextOperations = new();
     /// <summary>
     /// A most efficient way to store a thread local GL context avoiding use and delay of <see cref="ThreadLocal{T}"/>
     /// </summary>
@@ -37,8 +37,15 @@ public sealed class Window
     /// A reference to the current to the current OpenGL context of this thread
     /// </summary>
     /// <exception cref="ArgumentNullException">There is no OpenGL context connected to this Thread</exception>
-    internal static GL GL => _currentGL ?? throw new ArgumentNullException(nameof(GL), "There is no OpenGL context connected to this Thread");
+    internal static GL GL
+    {
+        get => _currentGL ?? throw new InvalidOperationException("There is no OpenGL context connected to this Thread");
+        set => _currentGL = value;
+    }
 
+    /// A quick check if this parameter is called from the main thread
+    public static bool IsMainThread => HasGL && GL == Main.MyGL;
+    
     /// <summary>
     /// A reference to the current to the current OpenGL context of this thread
     ///
@@ -184,7 +191,7 @@ public sealed class Window
     /// </summary>
     public void ThreadBind()
     {
-        lock (_contextOperations)
+        lock (ContextOperations)
         {
             Guard.IsNull(_currentGL, () => "A Window or a context is already bound to this thread");
             
