@@ -41,10 +41,20 @@ internal sealed class LoadingScene: Scene
                 dic[mod.identity] = mod.entry;
             IMod.Mods = dic.ToFrozenDictionary();
         }
+        Dictionary<IMod, List<Action<ElementRegister>>> elementRegisterProcesses = new();
         foreach (var mod in mods)
         {
-            var regis = new LoadingRegister(mod.entry);
+            var regis = new LoadingRegister(mod.entry, elementRegisterProcesses);
             mod.entry.RegisterLoadingPrecesses(regis);
+            regis.Dispose();
+        }
+
+        foreach (var processes in elementRegisterProcesses)
+        {
+            var elemRegis = new ElementRegister(processes.Key);
+            foreach (var process in processes.Value)
+                process(elemRegis);
+            elemRegis.Dispose();
         }
 
         return;

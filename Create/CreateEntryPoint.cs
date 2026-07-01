@@ -12,10 +12,13 @@ internal class CreateEntryPoint: IMod
     
     public void RegisterLoadingPrecesses(LoadingRegister entry)
     {
-        Console.WriteLine("Create, World!");
-        foreach (var resource in Resources.GetManifest())
-        {
-            Console.WriteLine("Resource: " + resource);
-        }
+        Console.WriteLine($"{Name}, World!");
+        
+        entry.AddElementRegisterProcess(LoadElements);
+    }
+
+    void LoadElements(ElementRegister entry)
+    {
+        Console.WriteLine("Loading elements");
     }
 }
