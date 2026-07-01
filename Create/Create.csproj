@@ -38,23 +38,11 @@
       <PackageReference Include="StbImageSharp" Version="2.30.15" PrivateAssets="all" />
       <PackageReference Include="System.Text.Json" Version="11.0.0-preview.5.26302.115" PrivateAssets="all" />
     </ItemGroup>
-    
+
     <ItemGroup>
-      <Compile Update="Graphics\Shader.Constructor.cs">
-        <DependentUpon>Shader.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Graphics\Shader.Uniforms.cs">
-        <DependentUpon>Shader.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Graphics\Mesh.Compiler.cs">
-        <DependentUpon>Mesh.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Graphics\Mesh.Constructor.cs">
-        <DependentUpon>Mesh.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Graphics\Window.Queue.cs">
-        <DependentUpon>Window.cs</DependentUpon>
-      </Compile>
+        <Compile Update="**\*.*.cs">
+            <DependentUpon>$([System.String]::Copy('%(Filename)').Split('.')[0]).cs</DependentUpon>
+        </Compile>
     </ItemGroup>
 
 </Project>
