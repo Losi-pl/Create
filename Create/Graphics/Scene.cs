@@ -101,7 +101,7 @@ public abstract class Scene
     /// <remarks>Change will be only applied during the next logic update</remarks>
     /// <param name="scene">Target To swap to</param>
     protected void SwapScene(Scene scene) => _window!.Scene = scene;
-    
+
     /// <summary>
     /// Keyboard inputs of the window
     /// </summary>

@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Frozen;
+using System.Reflection;
 using Create.Graphics;
 using System.Drawing;
 using Create.World;
@@ -10,14 +11,98 @@ namespace Create.Registry;
 /// </summary>
 internal sealed class LoadingScene: Scene
 {
+    private Task _elementLoading = null!;
+    
     protected override void OnConnect()
     {
         Title = "Create: Loading";
         LoadIcon();
+        _elementLoading = AsyncLoadGameElements();
         
         Window.GL.ClearColor(Color.FromArgb(255, 27, 72, 8)); 
     }
 
+    public override void LogicUpdate(double delta)
+    {
+        if(_elementLoading.IsCompletedSuccessfully)
+            SwapScene(new GameSession());
+        else if(_elementLoading.IsFaulted)
+            Console.WriteLine(_elementLoading.Exception);
+    }
+    
+    private IEnumerable<(Assembly assembly, string identity)> FindAllMods() => [(Assembly.GetCallingAssembly(), "create")];
+
+    private void LoadGameElements()
+    {
+        var mods = FindAllMods().Select(PhaseTwo).ToArray();
+        {
+            var dic = new Dictionary<string, IMod>();
+            foreach (var mod in mods)
+                dic[mod.identity] = mod.entry;
+            IMod.Mods = dic.ToFrozenDictionary();
+        }
+        foreach (var mod in mods)
+        {
+            var regis = new LoadingRegister(mod.entry);
+            mod.entry.RegisterLoadingPrecesses(regis);
+        }
+
+        return;
+
+        static (IMod entry, Assembly assembly, string identity) PhaseTwo((Assembly assembly, string identity) data)
+        {
+            if (data.assembly == typeof(IMod).Assembly)
+                return (new CreateEntryPoint(), data.assembly, data.identity);
+
+            foreach (var type in data.assembly.GetTypes())
+            {
+                if(!type.IsClass)
+                    continue;
+                if(type.IsAbstract)
+                    continue;
+                if(!typeof(IMod).IsAssignableFrom(type))
+                    continue;
+                var constructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                    null, Type.EmptyTypes, null);
+                if(constructor == null)
+                    continue;
+                var mod = (IMod)constructor.Invoke(null);
+                
+                return (mod, data.assembly, data.identity);
+            }
+            throw new  Exception($"Failed to find valid {nameof(IMod)} class in the {data.identity} mod");
+        }
+    }
+    
+    private Task AsyncLoadGameElements()
+    {
+        var task = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var context = new GraphicContext();
+        
+        var thread = new Thread(() =>
+        {
+            try { context.ThreadBind(); }
+            catch (Exception e) { task.SetException(e); return; }
+                
+            try
+            {
+                LoadGameElements();
+                task.SetResult();
+            }
+            catch (Exception e)
+            {
+                task.SetException(e);
+            }
+            finally
+            {
+                context.Unbind();
+                context.Dispose();
+            }
+        }) { Name = "Loading Game Elements", IsBackground = true };
+        thread.Start();
+        return task.Task;
+    }
+    
     /// <summary>
     /// Loads and parses the Icon from the game resources
     /// </summary>
@@ -48,11 +133,5 @@ internal sealed class LoadingScene: Scene
         Icon = icons;
     }
 
-    private double _foeLoading = 3;
-    public override void LogicUpdate(double delta)
-    {
-        _foeLoading -= delta;
-        if(_foeLoading <= 0)
-            SwapScene(new GameSession());
-    }
+    
 }
