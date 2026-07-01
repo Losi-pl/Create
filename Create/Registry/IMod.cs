@@ -1,4 +1,5 @@
-﻿using System.Collections.Frozen;
+﻿using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using Create.Assets;
 // ReSharper disable UnusedMember.Global
 
@@ -6,6 +7,8 @@ namespace Create.Registry;
 
 public interface IMod
 {
+    private static readonly ConcurrentDictionary<IMod, IResources> AutoGenResources = new();
+    
     /// Name of the modification
     public string Name { get; }
     
@@ -18,7 +21,7 @@ public interface IMod
     /// Optional links to a webside related to the mod
     public string[]? Urls => [];
     /// The source of the game assets contained in this mod
-    public IResources Resources { get; }
+    public IResources Resources => AutoGenResources.GetOrAdd(this, mod => new AssemblyResources(mod.GetType().Assembly));
     /// <summary>
     /// For registering of the loading processes related to this mod
     /// </summary>
