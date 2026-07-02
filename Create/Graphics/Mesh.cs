@@ -81,7 +81,7 @@ public sealed partial class Mesh
 
                 break;
             }
-            default:
+            default: //Unknown error
                 throw new ArgumentException("Wait a minute,... who, are you?");
         }
         gl.BindVertexArray(0);

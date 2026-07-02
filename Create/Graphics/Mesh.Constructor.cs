@@ -20,7 +20,13 @@ partial class Mesh
             private PrimitiveType _drawMode = PrimitiveType.Triangles;
             private uint[]? _elements;
 
-            public PiceMeal SetDataLayout(DataLayout layout) { _dataMode = layout; return this; }
+            public PiceMeal SetDataLayout(DataLayout layout)
+            {
+                if (layout is not (DataLayout.Interleaved or DataLayout.NonInterleaved))
+                    throw new ArgumentException("Invalid data type", nameof(layout));
+                _dataMode = layout;
+                return this;
+            }
 
             [MethodImpl(MethodImplOptions.AggressiveOptimization)]
             public PiceMeal SetAttribute<T>(string name, T[] values) where T : INumberBase<T>
