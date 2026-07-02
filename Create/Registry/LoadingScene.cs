@@ -27,8 +27,11 @@ internal sealed class LoadingScene: Scene
     {
         if(_elementLoading.IsCompletedSuccessfully)
             SwapScene(new GameSession());
-        else if(_elementLoading.IsFaulted)
+        else if (_elementLoading.IsFaulted)
+        {
             Console.WriteLine(_elementLoading.Exception);
+            Window.Main.MeGLFW.Close();
+        }
     }
     
     private IEnumerable<(Assembly assembly, string identity)> FindAllMods() => [(Assembly.GetCallingAssembly(), "create")];
@@ -59,6 +62,8 @@ internal sealed class LoadingScene: Scene
             elemRegis.Dispose();
         }
 
+        GC.Collect();
+        Thread.Sleep(500);
         return;
 
         static (IMod entry, Assembly assembly, string identity) PhaseTwo((Assembly assembly, string identity) data)

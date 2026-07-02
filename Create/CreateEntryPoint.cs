@@ -15,7 +15,9 @@ internal class CreateEntryPoint: IMod
 
     public void RegisterLoadingPrecesses(LoadingSystem entry)
     {
-        Console.WriteLine($"{Name}, World!");
+        Console.WriteLine($"World of {Name}!");
+        
+        entry.AddResourceProcessor(new ShaderProcessor(), ShaderProcessor.ASSET_PATH);
         
         entry.AddElementRegisterProcess(LoadElements);
     }

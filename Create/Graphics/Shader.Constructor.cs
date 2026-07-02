@@ -35,7 +35,7 @@ partial class Shader
         /// Sets a Stream to load code of Vertex Shader, will be only loaded when the <see cref="Shader"/> is compiled.
         /// </summary>
         /// <param name="input">The source of Vertex Shader Code</param>
-        /// <param name="shouldClose">A flag telling if the <paramref name="input"/></param>
+        /// <param name="shouldClose">A flag telling if the <paramref name="input"/> should be automatically closed</param>
         /// <exception cref="ArgumentNullException">When the <paramref name="input"/> is null</exception>
         public Constructor Vertex(Stream input, bool shouldClose = false) { _vertex = (input ?? throw new ArgumentNullException(nameof(input)), shouldClose); return this; }
 
@@ -49,7 +49,7 @@ partial class Shader
         /// Sets a Stream to load code of Fragment Shader, will be only loaded when the <see cref="Shader"/> is compiled.
         /// </summary>
         /// <param name="input">The source of Fragment Shader Code</param>
-        /// <param name="shouldClose">A flag telling if the <paramref name="input"/></param>
+        /// <param name="shouldClose">A flag telling if the <paramref name="input"/> should be automatically closed</param>
         /// <exception cref="ArgumentNullException">When the <paramref name="input"/> is null</exception>
         public Constructor Fragment(Stream input, bool shouldClose = false) { _fragment = (input ?? throw new ArgumentNullException(nameof(input)), shouldClose);  return this; }
         

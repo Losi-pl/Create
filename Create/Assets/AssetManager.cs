@@ -157,6 +157,54 @@ public static class AssetManager
         throw new KeyNotFoundException($"No processors for type {typeof(T).Name} found.");
     }
     
+    public static T? Find<T>(IMod mod, string identity)
+    {
+        if (_processors.IsT0)
+        {
+            if (!_processors.AsT0.TryGetValue(typeof(T), out var set)) return default;
+            foreach (var processor in (HashSet<IResourceProcessor<T>>)set.set.GetOut<T>())
+            {
+                var value = processor.Find(mod, identity);
+                if (value is not null)
+                    return value;
+            }
+        }
+        else if(_processors.IsT1)
+            if(_processors.AsT1.TryGetValue(typeof(T), out var set))
+                foreach (var processor in (FrozenSet<IResourceProcessor<T>>)set.GetOut<T>())
+                {
+                    var value = processor.Find(mod, identity);
+                    if (value is not null)
+                        return value;
+                }
+        
+        return default;
+    }
+    
+    public static T? Find<T>(string identity)
+    {
+        if (_processors.IsT0)
+        {
+            if (!_processors.AsT0.TryGetValue(typeof(T), out var set)) return default;
+            foreach (var processor in (HashSet<IResourceProcessor<T>>)set.set.GetOut<T>())
+            {
+                var value = processor.Find(identity);
+                if (value is not null)
+                    return value;
+            }
+        }
+        else if(_processors.IsT1)
+            if(_processors.AsT1.TryGetValue(typeof(T), out var set))
+                foreach (var processor in (FrozenSet<IResourceProcessor<T>>)set.GetOut<T>())
+                {
+                    var value = processor.Find(identity);
+                    if (value is not null)
+                        return value;
+                }
+        
+        return default;
+    }
+    
     private class AbstractMod(string identity): IMod
     {
         public string Name => identity;

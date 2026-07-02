@@ -17,7 +17,7 @@ public class AssemblyResources: IResources
             _pathPrefix = pathPrefix[^1] is '/' or '\\' ? pathPrefix.Replace('\\', '/') : pathPrefix.Replace('\\', '/') + '/';
     }
 
-    public Stream? GetStream(string path) => _assembly.GetManifestResourceStream(_pathPrefix != null ? $"{_pathPrefix}/{path}" : path);
+    public Stream? GetStream(string path) => _assembly.GetManifestResourceStream(_pathPrefix != null ? $"{_pathPrefix}{path}" : path);
 
     public string[] GetManifest()
     {
