@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shader>
+    <fragment>
+        <output name="fragColor" location="0"/>
+    </fragment>
+    <uniform>
+        <projection name="projection"/>
+        <model name="model"/>
+        <view name="view"/>
+    </uniform>
+    <events>
+        <onLoad>
+            <![CDATA[
+                console.log("Run when code is loaded")
+                //TODO org.graalvm.polyglot
+            ]]>
+        </onLoad>
+        <onLoadingDone>
+            <![CDATA[
+                console.log("Run all assets are loaded and the next step is about to begin")
+                //TODO org.graalvm.polyglot
+            ]]>
+        </onLoadingDone>
+    </events>
+</shader>
