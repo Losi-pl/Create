@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Drawing;
+using System.Numerics;
 using Create.Input;
 using JetBrains.Annotations;
 using Silk.NET.Core;
@@ -139,6 +140,15 @@ public abstract class Scene
             
             _window!.MeGLFW.Size = new((int)(value.X * scaleW), (int)(value.Y * scaleH));
         }
+    }
+
+    /// <summary>
+    /// Used to change the default color of the background
+    /// </summary>
+    protected Color BackgroundColor
+    {
+        get => _window!.BackgroundColor;
+        set => _window!.BackgroundColor = value;
     }
     
     /// <summary>

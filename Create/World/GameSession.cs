@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Drawing;
+using System.Numerics;
 using Create.Graphics;
 using Create.Input;
 using Silk.NET.Maths;
@@ -16,6 +17,7 @@ public sealed class GameSession: Scene
     protected override void OnConnect()
     {
         Title = "Create";
+        BackgroundColor = Color.FromArgb(255, 62, 182, 204);
 
         _camera.ProjectionAngle = 70;
         _camera.ScreenDimensions = Size;

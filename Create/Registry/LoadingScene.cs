@@ -19,8 +19,8 @@ internal sealed class LoadingScene: Scene
         Title = "Create: Loading";
         LoadIcon();
         _elementLoading = AsyncLoadGameElements();
-        
-        Window.GL.ClearColor(Color.FromArgb(255, 27, 72, 8)); 
+
+        BackgroundColor = Color.FromArgb(255, 27, 72, 8);
     }
 
     public override void LogicUpdate(double delta)

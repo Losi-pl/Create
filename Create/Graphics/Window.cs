@@ -1,4 +1,5 @@
-﻿using Create.Input;
+﻿using System.Drawing;
+using Create.Input;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
@@ -91,7 +92,14 @@ public sealed partial class Window
     /// A scene to be used by this window if its changed the relevant logics are switched out during the next logic update
     /// </summary>
     public Scene? Scene { get; set; }
-
+    /// <summary>
+    /// Used to change the default color of the background
+    /// </summary>
+    public Color BackgroundColor { get;
+        set { field = value; _backColorChanged = true; }
+    } = Color.Black;
+    private bool _backColorChanged = true;
+    
     /// <summary>
     /// Creates a window instance and attaches required logic to it
     /// </summary>
@@ -166,6 +174,12 @@ public sealed partial class Window
         _usedScene?.LogicUpdate(delta);
         Keyboard.ClearEvents();
         Mouse.ClearEvents();
+
+        if (_backColorChanged)
+        {
+            MyGL.ClearColor(BackgroundColor);
+            _backColorChanged = false;
+        }
     }
     /// <summary>
     /// Contains all rendering related logic to be executed per frame
