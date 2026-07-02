@@ -10,7 +10,7 @@ internal class CreateEntryPoint: IMod
     public Version Version { get; } = new(1, 0, 0, 0);
     public IResources Resources { get; } = new AssemblyResources(Assembly.GetCallingAssembly(), "main");
     
-    public void RegisterLoadingPrecesses(LoadingRegister entry)
+    public void RegisterLoadingPrecesses(LoadingSystem entry)
     {
         Console.WriteLine($"{Name}, World!");
         

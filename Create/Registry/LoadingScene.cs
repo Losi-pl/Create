@@ -2,6 +2,7 @@
 using System.Reflection;
 using Create.Graphics;
 using System.Drawing;
+using Create.Assets;
 using Create.World;
 
 namespace Create.Registry;
@@ -44,11 +45,12 @@ internal sealed class LoadingScene: Scene
         Dictionary<IMod, List<Action<ElementRegister>>> elementRegisterProcesses = new();
         foreach (var mod in mods)
         {
-            var regis = new LoadingRegister(mod.entry, elementRegisterProcesses);
+            var regis = new LoadingSystem(mod.entry, elementRegisterProcesses);
             mod.entry.RegisterLoadingPrecesses(regis);
             regis.Dispose();
         }
-
+        AssetManager.FreezeProcessors();
+        AssetManager.LoadResources();
         foreach (var processes in elementRegisterProcesses)
         {
             var elemRegis = new ElementRegister(processes.Key);
