@@ -192,7 +192,7 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
         _shaders = null;
         if (hand is null) return;
         foreach (var shader in hand.SelectMany(perMod => perMod.Value))
-            Console.Write(shader.Value);//TODO Shader.Dispose()
+            shader.Value.Dispose();
     }
 
     public Shader? Find(string identity)

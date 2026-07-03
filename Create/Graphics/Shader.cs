@@ -1,11 +1,10 @@
 ﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using CommunityToolkit.HighPerformance;
 using Silk.NET.OpenGL;
 
 namespace Create.Graphics;
 [DebuggerDisplay("Shader: {Name, nq}")]
-public sealed partial class Shader
+public sealed partial class Shader: IDisposable
 {
     // ReSharper disable InconsistentNaming
     public const string MODEL_UNIFORM = "model";
@@ -17,10 +16,13 @@ public sealed partial class Shader
     // ReSharper restore InconsistentNaming
     
     /// The pointer to the Shader Program in OpenGL memory
-    internal uint Handle { get; }
+    internal uint Handle => Disposed ? throw new InvalidOperationException("This Shader was disposed of") : field;
+
     /// The name of this Shader
-    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")] 
     public string Name { get; }
+
+    // ReSharper disable once MemberCanBePrivate.Global
+    public bool Disposed { get; private set; }
     public override string ToString() => Name;
 
     /// Array of <see cref="Uniform"/>'s of this Shader
@@ -38,7 +40,7 @@ public sealed partial class Shader
     /// Connects an already compiled Shader Program with a C# wrapper
     /// </summary>
     /// <param name="handle">Pointer to the Shader in OpenGL</param>
-    /// <param name="name">The name of this Shader, specyfied in <see cref="Constructor"/></param>
+    /// <param name="name">The name of this Shader, specified in <see cref="Constructor"/></param>
     /// <param name="gl">OpenGL context passed from the <see cref="Constructor"/> to continued processing without a need to acquire context again</param>
     /// <param name="modelMat">Name of possible Model Matrix if none is sett will see if there is valid <c>model</c> uniform</param>
     /// <param name="viewMat">Name of possible Model Matrix if none is sett will see if there is valid <c>view</c> uniform</param>
@@ -178,4 +180,21 @@ public sealed partial class Shader
         /// </summary>
         public readonly uint Count = count;
     }
+
+    public void Dispose()
+    {
+        if (Disposed)
+            return;
+        Disposed = true;
+        
+        GC.SuppressFinalize(this);
+
+        var handle = Handle;
+        if (Window.HasGL)
+            Window.GL.DeleteProgram(handle);
+        else
+            Window.Queue(() => Window.GL.DeleteProgram(handle));
+    }
+    
+    ~Shader() => Dispose();
 }
