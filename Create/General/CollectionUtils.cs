@@ -15,4 +15,17 @@ public static class CollectionUtils
         public FrozenDictionary<string, TValue>.AlternateLookup<ReadOnlySpan<char>> GetAlternateLookup() =>
             frozen.GetAlternateLookup<ReadOnlySpan<char>>();
     }
+
+    extension<T>(IList<T> list)
+    {
+        public int IndexOf(Func<T, bool> predicate)
+        {
+            for (var i = 0; i < list.Count; i++)
+            {
+                if(predicate(list[i]))
+                    return i;
+            }
+            return -1;
+        }
+    }
 }

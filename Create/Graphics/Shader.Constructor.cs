@@ -16,7 +16,7 @@ partial class Shader
     /// <summary>
     /// The constructor for a <see cref="Shader"/>
     /// </summary>
-    public struct Constructor
+    public class Constructor
     {
         /// Stores the vertex code for this shader. Eather as a stream to be loaded during compilation or as a preloaded string
         private OneOf<String, (Stream, bool close)>? _vertex;
@@ -24,6 +24,8 @@ partial class Shader
         private OneOf<String, (Stream, bool close)>? _fragment;
         /// Optional name for this shader if none is set, will default to #programId
         private string? _name;
+        /// If for some reason you need to set specific locations on fragment shader outputs
+        private readonly List<(string name, uint index)> _fragOutputs = [];
 
         /// <summary>
         /// Sets a code for the vertex stage of the <see cref="Shader"/>
@@ -60,6 +62,17 @@ partial class Shader
         /// </summary>
         /// <exception cref="ArgumentNullException"></exception>
         public Constructor Name(string name) { _name = name ?? throw new ArgumentNullException(); return this; }
+
+        public Constructor BindFragmentOutput(string name, uint index)
+        {
+            var ind = _fragOutputs.IndexOf(b => b.name == name);
+            if(ind == -1)
+                _fragOutputs.Add((name, index));
+            else
+                _fragOutputs[ind] = (name, index);
+            
+            return this;
+        }
         
         /// <summary>
         /// Compiles and returns the <see cref="Shader"/> from all data specified
@@ -83,7 +96,7 @@ partial class Shader
             {
                 var error = vertex.IsT1 ? "\nVertex error:\n" + vertex.AsT1.Value : "";
                 error += fragment.IsT1 ? "\nFragment error:\n" + fragment.AsT1.Value : "";
-                throw new GlfwException(error);
+                throw new ShaderCompilationException(error);
             }
             
             var combined = CombineShaders(vertex.AsT0, fragment.AsT0);
@@ -128,21 +141,29 @@ partial class Shader
                 gl.AttachShader(program, vertex.Value);
                 gl.AttachShader(program, fragment.Value);
 
+                BindFragmentOutputs(program);
+                
                 gl.LinkProgram(program);
 
                 if (gl.GetProgram(program, ProgramPropertyARB.LinkStatus) == 0)
                 {
                     var error = gl.GetProgramInfoLog(program);
-                    throw new GlfwException("Shader linking error:\n" + error);
+                    throw new ShaderCompilationException("Shader linking error:\n" + error);
                 }
             
                 gl.DetachShader(program, vertex.Value);
-                gl.DeleteProgram(vertex.Value);
+                gl.DeleteShader(vertex.Value);
             
                 gl.DetachShader(program, fragment.Value);
-                gl.DeleteProgram(fragment.Value);
+                gl.DeleteShader(fragment.Value);
                 
                 return program;
+            }
+
+            void BindFragmentOutputs(uint program)
+            {
+                foreach(var output in _fragOutputs)
+                    gl.BindFragDataLocation(program, output.index,  output.name);
             }
         }
     }

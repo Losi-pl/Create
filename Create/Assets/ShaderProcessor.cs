@@ -31,8 +31,14 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
                     var shaderData = XDocument.Load(stream).Root!;
                     
                     var code = GetShaderCode(resource.Key, shaderData, fullMe);
-
-                    myShaders[xml[..xml.LastIndexOf('.')]] = (code.vertex, code.fragment, new());
+                    var settings = new ShaderSettings();
+                    
+                    if (shaderData.Element("fragment") is { } fragData)
+                    {
+                        settings.FragmentOutputs = GetFragmentBindings(fragData);
+                    }
+                    
+                    myShaders[xml[..xml.LastIndexOf('.')]] = (code.vertex, code.fragment, settings);
                 }
             }
 
@@ -47,30 +53,23 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
             }
         }
 
-        Dictionary<IMod, FrozenDictionary<string, Shader>> compiled = new();
-        foreach (var perMod in allShaders)
+        CompileShaders(allShaders);
+
+        // Local Methods
+        (string name, uint handle)[] GetFragmentBindings(XElement config)
         {
-            Dictionary<string, Shader> shaders = new();
-            foreach (var shader in perMod.Value)
+            List<(string, uint)> list = new();
+            foreach (var output in config.Elements("output"))
             {
-                var cons = Shader.Create().Name(shader.Key);
-                
-                if(shader.Value.vertex.IsT0)
-                    cons.Vertex(shader.Value.vertex.AsT0);
-                else
-                    cons.Vertex(shader.Value.vertex.AsT1, true);
-                
-                if(shader.Value.fragment.IsT0)
-                    cons.Fragment(shader.Value.fragment.AsT0);
-                else
-                    cons.Fragment(shader.Value.fragment.AsT1, true);
-
-                shaders[shader.Key] = cons.Finish();
+                var name = output.Attribute("name")?.Value;
+                var index = uint.TryParse(output.Attribute("index")?.Value ?? "", out var result) ? result : (uint?)null;
+                if(name is null || index is null)
+                    continue;
+                list.Add((name, index.Value));
             }
-            compiled[perMod.Key] = shaders.ToFrozenDictionary();
+            return list.Count > 0 ? list.ToArray() : [];
         }
-        _shaders = compiled.ToFrozenDictionary();
-
+        
         (Stream fragment, Stream vertex) GetShaderCode(IResources source, XElement config, Uri configPath)
         {
             string? fragmentPath = null;
@@ -100,9 +99,39 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
         }
     }
 
-    private class ShaderSettings 
+    private void CompileShaders(Dictionary<IMod, Dictionary<string, (CodeSource vertex, CodeSource fragment, ShaderSettings? settings)>> data)
     {
-        // Later, for when shaders have more settings
+        Dictionary<IMod, FrozenDictionary<string, Shader>> compiled = new();
+        foreach (var perMod in data)
+        {
+            Dictionary<string, Shader> shaders = new();
+            foreach (var shader in perMod.Value)
+            {
+                var cons = Shader.Create().Name(shader.Key);
+                
+                if(shader.Value.vertex.IsT0)
+                    cons.Vertex(shader.Value.vertex.AsT0);
+                else
+                    cons.Vertex(shader.Value.vertex.AsT1, true);
+                
+                if(shader.Value.fragment.IsT0)
+                    cons.Fragment(shader.Value.fragment.AsT0);
+                else
+                    cons.Fragment(shader.Value.fragment.AsT1, true);
+
+                foreach (var output in shader.Value.settings?.FragmentOutputs ?? [])
+                    cons.BindFragmentOutput(output.name, output.index);
+                
+                shaders[shader.Key] = cons.Finish();
+            }
+            compiled[perMod.Key] = shaders.ToFrozenDictionary();
+        }
+        _shaders = compiled.ToFrozenDictionary();
+    }
+
+    private class ShaderSettings
+    {
+        public (string name, uint index)[]? FragmentOutputs;
     }
     
     public void ClearResources()

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <shader>
     <fragment>
-        <output name="fragColor" location="0"/>
+        <output name="fragColor" index="0"/>
     </fragment>
     <uniform>
         <projection name="projection"/>
