@@ -37,9 +37,9 @@ public sealed class GameSession: Scene
 
         _worldMesh = new ChunkModeler().GenerateModel(_world).ThreadBind();
 
-        _worldMesh.Shader.SetUniform("projection", _camera.ProjectionMatrix);
-        _worldMesh.Shader.SetUniform("view", _camera.ViewMatrix);
-        _worldMesh.Shader.SetUniform("model", Matrix4x4.CreateTranslation(-.5f, 0, -.5f));
+        _worldMesh.Shader.SetProjectionUniform(_camera.ProjectionMatrix);
+        _worldMesh.Shader.SetViewUniform(_camera.ViewMatrix);
+        _worldMesh.Shader.SetModelUniform(Matrix4x4.CreateTranslation(-.5f, 0, -.5f));
         
         Window.GL.Enable(EnableCap.DepthTest);
 
@@ -65,7 +65,7 @@ public sealed class GameSession: Scene
     public override void WindowResize(Vector2D<int> newSize)
     {
         _camera.ScreenDimensions = newSize;
-        _worldMesh.Shader.SetUniform("projection", _camera.ProjectionMatrix);
+        _worldMesh.Shader.SetProjectionUniform(_camera.ProjectionMatrix);
     }
     
     public override void RenderUpdate(double delta)
@@ -104,6 +104,6 @@ public sealed class GameSession: Scene
         var mDelta = Mouse.Delta;
         _camera.View = (_camera.Position + move * (float)delta * 5f, _camera.Orientation + -mDelta / 4f);
         
-        _worldMesh.Shader.SetUniform("view", _camera.ViewMatrix);
+        _worldMesh.Shader.SetViewUniform(_camera.ViewMatrix);
     }
 }

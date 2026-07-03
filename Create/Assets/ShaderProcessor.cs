@@ -8,8 +8,23 @@ namespace Create.Assets;
 
 internal class ShaderProcessor: IResourceProcessor<Shader>
 {
-    // ReSharper disable once InconsistentNaming
+    // ReSharper disable InconsistentNaming, MemberCanBePrivate.Global
     public const string ASSET_PATH = "shaders/";
+    
+    public const string FRAGMENT_SETTINGS = "fragment";
+    public const string FRAGMENT_OUTPUT = "output";
+    
+    public const string UNIFORM_SETTINGS = "uniforms";
+    
+    public const string CODE_SOURCE_SETTING = "sources";
+    
+    public const string NAME_ATTRIBUTE = "name";
+    public const string NONE_ATTRIBUTE = "none";
+    public const string PATH_ATTRIBUTE = "path";
+    public const string INDEX_ATTRIBUTE = "index";
+    // ReSharper restore InconsistentNaming, MemberCanBePrivate.Global
+    
+    
     
     private FrozenDictionary<IMod, FrozenDictionary<string, Shader>>? _shaders;
     
@@ -33,9 +48,16 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
                     var code = GetShaderCode(resource.Key, shaderData, fullMe);
                     var settings = new ShaderSettings();
                     
-                    if (shaderData.Element("fragment") is { } fragData)
+                    if (shaderData.Element(FRAGMENT_SETTINGS) is { } fragData)
                     {
                         settings.FragmentOutputs = GetFragmentBindings(fragData);
+                    }
+
+                    if (shaderData.Element(UNIFORM_SETTINGS) is { } uniformData)
+                    {
+                        settings.ModelMatrix = CheckUniformSpecification(uniformData, Shader.MODEL_UNIFORM);
+                        settings.ViewMatrix = CheckUniformSpecification(uniformData, Shader.VIEW_UNIFORM);
+                        settings.ProjectionMatrix = CheckUniformSpecification(uniformData, Shader.PROJECTION_UNIFORM);
                     }
                     
                     myShaders[xml[..xml.LastIndexOf('.')]] = (code.vertex, code.fragment, settings);
@@ -54,15 +76,16 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
         }
 
         CompileShaders(allShaders);
+        return;
 
         // Local Methods
         (string name, uint handle)[] GetFragmentBindings(XElement config)
         {
             List<(string, uint)> list = new();
-            foreach (var output in config.Elements("output"))
+            foreach (var output in config.Elements(FRAGMENT_OUTPUT))
             {
-                var name = output.Attribute("name")?.Value;
-                var index = uint.TryParse(output.Attribute("index")?.Value ?? "", out var result) ? result : (uint?)null;
+                var name = output.Attribute(NAME_ATTRIBUTE)?.Value;
+                var index = uint.TryParse(output.Attribute(INDEX_ATTRIBUTE)?.Value ?? "", out var result) ? result : (uint?)null;
                 if(name is null || index is null)
                     continue;
                 list.Add((name, index.Value));
@@ -75,15 +98,15 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
             string? fragmentPath = null;
             string? vertexPath = null;
             
-            var sources = config.Element("sources");
+            var sources = config.Element(CODE_SOURCE_SETTING);
             if (sources is not null)
             {
-                var fragment = sources.Element("fragment");
-                var vertex = sources.Element("vertex");
+                var fragment = sources.Element(Shader.FRAGMENT_SHADER);
+                var vertex = sources.Element(Shader.VERTEX_SHADER);
                 if (fragment is not null)
-                    fragmentPath = string.IsNullOrEmpty(fragment.Value) ? fragment.Attribute("path")?.Value : fragment.Value;
+                    fragmentPath = string.IsNullOrEmpty(fragment.Value) ? fragment.Attribute(PATH_ATTRIBUTE)?.Value : fragment.Value;
                 if (vertex is not null)
-                    vertexPath = string.IsNullOrEmpty(vertex.Value) ? vertex.Attribute("path")?.Value : vertex.Value;
+                    vertexPath = string.IsNullOrEmpty(vertex.Value) ? vertex.Attribute(PATH_ATTRIBUTE)?.Value : vertex.Value;
             }
 
             fragmentPath = fragmentPath is not null ? 
@@ -96,6 +119,20 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
             
             return (source.GetStream(fragmentPath) ?? throw new FileNotFoundException($"File {fragmentPath} not found"), 
                 source.GetStream(vertexPath) ?? throw new FileNotFoundException($"File {vertexPath} not found"));
+        }
+        
+        OneOf<string?, None> CheckUniformSpecification(XElement config, string uniformName)
+        {
+            var spec = config.Element(uniformName);
+            
+            if (spec is null)
+                return new None();
+            if (spec.Attribute(NONE_ATTRIBUTE) is not null)
+                return null;
+
+            if (spec.Attribute(NAME_ATTRIBUTE) is { } nameAttrib)
+                return nameAttrib.Value;
+            return spec.Value;
         }
     }
 
@@ -119,8 +156,20 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
                 else
                     cons.Fragment(shader.Value.fragment.AsT1, true);
 
-                foreach (var output in shader.Value.settings?.FragmentOutputs ?? [])
-                    cons.BindFragmentOutput(output.name, output.index);
+                if (shader.Value.settings is { } settings)
+                {
+                    foreach (var output in settings.FragmentOutputs ?? [])
+                        cons.BindFragmentOutput(output.name, output.index);
+                    
+                    if(settings.ModelMatrix.IsT0)
+                        cons.SpecifyModelMatrix(settings.ModelMatrix.AsT0);
+                    
+                    if(settings.ViewMatrix.IsT0)
+                        cons.SpecifyViewMatrix(settings.ViewMatrix.AsT0);
+                    
+                    if(settings.ProjectionMatrix.IsT0)
+                        cons.SpecifyProjectionMatrix(settings.ProjectionMatrix.AsT0);
+                }
                 
                 shaders[shader.Key] = cons.Finish();
             }
@@ -132,6 +181,9 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
     private class ShaderSettings
     {
         public (string name, uint index)[]? FragmentOutputs;
+        public OneOf<string?, None> ModelMatrix = new None();
+        public OneOf<string?, None> ViewMatrix = new None();
+        public OneOf<string?, None> ProjectionMatrix = new None();
     }
     
     public void ClearResources()
@@ -140,7 +192,7 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
         _shaders = null;
         if (hand is null) return;
         foreach (var shader in hand.SelectMany(perMod => perMod.Value))
-            Console.Write(shader);//TODO Shader.Dispose()
+            Console.Write(shader.Value);//TODO Shader.Dispose()
     }
 
     public Shader? Find(string identity)

@@ -3,11 +3,11 @@
     <fragment>
         <output name="fragColor" index="0"/>
     </fragment>
-    <uniform>
+    <uniforms>
         <projection name="projection"/>
         <model name="model"/>
         <view name="view"/>
-    </uniform>
+    </uniforms>
     <events>
         <onLoad>
             <![CDATA[console.log("Run when code is loaded")]]>

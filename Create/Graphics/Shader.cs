@@ -1,11 +1,21 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using CommunityToolkit.HighPerformance;
 using Silk.NET.OpenGL;
 
 namespace Create.Graphics;
 [DebuggerDisplay("Shader: {Name, nq}")]
 public sealed partial class Shader
 {
+    // ReSharper disable InconsistentNaming
+    public const string MODEL_UNIFORM = "model";
+    public const string VIEW_UNIFORM = "view";
+    public const string PROJECTION_UNIFORM = "projection";
+
+    public const string FRAGMENT_SHADER = "fragment";
+    public const string VERTEX_SHADER = "vertex";
+    // ReSharper restore InconsistentNaming
+    
     /// The pointer to the Shader Program in OpenGL memory
     internal uint Handle { get; }
     /// The name of this Shader
@@ -17,6 +27,12 @@ public sealed partial class Shader
     private readonly Uniform[] _uniforms;
     /// Array of <see cref="Attribute"/>'s of this Shader
     private readonly Attribute[] _attributes;
+
+    private readonly uint? _modelMat, _viewMat, _projectionMat;
+
+    public bool HasModelMatrix => _modelMat.HasValue;
+    public bool HasViewMatrix => _viewMat.HasValue;
+    public bool HasProjectionMatrix => _projectionMat.HasValue;
     
     /// <summary>
     /// Connects an already compiled Shader Program with a C# wrapper
@@ -24,7 +40,10 @@ public sealed partial class Shader
     /// <param name="handle">Pointer to the Shader in OpenGL</param>
     /// <param name="name">The name of this Shader, specyfied in <see cref="Constructor"/></param>
     /// <param name="gl">OpenGL context passed from the <see cref="Constructor"/> to continued processing without a need to acquire context again</param>
-    private Shader(uint handle, string? name, GL? gl)
+    /// <param name="modelMat">Name of possible Model Matrix if none is sett will see if there is valid <c>model</c> uniform</param>
+    /// <param name="viewMat">Name of possible Model Matrix if none is sett will see if there is valid <c>view</c> uniform</param>
+    /// <param name="projMat">Name of possible Model Matrix if none is sett will see if there is valid <c>projection</c> uniform</param>
+    private Shader(uint handle, string? name, GL? gl, string? modelMat, string? viewMat, string? projMat)
     {
         gl ??= Window.GL;
         Handle = handle;
@@ -46,6 +65,30 @@ public sealed partial class Shader
             var location = gl.GetAttribLocation(Handle, uName);
             _attributes[i] = new Attribute(uName, (uint)location, type, (uint)size);
         }
+
+        _modelMat = CheckMatrixUniform(modelMat,!string.IsNullOrEmpty(modelMat), MODEL_UNIFORM);
+        _viewMat = CheckMatrixUniform(viewMat,!string.IsNullOrEmpty(viewMat), VIEW_UNIFORM);
+        _projectionMat = CheckMatrixUniform(projMat,!string.IsNullOrEmpty(projMat), PROJECTION_UNIFORM);
+    }
+
+    private uint? CheckMatrixUniform(string? name, bool @throw, string goal)
+    {
+        name ??= goal;
+        
+        var index = _uniforms.IndexOf(u => u.Name == name);
+
+        if(index == -1)
+            return @throw ? throw new ArgumentException($"Uniform {name} not found") : null;
+        
+        ref var uniform = ref _uniforms[index];
+        
+        if (uniform.IsArray)
+            return @throw ? throw new ArgumentException($"Uniform for {goal} Matrix must be a single value") : null;
+        
+        if(uniform.Type is not (UniformType.FloatMat4 or UniformType.DoubleMat4))
+            return @throw ? throw new ArgumentException($"Uniform {name} is not a Matrix 4x4") : null;
+
+        return (uint)_uniforms.IndexOf(in uniform);
     }
 
     /// <summary>
@@ -55,7 +98,7 @@ public sealed partial class Shader
     /// <exception cref="KeyNotFoundException">If the attribute is not found</exception>
     internal ref Attribute FindAttribute(string name)
     {
-        for (int i = 0; i < _attributes.Length; i++)
+        for (var i = 0; i < _attributes.Length; i++)
         {
             if(_attributes[i].Name == name)
                 return ref _attributes[i];
@@ -110,7 +153,7 @@ public sealed partial class Shader
         /// </summary>
         public readonly uint Count = count;
         
-        public readonly bool IsArray => Count > 1;
+        public bool IsArray => Count > 1;
     }
     
     /// <summary>

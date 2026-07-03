@@ -26,6 +26,7 @@ partial class Shader
         private string? _name;
         /// If for some reason you need to set specific locations on fragment shader outputs
         private readonly List<(string name, uint index)> _fragOutputs = [];
+        private string? _model, _view, _projection;
 
         /// <summary>
         /// Sets a code for the vertex stage of the <see cref="Shader"/>
@@ -73,21 +74,57 @@ partial class Shader
             
             return this;
         }
+
+        /// <summary>
+        /// Specifies which uniform contains the Model Matrix.<br/>
+        /// If none is set, the compiler will automatically look for valid uniform named <c>model</c>.<br/>
+        /// To specify that there is no uniform for that purpose, pass <see langword="null"/>.
+        /// </summary>
+        /// <param name="name">Name of the Uniform, or <c>null</c> if there is none.</param>
+        public Constructor SpecifyModelMatrix(string? name)
+        {
+            _model = name ?? "";
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies which uniform contains the View Matrix.<br/>
+        /// If none is set, the compiler will automatically look for valid uniform named <c>view</c>.<br/>
+        /// To specify that there is no uniform for that purpose, pass <see langword="null"/>.
+        /// </summary>
+        /// <param name="name">Name of the Uniform, or <c>null</c> if there is none.</param>
+        public Constructor SpecifyViewMatrix(string? name)
+        {
+            _view = name ?? "";
+            return this;
+        }
+        
+        /// <summary>
+        /// Specifies which uniform contains the Projection Matrix.<br/>
+        /// If none is set, the compiler will automatically look for valid uniform named <c>projection</c>.<br/>
+        /// To specify that there is no uniform for that purpose, pass <see langword="null"/>.
+        /// </summary>
+        /// <param name="name">Name of the Uniform, or <c>null</c> if there is none.</param>
+        public Constructor SpecifyProjectionMatrix(string? name)
+        {
+            _projection = name;
+            return this;
+        }
         
         /// <summary>
         /// Compiles and returns the <see cref="Shader"/> from all data specified
         /// </summary>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException">If the current thread is not connected to OpenGL</exception>
-        /// <exception cref="GlfwException">If the Shader Compilation fails</exception>
+        /// <exception cref="ShaderCompilationException">If the Shader Compilation fails</exception>
         public Shader Finish()
         {
             if(!Window.HasGL)
                 throw new InvalidOperationException("The current thread is not connected with OpenGL.");
             var gl = Window.GL;
 
-            var vertexCode = GetCodeFrom(_vertex, () => "vertex");
-            var fragmentCode = GetCodeFrom(_fragment, () => "fragment");
+            var vertexCode = GetCodeFrom(_vertex, VERTEX_SHADER);
+            var fragmentCode = GetCodeFrom(_fragment, FRAGMENT_SHADER);
 
             var vertex = CompileShader(vertexCode, ShaderType.VertexShader);
             var fragment = CompileShader(fragmentCode, ShaderType.FragmentShader);
@@ -101,13 +138,13 @@ partial class Shader
             
             var combined = CombineShaders(vertex.AsT0, fragment.AsT0);
             
-            return new(combined, _name, gl);
+            return new(combined, _name, gl, _model, _view, _projection);
             
             // Helper methods
-            string GetCodeFrom(OneOf<String, (Stream, bool close)>? content, Func<string> name)
+            string GetCodeFrom(OneOf<string, (Stream, bool close)>? content, string name)
             {
                 if(!content.HasValue)
-                    throw new InvalidOperationException($"The {name()} shader was not specified.");
+                    throw new InvalidOperationException($"The {name} shader was not specified.");
                 
                 return content.Value.Match(s => s, stream =>
                 {

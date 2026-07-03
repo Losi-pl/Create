@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using Silk.NET.OpenGL.Extensions.ARB;
 using Silk.NET.OpenGL;
 using Silk.NET.Maths;
+// ReSharper disable UnusedMember.Local
 
 namespace Create.Graphics;
 
@@ -590,5 +591,100 @@ partial class Shader
             default:
                 throw new ArgumentException($"The uniform \"{name}\" is not a Matrix 4x4");
         }
+    }
+
+    public void DefinedMatrix(uint index, Matrix4x4 value)
+    {
+        ref var uniform = ref _uniforms[index];
+        
+        var gl = Window.GL;
+        
+        switch (uniform.Type)
+        {
+            case UniformType.FloatMat4:
+                gl.ProgramUniformMatrix4(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
+                    ref Unsafe.As<Matrix4x4, float>(ref value),
+                    4 * 4));
+                break;
+            case UniformType.DoubleMat4:
+                var mat = new Matrix4X4<double>(value.M11, value.M12, value.M13, value.M14, 
+                    value.M21, value.M22, value.M23, value.M24, 
+                    value.M31, value.M32, value.M33, value.M34, 
+                    value.M41, value.M42, value.M43, value.M44);
+                gl.ProgramUniformMatrix4(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
+                    ref Unsafe.As<Matrix4X4<double>, double>(ref mat),
+                    4 * 4));
+                break;
+            default:
+                throw new ArgumentException($"The uniform {uniform.Name} is not a Matrix 4x4");
+        }
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    public void DefinedMatrix<T>(uint index, Matrix4X4<T> value) where T : unmanaged, IBinaryNumber<T>
+    {
+        ref var uniform = ref _uniforms[index];
+        
+        var gl = Window.GL;
+        
+        switch (uniform.Type)
+        {
+            case UniformType.FloatMat4:
+                var matF = value as Matrix4X4<float>? ?? value.As<float>();
+                gl.ProgramUniformMatrix4(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
+                    ref Unsafe.As<Matrix4X4<float>, float>(ref matF),
+                    4 * 4));
+                break;
+            case UniformType.DoubleMat4:
+                var matD = value as Matrix4X4<double>? ?? value.As<double>();
+                gl.ProgramUniformMatrix4(Handle, uniform.Location, true, MemoryMarshal.CreateSpan(
+                    ref Unsafe.As<Matrix4X4<double>, double>(ref matD),
+                    4 * 4));
+                break;
+            default:
+                throw new ArgumentException("The uniform is not a Matrix 4x4");
+        }
+    }
+
+    public void SetModelUniform(Matrix4x4 matrix)
+    {
+        if (!_modelMat.HasValue)
+            throw new InvalidOperationException("Model Matrix uniform is not specified");
+        DefinedMatrix(_modelMat.Value, matrix);
+    }
+    
+    public void SetModelUniform<T>(Matrix4X4<T> matrix) where T : unmanaged, IBinaryNumber<T>
+    {
+        if (!_modelMat.HasValue)
+            throw new InvalidOperationException("Model Matrix uniform is not specified");
+        DefinedMatrix(_modelMat.Value, matrix);
+    }
+    
+    public void SetViewUniform(Matrix4x4 matrix)
+    {
+        if (!_viewMat.HasValue)
+            throw new InvalidOperationException("Model Matrix uniform is not specified");
+        DefinedMatrix(_viewMat.Value, matrix);
+    }
+    
+    public void SetViewUniform<T>(Matrix4X4<T> matrix) where T : unmanaged, IBinaryNumber<T>
+    {
+        if (!_viewMat.HasValue)
+            throw new InvalidOperationException("Model Matrix uniform is not specified");
+        DefinedMatrix(_viewMat.Value, matrix);
+    }
+    
+    public void SetProjectionUniform(Matrix4x4 matrix)
+    {
+        if (!_projectionMat.HasValue)
+            throw new InvalidOperationException("Model Matrix uniform is not specified");
+        DefinedMatrix(_projectionMat.Value, matrix);
+    }
+    
+    public void SetProjectionUniform<T>(Matrix4X4<T> matrix) where T : unmanaged, IBinaryNumber<T>
+    {
+        if (!_projectionMat.HasValue)
+            throw new InvalidOperationException("Model Matrix uniform is not specified");
+        DefinedMatrix(_projectionMat.Value, matrix);
     }
 }
