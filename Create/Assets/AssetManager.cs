@@ -9,10 +9,10 @@ namespace Create.Assets;
 
 public static class AssetManager
 {
-    private static OneOf<Dictionary<Type, (ProcessorSet set, Func<ProcessorSet, ProcessorSet> freezer)>, FrozenDictionary<Type, ProcessorSet>> 
+    private static Union<Dictionary<Type, (ProcessorSet set, Func<ProcessorSet, ProcessorSet> freezer)>, FrozenDictionary<Type, ProcessorSet>> 
         _processors = new Dictionary<Type, (ProcessorSet set, Func<ProcessorSet, ProcessorSet> frezzer)>();
 
-    private static OneOf<Dictionary<string, IResourceProcessor>, FrozenDictionary<string, IResourceProcessor>>
+    private static Union<Dictionary<string, IResourceProcessor>, FrozenDictionary<string, IResourceProcessor>>
         _processorResourceSources = new Dictionary<string, IResourceProcessor>();
 
     internal static void RegisterProcessor<T>(IResourceProcessor<T> processor, string inAssetPath)

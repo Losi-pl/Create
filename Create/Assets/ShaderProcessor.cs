@@ -2,7 +2,7 @@
 using System.Xml.Linq;
 using Create.Graphics;
 using Create.Registry;
-using CodeSource = OneOf.OneOf<string, System.IO.Stream>;
+using CodeSource = CodeOfChaos.Unions.Union<string, System.IO.Stream>;
 
 namespace Create.Assets;
 
@@ -121,7 +121,7 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
                 source.GetStream(vertexPath) ?? throw new FileNotFoundException($"File {vertexPath} not found"));
         }
         
-        OneOf<string?, None> CheckUniformSpecification(XElement config, string uniformName)
+        PossibleResult<string?> CheckUniformSpecification(XElement config, string uniformName)
         {
             var spec = config.Element(uniformName);
             
@@ -161,14 +161,14 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
                     foreach (var output in settings.FragmentOutputs ?? [])
                         cons.BindFragmentOutput(output.name, output.index);
                     
-                    if(settings.ModelMatrix.IsT0)
-                        cons.SpecifyModelMatrix(settings.ModelMatrix.AsT0);
+                    if(settings.ModelMatrix.IsSet)
+                        cons.SpecifyModelMatrix(settings.ModelMatrix.AsSet);
                     
-                    if(settings.ViewMatrix.IsT0)
-                        cons.SpecifyViewMatrix(settings.ViewMatrix.AsT0);
+                    if(settings.ViewMatrix.IsSet)
+                        cons.SpecifyViewMatrix(settings.ViewMatrix.AsSet);
                     
-                    if(settings.ProjectionMatrix.IsT0)
-                        cons.SpecifyProjectionMatrix(settings.ProjectionMatrix.AsT0);
+                    if(settings.ProjectionMatrix.IsSet)
+                        cons.SpecifyProjectionMatrix(settings.ProjectionMatrix.AsSet);
                 }
                 
                 shaders[shader.Key] = cons.Finish();
@@ -181,9 +181,9 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
     private class ShaderSettings
     {
         public (string name, uint index)[]? FragmentOutputs;
-        public OneOf<string?, None> ModelMatrix = new None();
-        public OneOf<string?, None> ViewMatrix = new None();
-        public OneOf<string?, None> ProjectionMatrix = new None();
+        public PossibleResult<string?> ModelMatrix = new None();
+        public PossibleResult<string?> ViewMatrix = new None();
+        public PossibleResult<string?> ProjectionMatrix = new None();
     }
     
     public void ClearResources()

@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Silk.NET.GLFW;
 using Silk.NET.OpenGL;
 using ShaderParam = Silk.NET.OpenGL.ShaderParameterName;
 
@@ -19,9 +18,9 @@ partial class Shader
     public class Constructor
     {
         /// Stores the vertex code for this shader. Eather as a stream to be loaded during compilation or as a preloaded string
-        private OneOf<String, (Stream, bool close)>? _vertex;
+        private Union<string, (Stream, bool close)>? _vertex;
         /// Stores the fragment code for this shader. Eather as a stream to be loaded during compilation or as a preloaded string
-        private OneOf<String, (Stream, bool close)>? _fragment;
+        private Union<string, (Stream, bool close)>? _fragment;
         /// Optional name for this shader if none is set, will default to #programId
         private string? _name;
         /// If for some reason you need to set specific locations on fragment shader outputs
@@ -129,19 +128,19 @@ partial class Shader
             var vertex = CompileShader(vertexCode, ShaderType.VertexShader);
             var fragment = CompileShader(fragmentCode, ShaderType.FragmentShader);
 
-            if(vertex.IsT1 ||  fragment.IsT1)
+            if(vertex.IsError ||  fragment.IsError)
             {
-                var error = vertex.IsT1 ? "\nVertex error:\n" + vertex.AsT1.Value : "";
-                error += fragment.IsT1 ? "\nFragment error:\n" + fragment.AsT1.Value : "";
+                var error = vertex.IsError ? "\nVertex error:\n" + vertex.AsError.Value : "";
+                error += fragment.IsError ? "\nFragment error:\n" + fragment.AsError.Value : "";
                 throw new ShaderCompilationException(error);
             }
             
-            var combined = CombineShaders(vertex.AsT0, fragment.AsT0);
+            var combined = CombineShaders(vertex.AsSuccess, fragment.AsSuccess);
             
             return new(combined, _name, gl, _model, _view, _projection);
             
             // Helper methods
-            string GetCodeFrom(OneOf<string, (Stream, bool close)>? content, string name)
+            string GetCodeFrom(Union<string, (Stream, bool close)>? content, string name)
             {
                 if(!content.HasValue)
                     throw new InvalidOperationException($"The {name} shader was not specified.");
@@ -156,27 +155,25 @@ partial class Shader
                 });
             }
 
-            OneOf<Result<uint>, Error<string>> CompileShader(string code, ShaderType type)
+            Result<uint> CompileShader(string code, ShaderType type)
             {
                 var handle = gl.CreateShader(type);
                 gl.ShaderSource(handle, code);
                 gl.CompileShader(handle);
-                if (gl.GetShader(handle, ShaderParam.CompileStatus) == 0)
-                {
-                    Error<string> error = new(gl.GetShaderInfoLog(handle));
-                    gl.DeleteShader(handle);
-                    return error;
-                }
                 
-                return new Result<uint>(handle);
+                if (gl.GetShader(handle, ShaderParam.CompileStatus) != 0) return handle;
+                
+                var error = gl.GetShaderInfoLog(handle);
+                gl.DeleteShader(handle);
+                return new Error<string>(error);
             }
 
             [SuppressMessage("ReSharper", "VariableHidesOuterVariable")]
-            uint CombineShaders(Result<uint> vertex, Result<uint> fragment)
+            uint CombineShaders(uint vertex, uint fragment)
             {
                 var program = gl.CreateProgram();
-                gl.AttachShader(program, vertex.Value);
-                gl.AttachShader(program, fragment.Value);
+                gl.AttachShader(program, vertex);
+                gl.AttachShader(program, fragment);
 
                 BindFragmentOutputs(program);
                 
@@ -188,11 +185,11 @@ partial class Shader
                     throw new ShaderCompilationException("Shader linking error:\n" + error);
                 }
             
-                gl.DetachShader(program, vertex.Value);
-                gl.DeleteShader(vertex.Value);
+                gl.DetachShader(program, vertex);
+                gl.DeleteShader(vertex);
             
-                gl.DetachShader(program, fragment.Value);
-                gl.DeleteShader(fragment.Value);
+                gl.DetachShader(program, fragment);
+                gl.DeleteShader(fragment);
                 
                 return program;
             }

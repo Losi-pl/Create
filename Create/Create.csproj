@@ -19,6 +19,11 @@
 
     <ItemGroup>
       <PackageReference Include="Arch" Version="2.1.0" PrivateAssets="all" />
+      <PackageReference Include="CodeOfChaos.Unions" Version="6.7.1" />
+      <PackageReference Include="CodeOfChaos.Unions.Generators" Version="6.7.1">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
       <PackageReference Include="Ico.Reader" Version="1.2.5" PrivateAssets="all" />
       <PackageReference Include="JetBrains.Annotations" Version="2026.2.0" PrivateAssets="all" />
       <PackageReference Include="Nerdbank.MessagePack" Version="1.2.30" PrivateAssets="all" />
@@ -33,9 +38,6 @@
       <PackageReference Include="Silk.NET.SPIRV.Reflect" Version="2.23.0" PrivateAssets="all" />
       <PackageReference Include="StbImageSharp" Version="2.30.15" PrivateAssets="all" />
       <PackageReference Include="System.Text.Json" Version="11.0.0-preview.5.26302.115" PrivateAssets="all" />
-
-      <PackageReference Include="OneOf" Version="3.0.271"/>
-      <PackageReference Include="OneOf.SourceGenerator" Version="3.0.271"/>
       <PackageReference Include="JoltPhysicsSharp" Version="2.21.0" />
       <PackageReference Include="Silk.NET.Maths" Version="2.23.0" />
     </ItemGroup>
