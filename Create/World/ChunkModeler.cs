@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Create.Assets;
+﻿using Create.Assets;
 using Create.Graphics;
 using Silk.NET.Maths;
 
@@ -10,7 +9,7 @@ public class ChunkModeler: WorldModeler
     // ReSharper disable once InconsistentNaming
     private static Shader _shader
     {
-        get => field ??= AssetManager.Find<Shader>("create:blocks/debug") ?? throw new Exception("Shader not found");
+        get => field ??= AssetManager.Find<Shader>("create:blocks/debug") is { IsSet: true, AsSet: var set } ? set : throw new Exception("Shader not found");
     } = null!;
 
     private readonly List<Vector3D<float>> _positions = [];

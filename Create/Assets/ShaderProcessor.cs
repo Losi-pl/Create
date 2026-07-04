@@ -195,23 +195,22 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
             shader.Value.Dispose();
     }
 
-    public Shader? Find(string identity)
+    public PossibleResult<Shader> Find(string identity)
     {
         if (_shaders is null)
-            return null;
+            return new None();
 
         if (!IMod.Mods.GetAlternateLookup().TryGetValue(identity.AsSpan()[..identity.IndexOf(':')], out var mod)) return null;
         
         if (!_shaders.TryGetValue(mod, out var shaders)) return null;
         
-        return shaders.GetAlternateLookup().TryGetValue(identity.AsSpan()[(identity.IndexOf(':') + 1)..], out var shader) ? shader : null;
+        return shaders.GetAlternateLookup().TryGetValue(identity.AsSpan()[(identity.IndexOf(':') + 1)..], out var shader) ? shader : new None();
     }
-    public Shader? Find(IMod source, string identity)
+    public PossibleResult<Shader> Find(IMod source, string identity)
     {
-        if (_shaders is null)
-            return null;
+        if (_shaders is null || !_shaders.TryGetValue(source, out var shaders))
+            return new None();
 
-        if (!_shaders.TryGetValue(source, out var shaders)) return null;
-        return shaders.TryGetValue(identity, out var shader) ? shader : null;
+        return shaders.TryGetValue(identity, out var shader) ? shader : new None();
     }
 }

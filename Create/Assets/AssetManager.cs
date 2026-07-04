@@ -157,7 +157,7 @@ public static class AssetManager
         throw new KeyNotFoundException($"No processors for type {typeof(T).Name} found.");
     }
     
-    public static T? Find<T>(IMod mod, string identity)
+    public static PossibleResult<T> Find<T>(IMod mod, string identity)
     {
         if (_processors.IsT0)
         {
@@ -165,7 +165,7 @@ public static class AssetManager
             foreach (var processor in (HashSet<IResourceProcessor<T>>)set.set.GetOut<T>())
             {
                 var value = processor.Find(mod, identity);
-                if (value is not null)
+                if (value.IsSet)
                     return value;
             }
         }
@@ -174,14 +174,14 @@ public static class AssetManager
                 foreach (var processor in (FrozenSet<IResourceProcessor<T>>)set.GetOut<T>())
                 {
                     var value = processor.Find(mod, identity);
-                    if (value is not null)
+                    if (value.IsSet)
                         return value;
                 }
         
-        return default;
+        return new None();
     }
     
-    public static T? Find<T>(string identity)
+    public static PossibleResult<T> Find<T>(string identity)
     {
         if (_processors.IsT0)
         {
@@ -189,7 +189,7 @@ public static class AssetManager
             foreach (var processor in (HashSet<IResourceProcessor<T>>)set.set.GetOut<T>())
             {
                 var value = processor.Find(identity);
-                if (value is not null)
+                if (value.IsSet)
                     return value;
             }
         }
@@ -198,11 +198,11 @@ public static class AssetManager
                 foreach (var processor in (FrozenSet<IResourceProcessor<T>>)set.GetOut<T>())
                 {
                     var value = processor.Find(identity);
-                    if (value is not null)
+                    if (value.IsSet)
                         return value;
                 }
         
-        return default;
+        return new None();
     }
     
     private class AbstractMod(string identity): IMod
