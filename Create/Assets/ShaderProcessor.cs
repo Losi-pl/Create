@@ -197,13 +197,11 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
 
     public PossibleResult<Shader> Find(string identity)
     {
-        if (_shaders is null)
+        if (_shaders is null || 
+            !IMod.Mods.GetAlternateLookup().TryGetValue(identity.AsSpan()[..identity.IndexOf(':')], out var mod) || 
+            !_shaders.TryGetValue(mod, out var shaders))
             return new None();
 
-        if (!IMod.Mods.GetAlternateLookup().TryGetValue(identity.AsSpan()[..identity.IndexOf(':')], out var mod)) return null;
-        
-        if (!_shaders.TryGetValue(mod, out var shaders)) return null;
-        
         return shaders.GetAlternateLookup().TryGetValue(identity.AsSpan()[(identity.IndexOf(':') + 1)..], out var shader) ? shader : new None();
     }
     public PossibleResult<Shader> Find(IMod source, string identity)
