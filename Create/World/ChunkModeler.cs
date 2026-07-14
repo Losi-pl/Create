@@ -66,10 +66,10 @@ public class ChunkModeler: WorldModeler
 
     private static void SetUvAndTriangles(Span<Vector2D<float>> uvs, Span<uint> triangles)
     {
-        uvs[0] = new Vector2D<float>(0f, 0f);
-        uvs[1] = new Vector2D<float>(1f, 0f);
-        uvs[2] = new Vector2D<float>(1f, 1f);
-        uvs[3] = new Vector2D<float>(0f, 1f);
+        uvs[0] = new(0f, 0f);
+        uvs[1] = new(1f, 0f);
+        uvs[2] = new(1f, 1f);
+        uvs[3] = new(0f, 1f);
 
         triangles[0] = 0u;
         triangles[1] = 1u;
