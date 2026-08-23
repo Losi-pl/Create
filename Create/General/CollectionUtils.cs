@@ -28,4 +28,14 @@ public static class CollectionUtils
             return -1;
         }
     }
+
+    extension<T>(T[] array)
+    {
+        public T[] Fill(T value)
+        {
+            for (int i = 0; i < array.Length; i++)
+                array[i] = value;
+            return array;
+        }
+    }
 }
