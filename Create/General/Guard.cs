@@ -1,4 +1,6 @@
-﻿namespace Create.General;
+﻿using System.Numerics;
+
+namespace Create.General;
 
 public static class Guard
 {
@@ -32,5 +34,11 @@ public static class Guard
     {
         if(obj is null)
             throw new NullReferenceException(error().ToString());
+    }
+
+    public static void NotNegative<T>(T number, string? paramName) where T: INumber<T>
+    {
+        if (number < T.Zero)
+            throw new ArgumentException("Number is less than zero", paramName);
     }
 }
