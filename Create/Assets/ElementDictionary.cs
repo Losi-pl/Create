@@ -11,8 +11,6 @@ public class ElementDictionary<T>: IDictionary<(IMod mod, string identity), T>
     public ElementDictionary()
     {
         _elements = [];
-        Keys = new(this);
-        Values = new(this);
     }
     
     // ReSharper disable once InconsistentNaming
@@ -150,7 +148,7 @@ public class ElementDictionary<T>: IDictionary<(IMod mod, string identity), T>
         }
     }
 
-    public bool IsReadOnly => false;
+    bool ICollection<KeyValuePair<(IMod mod, string identity), T>>.IsReadOnly => false;
     public void Add((IMod mod, string identity) key, T value)
     {
         if(!_elements.TryGetValue(key.mod, out var folder))
@@ -201,6 +199,34 @@ public class ElementDictionary<T>: IDictionary<(IMod mod, string identity), T>
             if (!_elements.TryGetValue(key.mod, out var folder))
                 folder = _elements[key.mod] = [];
             folder[key.identity] = value;
+        }
+    }
+    
+    public T this[string identity]
+    {
+        get
+        {
+            if (!identity.AsSpan().Contains(':'))
+                throw new ArgumentException("Improper identity structure, expected: \"mod:element\"");
+            
+            if(!IMod.Mods.GetAlternateLookup().TryGetValue(identity.AsSpan()[..identity.IndexOf(':')], out var mod))
+                throw new ArgumentException($"Mod \"{identity[..identity.IndexOf(':')]}\" could not be found");
+            
+            if (!_elements.TryGetValue(mod, out var folder))
+                throw new KeyNotFoundException();
+            return folder.GetAlternateLookup<ReadOnlySpan<char>>()[identity.AsSpan()[(identity.IndexOf(':') + 1)..]];
+        }
+        set
+        {
+            if (!identity.AsSpan().Contains(':'))
+                throw new ArgumentException("Improper identity structure, expected: \"mod:element\"");
+            
+            if(!IMod.Mods.GetAlternateLookup().TryGetValue(identity.AsSpan()[..identity.IndexOf(':')], out var mod))
+                throw new ArgumentException($"Mod \"{identity[..identity.IndexOf(':')]}\" could not be found");
+            
+            if (!_elements.TryGetValue(mod, out var folder))
+                folder = _elements[mod] = [];
+            folder[identity[(identity.IndexOf(':') + 1)..]] = value;
         }
     }
 
@@ -257,7 +283,7 @@ public class ElementDictionary<T>: IDictionary<(IMod mod, string identity), T>
         bool ICollection<(IMod mod, string identity)>.Remove((IMod mod, string identity) item) => throw new NotSupportedException();
     }
     
-    public ElementKeys Keys { get; }
+    public ElementKeys Keys { get => field ??= new(this); } = null;
     ICollection<(IMod mod, string identity)> IDictionary<(IMod mod, string identity), T>.Keys => Keys;
     
     #endregion 
@@ -313,8 +339,8 @@ public class ElementDictionary<T>: IDictionary<(IMod mod, string identity), T>
         void ICollection<T>.Clear() => throw new NotSupportedException();
         bool ICollection<T>.Remove(T item) => throw new NotSupportedException();
     }
-    
-    public ElementValues Values { get; }
+
+    public ElementValues Values { get => field ??= new(this); } = null;
     ICollection<T> IDictionary<(IMod mod, string identity), T>.Values => Values;
     
     #endregion
