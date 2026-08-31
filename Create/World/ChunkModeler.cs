@@ -9,7 +9,7 @@ public class ChunkModeler: WorldModeler
     // ReSharper disable once InconsistentNaming
     private static Shader _shader
     {
-        get => field ??= AssetManager.Find<Shader>("create:blocks/debug") is { IsSet: true, AsSet: var set } ? set : throw new Exception("Shader not found");
+        get => field ??= AssetManager.Find<Shader>("create:blocks/single-texture") is { IsSet: true, AsSet: var set } ? set : throw new Exception("Shader not found");
     } = null!;
 
     private readonly List<Vector3D<float>> _positions = [];
@@ -60,6 +60,7 @@ public class ChunkModeler: WorldModeler
         return Mesh.Create(_shader).ManualFillOut()
             .SetAttribute("pos", _positions.ToArray())
             .SetAttribute("uvPos", _uvs.ToArray())
+            .SetAttribute("atlasInd", new uint[_uvs.Count].Fill(1u))
             .Triangles(_triangles.ToArray())
             .Finish();
     }

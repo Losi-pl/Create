@@ -14,6 +14,6 @@ uniform mat4 projection;
 void main() {
     uv = uvPos;
     ind = atlasInd;
-    mat4 mvp = projection * view * model;
-    gl_Position = mvp * vec4(pos, 1.0);
+    mat4 mvp = model * view * projection;
+    gl_Position = vec4(pos, 1.0) * mvp;
 }
