@@ -137,7 +137,7 @@ partial class Texture2DAtlas
             
                 
             var gl = Window.GL;
-            var image = gl.GenTexture();
+            var image = gl.CreateTexture(TextureTarget.Texture2DArray);
             
             List<(int index, Exception exception)> problems = [];
             
