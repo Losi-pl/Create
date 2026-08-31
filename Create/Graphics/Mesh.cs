@@ -43,7 +43,7 @@ public sealed partial class Mesh
             var currentGL = Window.GL;
             if(_binding.Value.context == currentGL)
                 return this;
-            throw new InvalidOperationException("This Mesh is already bound to nother Thread");
+            throw new InvalidOperationException("This Mesh is already bound to another Thread");
         }
 
         var gl = Window.GL;
@@ -96,15 +96,15 @@ public sealed partial class Mesh
         var gl = Window.GL;
         if(gl != _binding.Value.context)
             throw new InvalidOperationException("This Mesh is not bound to the current thread");
-            
-        gl.UseProgram(_shader.Handle);
+        
+        _shader.Bind(gl);
         gl.BindVertexArray(_binding.Value.vao);
         if(_ebo.HasValue)
             unsafe { gl.DrawElements(_drawMode, _drawCount, DrawElementsType.UnsignedInt, (void*)0); }
         else
             gl.DrawArrays(_drawMode, 0, _drawCount);
         gl.BindVertexArray(0);
-        gl.UseProgram(0);
+        Shader.Unbind(gl);
     }
 }
 
