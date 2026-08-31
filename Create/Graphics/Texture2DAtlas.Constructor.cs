@@ -139,15 +139,6 @@ partial class Texture2DAtlas
             var gl = Window.GL;
             var image = gl.GenTexture();
             
-            {// TODO: Engineer some options for this
-                gl.TextureParameter(image, TextureParameterName.TextureMinFilter, (int)GLEnum.Nearest);
-                gl.TextureParameter(image, TextureParameterName.TextureMagFilter, (int)GLEnum.Nearest);
-                
-                gl.TextureParameter(image, TextureParameterName.TextureWrapS, (int)GLEnum.ClampToEdge); // Horizontal
-                gl.TextureParameter(image, TextureParameterName.TextureWrapT, (int)GLEnum.ClampToEdge); // Vertical
-                gl.TextureParameter(image, TextureParameterName.TextureWrapR, (int)GLEnum.Repeat);      // Layers
-            }
-
             List<(int index, Exception exception)> problems = [];
             
             gl.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
@@ -192,6 +183,17 @@ partial class Texture2DAtlas
                     throw new AggregateException(reason is null ? extraErrors : Enumerable.Single(reason).Append(extraErrors));
                 }
             }
+            
+            {// TODO: Engineer some options for this
+                gl.TextureParameter(image, TextureParameterName.TextureMinFilter, (int)GLEnum.Nearest);
+                gl.TextureParameter(image, TextureParameterName.TextureMagFilter, (int)GLEnum.Nearest);
+                
+                gl.TextureParameter(image, TextureParameterName.TextureWrapS, (int)GLEnum.ClampToEdge); // Horizontal
+                gl.TextureParameter(image, TextureParameterName.TextureWrapT, (int)GLEnum.ClampToEdge); // Vertical
+                gl.TextureParameter(image, TextureParameterName.TextureWrapR, (int)GLEnum.Repeat);      // Layers
+            }
+            
+            gl.GenerateTextureMipmap(image);
             
             return new(image, new(imageSize!.Value.X, imageSize.Value.Y, (uint)_images.Count),
                 problems.Count == 0 ? null : problems.ToFrozenDictionary(p => (uint)p.index, p => p.exception));
