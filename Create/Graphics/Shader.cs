@@ -31,6 +31,7 @@ public sealed partial class Shader: IDisposable
     private readonly Attribute[] _attributes;
 
     private readonly uint? _modelMat, _viewMat, _projectionMat;
+    private readonly (GLObject? texture, TextureTarget target)[] _objects;
 
     public bool HasModelMatrix => _modelMat.HasValue;
     public bool HasViewMatrix => _viewMat.HasValue;
@@ -54,12 +55,33 @@ public sealed partial class Shader: IDisposable
         _uniforms = new Uniform[gl.GetProgram(handle,ProgramPropertyARB.ActiveUniforms)];
         _attributes = new Attribute[gl.GetProgram(handle, ProgramPropertyARB.ActiveAttributes)];
 
-        foreach (var i in (uint)_uniforms.Length)
         {
-            var uName = gl.GetActiveUniform(handle, i, out var size, out var type);
-            var location = gl.GetUniformLocation(Handle, uName);
-            _uniforms[i] = new Uniform(uName, location, type, null, (uint)size);
+            List<TextureTarget> textures = [];
+            foreach (var i in (uint)_uniforms.Length)
+            {
+                var uName = gl.GetActiveUniform(handle, i, out var size, out var type);
+                var location = gl.GetUniformLocation(Handle, uName);
+                
+                var isObj = type.IsObject;
+                _uniforms[i] = new Uniform(uName, location, type, isObj ? (uint)textures.Count : null, (uint)size);
+                if (isObj)
+                {
+                    gl.ProgramUniform1(Handle, location, textures.Count);
+                    textures.Add(type.TextureType);
+                }
+                
+            }
+
+            if (textures.Count > 0)
+            {
+                _objects = new (GLObject?, TextureTarget)[textures.Count];
+                for (var i = 0; i < textures.Count; i++)
+                    _objects[i] = (null, textures[i]);
+            }
+            else
+                _objects = [];
         }
+        
 
         foreach (var i in (uint)_attributes.Length)
         {
@@ -73,6 +95,24 @@ public sealed partial class Shader: IDisposable
         _projectionMat = CheckMatrixUniform(projMat,!string.IsNullOrEmpty(projMat), PROJECTION_UNIFORM);
     }
 
+    internal void Bind() => Bind(Window.GL);
+    internal void Bind(GL gl)
+    {
+        gl.UseProgram(Handle);
+
+        for (var i = 0; i < _objects.Length && i < 32; i++)
+        {
+            gl.ActiveTexture((TextureUnit)((int)TextureUnit.Texture0 + i));
+            if(_objects[i].texture is {} img)
+                img.Bind(gl);
+            else
+                gl.BindTexture(_objects[i].target, 0);
+        }
+    }
+
+    internal static void Unbind() => Unbind(Window.GL);
+    internal static void Unbind(GL gl) => gl.UseProgram(0);
+    
     private uint? CheckMatrixUniform(string? name, bool @throw, string goal)
     {
         name ??= goal;

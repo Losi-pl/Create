@@ -17,12 +17,13 @@ internal class CreateEntryPoint: IMod
     {
         Console.WriteLine($"World of {Name}!");
         
+        entry.AddResourceProcessor(new BlockAtlasProcessor(), BlockAtlasProcessor.ASSET_PATH);
         entry.AddResourceProcessor(new ShaderProcessor(), ShaderProcessor.ASSET_PATH);
         
         entry.AddElementRegisterProcess(LoadElements);
     }
 
-    void LoadElements(ElementRegister entry)
+    private void LoadElements(ElementRegister entry)
     {
         Console.WriteLine("Loading elements");
     }

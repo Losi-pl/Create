@@ -1,9 +1,10 @@
 ﻿using System.Collections.Frozen;
 using Silk.NET.Maths;
+using Silk.NET.OpenGL;
 
 namespace Create.Graphics;
 
-public partial class Texture2DAtlas: IDisposable
+public partial class Texture2DAtlas: IDisposable, GLObject
 {
     // ReSharper disable once InconsistentNaming
     private static readonly FrozenDictionary<uint, Exception> NO_ERRORS =
@@ -13,6 +14,7 @@ public partial class Texture2DAtlas: IDisposable
     private readonly uint _handle;
     private FrozenDictionary<uint, Exception>? _errors;
 
+    // ReSharper disable once MemberCanBePrivate.Global
     public bool Disposed { get; private set; }
 
     private Texture2DAtlas(uint handle, Vector3D<uint> atlasDimensions, FrozenDictionary<uint, Exception>? errors)
@@ -30,15 +32,15 @@ public partial class Texture2DAtlas: IDisposable
     {
         if(_errors is null)
             return NO_ERRORS;
-        if (removeAfter)
-        {
-            var e = _errors;
-            _errors = null;
-            return e;
-        }
-        return _errors;
+        if (!removeAfter) return _errors;
+        
+        var e = _errors;
+        _errors = null;
+        return e;
     }
 
+    void GLObject.Bind(GL gl) => gl.BindTexture(TextureTarget.Texture2DArray, _handle);
+    
     public void Dispose()
     {
         if(Disposed)

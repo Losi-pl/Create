@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Numerics;
+using Create.Assets;
 using Create.Graphics;
 using Create.Input;
 using Silk.NET.Maths;
@@ -40,6 +41,7 @@ public sealed class GameSession: Scene
         _worldMesh.Shader.SetProjectionUniform(_camera.ProjectionMatrix);
         _worldMesh.Shader.SetViewUniform(_camera.ViewMatrix);
         _worldMesh.Shader.SetModelUniform(Matrix4x4.CreateTranslation(-.5f, 0, -.5f));
+        _worldMesh.Shader.SetUniform("atlas", BlockTexture.Atlas);
         
         Window.GL.Enable(EnableCap.DepthTest);
 

@@ -10,7 +10,7 @@ namespace Create.Graphics;
 
 partial class Shader
 {
-    private delegate void UniformSetter<in T>(GL gl, ref Uniform uniform, T value, uint handle);
+    private delegate void UniformSetter<in T>(GL gl, Shader shader, ref Uniform uniform, T value, uint handle);
     
     private void SetUniform<T>(string name, UniformType type, T value, UniformSetter<T> setting)
     {
@@ -21,7 +21,7 @@ partial class Shader
         if(target.Type != type)
             throw new ArgumentException($"The uniform {name} does expects data of {type}.");
         
-        setting(gl, ref target, value, Handle);
+        setting(gl, this, ref target, value, Handle);
     }
 
     /// <summary>
@@ -235,7 +235,7 @@ partial class Shader
     /// <exception cref="ArgumentException">If the type expected by this uniform is none of the aforementioned and/or expected an array of data</exception>
     /// <exception cref="KeyNotFoundException">If there is no uniform by <see cref="name"/></exception>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public void SetUniform(string name, bool value) => SetUniform(name, UniformType.Bool, value, (gl, ref uni, v, handle) =>
+    public void SetUniform(string name, bool value) => SetUniform(name, UniformType.Bool, value, (gl, _, ref uni, v, handle) =>
         gl.ProgramUniform1(handle, uni.Location, v ? 1 : 0));
     //TODO => Make Bool Vectors
     
@@ -593,7 +593,14 @@ partial class Shader
         }
     }
 
-    public void DefinedMatrix(uint index, Matrix4x4 value)
+    public void SetUniform(string name, Texture2DAtlas atlas) => SetUniform(name, UniformType.Sampler2DArray, atlas,
+        (_, shader, ref uniform, value, _) =>
+        {
+            ref var slot = ref shader._objects[uniform.ObjectIndex!.Value];
+            slot.texture = value;
+        });
+    
+    private void DefinedMatrix(uint index, Matrix4x4 value)
     {
         ref var uniform = ref _uniforms[index];
         
@@ -621,7 +628,7 @@ partial class Shader
     }
     
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public void DefinedMatrix<T>(uint index, Matrix4X4<T> value) where T : unmanaged, IBinaryNumber<T>
+    private void DefinedMatrix<T>(uint index, Matrix4X4<T> value) where T : unmanaged, IBinaryNumber<T>
     {
         ref var uniform = ref _uniforms[index];
         
