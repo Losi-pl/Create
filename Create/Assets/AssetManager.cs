@@ -90,6 +90,7 @@ public static class AssetManager
                     return null;
                 
                 var modIdent = path[..index];
+                path = path[(index + 1)..];
                 return IMod.FromIdentityOrAbstract(modIdent);
             }
 
