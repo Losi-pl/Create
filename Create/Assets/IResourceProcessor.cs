@@ -31,9 +31,8 @@ public interface IResourceProcessor<T>: IResourceProcessor
 
     public PossibleResult<T> Find(string identity)
     {
-        var mods = IMod.Mods.GetAlternateLookup<ReadOnlySpan<char>>();
-        if (!mods.TryGetValue(identity.AsSpan()[..identity.IndexOf(':')], out var mod))
-            throw new KeyNotFoundException($"Mod with identity {identity[..identity.IndexOf(':')]}");
-        return Find(mod, identity[(identity.IndexOf(':') + 1)..]);
+        var mod = IMod.FromIdentityOrAbstract(identity);
+        var element = identity[(identity.IndexOf(':') + 1)..];
+        return Find(mod, element);
     }
 }

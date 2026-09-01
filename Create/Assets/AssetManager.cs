@@ -56,8 +56,6 @@ public static class AssetManager
         Dictionary<IResourceProcessor, Dictionary<IResources, Dictionary<IMod, List<string>>>> sortedResources = new();
         {
             var sources = IResources.GetActiveResources();
-            var abstractMods = new Dictionary<string, IMod>().GetAlternateLookup<ReadOnlySpan<char>>();
-            var mods = IMod.Mods.GetAlternateLookup<ReadOnlySpan<char>>();
             foreach (var source in sources)
             {
                 foreach (var pathS in source.GetManifest())
@@ -92,11 +90,7 @@ public static class AssetManager
                     return null;
                 
                 var modIdent = path[..index];
-                if(!mods.TryGetValue(modIdent, out var mod))
-                    if(!abstractMods.TryGetValue(modIdent, out mod))
-                        abstractMods.TryAdd(modIdent, mod = new AbstractMod(new(modIdent)));
-                path = path[(modIdent.Length + 1)..];
-                return mod;
+                return IMod.FromIdentityOrAbstract(modIdent);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveOptimization)]
@@ -205,15 +199,6 @@ public static class AssetManager
         return new None();
     }
     
-    private class AbstractMod(string identity): IMod
-    {
-        public string Name => identity;
-        public Version Version { get; } = new(0, 0, 0, 1);
-        public IResources Resources => IResources.Empty;
-
-        void IMod.RegisterLoadingPrecesses(LoadingSystem entry) { }
-    }
-
     private readonly struct ProcessorSet: IEnumerable<IResourceProcessor>
     {
         // ReSharper disable InconsistentNaming

@@ -40,8 +40,8 @@ public interface IMod
             if(Identities.TryGetValue(this, out var identity))
                 return identity;
             if(this is AbstractMod abs)
-                lock (_abstracts)
-                    if(_abstracts.TryGetBySecond(abs, out identity))
+                lock (Abstracts)
+                    if(Abstracts.TryGetBySecond(abs, out identity))
                         return identity;
             throw new NotSupportedException("This object was not created by create code");
         }
@@ -69,13 +69,13 @@ public interface IMod
     /// <returns></returns>
     /// <exception cref="KeyNotFoundException">When a mod of that identity could not be found</exception>
     /// <exception cref="ArgumentException">When the formating of the identity is completely incorrect</exception>
-    public static IMod FromIdentity(string identity)
+    public static IMod FromIdentity(ReadOnlySpan<char> identity)
     {
         var semPos = identity.IndexOf(':');
         
         if (semPos == -1)// No : => That's just mod identity
         {
-            if(Mods.TryGetValue(identity, out var mod))
+            if(Mods.GetAlternateLookup().TryGetValue(identity, out var mod))
                 return mod;
             throw new KeyNotFoundException($"Mod {identity} not found");
         }
@@ -83,7 +83,7 @@ public interface IMod
         if(semPos != identity.LastIndexOf(':'))// Last and first : are not the same => There is more than one :
             throw new ArgumentException($"Identity '{identity}' has invalid format");
         {
-            var modName = identity.AsSpan()[..semPos];
+            var modName = identity[..semPos];
             if(Mods.GetAlternateLookup().TryGetValue(modName, out var mod))
                 return mod;
             throw new KeyNotFoundException($"Mod {modName} not found");
@@ -96,17 +96,17 @@ public interface IMod
     /// <param name="identity">Format <c>create</c> or <c>create:stone</c></param>
     /// <param name="mod">The found mod</param>
     /// <returns><c>true</c> on success, otherwise <c>false</c></returns>
-    public static bool TryGetFromIdentity(string identity, [MaybeNullWhen(false)] out IMod mod)
+    public static bool TryGetFromIdentity(ReadOnlySpan<char> identity, [MaybeNullWhen(false)] out IMod mod)
     {
         var semPos = identity.IndexOf(':');
         
         if (semPos == -1)// No : => That's just mod identity
-            return Mods.TryGetValue(identity, out mod);
+            return Mods.GetAlternateLookup().TryGetValue(identity, out mod);
             
         if(semPos != identity.LastIndexOf(':'))// Last and first : are not the same => There is more than one :
         { mod = null; return false; }
         
-        var modName = identity.AsSpan()[..semPos];
+        var modName = identity[..semPos];
         return Mods.GetAlternateLookup().TryGetValue(modName, out mod);
     }
     /// <summary>
@@ -115,17 +115,18 @@ public interface IMod
     /// <param name="identity">Expected identity</param>
     /// <exception cref="ArgumentException">When the format of the identity is invalid.</exception>
     /// <exception cref="ArgumentException">When a genuine mod with that identity is present.</exception>
-    public static IMod GetAbstract(string identity)
+    public static IMod GetAbstract(ReadOnlySpan<char> identity)
     {
-        if(Mods.ContainsKey(identity))
+        if(Mods.GetAlternateLookup().ContainsKey(identity))
             throw new ArgumentException($"Genuine Mod '{identity}' is present");
         if(!IsIdentityValid(identity))
             throw new ArgumentException($"Identity '{identity}' is not in valid format");
-        lock (_abstracts)
+        lock (Abstracts)
         {
-            if (_abstracts.TryGetByFirst(identity, out var mod))
+            var str = new string(identity);
+            if (Abstracts.TryGetByFirst(str, out var mod))
                 return mod;
-            _abstracts.Add(identity, mod = new(identity));
+            Abstracts.Add(str, mod = new(str));
             return mod;
         }
     }
@@ -135,7 +136,7 @@ public interface IMod
     /// <param name="identity">Format <c>create</c> or <c>create:stone</c></param>
     /// <returns>A mod object or it's abstract form if none is present</returns>
     /// <exception cref="ArgumentException">When the format of the identity is invalid.</exception>
-    public static IMod FromIdentityOrAbstract(string identity)
+    public static IMod FromIdentityOrAbstract(ReadOnlySpan<char> identity)
     {
         if (TryGetFromIdentity(identity, out var found))
             return found;
@@ -148,15 +149,15 @@ public interface IMod
         if(semPos != identity.LastIndexOf(':'))// Last and first : are not the same => There is more than one :
             throw new ArgumentException($"Identity '{identity}' has invalid format");
         
-        var modName = identity.AsSpan()[..semPos];
-        return GetAbstract(new(modName));
+        var modName = identity[..semPos];
+        return GetAbstract(modName);
     }
     /// <summary>
     /// Checks if the format of a mods identity is valid
     /// </summary>
     /// <param name="identity">Allowed chars <c>a-z</c>, <c>A-Z</c>, <c>0-9</c>, <c>.</c>, <c>-</c>, <c>_</c></param>
     /// <returns></returns>
-    public static bool IsIdentityValid(string identity)
+    public static bool IsIdentityValid(ReadOnlySpan<char> identity)
     {
         foreach (var letter in identity)
         {
@@ -172,7 +173,7 @@ public interface IMod
     }
     
     private static FrozenDictionary<IMod, string> Identities { get => field ?? throw new InvalidOperationException("Mod list has not yet been loaded"); set; }
-    private static BiDictionaryOneToOne<string, AbstractMod> _abstracts = new();
+    private static readonly BiDictionaryOneToOne<string, AbstractMod> Abstracts = new();
     
     /// <summary>
     /// If no mod of that identity is registered but a mod object is needed regardless this abstraction is created for that identity holding only that information
