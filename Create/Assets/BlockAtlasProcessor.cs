@@ -14,7 +14,7 @@ internal class BlockAtlasProcessor: IResourceProcessor<BlockTexture>
     public const string ASSET_PATH = "textures/blocks/";
     // ReSharper restore InconsistentNaming
     
-    private FrozenElementDictionary<(int Index, string Name)>? _textures = null;
+    private FrozenElementDictionary<(int Index, string Name)>? _textures;
     
     public void LoadResources(Dictionary<IResources, Dictionary<IMod, List<string>>> fileManifest)
     {
@@ -40,7 +40,7 @@ internal class BlockAtlasProcessor: IResourceProcessor<BlockTexture>
         foreach (var (index, error) in done.TakeOutErrors(true))
         {
             var ident = textureIndexes.First(kvp => kvp.Value.Index == index);
-            Console.WriteLine($"Texture {{{ident.Key.mod.Identity}:{ident.Value.name}}} failed to load properly:\n{error}");
+            Console.WriteLine($"Texture {{{ident.Key}}} failed to load properly:\n{error}");
         }
 
         _textures = textureIndexes.ToFrozenDictionary();
@@ -49,24 +49,14 @@ internal class BlockAtlasProcessor: IResourceProcessor<BlockTexture>
     
     public void ClearResources() { }
     
-    public PossibleResult<BlockTexture> Find(string identity)
+    public PossibleResult<BlockTexture> Find(RefElementIdent identity)
     {
         if (_textures is null)
             return new None();
 
         if (_textures.TryGetValue(identity, out var texture))
-            return new BlockTexture(texture.Index, IMod.FromIdentityOrAbstract(identity), texture.Name);
+            return new BlockTexture(texture.Index, identity.Mod, texture.Name);
 
-        return BlockTexture.NULL;
-    }
-    public PossibleResult<BlockTexture> Find(IMod source, string identity)
-    {
-        if (_textures is null)
-            return new None();
-
-        if(_textures.TryGetValue((source, identity), out var texture))
-            return new BlockTexture(texture.Index, source, texture.Name);
-        
         return BlockTexture.NULL;
     }
     

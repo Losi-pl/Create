@@ -27,12 +27,5 @@ public interface IResourceProcessor
 
 public interface IResourceProcessor<T>: IResourceProcessor
 {
-    public PossibleResult<T> Find(IMod source, string identity);
-
-    public PossibleResult<T> Find(string identity)
-    {
-        var mod = IMod.FromIdentityOrAbstract(identity);
-        var element = identity[(identity.IndexOf(':') + 1)..];
-        return Find(mod, element);
-    }
+    public PossibleResult<T> Find(RefElementIdent identity);
 }

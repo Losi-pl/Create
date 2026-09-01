@@ -15,6 +15,18 @@ public static class CollectionUtils
         public FrozenDictionary<string, TValue>.AlternateLookup<ReadOnlySpan<char>> GetAlternateLookup() =>
             frozen.GetAlternateLookup<ReadOnlySpan<char>>();
     }
+    
+    extension<TValue>(Dictionary<string, TValue> frozen)
+    {   
+        /// <summary>
+        /// Gets an instance of a type that may be used to perform operations on a <see cref="Dictionary{TKey, TValue}"/>
+        /// using a <see cref="ReadOnlySpan{char}"/> as a key instead of a <see cref="string"/>.
+        /// </summary>
+        /// <returns>The created lookup instance.</returns>
+        /// <exception cref="InvalidOperationException">This instance's comparer is not compatible with <see cref="ReadOnlySpan{char}"/>.</exception>
+        public Dictionary<string, TValue>.AlternateLookup<ReadOnlySpan<char>> GetAlternateLookup() =>
+            frozen.GetAlternateLookup<ReadOnlySpan<char>>();
+    }
 
     extension<T>(IList<T> list)
     {

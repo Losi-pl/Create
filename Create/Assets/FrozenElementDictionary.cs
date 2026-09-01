@@ -2,10 +2,11 @@
 using System.Collections;
 using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
+// ReSharper disable MemberCanBePrivate.Global, ConvertToAutoProperty
 
 namespace Create.Assets;
 
-public class FrozenElementDictionary<T> : IDictionary<(IMod mod, string identity), T>
+public class FrozenElementDictionary<T> : IDictionary<ElementIdent, T>
 {
     #region =============================================== Main ===============================================
     private readonly FrozenDictionary<IMod, FrozenDictionary<string, T>> _elements;
@@ -17,82 +18,63 @@ public class FrozenElementDictionary<T> : IDictionary<(IMod mod, string identity
         _count = elements.Count;
     }
 
-    public T this[(IMod mod, string identity) key] { get {
-            if(!_elements.TryGetValue(key.mod, out var folder))
+    public T this[ElementIdent key] { get {
+            if(!_elements.TryGetValue(key.Mod, out var folder))
                 throw new KeyNotFoundException();
-            return folder[key.identity];
+            return folder[key.Element];
         }
     }
     
-    public T this[string identity]
-    {
-        get
-        {
-            if (!identity.AsSpan().Contains(':'))
-                throw new ArgumentException("Improper identity structure, expected: \"mod:element\"");
-            
-            if(!IMod.Mods.GetAlternateLookup().TryGetValue(identity.AsSpan()[..identity.IndexOf(':')], out var mod))
-                throw new ArgumentException($"Mod \"{identity[..identity.IndexOf(':')]}\" could not be found");
-            
-            if (!_elements.TryGetValue(mod, out var folder))
+    public T this[RefElementIdent key] { get {
+            if(!_elements.TryGetValue(key.Mod, out var folder))
                 throw new KeyNotFoundException();
-            return folder.GetAlternateLookup()[identity.AsSpan()[(identity.IndexOf(':') + 1)..]];
+            return folder.GetAlternateLookup()[key.Element];
         }
     }
-
+    
     public int Count => _count;
 
-    bool ICollection<KeyValuePair<(IMod mod, string identity), T>>.IsReadOnly => true;
-    T IDictionary<(IMod mod, string identity), T>.this[(IMod mod, string identity) key] { get => this[key]; set => throw new InvalidOperationException(); }
-    void IDictionary<(IMod mod, string identity), T>.Add((IMod mod, string identity) key, T value) => throw new InvalidOperationException();
-    void ICollection<KeyValuePair<(IMod mod, string identity), T>>.Add(KeyValuePair<(IMod mod, string identity), T> item) => throw new InvalidOperationException();
-    void ICollection<KeyValuePair<(IMod mod, string identity), T>>.Clear() => throw new InvalidOperationException();
-    bool IDictionary<(IMod mod, string identity), T>.Remove((IMod mod, string identity) key) => throw new InvalidOperationException();
-    bool ICollection<KeyValuePair<(IMod mod, string identity), T>>.Remove(KeyValuePair<(IMod mod, string identity), T> item) => throw new InvalidOperationException();
+    bool ICollection<KeyValuePair<ElementIdent, T>>.IsReadOnly => true;
+    T IDictionary<ElementIdent, T>.this[ElementIdent key] { get => this[key]; set => throw new InvalidOperationException(); }
+    void IDictionary<ElementIdent, T>.Add(ElementIdent key, T value) => throw new InvalidOperationException();
+    void ICollection<KeyValuePair<ElementIdent, T>>.Add(KeyValuePair<ElementIdent, T> item) => throw new InvalidOperationException();
+    void ICollection<KeyValuePair<ElementIdent, T>>.Clear() => throw new InvalidOperationException();
+    bool IDictionary<ElementIdent, T>.Remove(ElementIdent key) => throw new InvalidOperationException();
+    bool ICollection<KeyValuePair<ElementIdent, T>>.Remove(KeyValuePair<ElementIdent, T> item) => throw new InvalidOperationException();
 
-    public bool Contains(KeyValuePair<(IMod mod, string identity), T> item)
+    public bool Contains(KeyValuePair<ElementIdent, T> item)
     {
-        if (!_elements.TryGetValue(item.Key.mod, out var folder))
+        if (!_elements.TryGetValue(item.Key.Mod, out var folder))
             return false;
-        if(folder.TryGetValue(item.Key.identity, out var value))
+        if(folder.TryGetValue(item.Key.Element, out var value))
             return EqualityComparer<T>.Default.Equals(item.Value, value);
         return false;
     }
-    public bool Contains(KeyValuePair<string, T> item)
+    /// <inheritdoc cref="Contains(KeyValuePair{ElementIdent, T})"/>
+    public bool Contains(RefElementIdent identity, T element)
     {
-        if (!item.Key.AsSpan().Contains(':'))
-            throw new ArgumentException("Improper identity structure, expected: \"mod:element\"");
-            
-        if(!IMod.Mods.GetAlternateLookup().TryGetValue(item.Key.AsSpan()[..item.Key.IndexOf(':')], out var mod))
+        if (!_elements.TryGetValue(identity.Mod, out var folder))
             return false;
-            
-        if (!_elements.TryGetValue(mod, out var folder))
-            return false;
-        if(folder.GetAlternateLookup().TryGetValue(item.Key.AsSpan()[(item.Key.IndexOf(':') + 1)..], out var value))
-            return EqualityComparer<T>.Default.Equals(item.Value, value);
+        if(folder.GetAlternateLookup().TryGetValue(identity.Element, out var value))
+            return EqualityComparer<T>.Default.Equals(element, value);
         return false;
     }
 
-    public bool ContainsKey((IMod mod, string identity) key)
+    public bool ContainsKey(ElementIdent key)
     {
-        if (!_elements.TryGetValue(key.mod, out var folder))
+        if (!_elements.TryGetValue(key.Mod, out var folder))
             return false;
-        return folder.ContainsKey(key.identity);
+        return folder.ContainsKey(key.Element);
     }
-    public bool ContainsKey(string identity)
+    /// <inheritdoc cref="ContainsKey(ElementIdent)"/>
+    public bool ContainsKey(RefElementIdent key)
     {
-        if (!identity.AsSpan().Contains(':'))
-            throw new ArgumentException("Improper identity structure, expected: \"mod:element\"");
-            
-        if(!IMod.Mods.GetAlternateLookup().TryGetValue(identity.AsSpan()[..identity.IndexOf(':')], out var mod))
+        if (!_elements.TryGetValue(key.Mod, out var folder))
             return false;
-            
-        if (!_elements.TryGetValue(mod, out var folder))
-            return false;
-        return folder.GetAlternateLookup().ContainsKey(identity.AsSpan()[(identity.IndexOf(':') + 1)..]);
+        return folder.GetAlternateLookup().ContainsKey(key.Element);
     }
-
-    public void CopyTo(KeyValuePair<(IMod mod, string identity), T>[] array, int arrayIndex)
+    
+    public void CopyTo(KeyValuePair<ElementIdent, T>[] array, int arrayIndex)
     {
         ArgumentNullException.ThrowIfNull(array);
         Guard.NotNegative(arrayIndex, nameof(arrayIndex));
@@ -105,39 +87,31 @@ public class FrozenElementDictionary<T> : IDictionary<(IMod mod, string identity
         }
     }
 
-    public bool TryGetValue((IMod mod, string identity) key, [MaybeNullWhen(false)] out T value)
+    public bool TryGetValue(ElementIdent key, [MaybeNullWhen(false)] out T value)
     {
-        if(!_elements.TryGetValue(key.mod, out var folder))
+        if(!_elements.TryGetValue(key.Mod, out var folder))
         {
             value = default;
             return false;
         }
-        return folder.TryGetValue(key.identity, out value);
+        return folder.TryGetValue(key.Element, out value);
     }
-    public bool TryGetValue(string identity, [MaybeNullWhen(false)] out T value)
+    /// <inheritdoc cref="TryGetValue(Create.Registry.ElementIdent,out T)"/>
+    public bool TryGetValue(RefElementIdent key, [MaybeNullWhen(false)] out T value)
     {
-        if (!identity.AsSpan().Contains(':'))
-            throw new ArgumentException("Improper identity structure, expected: \"mod:element\"");
-
-        if (!IMod.Mods.GetAlternateLookup().TryGetValue(identity.AsSpan()[..identity.IndexOf(':')], out var mod))
+        if(!_elements.TryGetValue(key.Mod, out var folder))
         {
             value = default;
             return false;
         }
-        
-        if(!_elements.TryGetValue(mod, out var folder))
-        {
-            value = default;
-            return false;
-        }
-        return folder.GetAlternateLookup().TryGetValue(identity.AsSpan()[(identity.IndexOf(':') + 1)..], out value);
+        return folder.GetAlternateLookup().TryGetValue(key.Element, out value);
     }
 
-    public struct Enumerator : IEnumerator<KeyValuePair<(IMod mod, string identity), T>>
+    public struct Enumerator : IEnumerator<KeyValuePair<ElementIdent, T>>
     {
         private FrozenDictionary<IMod, FrozenDictionary<string, T>>.Enumerator _folder;
         private FrozenDictionary<string, T>.Enumerator _elements;
-        private KeyValuePair<(IMod mod, string identity), T> _current;
+        private KeyValuePair<ElementIdent, T> _current;
         private bool _hasNext, _isSet;
 
         public Enumerator(FrozenElementDictionary<T> source)
@@ -182,7 +156,7 @@ public class FrozenElementDictionary<T> : IDictionary<(IMod mod, string identity
 
         void IEnumerator.Reset() { }
 
-        public KeyValuePair<(IMod mod, string identity), T> Current
+        public KeyValuePair<ElementIdent, T> Current
         {
             get
             {
@@ -203,24 +177,24 @@ public class FrozenElementDictionary<T> : IDictionary<(IMod mod, string identity
     }
 
     public Enumerator GetEnumerator() => new(this);
-    IEnumerator<KeyValuePair<(IMod mod, string identity), T>> IEnumerable<KeyValuePair<(IMod mod, string identity), T>>.GetEnumerator() => GetEnumerator();
+    IEnumerator<KeyValuePair<ElementIdent, T>> IEnumerable<KeyValuePair<ElementIdent, T>>.GetEnumerator() => GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     #endregion
 
     #region =============================================== Keys ===============================================
 
-    public class ElementKeys(FrozenElementDictionary<T> source) : ICollection<(IMod mod, string identity)>
+    public class ElementKeys(FrozenElementDictionary<T> source) : ICollection<ElementIdent>
     {
         public int Count => source.Count;
 
-        bool ICollection<(IMod mod, string identity)>.IsReadOnly => true;
-        void ICollection<(IMod mod, string identity)>.Clear() => throw new InvalidOperationException();
-        void ICollection<(IMod mod, string identity)>.Add((IMod mod, string identity) item) => throw new InvalidOperationException();
-        bool ICollection<(IMod mod, string identity)>.Remove((IMod mod, string identity) item) => throw new InvalidOperationException();
+        bool ICollection<ElementIdent>.IsReadOnly => true;
+        void ICollection<ElementIdent>.Clear() => throw new InvalidOperationException();
+        void ICollection<ElementIdent>.Add(ElementIdent item) => throw new InvalidOperationException();
+        bool ICollection<ElementIdent>.Remove(ElementIdent item) => throw new InvalidOperationException();
 
-        public bool Contains((IMod mod, string identity) item) => source.TryGetValue(item, out _);
+        public bool Contains(ElementIdent item) => source.TryGetValue(item, out _);
 
-        public void CopyTo((IMod mod, string identity)[] array, int arrayIndex)
+        public void CopyTo(ElementIdent[] array, int arrayIndex)
         {
             ArgumentNullException.ThrowIfNull(array);
             Guard.NotNegative(arrayIndex, nameof(arrayIndex));
@@ -233,13 +207,13 @@ public class FrozenElementDictionary<T> : IDictionary<(IMod mod, string identity
             }
         }
 
-        public struct Enumerator : IEnumerator<(IMod mod, string identity)>
+        public struct Enumerator : IEnumerator<ElementIdent>
         {
             FrozenElementDictionary<T>.Enumerator _enumerator;
 
             public Enumerator(FrozenElementDictionary<T> source) => _enumerator = source.GetEnumerator();
 
-            public (IMod mod, string identity) Current => _enumerator.Current.Key;
+            public ElementIdent Current => _enumerator.Current.Key;
             object IEnumerator.Current => _enumerator.Current.Key;
 
             public void Dispose() => _enumerator.Dispose();
@@ -249,12 +223,12 @@ public class FrozenElementDictionary<T> : IDictionary<(IMod mod, string identity
         }
 
         public Enumerator GetEnumerator() => new(source);
-        IEnumerator<(IMod mod, string identity)> IEnumerable<(IMod mod, string identity)>.GetEnumerator() => GetEnumerator();
+        IEnumerator<ElementIdent> IEnumerable<ElementIdent>.GetEnumerator() => GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     public ElementKeys Keys { get => field ??= new(this); } = null;
-    ICollection<(IMod mod, string identity)> IDictionary<(IMod mod, string identity), T>.Keys => Keys;
+    ICollection<ElementIdent> IDictionary<ElementIdent, T>.Keys => Keys;
     #endregion
 
     #region ============================================== Values ==============================================
@@ -308,6 +282,6 @@ public class FrozenElementDictionary<T> : IDictionary<(IMod mod, string identity
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
     public ElementValues Values { get => field ??= new(this); } = null;
-    ICollection<T> IDictionary<(IMod mod, string identity), T>.Values => Values;
+    ICollection<T> IDictionary<ElementIdent, T>.Values => Values;
     #endregion
 }

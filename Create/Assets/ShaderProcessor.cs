@@ -34,7 +34,7 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
             {
                 foreach (var xml in modData.Value.Where(path => path.EndsWith(".xml", StringComparison.OrdinalIgnoreCase)))
                 {
-                    var fullMe = new Uri($"file:///{modData.Key.Identity}/{ASSET_PATH}{xml}");
+                    var fullMe = new Uri($"file:///{modData.Key.Identity}/{ASSET_PATH}{xml}"); // For easy path alterations
                     
                     var stream = resource.Key.GetStream(fullMe.LocalPath.TrimStart('/'));
                     if(stream is null) throw new NullReferenceException($"Could not find file \"{modData.Key.Identity}/{ASSET_PATH}{xml}\"");
@@ -125,7 +125,7 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
     {
         _shaders = data.ToFrozenDictionary(shaderData =>
         {
-            var cons = Shader.Create().Name($"{shaderData.Key.mod.Identity}:{shaderData.Key.identity}");
+            var cons = Shader.Create().Name(shaderData.Key.ToString());
             var shader = shaderData.Value;
             
             if (shader.vertex.IsT0)
@@ -174,15 +174,9 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
             shader.Value.Dispose();
     }
 
-    public PossibleResult<Shader> Find(string identity)
+    public PossibleResult<Shader> Find(RefElementIdent identity)
     {
         if (_shaders is null || !_shaders.TryGetValue(identity, out var shader))
-            return new None();
-        return shader;
-    }
-    public PossibleResult<Shader> Find(IMod source, string identity)
-    {
-        if (_shaders is null || !_shaders.TryGetValue((source, identity), out var shader))
             return new None();
         return shader;
     }
