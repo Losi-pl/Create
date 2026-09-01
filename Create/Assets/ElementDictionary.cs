@@ -150,7 +150,7 @@ public class ElementDictionary<T>: IDictionary<ElementIdent, T>
     {
         if(!_elements.TryGetValue(key.Mod, out var folder))
             folder = _elements[key.Mod] = [];
-        folder.Add(key.Element.ToString(), value);
+        folder.Add(new(key.Element), value);
     }
 
     public bool ContainsKey(ElementIdent key)
@@ -252,8 +252,7 @@ public class ElementDictionary<T>: IDictionary<ElementIdent, T>
         {
             if (!_elements.TryGetValue(key.Mod, out var folder))
                 folder = _elements[key.Mod] = [];
-            var alt = folder.GetAlternateLookup();
-            alt[key.Element] = value;
+            folder[new(key.Element)] = value;
         }
     }
     #endregion
