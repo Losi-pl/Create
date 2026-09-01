@@ -9,13 +9,8 @@ public class ElementDictionary<T>: IDictionary<(IMod mod, string identity), T>
 {
     #region =============================================== Main ===============================================
 
-    public ElementDictionary()
-    {
-        _elements = [];
-    }
-    
     // ReSharper disable once InconsistentNaming
-    private Dictionary<IMod, Dictionary<string, T>> _elements { get; }
+    private Dictionary<IMod, Dictionary<string, T>> _elements { get; } = [];
 
     public struct Enumerator: IEnumerator<KeyValuePair<(IMod mod, string identity), T>>
     {
