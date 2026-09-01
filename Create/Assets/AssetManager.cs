@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Frozen;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Create.Registry;
 
@@ -35,10 +36,10 @@ public static class AssetManager
                 throw new ArgumentException($"Path for you're processor is locked by \"{path}\"");
         
         if(_processors.AsT0.TryGetValue(typeof(T), out var set))
-            ((HashSet<IResourceProcessor<T>>)set.set.GetOut<T>()).Add(processor);
+            (set.set.GetOut<T>() as HashSet<IResourceProcessor<T>> ?? throw new InvalidCastException()).Add(processor);
         else
         {
-            ProcessorSet Freezer(ProcessorSet s) => ProcessorSet.Create(((HashSet<IResourceProcessor<T>>)s.GetOut<T>()).ToFrozenSet());
+            ProcessorSet Freezer(ProcessorSet s) => ProcessorSet.Create((s.GetOut<T>() as HashSet<IResourceProcessor<T>> ?? throw new InvalidCastException()).ToFrozenSet());
             _processors.AsT0[typeof(T)] = (ProcessorSet.Create(new HashSet<IResourceProcessor<T>>{ processor }), Freezer);
         }
 
@@ -121,57 +122,75 @@ public static class AssetManager
         }
     }
     
-    public static IReadOnlySet<IResourceProcessor<T>> GetProcessors<T>()
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    private static bool TryGetProcessors<T>(out IReadOnlySet<IResourceProcessor<T>> set, out bool isFrozen)
     {
         if (_processors.IsT0)
-        {
-            if (_processors.AsT0.TryGetValue(typeof(T), out var set)) //Inefficient but an edge case will rarely be used, if ever 
-                return new HashSet<IResourceProcessor<T>>(set.set.GetOut<T>());
+        { //Inefficient but an edge case will rarely be used, if ever 
+            isFrozen = false;
+            if (_processors.AsT0.TryGetValue(typeof(T), out var Set))
+            {
+                set = Set.set.GetOut<T>()!;
+                return set is not null;
+            }
+
+            set = null!;
+            return false;
         }
-        else
+        if(_processors.IsT1)
         {
-            if (_processors.AsT1.TryGetValue(typeof(T), out var set))
-                return set.GetOut<T>() ?? throw new InvalidOperationException("Unknown error, invalid data type");
+            isFrozen = true;
+            if (_processors.AsT1.TryGetValue(typeof(T), out var Set))
+            {
+                set = Set.GetOut<T>()!;
+                return set is not null;
+            }
+
+            set = null!;
+            return false;
         }
 
+        set = null!;
+        isFrozen = false;
+        return false;
+    }
+    
+    public static IReadOnlySet<IResourceProcessor<T>> GetProcessors<T>()
+    {
+        if (TryGetProcessors<T>(out var set, out var frozen))
+            return frozen ? set : new HashSet<IResourceProcessor<T>>(set);
+        
         return System.Collections.Immutable.ImmutableHashSet<IResourceProcessor<T>>.Empty;
     }
 
     public static IResourceProcessor<T> GetProcessor<T>()
     {
-        if (_processors.IsT0)
-        {
-            if (_processors.AsT0.TryGetValue(typeof(T), out var set))
-                return set.set.GetOut<T>().First();
-        }
-        else
-        {
-            if (_processors.AsT1.TryGetValue(typeof(T), out var set))
-                return set.GetOut<T>().First();
-        }
-        throw new KeyNotFoundException($"No processors for type {typeof(T).Name} found.");
+        if(TryGetProcessors<T>(out var set, out _))
+            return set.FirstOrDefault() ?? throw ExMessage();
+        throw ExMessage();
+
+        Exception ExMessage() => new KeyNotFoundException($"No processors for type {typeof(T).Name} found.");
     }
     
     public static PossibleResult<T> Find<T>(RefElementIdent identity)
     {
-        if (_processors.IsT0)
+        if (TryGetProcessors<T>(out var set, out var frozen))
         {
-            if (!_processors.AsT0.TryGetValue(typeof(T), out var set)) return default;
-            foreach (var processor in (HashSet<IResourceProcessor<T>>)set.set.GetOut<T>())
-            {
-                var value = processor.Find(identity);
-                if (value.IsSet)
-                    return value;
-            }
-        }
-        else if(_processors.IsT1)
-            if(_processors.AsT1.TryGetValue(typeof(T), out var set))
-                foreach (var processor in (FrozenSet<IResourceProcessor<T>>)set.GetOut<T>())
+            if(frozen)
+                foreach (var processor in (FrozenSet<IResourceProcessor<T>>)set)
                 {
                     var value = processor.Find(identity);
                     if (value.IsSet)
                         return value;
                 }
+            else
+                foreach (var processor in (HashSet<IResourceProcessor<T>>)set)
+                {
+                    var value = processor.Find(identity);
+                    if (value.IsSet)
+                        return value;
+                }
+        }
         
         return new None();
     }
@@ -184,7 +203,7 @@ public static class AssetManager
 
         public static ProcessorSet Create<T>(IReadOnlySet<IResourceProcessor<T>> set) => new ProcessorSet { _set = set };
         
-        public IReadOnlySet<IResourceProcessor<T>> GetOut<T>() => _set as IReadOnlySet<IResourceProcessor<T>> ?? throw new InvalidCastException();
+        public IReadOnlySet<IResourceProcessor<T>>? GetOut<T>() => _set as IReadOnlySet<IResourceProcessor<T>>;
         
         public IEnumerator<IResourceProcessor> GetEnumerator() => (_set as IEnumerable ?? throw new InvalidCastException()).Cast<IResourceProcessor>().GetEnumerator();
 

@@ -1,7 +1,6 @@
 ﻿using System.Xml.Linq;
 using Create.Graphics;
 using Create.Registry;
-using CodeSource = CodeOfChaos.Unions.Union<string, System.IO.Stream>;
 
 namespace Create.Assets;
 
@@ -27,7 +26,7 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
     
     public void LoadResources(Dictionary<IResources, Dictionary<IMod, List<string>>> fileManifest)
     {
-        var shaders = new ElementDictionary<(CodeSource vertex, CodeSource fragment, ShaderSettings? settings)>();
+        var shaders = new ElementDictionary<(Stream vertex, Stream fragment, ShaderSettings? settings)>();
         foreach (var resource in fileManifest)
         {
             foreach (var modData in resource.Value)
@@ -37,7 +36,7 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
                     var fullMe = new Uri($"file:///{modData.Key.Identity}/{ASSET_PATH}{xml}"); // For easy path alterations
                     
                     var stream = resource.Key.GetStream(fullMe.LocalPath.TrimStart('/'));
-                    if(stream is null) throw new NullReferenceException($"Could not find file \"{modData.Key.Identity}/{ASSET_PATH}{xml}\"");
+                    if(stream is null) throw new NullReferenceException($"Could not find file \"{fullMe.LocalPath.TrimStart('/')}\"");
                     var shaderData = XDocument.Load(stream).Root!;
                     
                     var code = GetShaderCode(resource.Key, shaderData, fullMe);
@@ -55,7 +54,7 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
                         settings.ProjectionMatrix = CheckUniformSpecification(uniformData, Shader.PROJECTION_UNIFORM);
                     }
                     
-                    shaders[(modData.Key, xml[..xml.LastIndexOf('.')])] = (code.vertex, code.fragment, settings);
+                    shaders[(modData.Key, xml.CutExtension())] = (code.vertex, code.fragment, settings);
                 }
             }
         }
@@ -121,22 +120,15 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
         }
     }
 
-    private void CompileShaders(ElementDictionary<(CodeSource vertex, CodeSource fragment, ShaderSettings? settings)> data)
+    private void CompileShaders(ElementDictionary<(Stream vertex, Stream fragment, ShaderSettings? settings)> data)
     {
         _shaders = data.ToFrozenDictionary(shaderData =>
         {
             var cons = Shader.Create().Name(shaderData.Key.ToString());
             var shader = shaderData.Value;
             
-            if (shader.vertex.IsT0)
-                cons.Vertex(shader.vertex.AsT0); // Code directly passed
-            else
-                cons.Vertex(shader.vertex.AsT1, true); // A link to the file with code
-
-            if (shader.fragment.IsT0)
-                cons.Fragment(shader.fragment.AsT0); // Code directly passed
-            else
-                cons.Fragment(shader.fragment.AsT1, true); // A link to the file with code
+            cons.Vertex(shader.vertex);
+            cons.Fragment(shader.fragment);
 
             if (shader.settings is { } settings)
             {

@@ -30,7 +30,7 @@ internal class BlockAtlasProcessor: IResourceProcessor<BlockTexture>
         {
             var stream = file.Value.GetStream($"{file.Key.mod.Identity}/{ASSET_PATH}{file.Key.path}")!;
 
-            var name = file.Key.path[..file.Key.path.LastIndexOf('.')];
+            var name = file.Key.path.CutExtension();
             
             atlas[++lasIndex] = (stream, true);
             textureIndexes[(file.Key.mod, name)] = (lasIndex, name);
