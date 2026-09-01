@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
 using Create.Registry;
 
@@ -92,7 +93,7 @@ public class ElementDictionary<T>: IDictionary<(IMod mod, string identity), T>
     }
     public Enumerator GetEnumerator() => new(this);
     IEnumerator<KeyValuePair<(IMod mod, string identity), T>> IEnumerable<KeyValuePair<(IMod mod, string identity), T>>.
-        GetEnumerator() => GetEnumerator();
+    GetEnumerator() => GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public void Add(KeyValuePair<(IMod mod, string identity), T> item)
@@ -186,6 +187,17 @@ public class ElementDictionary<T>: IDictionary<(IMod mod, string identity), T>
         return folder.TryGetValue(key.identity, out value);
     }
 
+    public FrozenElementDictionary<T> ToFrozenDictionary() => new(_elements.ToFrozenDictionary(kvp => kvp.Key, kvp => kvp.Value.ToFrozenDictionary()));
+
+    public FrozenElementDictionary<TRez> ToFrozenDictionary<TRez>(Func<KeyValuePair<(IMod mod, string identity), T>, TRez> keyValueSelector)
+    {
+        var result = 
+            this.Select(kvp => new KeyValuePair<(IMod mod, string identity), TRez>(kvp.Key, keyValueSelector(kvp))) // Alter the values to wanted results
+            .GroupBy(kvp => kvp.Key.mod).ToFrozenDictionary(group => group.Key, // Brake down into per mod gropings
+                group => group.Select(kvp => new KeyValuePair<string, TRez>(kvp.Key.identity, kvp.Value)).ToFrozenDictionary());// Freeze per element gropings
+        return new(result);
+    }
+    
     public T this[(IMod mod, string identity) key]
     {
         get

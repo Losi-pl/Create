@@ -1,5 +1,4 @@
-﻿using System.Collections.Frozen;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using Create.Graphics;
 using Create.Registry;
 using CodeSource = CodeOfChaos.Unions.Union<string, System.IO.Stream>;
@@ -24,19 +23,15 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
     public const string INDEX_ATTRIBUTE = "index";
     // ReSharper restore InconsistentNaming, MemberCanBePrivate.Global
     
-    
-    
-    private FrozenDictionary<IMod, FrozenDictionary<string, Shader>>? _shaders;
+    private FrozenElementDictionary<Shader>? _shaders;
     
     public void LoadResources(Dictionary<IResources, Dictionary<IMod, List<string>>> fileManifest)
     {
-        var allShaders = new Dictionary<IMod, Dictionary<string, (CodeSource vertex, CodeSource fragment, ShaderSettings? settings)>>();
+        var shaders = new ElementDictionary<(CodeSource vertex, CodeSource fragment, ShaderSettings? settings)>();
         foreach (var resource in fileManifest)
         {
-            var shaders = new Dictionary<IMod, Dictionary<string, (CodeSource vertexCode, CodeSource fragmentCode, ShaderSettings? settings)>>();
             foreach (var modData in resource.Value)
             {
-                var myShaders = shaders[modData.Key] = new();
                 foreach (var xml in modData.Value.Where(path => path.EndsWith(".xml", StringComparison.OrdinalIgnoreCase)))
                 {
                     var fullMe = new Uri($"file:///{modData.Key.Identity}/{ASSET_PATH}{xml}");
@@ -60,22 +55,12 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
                         settings.ProjectionMatrix = CheckUniformSpecification(uniformData, Shader.PROJECTION_UNIFORM);
                     }
                     
-                    myShaders[xml[..xml.LastIndexOf('.')]] = (code.vertex, code.fragment, settings);
-                }
-            }
-
-            foreach (var perMod in shaders)
-            {
-                foreach (var shader in perMod.Value)
-                {
-                    if (!allShaders.TryGetValue(perMod.Key, out var folder))
-                        folder = allShaders[perMod.Key] = new();
-                    folder[shader.Key] = shader.Value;
+                    shaders[(modData.Key, xml[..xml.LastIndexOf('.')])] = (code.vertex, code.fragment, settings);
                 }
             }
         }
 
-        CompileShaders(allShaders);
+        CompileShaders(shaders);
         return;
 
         // Local Methods
@@ -136,46 +121,40 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
         }
     }
 
-    private void CompileShaders(Dictionary<IMod, Dictionary<string, (CodeSource vertex, CodeSource fragment, ShaderSettings? settings)>> data)
+    private void CompileShaders(ElementDictionary<(CodeSource vertex, CodeSource fragment, ShaderSettings? settings)> data)
     {
-        Dictionary<IMod, FrozenDictionary<string, Shader>> compiled = new();
-        foreach (var perMod in data)
+        _shaders = data.ToFrozenDictionary(shaderData =>
         {
-            Dictionary<string, Shader> shaders = new();
-            foreach (var shader in perMod.Value)
-            {
-                var cons = Shader.Create().Name(shader.Key);
-                
-                if(shader.Value.vertex.IsT0)
-                    cons.Vertex(shader.Value.vertex.AsT0);
-                else
-                    cons.Vertex(shader.Value.vertex.AsT1, true);
-                
-                if(shader.Value.fragment.IsT0)
-                    cons.Fragment(shader.Value.fragment.AsT0);
-                else
-                    cons.Fragment(shader.Value.fragment.AsT1, true);
+            var cons = Shader.Create().Name($"{shaderData.Key.mod.Identity}:{shaderData.Key.identity}");
+            var shader = shaderData.Value;
+            
+            if (shader.vertex.IsT0)
+                cons.Vertex(shader.vertex.AsT0); // Code directly passed
+            else
+                cons.Vertex(shader.vertex.AsT1, true); // A link to the file with code
 
-                if (shader.Value.settings is { } settings)
-                {
-                    foreach (var output in settings.FragmentOutputs ?? [])
-                        cons.BindFragmentOutput(output.name, output.index);
-                    
-                    if(settings.ModelMatrix.IsSet)
-                        cons.SpecifyModelMatrix(settings.ModelMatrix.AsSet);
-                    
-                    if(settings.ViewMatrix.IsSet)
-                        cons.SpecifyViewMatrix(settings.ViewMatrix.AsSet);
-                    
-                    if(settings.ProjectionMatrix.IsSet)
-                        cons.SpecifyProjectionMatrix(settings.ProjectionMatrix.AsSet);
-                }
-                
-                shaders[shader.Key] = cons.Finish();
+            if (shader.fragment.IsT0)
+                cons.Fragment(shader.fragment.AsT0); // Code directly passed
+            else
+                cons.Fragment(shader.fragment.AsT1, true); // A link to the file with code
+
+            if (shader.settings is { } settings)
+            {
+                foreach (var output in settings.FragmentOutputs ?? [])
+                    cons.BindFragmentOutput(output.name, output.index);
+
+                if (settings.ModelMatrix.IsSet)
+                    cons.SpecifyModelMatrix(settings.ModelMatrix.AsSet);
+
+                if (settings.ViewMatrix.IsSet)
+                    cons.SpecifyViewMatrix(settings.ViewMatrix.AsSet);
+
+                if (settings.ProjectionMatrix.IsSet)
+                    cons.SpecifyProjectionMatrix(settings.ProjectionMatrix.AsSet);
             }
-            compiled[perMod.Key] = shaders.ToFrozenDictionary();
-        }
-        _shaders = compiled.ToFrozenDictionary();
+
+            return cons.Finish();
+        });
     }
 
     private class ShaderSettings
@@ -191,24 +170,20 @@ internal class ShaderProcessor: IResourceProcessor<Shader>
         var hand = _shaders;
         _shaders = null;
         if (hand is null) return;
-        foreach (var shader in hand.SelectMany(perMod => perMod.Value))
+        foreach (var shader in hand)
             shader.Value.Dispose();
     }
 
     public PossibleResult<Shader> Find(string identity)
     {
-        if (_shaders is null || 
-            !IMod.Mods.GetAlternateLookup().TryGetValue(identity.AsSpan()[..identity.IndexOf(':')], out var mod) || 
-            !_shaders.TryGetValue(mod, out var shaders))
+        if (_shaders is null || !_shaders.TryGetValue(identity, out var shader))
             return new None();
-
-        return shaders.GetAlternateLookup().TryGetValue(identity.AsSpan()[(identity.IndexOf(':') + 1)..], out var shader) ? shader : new None();
+        return shader;
     }
     public PossibleResult<Shader> Find(IMod source, string identity)
     {
-        if (_shaders is null || !_shaders.TryGetValue(source, out var shaders))
+        if (_shaders is null || !_shaders.TryGetValue((source, identity), out var shader))
             return new None();
-
-        return shaders.TryGetValue(identity, out var shader) ? shader : new None();
+        return shader;
     }
 }
