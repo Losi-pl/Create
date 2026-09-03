@@ -206,7 +206,8 @@ public static class GameElements
 
         public struct Enumerator : IEnumerator<T>
         {
-            private Union<ImmutableArray<T>.Enumerator, List<T>.Enumerator> _union;
+            private ImmutableArray<T>.Enumerator _immutable;
+            private List<T>.Enumerator _mutable;
             private readonly bool _isFrozen;
             private readonly Predicate<T>? _predicate;
 
@@ -214,9 +215,10 @@ public static class GameElements
             {
                 _predicate = predicate;
                 _isFrozen = source.IsFrozen;
-                _union = source.IsFrozen ? 
-                    source.Immutable.Elements!.Value.GetEnumerator() : 
-                    source.Mutable.Elements!.GetEnumerator();
+                if (_isFrozen)
+                    _immutable = source.Immutable.Elements!.Value.GetEnumerator();
+                else
+                    _mutable = source.Mutable.Elements!.GetEnumerator();
             }
 
 
@@ -226,23 +228,23 @@ public static class GameElements
                 {
                     do
                     {
-                        if(!_union.AsT0.MoveNext())
+                        if(!_immutable.MoveNext())
                             return false;
-                    } while (!_predicate?.Invoke(_union.AsT0.Current) ?? false);
+                    } while (!_predicate?.Invoke(_immutable.Current) ?? false);
                     return true;
                 }
                 
                 do
                 {
-                    if(!_union.AsT1.MoveNext())
+                    if(!_mutable.MoveNext())
                         return false;
-                } while (!_predicate?.Invoke(_union.AsT1.Current) ?? false);
+                } while (!_predicate?.Invoke(_mutable.Current) ?? false);
                 return true;
             }
 
             public void Reset() => throw new NotSupportedException();
 
-            public T Current => _isFrozen ? _union.AsT0.Current : _union.AsT1.Current;
+            public T Current => _isFrozen ? _immutable.Current : _mutable.Current;
             object IEnumerator.Current => Current;
 
             void IDisposable.Dispose() { }
