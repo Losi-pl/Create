@@ -179,6 +179,7 @@ public static class GameElements
                 var index = Mutable.Elements!.Count;
                 Mutable.Elements.Add(element);
                 Mutable.ByIdentity[identity] = index;
+                element.SetIdentity(identity);
             }
         }
         
