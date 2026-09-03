@@ -33,6 +33,6 @@ internal class CreateEntryPoint: IMod
         Console.WriteLine($"Loading {typeof(TElement).Name}s...");
         foreach (var element in GameElements.FindElements<TElement>(source))
             dest.Register(element.Element, element.Name);
-        Console.WriteLine($"{typeof(TElement).Name}s loaded: {GameElements.Get<Block>().Count}");
+        Console.WriteLine($"{typeof(TElement).Name}s loaded: {GameElements.Get<TElement>().Count}");
     }
 }
