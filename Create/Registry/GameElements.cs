@@ -64,6 +64,31 @@ public static class GameElements
             library.Value.Freeze();
     }
 
+    public static IEnumerable<(TElement Element, string Name)> FindElements<TElement>(Type source)
+    {
+        foreach (var element in source.GetFields())
+        {
+            if(!element.IsPublic)
+                continue;
+            if(!element.IsStatic)
+                continue;
+            
+            if(element.GetCustomAttribute<IgnoreElementAttribute>() is not null)
+                continue;
+            
+            if(element.FieldType != typeof(TElement) && !element.FieldType.IsSubclassOf(typeof(TElement)))
+                continue;
+            
+            var name = element.GetCustomAttribute<ElementNameAttribute>()?.Name ?? KebabCase(element.Name);
+
+            yield return ((TElement)element.GetValue(null)!, name);
+        }
+        
+        string KebabCase(string s) =>
+            string.Concat(s.Select((c, i) =>
+                char.IsUpper(c) && i > 0 ? $"-{char.ToLower(c)}" : c.ToString().ToLower()));
+    }
+    
     public readonly struct FilteredEnumerable<T>(TypeLibrary<T> library, Predicate<T> predicate) : IEnumerable<T> where T : ElementBase
     {
         public TypeLibrary<T>.Enumerator GetEnumerator() => new(library, predicate);
