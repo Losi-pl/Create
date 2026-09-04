@@ -1,4 +1,7 @@
-﻿namespace Create.World;
+﻿using Create.Elements;
+using Create.Storage;
+
+namespace Create.World;
 
 public sealed class RealmWorld: IWorld
 {
@@ -8,27 +11,19 @@ public sealed class RealmWorld: IWorld
     public const int CHUNK_HEIGHT = CHUNK_CUBE_SIZE * CHUNK_CUBE_STACK;
     // ReSharper restore MemberCanBePrivate.Global, InconsistentNaming
 
-    private readonly bool[,,] _tmpBlocks = new bool[CHUNK_CUBE_SIZE, CHUNK_CUBE_SIZE, CHUNK_CUBE_SIZE];
+    private readonly PlacedBlock[,,] _tmpBlocks = new PlacedBlock[CHUNK_CUBE_SIZE, CHUNK_CUBE_SIZE, CHUNK_CUBE_SIZE];
     
-    public bool this[long x, long y, long z]
+    public PlacedBlock this[long x, long y, long z]
     {
         get
         {
-            if(x is >= CHUNK_CUBE_SIZE or < 0)
-                return false;
-            if(y is >= CHUNK_CUBE_SIZE or < 0)
-                return false;
-            if(z is >= CHUNK_CUBE_SIZE or < 0)
-                return false;
+            if(x is >= CHUNK_CUBE_SIZE or < 0 || y is >= CHUNK_CUBE_SIZE or < 0 || z is >= CHUNK_CUBE_SIZE or < 0)
+                return new(Blocks.Air);
             return _tmpBlocks[x, y, z];
         }
         set
         {
-            if(x is >= CHUNK_CUBE_SIZE or < 0)
-                return;
-            if(y is >= CHUNK_CUBE_SIZE or < 0)
-                return;
-            if(z is >= CHUNK_CUBE_SIZE or < 0)
+            if(x is >= CHUNK_CUBE_SIZE or < 0 || y is >= CHUNK_CUBE_SIZE or < 0 || z is >= CHUNK_CUBE_SIZE or < 0)
                 return;
             _tmpBlocks[x, y, z] = value;
         }
