@@ -61,6 +61,7 @@ internal sealed class LoadingScene: Scene
                 process(elemRegis);
             elemRegis.Dispose();
         }
+        GameElements.FreezeElements();
 
         GC.Collect();
         Thread.Sleep(500);
