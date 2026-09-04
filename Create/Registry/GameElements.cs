@@ -108,6 +108,7 @@ public static class GameElements
         // ReSharper disable InconsistentNaming
         private (List<T>? Elements, Dictionary<ElementIdent, int>? ByIdentity) Mutable = ([], []);
         private (ImmutableArray<T>? Elements, FrozenDictionary<ElementIdent, int>? ByIdentity) Immutable = (null, null);
+        // ReSharper disable once FieldCanBeMadeReadOnly.Local
         private FrozenDictionary<ushort, int>? ByID = null;
         // ReSharper disable once StaticMemberInGenericType
         private static readonly Lock Lock = new();
@@ -192,6 +193,7 @@ public static class GameElements
                 if(IsFrozen)
                     return;
             
+                // ReSharper disable once UseCollectionExpression
                 Immutable.Elements = ImmutableArray.Create(Mutable.Elements.AsSpan());
                 Mutable.Elements = null;
 
