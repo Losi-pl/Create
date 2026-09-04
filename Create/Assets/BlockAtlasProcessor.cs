@@ -14,12 +14,12 @@ internal class BlockAtlasProcessor: IResourceProcessor<BlockTexture>
     public const string ASSET_PATH = "textures/blocks/";
     // ReSharper restore InconsistentNaming
     
-    private FrozenElementDictionary<(int Index, string Name)>? _textures;
+    private FrozenElementDictionary<(uint Index, string Name)>? _textures;
     
     public void LoadResources(Dictionary<IResources, Dictionary<IMod, List<string>>> fileManifest)
     {
         var used = IResourceProcessor.FlattenSources(fileManifest, [IMod.Mods["create"].Resources]);
-        ElementDictionary<(int Index, string name)> textureIndexes = new();
+        ElementDictionary<(uint Index, string name)> textureIndexes = new();
 
         var atlas = Texture2DAtlas.Create();
         var lasIndex = 0;
@@ -33,7 +33,7 @@ internal class BlockAtlasProcessor: IResourceProcessor<BlockTexture>
             var name = file.Key.path.CutExtension();
             
             atlas[++lasIndex] = (stream, true);
-            textureIndexes[(file.Key.mod, name)] = (lasIndex, name);
+            textureIndexes[(file.Key.mod, name)] = ((uint)lasIndex, name);
         }
 
         var done = atlas.Finish();
