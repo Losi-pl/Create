@@ -1,8 +1,10 @@
 ﻿using System.Drawing;
 using System.Numerics;
 using Create.Assets;
+using Create.Elements;
 using Create.Graphics;
 using Create.Input;
+using Create.Storage;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 
@@ -25,16 +27,23 @@ public sealed class GameSession: Scene
 
         _camera.Position = new(0, 3, -3);
         _camera.Orientation = new(0, -45);
-        
-        _world = new()
+
         {
-            [0, 0, 0] = true,
-            [0, 0, 1] = true,
-            [1, 0, 0] = true,
-            [1, 0, 1] = true,
-            [0, 1, 0] = true,
-            [1, 1, 1] = true
-        };
+            var stone = new PlacedBlock(Blocks.Stone);
+            var bedrock = new PlacedBlock(Blocks.Bedrock);
+            var dirt = new PlacedBlock(Blocks.Dirt);
+            _world = new()
+            {
+                [0, 0, 0] = bedrock,
+                [0, 0, 1] = stone,
+                [1, 0, 0] = stone,
+                [1, 0, 1] = bedrock,
+                [0, 1, 0] = dirt,
+                [0, 1, 1] = dirt,
+                [1, 1, 0] = dirt,
+                [1, 1, 1] = dirt
+            };
+        }
 
         _worldMesh = new ChunkModeler().GenerateModel(_world).ThreadBind();
 
