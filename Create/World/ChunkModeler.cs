@@ -1,4 +1,5 @@
 ﻿using Create.Assets;
+using Create.Elements;
 using Create.Graphics;
 using Silk.NET.Maths;
 
@@ -14,14 +15,17 @@ public class ChunkModeler: WorldModeler
 
     private readonly List<Vector3D<float>> _positions = [];
     private readonly List<Vector2D<float>> _uvs = [];
+    private readonly List<uint> _textures = [];
     private readonly List<uint> _triangles = [];
     
-    private void AddModelFacet<T>(uint vertexes, uint triangles, T extraData, Action<Span<Vector3D<float>>, Span<Vector2D<float>>, Span<uint>, T> fillOut)
+    private void AddModelFacet<T>(uint vertexes, uint triangles, T extraData, Action<Span<Vector3D<float>>, Span<Vector2D<float>>, Span<uint>, T> fillOut, BlockTexture texture)
     {
         Span<Vector3D<float>> positions = stackalloc Vector3D<float>[(int)vertexes];
         Span<Vector2D<float>> uvs = stackalloc Vector2D<float>[(int)vertexes];
         Span<uint> trianglesElem = stackalloc uint[(int)triangles * 3];
+        Span<uint> textureInd = stackalloc uint[(int)vertexes];
 
+        textureInd.Fill(texture.Index);
         fillOut(positions, uvs, trianglesElem, extraData);
         {
             var prevCount = (uint)_positions.Count;
@@ -30,6 +34,7 @@ public class ChunkModeler: WorldModeler
         }
         _positions.AddRange(positions);
         _uvs.AddRange(uvs);
+        _textures.AddRange(textureInd);
         _triangles.AddRange(trianglesElem);
     }
 
@@ -39,30 +44,47 @@ public class ChunkModeler: WorldModeler
             for (var y = 0; y < RealmWorld.CHUNK_CUBE_SIZE; y++)
                 for (var z = 0; z < RealmWorld.CHUNK_CUBE_SIZE; z++)
                 {
-                    var hasBl = world[x, y, z];
-                    if(!hasBl)
+                    var block = world[x, y, z];
+                    if(block.Block == Blocks.Air)
                         continue;
+
+                    var pos = new Vector3D<int>(x, y, z);
+
+                    Block.GetTextureArgs args = new()
+                    {
+                        Position = pos.As<long>(),
+                        Target = block,
+                        World = world
+                    };
                     
-                    if(!world[x, y, z - 1])
-                        AddModelFacet(4, 2, new Vector3D<int>(x, y, z), SouthFaced);
-                    if(!world[x, y, z + 1])
-                        AddModelFacet(4, 2, new Vector3D<int>(x, y, z), NorthFaced);
-                    if(!world[x + 1, y, z])
-                        AddModelFacet(4, 2, new Vector3D<int>(x, y, z), EastFaced);
-                    if(!world[x - 1, y, z])
-                        AddModelFacet(4, 2, new Vector3D<int>(x, y, z), WestFaced);
-                    if(!world[x, y + 1, z])
-                        AddModelFacet(4, 2, new Vector3D<int>(x, y, z), TopFaced);
-                    if(!world[x, y - 1, z])
-                        AddModelFacet(4, 2, new Vector3D<int>(x, y, z), BottomFaced);
+                    DoFacet(GeneralDirection.North, ref args, NorthFaced);
+                    DoFacet(GeneralDirection.East, ref args, EastFaced);
+                    DoFacet(GeneralDirection.South, ref args, SouthFaced);
+                    DoFacet(GeneralDirection.West, ref args, WestFaced);
+                    DoFacet(GeneralDirection.Top, ref args, TopFaced);
+                    DoFacet(GeneralDirection.Bottom, ref args, BottomFaced);
                 }
 
         return Mesh.Create(_shader).ManualFillOut()
             .SetAttribute("pos", _positions.ToArray())
             .SetAttribute("uvPos", _uvs.ToArray())
-            .SetAttribute("atlasInd", new uint[_uvs.Count].Fill(1u))
+            .SetAttribute("atlasInd", _textures.ToArray())
             .Triangles(_triangles.ToArray())
             .Finish();
+
+        void DoFacet(GeneralDirection direction, ref Block.GetTextureArgs texArgs, Action<Span<Vector3D<float>>,Span<Vector2D<float>>,Span<uint>,Vector3D<int>> fillOut)
+        {
+            var position = texArgs.Position + direction.AsVector().As<long>();
+            var target = world[position.X, position.Y, position.Z];
+            
+            if(target.Block != Blocks.Air)
+                return;
+
+            texArgs.Direction = direction;
+            var texture = texArgs.Target.Block.GetTexture(in texArgs);
+            
+            AddModelFacet(4, 2, texArgs.Position.As<int>(), fillOut, texture);
+        }
     }
 
     private static void SetUvAndTriangles(Span<Vector2D<float>> uvs, Span<uint> triangles)
