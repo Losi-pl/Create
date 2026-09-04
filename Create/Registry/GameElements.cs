@@ -109,6 +109,7 @@ public static class GameElements
         private (List<T>? Elements, Dictionary<ElementIdent, int>? ByIdentity) Mutable = ([], []);
         private (ImmutableArray<T>? Elements, FrozenDictionary<ElementIdent, int>? ByIdentity) Immutable = (null, null);
         private FrozenDictionary<ushort, int>? ByID = null;
+        // ReSharper disable once StaticMemberInGenericType
         private static readonly Lock Lock = new();
         // ReSharper restore InconsistentNaming
 
@@ -169,6 +170,7 @@ public static class GameElements
         {
             if (IsFrozen)
                 throw new InvalidOperationException("Element registration is already finished");
+            int index;
             lock (Lock)
             {
                 if(element.IsRegistered)
@@ -176,11 +178,11 @@ public static class GameElements
                 if(Mutable.ByIdentity!.ContainsKey(identity))
                     throw new ArgumentException($"Identity {identity} is already registered");
                 
-                var index = Mutable.Elements!.Count;
+                index = Mutable.Elements!.Count;
                 Mutable.Elements.Add(element);
                 Mutable.ByIdentity[identity] = index;
-                element.SetIdentity(identity, index);
             }
+            element.ElementRegistered(identity, index);
         }
         
         internal override void Freeze()
