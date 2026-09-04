@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Create.Assets;
+using Create.Elements;
 using Create.Registry;
 
 namespace Create;
@@ -26,6 +27,10 @@ internal class CreateEntryPoint: IMod
     private void LoadElements(ElementRegister entry)
     {
         Console.WriteLine("Loading elements");
+        LoadElements(entry.OpenElementType<Block>(), typeof(Blocks));
+
+        foreach (var block in GameElements.Get<Block>())
+            Console.WriteLine($" - {block.Identity}");
     }
 
     private static void LoadElements<TElement>(ElementRegister.ElementType<TElement> dest, Type source) where TElement : ElementBase
