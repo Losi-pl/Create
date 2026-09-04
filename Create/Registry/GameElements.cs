@@ -171,7 +171,7 @@ public static class GameElements
                 throw new InvalidOperationException("Element registration is already finished");
             lock (Lock)
             {
-                if(element.HasIdentity)
+                if(element.IsRegistered)
                     throw new ArgumentException("This element has already been registered");
                 if(Mutable.ByIdentity!.ContainsKey(identity))
                     throw new ArgumentException($"Identity {identity} is already registered");
@@ -179,7 +179,7 @@ public static class GameElements
                 var index = Mutable.Elements!.Count;
                 Mutable.Elements.Add(element);
                 Mutable.ByIdentity[identity] = index;
-                element.SetIdentity(identity);
+                element.SetIdentity(identity, index);
             }
         }
         
