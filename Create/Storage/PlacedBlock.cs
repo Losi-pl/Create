@@ -1,7 +1,7 @@
 ﻿using Create.Elements;
 using Create.Registry;
-// ReSharper disable IntroduceOptionalParameters.Global
 // ReSharper disable UnusedMember.Global, ConvertToAutoProperty
+// ReSharper disable IntroduceOptionalParameters.Global
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace Create.Storage;
@@ -23,5 +23,7 @@ public readonly struct PlacedBlock
     }
     
     public Block Block => _full ? Library.Get(_block)! : Blocks.Air;
+    public int BlockIndex => _full ? _block : Blocks.Air.Index;
+    
     public int Meta => _meta;
 }
