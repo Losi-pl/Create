@@ -18,7 +18,7 @@ public class ChunkModeler: WorldModeler
     private readonly List<uint> _textures = [];
     private readonly List<uint> _triangles = [];
     
-    private void AddModelFacet<T>(uint vertexes, uint triangles, T extraData, Action<Span<Vector3D<float>>, Span<Vector2D<float>>, Span<uint>, T> fillOut, BlockTexture texture)
+    private void AddModelFacet<T>(uint vertexes, uint triangles, T extraData, FillOutData<T> fillOut, BlockTexture texture)
     {
         Span<Vector3D<float>> positions = stackalloc Vector3D<float>[(int)vertexes];
         Span<Vector2D<float>> uvs = stackalloc Vector2D<float>[(int)vertexes];
@@ -78,7 +78,7 @@ public class ChunkModeler: WorldModeler
             .Triangles(_triangles.ToArray())
             .Finish();
 
-        void DoFacet(GeneralDirection direction, ref Block.GetTextureArgs texArgs, ref Block.IsSideSolidArgs solidArgs, Action<Span<Vector3D<float>>,Span<Vector2D<float>>,Span<uint>,Vector3D<int>> fillOut)
+        void DoFacet(GeneralDirection direction, ref Block.GetTextureArgs texArgs, ref Block.IsSideSolidArgs solidArgs, FillOutData<Vector3D<int>> fillOut)
         {
             var position = texArgs.Position + direction.AsVector().As<long>();
             var target = world[position.X, position.Y, position.Z];
@@ -115,7 +115,7 @@ public class ChunkModeler: WorldModeler
         triangles[5] = 3u;
     }
     
-    private static readonly Action<Span<Vector3D<float>>, Span<Vector2D<float>>, Span<uint>, Vector3D<int>> SouthFaced =
+    private static readonly FillOutData<Vector3D<int>> SouthFaced =
         (positions, uvs, triangles, position) => {
             var blPos = position.As<float>();
             positions[0] = new Vector3D<float>(0f, 1f, 0f) + blPos;
@@ -126,7 +126,7 @@ public class ChunkModeler: WorldModeler
             SetUvAndTriangles(uvs, triangles);
         };
     
-    private static readonly Action<Span<Vector3D<float>>, Span<Vector2D<float>>, Span<uint>, Vector3D<int>> NorthFaced =
+    private static readonly FillOutData<Vector3D<int>> NorthFaced =
         (positions, uvs, triangles, position) => {
             var blPos = position.As<float>();
             positions[0] = new Vector3D<float>(1f, 1f, 1f) + blPos;
@@ -137,7 +137,7 @@ public class ChunkModeler: WorldModeler
             SetUvAndTriangles(uvs, triangles);
         };
     
-    private static readonly Action<Span<Vector3D<float>>, Span<Vector2D<float>>, Span<uint>, Vector3D<int>> EastFaced =
+    private static readonly FillOutData<Vector3D<int>> EastFaced =
         (positions, uvs, triangles, position) => {
             var blPos = position.As<float>();
             positions[0] = new Vector3D<float>(1f, 1f, 0f) + blPos;
@@ -148,7 +148,7 @@ public class ChunkModeler: WorldModeler
             SetUvAndTriangles(uvs, triangles);
         };
     
-    private static readonly Action<Span<Vector3D<float>>, Span<Vector2D<float>>, Span<uint>, Vector3D<int>> WestFaced =
+    private static readonly FillOutData<Vector3D<int>> WestFaced =
         (positions, uvs, triangles, position) => {
             var blPos = position.As<float>();
             positions[0] = new Vector3D<float>(0f, 1f, 1f) + blPos;
@@ -159,7 +159,7 @@ public class ChunkModeler: WorldModeler
             SetUvAndTriangles(uvs, triangles);
         };
     
-    private static readonly Action<Span<Vector3D<float>>, Span<Vector2D<float>>, Span<uint>, Vector3D<int>> TopFaced =
+    private static readonly FillOutData<Vector3D<int>> TopFaced =
         (positions, uvs, triangles, position) => {
             var blPos = position.As<float>();
             positions[0] = new Vector3D<float>(0f, 1f, 1f) + blPos;
@@ -170,7 +170,7 @@ public class ChunkModeler: WorldModeler
             SetUvAndTriangles(uvs, triangles);
         };
     
-    private static readonly Action<Span<Vector3D<float>>, Span<Vector2D<float>>, Span<uint>, Vector3D<int>> BottomFaced =
+    private static readonly FillOutData<Vector3D<int>> BottomFaced =
         (positions, uvs, triangles, position) => {
             var blPos = position.As<float>();
             positions[0] = new Vector3D<float>(0f, 0f, 0f) + blPos;
