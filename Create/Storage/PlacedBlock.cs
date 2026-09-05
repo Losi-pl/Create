@@ -10,11 +10,11 @@ public readonly struct PlacedBlock
 {
     private static GameElements.TypeLibrary<Block> Library => field ??= GameElements.Get<Block>();
     private readonly int _block;
-    private readonly int _meta;
+    private readonly byte _meta;
     private readonly bool _full;
 
     public PlacedBlock(Block block) : this(block, 0) { }
-    public PlacedBlock(Block block, int meta)
+    public PlacedBlock(Block block, byte meta)
     {
         ArgumentNullException.ThrowIfNull(block);
         _block = block.Index;

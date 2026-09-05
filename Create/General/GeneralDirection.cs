@@ -3,7 +3,7 @@
 namespace Create.General;
 
 [Flags]
-public enum GeneralDirection : sbyte
+public enum GeneralDirection : byte
 {
     Nothing = 0,
     North =  1 << 5,
