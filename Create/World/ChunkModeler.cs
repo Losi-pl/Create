@@ -40,17 +40,19 @@ public class ChunkModeler: WorldModeler
 
     public Mesh GenerateModel(RealmWorld world)
     {
+        var airIndex = Blocks.Air.Index;
+        
         for (var x = 0; x < RealmWorld.CHUNK_CUBE_SIZE; x++)
             for (var y = 0; y < RealmWorld.CHUNK_CUBE_SIZE; y++)
                 for (var z = 0; z < RealmWorld.CHUNK_CUBE_SIZE; z++)
                 {
                     var block = world[x, y, z];
-                    if(block.Block == Blocks.Air)
+                    if(block.BlockIndex == airIndex)
                         continue;
 
                     var pos = new Vector3D<int>(x, y, z);
 
-                    Block.GetTextureArgs args = new()
+                    var args = new Block.GetTextureArgs
                     {
                         Position = pos.As<long>(),
                         Target = block,
@@ -76,9 +78,19 @@ public class ChunkModeler: WorldModeler
         {
             var position = texArgs.Position + direction.AsVector().As<long>();
             var target = world[position.X, position.Y, position.Z];
-            
-            if(target.Block != Blocks.Air)
-                return;
+
+            if (target.BlockIndex != airIndex)
+            {
+                var solidArgs = new Block.IsSideSolidArgs
+                {
+                    Position = position,
+                    Direction = direction.Inverted,
+                    Target = target,
+                    World = world
+                };
+                if(target.Block.IsSideSolid(in solidArgs))
+                    return;
+            }
 
             texArgs.Direction = direction;
             var texture = texArgs.Target.Block.GetTexture(in texArgs);

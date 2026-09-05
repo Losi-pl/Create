@@ -17,4 +17,22 @@ public abstract class Block : ElementBase
     }
 
     public virtual BlockTexture GetTexture(in GetTextureArgs args) => BlockTexture.NULL;
+    
+    public struct IsSideSolidArgs
+    {
+        public GeneralDirection Direction;
+        public PlacedBlock Target;
+        public IWorld World;
+        public Vector3D<long> Position;
+
+        public static implicit operator IsSideSolidArgs(GetTextureArgs args) => new()
+        {
+            Direction = args.Direction,
+            Target = args.Target,
+            World = args.World,
+            Position = args.Position
+        };
+    }
+    
+    public virtual bool IsSideSolid(in IsSideSolidArgs args) => true;
 }
