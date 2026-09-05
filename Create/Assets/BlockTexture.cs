@@ -3,7 +3,7 @@ using Create.Registry;
 
 namespace Create.Assets;
 
-public readonly struct BlockTexture(int index, IMod mod, string name)
+public readonly struct BlockTexture(uint index, IMod mod, string name)
 {
     // ReSharper disable once InconsistentNaming
     public const int PIXEL_SIZE = 16;
@@ -11,7 +11,7 @@ public readonly struct BlockTexture(int index, IMod mod, string name)
     // ReSharper disable MemberCanBePrivate.Global
     public string Name => name;
     public IMod Mod => mod;
-    public int Index => index;
+    public uint Index => index;
     // ReSharper restore MemberCanBePrivate.Global
 
     public string Identity => $"{Mod.Identity}:{Name}";
