@@ -52,19 +52,23 @@ public class ChunkModeler: WorldModeler
 
                     var pos = new Vector3D<int>(x, y, z);
 
-                    var args = new Block.GetTextureArgs
+                    var texArgs = new Block.GetTextureArgs
                     {
                         Position = pos.As<long>(),
                         Target = block,
                         World = world
                     };
+                    var solidArgs = new Block.IsSideSolidArgs
+                    {
+                        World = world
+                    };
                     
-                    DoFacet(GeneralDirection.North, ref args, NorthFaced);
-                    DoFacet(GeneralDirection.East, ref args, EastFaced);
-                    DoFacet(GeneralDirection.South, ref args, SouthFaced);
-                    DoFacet(GeneralDirection.West, ref args, WestFaced);
-                    DoFacet(GeneralDirection.Top, ref args, TopFaced);
-                    DoFacet(GeneralDirection.Bottom, ref args, BottomFaced);
+                    DoFacet(GeneralDirection.North,  ref texArgs, ref solidArgs, NorthFaced);
+                    DoFacet(GeneralDirection.East,   ref texArgs, ref solidArgs, EastFaced);
+                    DoFacet(GeneralDirection.South,  ref texArgs, ref solidArgs, SouthFaced);
+                    DoFacet(GeneralDirection.West,   ref texArgs, ref solidArgs, WestFaced);
+                    DoFacet(GeneralDirection.Top,    ref texArgs, ref solidArgs, TopFaced);
+                    DoFacet(GeneralDirection.Bottom, ref texArgs, ref solidArgs, BottomFaced);
                 }
 
         return Mesh.Create(_shader).ManualFillOut()
@@ -74,20 +78,17 @@ public class ChunkModeler: WorldModeler
             .Triangles(_triangles.ToArray())
             .Finish();
 
-        void DoFacet(GeneralDirection direction, ref Block.GetTextureArgs texArgs, Action<Span<Vector3D<float>>,Span<Vector2D<float>>,Span<uint>,Vector3D<int>> fillOut)
+        void DoFacet(GeneralDirection direction, ref Block.GetTextureArgs texArgs, ref Block.IsSideSolidArgs solidArgs, Action<Span<Vector3D<float>>,Span<Vector2D<float>>,Span<uint>,Vector3D<int>> fillOut)
         {
             var position = texArgs.Position + direction.AsVector().As<long>();
             var target = world[position.X, position.Y, position.Z];
 
             if (target.BlockIndex != airIndex)
             {
-                var solidArgs = new Block.IsSideSolidArgs
-                {
-                    Position = position,
-                    Direction = direction.Inverted,
-                    Target = target,
-                    World = world
-                };
+                solidArgs.Position = position;
+                solidArgs.Direction = direction.Inverted;
+                solidArgs.Target = target;
+                
                 if(target.Block.IsSideSolid(in solidArgs))
                     return;
             }
