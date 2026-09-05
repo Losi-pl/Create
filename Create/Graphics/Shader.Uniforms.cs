@@ -659,12 +659,26 @@ partial class Shader
             throw new InvalidOperationException("Model Matrix uniform is not specified");
         DefinedMatrix(_modelMat.Value, matrix);
     }
-    
     public void SetModelUniform<T>(Matrix4X4<T> matrix) where T : unmanaged, IBinaryNumber<T>
     {
         if (!_modelMat.HasValue)
             throw new InvalidOperationException("Model Matrix uniform is not specified");
         DefinedMatrix(_modelMat.Value, matrix);
+    }
+    
+    public bool TrySetModelUniform(Matrix4x4 matrix)
+    {
+        if (!_modelMat.HasValue)
+            return false;
+        DefinedMatrix(_modelMat.Value, matrix);
+        return true;
+    }
+    public bool TrySetModelUniform<T>(Matrix4X4<T> matrix) where T : unmanaged, IBinaryNumber<T>
+    {
+        if (!_modelMat.HasValue)
+                    return false;
+        DefinedMatrix(_modelMat.Value, matrix);
+        return true;
     }
     
     public void SetViewUniform(Matrix4x4 matrix)
@@ -673,12 +687,26 @@ partial class Shader
             throw new InvalidOperationException("Model Matrix uniform is not specified");
         DefinedMatrix(_viewMat.Value, matrix);
     }
-    
     public void SetViewUniform<T>(Matrix4X4<T> matrix) where T : unmanaged, IBinaryNumber<T>
     {
         if (!_viewMat.HasValue)
             throw new InvalidOperationException("Model Matrix uniform is not specified");
         DefinedMatrix(_viewMat.Value, matrix);
+    }
+    
+    public bool TrySetViewUniform(Matrix4x4 matrix)
+    {
+        if (!_viewMat.HasValue)
+            return false;
+        DefinedMatrix(_viewMat.Value, matrix);
+        return true;
+    }
+    public bool TrySetViewUniform<T>(Matrix4X4<T> matrix) where T : unmanaged, IBinaryNumber<T>
+    {
+        if (!_viewMat.HasValue)
+            return false;
+        DefinedMatrix(_viewMat.Value, matrix);
+        return true;
     }
     
     public void SetProjectionUniform(Matrix4x4 matrix)
@@ -687,11 +715,25 @@ partial class Shader
             throw new InvalidOperationException("Model Matrix uniform is not specified");
         DefinedMatrix(_projectionMat.Value, matrix);
     }
-    
     public void SetProjectionUniform<T>(Matrix4X4<T> matrix) where T : unmanaged, IBinaryNumber<T>
     {
         if (!_projectionMat.HasValue)
             throw new InvalidOperationException("Model Matrix uniform is not specified");
         DefinedMatrix(_projectionMat.Value, matrix);
+    }
+    
+    public bool TrySetProjectionUniform(Matrix4x4 matrix)
+    {
+        if (!_projectionMat.HasValue)
+            return false;
+        DefinedMatrix(_projectionMat.Value, matrix);
+        return true;
+    }
+    public bool TrySetProjectionUniform<T>(Matrix4X4<T> matrix) where T : unmanaged, IBinaryNumber<T>
+    {
+        if (!_projectionMat.HasValue)
+            return false;
+        DefinedMatrix(_projectionMat.Value, matrix);
+        return true;
     }
 }
