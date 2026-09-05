@@ -11,5 +11,5 @@ public class Stone : Block
         _texture = AssetManager.Find<BlockTexture>("create:stone").AsSet;
     }
 
-    public override BlockTexture GetTexture(ref readonly GetTextureArgs args) => _texture;
+    public override BlockTexture GetTexture(in GetTextureArgs args) => _texture;
 }

@@ -1,8 +1,11 @@
-﻿namespace Create.General;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Create.General;
 
 // Source - https://stackoverflow.com/a/268545
 // Posted by Joel in Gö, modified by community. See post 'Timeline' for change history
 // Retrieved 2026-09-01, License - CC BY-SA 2.5
+// Modified to silence the warnings
 
 /// <summary>
 /// This is a dictionary guaranteed to have only one of each value and key. 
@@ -10,10 +13,10 @@
 /// </summary>
 /// <typeparam name="TFirst">The type of the "key"</typeparam>
 /// <typeparam name="TSecond">The type of the "value"</typeparam>
-public class BiDictionaryOneToOne<TFirst, TSecond>
+public class BiDictionaryOneToOne<TFirst, TSecond> where TFirst : notnull where TSecond : notnull
 {
-    IDictionary<TFirst, TSecond> firstToSecond = new Dictionary<TFirst, TSecond>();
-    IDictionary<TSecond, TFirst> secondToFirst = new Dictionary<TSecond, TFirst>();
+    readonly Dictionary<TFirst, TSecond> _firstToSecond = new();
+    readonly Dictionary<TSecond, TFirst> _secondToFirst = new();
 
     #region Exception throwing methods
 
@@ -25,38 +28,36 @@ public class BiDictionaryOneToOne<TFirst, TSecond>
     /// <param name="second"></param>
     public void Add(TFirst first, TSecond second)
     {
-        if (firstToSecond.ContainsKey(first) || secondToFirst.ContainsKey(second))
+        if (_firstToSecond.ContainsKey(first) || _secondToFirst.ContainsKey(second))
             throw new ArgumentException("Duplicate first or second");
 
-        firstToSecond.Add(first, second);
-        secondToFirst.Add(second, first);
+        _firstToSecond.Add(first, second);
+        _secondToFirst.Add(second, first);
     }
 
     /// <summary>
     /// Find the TSecond corresponding to the TFirst first
-    /// Throws an exception if first is not in the dictionary.
+    /// Throw's an exception if first is not in the dictionary.
     /// </summary>
     /// <param name="first">the key to search for</param>
     /// <returns>the value corresponding to first</returns>
     public TSecond GetByFirst(TFirst first)
     {
-        TSecond second;
-        if (!firstToSecond.TryGetValue(first, out second))
+        if (!_firstToSecond.TryGetValue(first, out var second))
             throw new ArgumentException("first");
 
         return second; 
     }
 
     /// <summary>
-    /// Find the TFirst corresponing to the Second second.
+    /// Find the TFirst corresponding to the TSecond second.
     /// Throws an exception if second is not in the dictionary.
     /// </summary>
     /// <param name="second">the key to search for</param>
     /// <returns>the value corresponding to second</returns>
     public TFirst GetBySecond(TSecond second)
     {
-        TFirst first;
-        if (!secondToFirst.TryGetValue(second, out first))
+        if (!_secondToFirst.TryGetValue(second, out var first))
             throw new ArgumentException("second");
 
         return first; 
@@ -70,12 +71,10 @@ public class BiDictionaryOneToOne<TFirst, TSecond>
     /// <param name="first">the key of the record to delete</param>
     public void RemoveByFirst(TFirst first)
     {
-        TSecond second;
-        if (!firstToSecond.TryGetValue(first, out second))
+        if (!_firstToSecond.Remove(first, out var second))
             throw new ArgumentException("first");
 
-        firstToSecond.Remove(first);
-        secondToFirst.Remove(second);
+        _secondToFirst.Remove(second);
     }
 
     /// <summary>
@@ -85,12 +84,11 @@ public class BiDictionaryOneToOne<TFirst, TSecond>
     /// <param name="second">the key of the record to delete</param>
     public void RemoveBySecond(TSecond second)
     {
-        TFirst first;
-        if (!secondToFirst.TryGetValue(second, out first))
+        if (!_secondToFirst.Remove(second, out var first))
             throw new ArgumentException("second");
 
-        secondToFirst.Remove(second);
-        firstToSecond.Remove(first);
+        _secondToFirst.Remove(second);
+        _firstToSecond.Remove(first);
     }
 
     #endregion
@@ -104,13 +102,13 @@ public class BiDictionaryOneToOne<TFirst, TSecond>
     /// <param name="first"></param>
     /// <param name="second"></param>
     /// <returns>true if successfully added, false if either element are already in the dictionary</returns>
-    public Boolean TryAdd(TFirst first, TSecond second)
+    public bool TryAdd(TFirst first, [MaybeNullWhen(false)] TSecond second)
     {
-        if (firstToSecond.ContainsKey(first) || secondToFirst.ContainsKey(second))
+        if (_firstToSecond.ContainsKey(first) || _secondToFirst.ContainsKey(second))
             return false;
 
-        firstToSecond.Add(first, second);
-        secondToFirst.Add(second, first);
+        _firstToSecond.Add(first, second);
+        _secondToFirst.Add(second, first);
         return true;
     }
 
@@ -122,9 +120,9 @@ public class BiDictionaryOneToOne<TFirst, TSecond>
     /// <param name="first">the key to search for</param>
     /// <param name="second">the corresponding value</param>
     /// <returns>true if first is in the dictionary, false otherwise</returns>
-    public Boolean TryGetByFirst(TFirst first, out TSecond second)
+    public bool TryGetByFirst(TFirst first, [MaybeNullWhen(false)] out TSecond second)
     {
-        return firstToSecond.TryGetValue(first, out second);
+        return _firstToSecond.TryGetValue(first, out second);
     }
 
     /// <summary>
@@ -134,9 +132,9 @@ public class BiDictionaryOneToOne<TFirst, TSecond>
     /// <param name="second">the key to search for</param>
     /// <param name="first">the corresponding value</param>
     /// <returns>true if second is in the dictionary, false otherwise</returns>
-    public Boolean TryGetBySecond(TSecond second, out TFirst first)
+    public bool TryGetBySecond(TSecond second, [MaybeNullWhen(false)] out TFirst first)
     {
-        return secondToFirst.TryGetValue(second, out first);
+        return _secondToFirst.TryGetValue(second, out first);
     }
 
     /// <summary>
@@ -144,14 +142,13 @@ public class BiDictionaryOneToOne<TFirst, TSecond>
     /// </summary>
     /// <param name="first"></param>
     /// <returns> If first is not in the dictionary, returns false, otherwise true</returns>
-    public Boolean TryRemoveByFirst(TFirst first)
+    public bool TryRemoveByFirst(TFirst first)
     {
-        TSecond second;
-        if (!firstToSecond.TryGetValue(first, out second))
+        if (!_firstToSecond.Remove(first, out var second))
             return false;
 
-        firstToSecond.Remove(first);
-        secondToFirst.Remove(second);
+        _firstToSecond.Remove(first);
+        _secondToFirst.Remove(second);
         return true;
     }
 
@@ -160,33 +157,29 @@ public class BiDictionaryOneToOne<TFirst, TSecond>
     /// </summary>
     /// <param name="second"></param>
     /// <returns> If second is not in the dictionary, returns false, otherwise true</returns>
-    public Boolean TryRemoveBySecond(TSecond second)
+    public bool TryRemoveBySecond(TSecond second)
     {
-        TFirst first;
-        if (!secondToFirst.TryGetValue(second, out first))
+        if (!_secondToFirst.Remove(second, out var first))
             return false;
 
-        secondToFirst.Remove(second);
-        firstToSecond.Remove(first);
+        _secondToFirst.Remove(second);
+        _firstToSecond.Remove(first);
         return true;
     }
 
-    #endregion        
+    #endregion
 
     /// <summary>
     /// The number of pairs stored in the dictionary
     /// </summary>
-    public Int32 Count
-    {
-        get { return firstToSecond.Count; }
-    }
+    public int Count => _firstToSecond.Count;
 
     /// <summary>
     /// Removes all items from the dictionary.
     /// </summary>
     public void Clear()
     {
-        firstToSecond.Clear();
-        secondToFirst.Clear();
+        _firstToSecond.Clear();
+        _secondToFirst.Clear();
     }
 }
