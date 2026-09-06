@@ -67,6 +67,13 @@ public class CompositeMesh: IReadOnlySet<Mesh>
             last?.TrySetProjectionUniform(value);
         }
     }
+
+    public CompositeMesh ThreadBind()
+    {
+        foreach (var mesh in this)
+            mesh.ThreadBind();
+        return this;
+    }
     
     public void Draw()
     {
@@ -77,6 +84,8 @@ public class CompositeMesh: IReadOnlySet<Mesh>
             current = mesh.Shader;
         }
     }
+
+    public EnumerableShaders GetShaders() => new(this);
     
     public bool Contains(Mesh item) => _parts.Contains(item);
     public bool IsProperSubsetOf(IEnumerable<Mesh> other) => _parts.IsProperSubsetOf(other);
@@ -85,6 +94,39 @@ public class CompositeMesh: IReadOnlySet<Mesh>
     public bool IsSupersetOf(IEnumerable<Mesh> other) => _parts.IsSupersetOf(other);
     public bool Overlaps(IEnumerable<Mesh> other) => _parts.Overlaps(other);
     public bool SetEquals(IEnumerable<Mesh> other) => _parts.SetEquals(other);
+    
+    public readonly struct EnumerableShaders(CompositeMesh source) : IEnumerable<Shader>
+    {
+        public Enumerator GetEnumerator() => new(source);
+        IEnumerator<Shader> IEnumerable<Shader>.GetEnumerator() => new Enumerator(source);
+        IEnumerator IEnumerable.GetEnumerator() => new Enumerator(source);
+
+        public struct Enumerator(CompositeMesh source) : IEnumerator<Shader>
+        {
+            private Shader _current = null!;
+            private ImmutableSortedSet<Mesh>.Enumerator _enum = source._parts.GetEnumerator();
+            public bool MoveNext()
+            {
+                while (true)
+                {
+                    if (!_enum.MoveNext())
+                        return false;
+                    var current = _enum.Current.Shader;
+                    if (_current == current) continue;
+                    _current = current;
+                    return true;
+                }
+            }
+
+            void IEnumerator.Reset() => throw new NotSupportedException();
+
+            public Shader Current => _current;
+            object IEnumerator.Current => _current;
+
+            void IDisposable.Dispose() => _enum.Dispose();
+        }
+
+    }
     
     private class MeshComparer : IComparer<Mesh>
     {
@@ -97,7 +139,7 @@ public class CompositeMesh: IReadOnlySet<Mesh>
             if(x is null or { Disposed: true } || y is null or { Disposed: true })
                 return x is null or { Disposed: true } ? -1 : 1;
             
-            return x.Shader.GetHashCode().CompareTo(y.Shader.GetHashCode());
+            return x.Shader.Handle.CompareTo(y.Shader.Handle);
         }
     }
 }
