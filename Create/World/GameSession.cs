@@ -45,7 +45,7 @@ public sealed class GameSession: Scene
             };
         }
 
-        _worldMesh = new ChunkModeler().GenerateModel(_world).ThreadBind();
+        _worldMesh = WorldModeler.GenerateModel(_world).ThreadBind();
 
         _worldMesh.Shader.SetProjectionUniform(_camera.ProjectionMatrix);
         _worldMesh.Shader.SetViewUniform(_camera.ViewMatrix);
