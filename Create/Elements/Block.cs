@@ -9,7 +9,6 @@ namespace Create.Elements;
 
 public abstract partial class Block : ElementBase
 {
-    
     public struct GetTextureArgs
     {
         public GeneralDirection Direction;
@@ -19,7 +18,15 @@ public abstract partial class Block : ElementBase
     }
 
     private static readonly SingleTextureFace NoTexture = new(BlockTexture.NULL);
-    public virtual IBlockModelFace GetTexture(in GetTextureArgs args) => NoTexture;
+    protected IBlockModelFace? MainTexture { get; set; }
+    public virtual IBlockModelFace GetTexture(in GetTextureArgs args)
+    {
+        if (MainTexture is not null)
+            return MainTexture;
+        
+        MainTexture = AssetManager.Find<BlockTexture>(Identity) is { IsSet: true, AsSet: var texture } ? new SingleTextureFace(texture) : NoTexture;
+        return MainTexture;
+    }
     
     public struct IsSideSolidArgs
     {
