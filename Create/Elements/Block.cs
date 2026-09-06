@@ -6,7 +6,7 @@ using Silk.NET.Maths;
 
 namespace Create.Elements;
 
-public abstract class Block : ElementBase
+public abstract partial class Block : ElementBase
 {
     public struct GetTextureArgs
     {
