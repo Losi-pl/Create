@@ -14,7 +14,7 @@ public sealed class GameSession: Scene
 {
     private readonly Camera _camera = new();
     private RealmWorld _world = null!;
-    private static Mesh _worldMesh = null!;
+    private static CompositeMesh _worldMesh = null!;
     private bool _lockedIn = true;
     
     protected override void OnConnect()
@@ -47,10 +47,13 @@ public sealed class GameSession: Scene
 
         _worldMesh = WorldModeler.GenerateModel(_world).ThreadBind();
 
-        _worldMesh.Shader.SetProjectionUniform(_camera.ProjectionMatrix);
-        _worldMesh.Shader.SetViewUniform(_camera.ViewMatrix);
-        _worldMesh.Shader.SetModelUniform(Matrix4x4.CreateTranslation(-.5f, 0, -.5f));
-        _worldMesh.Shader.SetUniform("atlas", BlockTexture.Atlas);
+        foreach (var shader in _worldMesh.GetShaders())
+        {
+            shader.SetProjectionUniform(_camera.ProjectionMatrix);
+            shader.SetViewUniform(_camera.ViewMatrix);
+            shader.SetModelUniform(Matrix4x4.CreateTranslation(-.5f, 0, -.5f));
+            shader.SetUniform("atlas", BlockTexture.Atlas);
+        }
         
         Window.GL.Enable(EnableCap.DepthTest);
 
@@ -76,7 +79,9 @@ public sealed class GameSession: Scene
     public override void WindowResize(Vector2D<int> newSize)
     {
         _camera.ScreenDimensions = newSize;
-        _worldMesh.Shader.SetProjectionUniform(_camera.ProjectionMatrix);
+        
+        foreach (var shader in _worldMesh.GetShaders())
+            shader.SetProjectionUniform(_camera.ProjectionMatrix);
     }
     
     public override void RenderUpdate(double delta)
@@ -115,6 +120,7 @@ public sealed class GameSession: Scene
         var mDelta = Mouse.Delta;
         _camera.View = (_camera.Position + move * (float)delta * 5f, _camera.Orientation + -mDelta / 4f);
         
-        _worldMesh.Shader.SetViewUniform(_camera.ViewMatrix);
+        foreach (var shader in _worldMesh.GetShaders())
+            shader.SetViewUniform(_camera.ViewMatrix);
     }
 }

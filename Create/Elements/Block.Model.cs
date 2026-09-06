@@ -1,4 +1,5 @@
-﻿using Create.Storage;
+﻿using Create.Graphics.Block;
+using Create.Storage;
 using Create.World;
 using Silk.NET.Maths;
 
@@ -16,7 +17,6 @@ partial class Block
 
     public virtual void CalculateModel(in CalculateModelArgs args)
     {
-        var world = args.World;
         var texArgs = new GetTextureArgs
         {
             Position = args.Position,
@@ -36,7 +36,7 @@ partial class Block
         DoFacet(GeneralDirection.Bottom, in args, ref texArgs, ref solidArgs, BlockModelFaces.BottomFaced);
         
         // ReSharper disable VariableHidesOuterVariable
-        void DoFacet(GeneralDirection direction, in CalculateModelArgs args, ref GetTextureArgs texArgs, ref IsSideSolidArgs solidArgs, WorldModeler.FillOutData<Vector3D<int>> fillOut)
+        void DoFacet(GeneralDirection direction, in CalculateModelArgs args, ref GetTextureArgs texArgs, ref IsSideSolidArgs solidArgs, WorldModeler.FillOutData<object?> fillOut)
         {
             var position = texArgs.Position + direction.AsVector().As<long>();
             var target = args.World[position.X, position.Y, position.Z];
@@ -52,9 +52,9 @@ partial class Block
             }
 
             texArgs.Direction = direction;
-            var texture = texArgs.Target.Block.GetTexture(in texArgs);
+            var texture = new SingleTextureFace(texArgs.Target.Block.GetTexture(in texArgs));
                 
-            args.Modeler.AddModelFacet(4, 2, texArgs.Position.As<int>(), fillOut, texture);
+            args.Modeler.AddModelFacet(4, 2, texture, fillOut, args.Position, null);
         }
     }
 }
@@ -62,83 +62,83 @@ partial class Block
 file static class BlockModelFaces
 {
     private static void SetUvAndTriangles(Span<Vector2D<float>> uvs, Span<uint> triangles)
-        {
-            uvs[0] = new(0f, 0f);
-            uvs[1] = new(1f, 0f);
-            uvs[2] = new(1f, 1f);
-            uvs[3] = new(0f, 1f);
+    {
+        uvs[0] = new(0f, 0f);
+        uvs[1] = new(1f, 0f);
+        uvs[2] = new(1f, 1f);
+        uvs[3] = new(0f, 1f);
 
-            triangles[0] = 0u;
-            triangles[1] = 1u;
-            triangles[2] = 3u;
-            triangles[3] = 1u;
-            triangles[4] = 2u;
-            triangles[5] = 3u;
-        }
-        
-        public static readonly WorldModeler.FillOutData<Vector3D<int>> SouthFaced =
-            (positions, uvs, triangles, position) => {
-                var blPos = position.As<float>();
-                positions[0] = new Vector3D<float>(0f, 1f, 0f) + blPos;
-                positions[1] = new Vector3D<float>(1f, 1f, 0f) + blPos;
-                positions[2] = new Vector3D<float>(1f, 0f, 0f) + blPos;
-                positions[3] = new Vector3D<float>(0f, 0f, 0f) + blPos;
-                
-                SetUvAndTriangles(uvs, triangles);
-            };
-        
-        public static readonly WorldModeler.FillOutData<Vector3D<int>> NorthFaced =
-            (positions, uvs, triangles, position) => {
-                var blPos = position.As<float>();
-                positions[0] = new Vector3D<float>(1f, 1f, 1f) + blPos;
-                positions[1] = new Vector3D<float>(0f, 1f, 1f) + blPos;
-                positions[2] = new Vector3D<float>(0f, 0f, 1f) + blPos;
-                positions[3] = new Vector3D<float>(1f, 0f, 1f) + blPos;
-                
-                SetUvAndTriangles(uvs, triangles);
-            };
-        
-        public static readonly WorldModeler.FillOutData<Vector3D<int>> EastFaced =
-            (positions, uvs, triangles, position) => {
-                var blPos = position.As<float>();
-                positions[0] = new Vector3D<float>(1f, 1f, 0f) + blPos;
-                positions[1] = new Vector3D<float>(1f, 1f, 1f) + blPos;
-                positions[2] = new Vector3D<float>(1f, 0f, 1f) + blPos;
-                positions[3] = new Vector3D<float>(1f, 0f, 0f) + blPos;
-                
-                SetUvAndTriangles(uvs, triangles);
-            };
-        
-        public static readonly WorldModeler.FillOutData<Vector3D<int>> WestFaced =
-            (positions, uvs, triangles, position) => {
-                var blPos = position.As<float>();
-                positions[0] = new Vector3D<float>(0f, 1f, 1f) + blPos;
-                positions[1] = new Vector3D<float>(0f, 1f, 0f) + blPos;
-                positions[2] = new Vector3D<float>(0f, 0f, 0f) + blPos;
-                positions[3] = new Vector3D<float>(0f, 0f, 1f) + blPos;
-                
-                SetUvAndTriangles(uvs, triangles);
-            };
-        
-        public static readonly WorldModeler.FillOutData<Vector3D<int>> TopFaced =
-            (positions, uvs, triangles, position) => {
-                var blPos = position.As<float>();
-                positions[0] = new Vector3D<float>(0f, 1f, 1f) + blPos;
-                positions[1] = new Vector3D<float>(1f, 1f, 1f) + blPos;
-                positions[2] = new Vector3D<float>(1f, 1f, 0f) + blPos;
-                positions[3] = new Vector3D<float>(0f, 1f, 0f) + blPos;
-                
-                SetUvAndTriangles(uvs, triangles);
-            };
-        
-        public static readonly WorldModeler.FillOutData<Vector3D<int>> BottomFaced =
-            (positions, uvs, triangles, position) => {
-                var blPos = position.As<float>();
-                positions[0] = new Vector3D<float>(0f, 0f, 0f) + blPos;
-                positions[1] = new Vector3D<float>(1f, 0f, 0f) + blPos;
-                positions[2] = new Vector3D<float>(1f, 0f, 1f) + blPos;
-                positions[3] = new Vector3D<float>(0f, 0f, 1f) + blPos;
-                
-                SetUvAndTriangles(uvs, triangles);
-            };
+        triangles[0] = 0u;
+        triangles[1] = 1u;
+        triangles[2] = 3u;
+        triangles[3] = 1u;
+        triangles[4] = 2u;
+        triangles[5] = 3u;
+    }
+
+    public static readonly WorldModeler.FillOutData<object?> SouthFaced = (positions, uvs, triangles, position, _) =>
+        {
+            var blPos = position.As<float>();
+            positions[0] = new Vector3D<float>(0f, 1f, 0f) + blPos;
+            positions[1] = new Vector3D<float>(1f, 1f, 0f) + blPos;
+            positions[2] = new Vector3D<float>(1f, 0f, 0f) + blPos;
+            positions[3] = new Vector3D<float>(0f, 0f, 0f) + blPos;
+
+            SetUvAndTriangles(uvs, triangles);
+        };
+
+    public static readonly WorldModeler.FillOutData<object?> NorthFaced = (positions, uvs, triangles, position, _) =>
+        {
+            var blPos = position.As<float>();
+            positions[0] = new Vector3D<float>(1f, 1f, 1f) + blPos;
+            positions[1] = new Vector3D<float>(0f, 1f, 1f) + blPos;
+            positions[2] = new Vector3D<float>(0f, 0f, 1f) + blPos;
+            positions[3] = new Vector3D<float>(1f, 0f, 1f) + blPos;
+
+            SetUvAndTriangles(uvs, triangles);
+        };
+
+    public static readonly WorldModeler.FillOutData<object?> EastFaced = (positions, uvs, triangles, position, _) =>
+        {
+            var blPos = position.As<float>();
+            positions[0] = new Vector3D<float>(1f, 1f, 0f) + blPos;
+            positions[1] = new Vector3D<float>(1f, 1f, 1f) + blPos;
+            positions[2] = new Vector3D<float>(1f, 0f, 1f) + blPos;
+            positions[3] = new Vector3D<float>(1f, 0f, 0f) + blPos;
+
+            SetUvAndTriangles(uvs, triangles);
+        };
+
+    public static readonly WorldModeler.FillOutData<object?> WestFaced = (positions, uvs, triangles, position, _) =>
+        {
+            var blPos = position.As<float>();
+            positions[0] = new Vector3D<float>(0f, 1f, 1f) + blPos;
+            positions[1] = new Vector3D<float>(0f, 1f, 0f) + blPos;
+            positions[2] = new Vector3D<float>(0f, 0f, 0f) + blPos;
+            positions[3] = new Vector3D<float>(0f, 0f, 1f) + blPos;
+
+            SetUvAndTriangles(uvs, triangles);
+        };
+
+    public static readonly WorldModeler.FillOutData<object?> TopFaced = (positions, uvs, triangles, position, _) =>
+        {
+            var blPos = position.As<float>();
+            positions[0] = new Vector3D<float>(0f, 1f, 1f) + blPos;
+            positions[1] = new Vector3D<float>(1f, 1f, 1f) + blPos;
+            positions[2] = new Vector3D<float>(1f, 1f, 0f) + blPos;
+            positions[3] = new Vector3D<float>(0f, 1f, 0f) + blPos;
+
+            SetUvAndTriangles(uvs, triangles);
+        };
+
+    public static readonly WorldModeler.FillOutData<object?> BottomFaced = (positions, uvs, triangles, position, _) =>
+        {
+            var blPos = position.As<float>();
+            positions[0] = new Vector3D<float>(0f, 0f, 0f) + blPos;
+            positions[1] = new Vector3D<float>(1f, 0f, 0f) + blPos;
+            positions[2] = new Vector3D<float>(1f, 0f, 1f) + blPos;
+            positions[3] = new Vector3D<float>(0f, 0f, 1f) + blPos;
+
+            SetUvAndTriangles(uvs, triangles);
+        };
 }

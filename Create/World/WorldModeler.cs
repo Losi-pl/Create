@@ -1,15 +1,16 @@
-﻿using Create.Assets;
+﻿using System.Reflection;
 using Create.Elements;
 using Create.Graphics;
+using Create.Graphics.Block;
 using Silk.NET.Maths;
 
 namespace Create.World;
 
 public abstract class WorldModeler
 {
-    public delegate void FillOutData<in T>(Span<Vector3D<float>> positions, Span<Vector2D<float>> uvs, Span<uint> triangles, T arg);
+    public delegate void FillOutData<in T>(Span<Vector3D<float>> positions, Span<Vector2D<float>> uvs, Span<uint> triangles, Vector3D<long> blockPositon, T arg);
 
-    public static Mesh GenerateModel(IWorld world)
+    public static CompositeMesh GenerateModel(IWorld world)
     {
         API api = new(world);
         return api.GenerateModel();
@@ -18,44 +19,31 @@ public abstract class WorldModeler
     // ReSharper disable once InconsistentNaming
     public class API
     {
-        private static Shader _shader
-        {
-            get => field ??= AssetManager.Find<Shader>("create:blocks/single-texture") is { IsSet: true, AsSet: var set } ? set : throw new Exception("Shader not found");
-        } = null!;
-        
-        private readonly List<Vector3D<float>> _positions = [];
-        private readonly List<Vector2D<float>> _uvs = [];
-        private readonly List<uint> _textures = [];
-        private readonly List<uint> _triangles = [];
-        
         private readonly IWorld _world;
+        private readonly Dictionary<Type, object> _submeshData = [];
         
         internal API(IWorld world)
         {
             _world = world;
         }
         
-        public void AddModelFacet<T>(uint vertexes, uint triangles, T extraData, FillOutData<T> fillOut, BlockTexture texture)
+        private MethodInfo FindModelTypeMethod(Type type, string name)
         {
-            Span<Vector3D<float>> positions = stackalloc Vector3D<float>[(int)vertexes];
-            Span<Vector2D<float>> uvs = stackalloc Vector2D<float>[(int)vertexes];
-            Span<uint> trianglesElem = stackalloc uint[(int)triangles * 3];
-            Span<uint> textureInd = stackalloc uint[(int)vertexes];
-
-            textureInd.Fill(texture.Index);
-            fillOut(positions, uvs, trianglesElem, extraData);
-            {
-                var prevCount = (uint)_positions.Count;
-                for (var i = 0; i < trianglesElem.Length; i++)
-                    trianglesElem[i] += prevCount;
-            }
-            _positions.AddRange(positions);
-            _uvs.AddRange(uvs);
-            _textures.AddRange(textureInd);
-            _triangles.AddRange(trianglesElem);
+            return type.GetMethod($"{typeof(IBlockModelFace).FullName}.{name}", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+                   ?? type.GetMethod(name, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+                   ?? throw  new InvalidOperationException($"No `{name}()` method found");
+        }
+        
+        public void AddModelFacet<T>(uint vertexes, uint triangles, IBlockModelFace facet, FillOutData<T> fillOut, Vector3D<long> position, T fillOutArg)
+        {
+            var type = facet.GetType();
+            if(!_submeshData.TryGetValue(type, out var model))
+                _submeshData[type] = model = FindModelTypeMethod(type, "CreateNewModelData").Invoke(null, [])!;
+            
+            facet.AddToModel(model, vertexes, triangles, fillOut, position, fillOutArg);
         }
 
-        internal Mesh GenerateModel()
+        internal CompositeMesh GenerateModel()
         {
             var airIndex = Blocks.Air.Index;
 
@@ -77,14 +65,15 @@ public abstract class WorldModeler
                         args.Target.Block.CalculateModel(in args);
                     }
 
-            return Mesh.Create(_shader).ManualFillOut()
-                .SetAttribute("pos", _positions.ToArray())
-                .SetAttribute("uvPos", _uvs.ToArray())
-                .SetAttribute("atlasInd", _textures.ToArray())
-                .Triangles(_triangles.ToArray())
-                .Finish();
+            List<Mesh> parts = [];
+            foreach (var modelPart in _submeshData)
+            {
+                var finisher = FindModelTypeMethod(modelPart.Key, "FinishModel");
+                var mesh = finisher.Invoke(null, [modelPart.Value]) as Mesh;
+                parts.Add(mesh ?? throw new InvalidOperationException($"No model created for `{modelPart.Key}()`"));
+            }
 
-            
+            return new(parts);
         }
     }
 }
