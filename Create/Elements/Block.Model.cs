@@ -52,7 +52,7 @@ partial class Block
             }
 
             texArgs.Direction = direction;
-            var texture = new SingleTextureFace(texArgs.Target.Block.GetTexture(in texArgs));
+            var texture = texArgs.Target.Block.GetTexture(in texArgs);
                 
             args.Modeler.AddModelFacet(4, 2, texture, fillOut, args.Position, null);
         }

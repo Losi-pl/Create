@@ -1,4 +1,5 @@
 ﻿using Create.Assets;
+using Create.Graphics.Block;
 using Create.Registry;
 using Create.Storage;
 using Create.World;
@@ -8,6 +9,7 @@ namespace Create.Elements;
 
 public abstract partial class Block : ElementBase
 {
+    
     public struct GetTextureArgs
     {
         public GeneralDirection Direction;
@@ -16,7 +18,8 @@ public abstract partial class Block : ElementBase
         public Vector3D<long> Position;
     }
 
-    public virtual BlockTexture GetTexture(in GetTextureArgs args) => BlockTexture.NULL;
+    private static readonly SingleTextureFace NoTexture = new(BlockTexture.NULL);
+    public virtual IBlockModelFace GetTexture(in GetTextureArgs args) => NoTexture;
     
     public struct IsSideSolidArgs
     {

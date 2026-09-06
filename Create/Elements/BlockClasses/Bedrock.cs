@@ -1,15 +1,16 @@
 ﻿using Create.Assets;
+using Create.Graphics.Block;
 
 namespace Create.Elements.BlockClasses;
 
 public class Bedrock : Block
 {
-    private BlockTexture _texture;
+    private SingleTextureFace _texture = null!;
 
     protected override void OnElementRegistered()
     {
-        _texture = AssetManager.Find<BlockTexture>("create:bedrock").AsSet;
+        _texture = new(AssetManager.Find<BlockTexture>("create:bedrock").AsSet);
     }
 
-    public override BlockTexture GetTexture(in GetTextureArgs args) => _texture;
+    public override IBlockModelFace GetTexture(in GetTextureArgs args) => _texture;
 }
