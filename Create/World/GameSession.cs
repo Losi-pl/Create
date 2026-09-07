@@ -25,24 +25,23 @@ public sealed class GameSession: Scene
         _camera.ProjectionAngle = 70;
         _camera.ScreenDimensions = Size;
 
-        _camera.Position = new(0, 3, -3);
-        _camera.Orientation = new(0, -45);
+        _camera.Position = new(1.5f, 6, -4);
+        _camera.Orientation = new(0, -40);
 
         {
             var stone = new PlacedBlock(Blocks.Stone);
             var bedrock = new PlacedBlock(Blocks.Bedrock);
             var dirt = new PlacedBlock(Blocks.Dirt);
-            _world = new()
-            {
-                [0, 0, 0] = bedrock,
-                [0, 0, 1] = stone,
-                [1, 0, 0] = stone,
-                [1, 0, 1] = bedrock,
-                [0, 1, 0] = dirt,
-                [0, 1, 1] = dirt,
-                [1, 1, 0] = dirt,
-                [1, 1, 1] = dirt
-            };
+            var grass = new PlacedBlock(Blocks.GrassyDirt);
+            _world = new();
+            foreach (var x in 4)
+                foreach (var z in 4)
+                {
+                    _world[x, 0, z] = bedrock;
+                    _world[x, 1, z] = stone;
+                    _world[x, 2, z] = dirt;
+                    _world[x, 3, z] = grass;
+                }
         }
 
         _worldMesh = WorldModeler.GenerateModel(_world).ThreadBind();
