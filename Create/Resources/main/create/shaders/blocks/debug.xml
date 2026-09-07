@@ -4,4 +4,25 @@
         <fragment path="debug.frag"/>
         <vertex path="debug.vert"/>
     </sources>
+    
+    <fragment>
+        <output name="fragColor" index="0"/>
+    </fragment>
+    
+    <uniforms>
+        <projection name="projection"/>
+        <model name="model"/>
+        <view name="view"/>
+    </uniforms>
+    
+    <events>
+        <onLoad>
+            <![CDATA[console.log("Run when code is loaded")]]>
+            <TODO>Microsoft.ClearScript.V8</TODO>
+        </onLoad>
+        <onLoadingDone>
+            <![CDATA[console.log("Run when all assets are loaded and the next step is about to begin")]]>
+            <TODO>Microsoft.ClearScript.V8</TODO>
+        </onLoadingDone>
+    </events>
 </shader>

@@ -1,21 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <shader>
-    <fragment>
-        <output name="fragColor" index="0"/>
-    </fragment>
-    <uniforms>
-        <projection name="projection"/>
-        <model name="model"/>
-        <view name="view"/>
-    </uniforms>
-    <events>
-        <onLoad>
-            <![CDATA[console.log("Run when code is loaded")]]>
-            <TODO>Microsoft.ClearScript.V8</TODO>
-        </onLoad>
-        <onLoadingDone>
-            <![CDATA[console.log("Run all assets are loaded and the next step is about to begin")]]>
-            <TODO>Microsoft.ClearScript.V8</TODO>
-        </onLoadingDone>
-    </events>
+    
 </shader>
