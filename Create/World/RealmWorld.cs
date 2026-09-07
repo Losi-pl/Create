@@ -1,16 +1,11 @@
 ﻿using Create.Elements;
 using Create.Storage;
+using static Create.World.IChunk;
 
 namespace Create.World;
 
 public sealed class RealmWorld: IWorld
 {
-    // ReSharper disable MemberCanBePrivate.Global, InconsistentNaming
-    public const int CHUNK_CUBE_SIZE = 16;
-    public const int CHUNK_CUBE_STACK = 16;
-    public const int CHUNK_HEIGHT = CHUNK_CUBE_SIZE * CHUNK_CUBE_STACK;
-    // ReSharper restore MemberCanBePrivate.Global, InconsistentNaming
-
     private readonly PlacedBlock[,,] _tmpBlocks = new PlacedBlock[CHUNK_CUBE_SIZE, CHUNK_CUBE_SIZE, CHUNK_CUBE_SIZE];
     
     public PlacedBlock this[long x, long y, long z]
