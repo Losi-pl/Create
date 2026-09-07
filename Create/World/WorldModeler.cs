@@ -53,9 +53,9 @@ public abstract class WorldModeler
                 World = _world
             };
             
-            for (var x = 0; x < RealmWorld.CHUNK_CUBE_SIZE; x++)
-                for (var y = 0; y < RealmWorld.CHUNK_CUBE_SIZE; y++)
-                    for (var z = 0; z < RealmWorld.CHUNK_CUBE_SIZE; z++)
+            for (var x = 0; x < IChunk.CHUNK_CUBE_SIZE; x++)
+                for (var y = 0; y < IChunk.CHUNK_CUBE_SIZE; y++)
+                    for (var z = 0; z < IChunk.CHUNK_CUBE_SIZE; z++)
                     {
                         args.Target = _world[x, y, z];
                         if(args.Target.BlockIndex == airIndex)
