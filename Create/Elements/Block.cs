@@ -17,14 +17,14 @@ public abstract partial class Block : ElementBase
         public Vector3D<long> Position;
     }
 
-    private static readonly SingleTextureFace NoTexture = new(BlockTexture.NULL);
+    public static readonly SingleTextureFace NO_TEXTURE = new(BlockTexture.NULL);
     protected IBlockModelFace? MainTexture { get; set; }
     public virtual IBlockModelFace GetTexture(in GetTextureArgs args)
     {
         if (MainTexture is not null)
             return MainTexture;
         
-        MainTexture = AssetManager.Find<BlockTexture>(Identity) is { IsSet: true, AsSet: var texture } ? new SingleTextureFace(texture) : NoTexture;
+        MainTexture = AssetManager.Find<BlockTexture>(Identity) is { IsSet: true, AsSet: var texture } ? new SingleTextureFace(texture) : NO_TEXTURE;
         return MainTexture;
     }
     
