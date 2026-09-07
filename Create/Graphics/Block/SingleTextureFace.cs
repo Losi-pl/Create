@@ -24,7 +24,7 @@ public class SingleTextureFace(BlockTexture texture) : IBlockModelFace
     void IBlockModelFace.AddToModel<T>(object modelData, uint vertexCount, uint triangleCount, WorldModeler.FillOutData<T> fillOutData, Vector3D<long> blockPosition, T fillOutArg)
     {
         if(!modelData.TryUnbox<ModelData>(out var model))
-            throw new ArgumentException("modelData is not a valid model data type");
+            throw new ArgumentException("ModelData is not a valid type");
         
         Span<Vector3D<float>> positions = stackalloc Vector3D<float>[(int)vertexCount];
         Span<Vector2D<float>> uvs = stackalloc Vector2D<float>[(int)vertexCount];
