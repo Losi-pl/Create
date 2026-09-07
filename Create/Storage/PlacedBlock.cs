@@ -6,6 +6,7 @@ using Create.Registry;
 
 namespace Create.Storage;
 
+[DebuggerDisplay("block=[{Block.Identity}] meta={Meta}")]
 public readonly struct PlacedBlock
 {
     private static GameElements.TypeLibrary<Block> Library => field ??= GameElements.Get<Block>();
