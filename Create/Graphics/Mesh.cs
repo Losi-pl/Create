@@ -1,12 +1,13 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 
 namespace Create.Graphics;
 
-public sealed partial class Mesh
+public sealed partial class Mesh : IDisposable
 {
+    private static readonly Lock Lock = new();
+    
     private readonly Shader _shader;
     private readonly uint _vbo;
     private readonly uint? _ebo;
@@ -30,6 +31,7 @@ public sealed partial class Mesh
     }
     
     public Shader Shader => _shader;
+    public bool Disposed { get; private set; }
     
     public static Constructor Create(Shader shader) => new(shader);
     
@@ -89,26 +91,64 @@ public sealed partial class Mesh
         return this;
     }
 
-    public void Draw()
+    internal void Draw(bool bindShader)
     {
         if (!_binding.HasValue)
             throw new InvalidOperationException("This Mesh is not bound to the current thread");
         var gl = Window.GL;
-        if(gl != _binding.Value.context)
+        if (gl != _binding.Value.context)
             throw new InvalidOperationException("This Mesh is not bound to the current thread");
+
+        if(bindShader)
+            _shader.Bind(gl);
         
-        _shader.Bind(gl);
         gl.BindVertexArray(_binding.Value.vao);
-        if(_ebo.HasValue)
+        if (_ebo.HasValue)
             unsafe { gl.DrawElements(_drawMode, _drawCount, DrawElementsType.UnsignedInt, (void*)0); }
         else
             gl.DrawArrays(_drawMode, 0, _drawCount);
+
         gl.BindVertexArray(0);
         Shader.Unbind(gl);
     }
+
+    public void Draw() => Draw(true);
+
+    ~Mesh() => Dispose();
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+        lock(Lock)
+        {
+            if(Disposed)
+                return;
+            Disposed = true;
+            (uint vbo, uint? ebo, uint? vao) bindings = (_vbo, _ebo, _binding?.vao);
+            if(Window.HasGL && Window.GL == _binding?.context)
+                Disposing();
+            else
+                Window.Queue(Disposing);
+            
+            void Disposing()
+            {
+                var gl = Window.GL;
+                gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
+                gl.DeleteBuffer(bindings.vbo);
+                if(bindings.ebo is { } ebo)
+                {
+                    gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, 0);
+                    gl.DeleteBuffer(ebo);
+                }
+                if(bindings.vao is { } vao)
+                {
+                    gl.BindVertexArray(0);
+                    gl.DeleteVertexArray(vao);
+                }
+            }
+        }
+    }
 }
 
-[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 internal static class TypeTransformations
 {
     public const AttributeType HalfFloat = (AttributeType)GLEnum.HalfFloat;

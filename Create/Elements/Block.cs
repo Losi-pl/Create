@@ -1,4 +1,5 @@
 ﻿using Create.Assets;
+using Create.Graphics.Block;
 using Create.Registry;
 using Create.Storage;
 using Create.World;
@@ -6,7 +7,7 @@ using Silk.NET.Maths;
 
 namespace Create.Elements;
 
-public abstract class Block : ElementBase
+public abstract partial class Block : ElementBase
 {
     public struct GetTextureArgs
     {
@@ -16,7 +17,16 @@ public abstract class Block : ElementBase
         public Vector3D<long> Position;
     }
 
-    public virtual BlockTexture GetTexture(in GetTextureArgs args) => BlockTexture.NULL;
+    public static readonly SingleTextureFace NO_TEXTURE = new(BlockTexture.NULL);
+    protected IBlockModelFace? MainTexture { get; set; }
+    public virtual IBlockModelFace GetTexture(in GetTextureArgs args)
+    {
+        if (MainTexture is not null)
+            return MainTexture;
+        
+        MainTexture = AssetManager.Find<BlockTexture>(Identity) is { IsSet: true, AsSet: var texture } ? new SingleTextureFace(texture) : NO_TEXTURE;
+        return MainTexture;
+    }
     
     public struct IsSideSolidArgs
     {

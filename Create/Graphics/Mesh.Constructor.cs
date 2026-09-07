@@ -827,7 +827,7 @@ partial class Mesh
                     vertSize += (int)(attribute.Type.SizeOf * attribute.Count);
                 Span<byte> buffer = stackalloc byte[vertSize * vertexCount];
                 CompileVertexData(buffer, shader, _dataMode, _attributes, (uint)vertexCount);
-                var vbo = gl.CreateBuffer();
+                var vbo = gl.GenBuffer();
                 gl.BindBuffer(BufferTargetARB.ArrayBuffer, vbo);
                 gl.BufferData(BufferTargetARB.ArrayBuffer, buffer, BufferUsageARB.StaticDraw);
                 gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
@@ -835,7 +835,7 @@ partial class Mesh
                 if (_elements == null)
                     return new(shader, vbo, null, _drawMode, _dataMode, (uint)vertexCount, null);
                 
-                var ebo = gl.CreateBuffer();
+                var ebo = gl.GenBuffer();
                 gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, ebo);
                 gl.BufferData(BufferTargetARB.ElementArrayBuffer, _elements, BufferUsageARB.StaticDraw);
                 gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, 0);

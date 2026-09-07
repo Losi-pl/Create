@@ -14,7 +14,7 @@ public sealed class GameSession: Scene
 {
     private readonly Camera _camera = new();
     private RealmWorld _world = null!;
-    private static Mesh _worldMesh = null!;
+    private static CompositeMesh _worldMesh = null!;
     private bool _lockedIn = true;
     
     protected override void OnConnect()
@@ -25,32 +25,34 @@ public sealed class GameSession: Scene
         _camera.ProjectionAngle = 70;
         _camera.ScreenDimensions = Size;
 
-        _camera.Position = new(0, 3, -3);
-        _camera.Orientation = new(0, -45);
+        _camera.Position = new(1.5f, 6, -4);
+        _camera.Orientation = new(0, -40);
 
         {
             var stone = new PlacedBlock(Blocks.Stone);
             var bedrock = new PlacedBlock(Blocks.Bedrock);
             var dirt = new PlacedBlock(Blocks.Dirt);
-            _world = new()
-            {
-                [0, 0, 0] = bedrock,
-                [0, 0, 1] = stone,
-                [1, 0, 0] = stone,
-                [1, 0, 1] = bedrock,
-                [0, 1, 0] = dirt,
-                [0, 1, 1] = dirt,
-                [1, 1, 0] = dirt,
-                [1, 1, 1] = dirt
-            };
+            var grass = new PlacedBlock(Blocks.GrassyDirt);
+            _world = new();
+            foreach (var x in 4)
+                foreach (var z in 4)
+                {
+                    _world[x, 0, z] = bedrock;
+                    _world[x, 1, z] = stone;
+                    _world[x, 2, z] = dirt;
+                    _world[x, 3, z] = grass;
+                }
         }
 
-        _worldMesh = new ChunkModeler().GenerateModel(_world).ThreadBind();
+        _worldMesh = WorldModeler.GenerateModel(_world).ThreadBind();
 
-        _worldMesh.Shader.SetProjectionUniform(_camera.ProjectionMatrix);
-        _worldMesh.Shader.SetViewUniform(_camera.ViewMatrix);
-        _worldMesh.Shader.SetModelUniform(Matrix4x4.CreateTranslation(-.5f, 0, -.5f));
-        _worldMesh.Shader.SetUniform("atlas", BlockTexture.Atlas);
+        foreach (var shader in _worldMesh.GetShaders())
+        {
+            shader.SetProjectionUniform(_camera.ProjectionMatrix);
+            shader.SetViewUniform(_camera.ViewMatrix);
+            shader.SetModelUniform(Matrix4x4.CreateTranslation(-.5f, 0, -.5f));
+            shader.SetUniform("atlas", BlockTexture.Atlas);
+        }
         
         Window.GL.Enable(EnableCap.DepthTest);
 
@@ -76,7 +78,9 @@ public sealed class GameSession: Scene
     public override void WindowResize(Vector2D<int> newSize)
     {
         _camera.ScreenDimensions = newSize;
-        _worldMesh.Shader.SetProjectionUniform(_camera.ProjectionMatrix);
+        
+        foreach (var shader in _worldMesh.GetShaders())
+            shader.SetProjectionUniform(_camera.ProjectionMatrix);
     }
     
     public override void RenderUpdate(double delta)
@@ -115,6 +119,7 @@ public sealed class GameSession: Scene
         var mDelta = Mouse.Delta;
         _camera.View = (_camera.Position + move * (float)delta * 5f, _camera.Orientation + -mDelta / 4f);
         
-        _worldMesh.Shader.SetViewUniform(_camera.ViewMatrix);
+        foreach (var shader in _worldMesh.GetShaders())
+            shader.SetViewUniform(_camera.ViewMatrix);
     }
 }
