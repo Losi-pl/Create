@@ -6,21 +6,28 @@ namespace Create.World;
 
 public sealed class RealmWorld: IWorld
 {
-    private readonly PlacedBlock[,,] _tmpBlocks = new PlacedBlock[CHUNK_CUBE_SIZE, CHUNK_CUBE_SIZE, CHUNK_CUBE_SIZE];
+    Dictionary<ChunkPos, IChunk> _chunks = new();
     
     public PlacedBlock this[long x, long y, long z]
     {
         get
         {
-            if(x is >= CHUNK_CUBE_SIZE or < 0 || y is >= CHUNK_CUBE_SIZE or < 0 || z is >= CHUNK_CUBE_SIZE or < 0)
+            if(y is < 0 or >= CHUNK_HEIGHT)
                 return new(Blocks.Air);
-            return _tmpBlocks[x, y, z];
+            
+            var inChunk = ChunkPos.PerChunkOperation(new(x, y, z), out var chunkPoz);
+            return !_chunks.TryGetValue(chunkPoz, out var chunk) ? new(Blocks.Stone) : chunk[inChunk.X, inChunk.Y, inChunk.Z];
         }
         set
         {
-            if(x is >= CHUNK_CUBE_SIZE or < 0 || y is >= CHUNK_CUBE_SIZE or < 0 || z is >= CHUNK_CUBE_SIZE or < 0)
+            if(y is < 0 or >= CHUNK_HEIGHT)
                 return;
-            _tmpBlocks[x, y, z] = value;
+            
+            var inChunk = ChunkPos.PerChunkOperation(new(x, y, z), out var chunkPoz);
+            if(!_chunks.TryGetValue(chunkPoz, out var chunk))
+                return;
+            
+            chunk[inChunk.X, inChunk.Y, inChunk.Z] = value;
         }
     }
 
