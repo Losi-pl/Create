@@ -31,7 +31,7 @@ public sealed class RealmWorld: IWorld
         }
     }
 
-    Silk.NET.Direct3D12.RangeUint64 IWorld.RangeByY => new(0, CHUNK_HEIGHT);
-    Silk.NET.Direct3D12.RangeUint64 IWorld.RangeByX => new(uint.MinValue * (long)CHUNK_CUBE_SIZE, uint.MaxValue * (long)CHUNK_CUBE_SIZE);
-    Silk.NET.Direct3D12.RangeUint64 IWorld.RangeByZ => new(uint.MinValue * (long)CHUNK_CUBE_SIZE, uint.MaxValue * (long)CHUNK_CUBE_SIZE);
+    LongRange IWorld.RangeByY => new(0, CHUNK_HEIGHT);
+    LongRange IWorld.RangeByX => new(uint.MinValue * (long)CHUNK_CUBE_SIZE, uint.MaxValue * (long)CHUNK_CUBE_SIZE);
+    LongRange IWorld.RangeByZ => new(uint.MinValue * (long)CHUNK_CUBE_SIZE, uint.MaxValue * (long)CHUNK_CUBE_SIZE);
 }

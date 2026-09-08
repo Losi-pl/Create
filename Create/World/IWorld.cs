@@ -7,7 +7,7 @@ public interface IWorld
 {
     public PlacedBlock this[long x, long y, long z] { get; set; }
     
-    public RangeUint64 RangeByX { get; }
-    public RangeUint64 RangeByY { get; }
-    public RangeUint64 RangeByZ { get; }
+    public LongRange RangeByX { get; }
+    public LongRange RangeByY { get; }
+    public LongRange RangeByZ { get; }
 }
