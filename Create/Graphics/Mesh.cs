@@ -91,11 +91,10 @@ public sealed partial class Mesh : IDisposable
         return this;
     }
 
-    internal void Draw(bool bindShader)
+    internal void Draw(GL gl, bool bindShader)
     {
         if (!_binding.HasValue)
             throw new InvalidOperationException("This Mesh is not bound to the current thread");
-        var gl = Window.GL;
         if (gl != _binding.Value.context)
             throw new InvalidOperationException("This Mesh is not bound to the current thread");
 
@@ -109,10 +108,11 @@ public sealed partial class Mesh : IDisposable
             gl.DrawArrays(_drawMode, 0, _drawCount);
 
         gl.BindVertexArray(0);
-        Shader.Unbind(gl);
+        // TODO: This is making problems but is still preferred
+        //Shader.Unbind(gl);
     }
 
-    public void Draw() => Draw(true);
+    public void Draw() => Draw(Window.GL, true);
 
     ~Mesh() => Dispose();
     public void Dispose()

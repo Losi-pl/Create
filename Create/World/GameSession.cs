@@ -1,10 +1,8 @@
 ﻿using System.Drawing;
 using System.Numerics;
 using Create.Assets;
-using Create.Elements;
 using Create.Graphics;
 using Create.Input;
-using Create.Storage;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 
@@ -14,48 +12,56 @@ public sealed class GameSession: Scene
 {
     private readonly Camera _camera = new();
     private RealmWorld _world = null!;
-    private static CompositeMesh _worldMesh = null!;
+    private static RealmModel _worldModel = null!;
     private bool _lockedIn = true;
+
+    private static readonly ChunkPos[] Circle = Enumerable.Range(-12, 25)
+        .SelectMany(x => Enumerable.Range(-12, 25).Select(z => new ChunkPos(x, z)))
+        .Where(pos => (pos.X * pos.X) + (pos.Z * pos.Z) <= 10 * 10)
+        .ToArray().Apply(array =>
+        {
+            // Sort the full circle in order of closest to farthest
+            array.Sort((a, b) =>
+            {
+                var aD = (a.X * a.X) + (a.Z * a.Z);
+                var bD = (b.X * b.X) + (b.Z * b.Z);
+                return aD.CompareTo(bD);
+            });
+        });
     
     protected override void OnConnect()
     {
+        // Set environment
         Title = "Create";
         BackgroundColor = Color.FromArgb(255, 62, 182, 204);
 
+        // Set camera settings
         _camera.ProjectionAngle = 70;
         _camera.ScreenDimensions = Size;
 
+        // Set camera position
         _camera.Position = new(1.5f, 6, -4);
         _camera.Orientation = new(0, -40);
 
-        {
-            var stone = new PlacedBlock(Blocks.Stone);
-            var bedrock = new PlacedBlock(Blocks.Bedrock);
-            var dirt = new PlacedBlock(Blocks.Dirt);
-            var grass = new PlacedBlock(Blocks.GrassyDirt);
-            _world = new();
-            foreach (var x in 4)
-                foreach (var z in 4)
-                {
-                    _world[x, 0, z] = bedrock;
-                    _world[x, 1, z] = stone;
-                    _world[x, 2, z] = dirt;
-                    _world[x, 3, z] = grass;
-                }
-        }
+        // Create world and its chunks
+        _world = new();
+        foreach (var pos in Circle)
+            _world.CreateChunk(pos);
 
-        _worldMesh = WorldModeler.GenerateModel(_world).ThreadBind();
-
-        foreach (var shader in _worldMesh.GetShaders())
-        {
-            shader.SetProjectionUniform(_camera.ProjectionMatrix);
-            shader.SetViewUniform(_camera.ViewMatrix);
-            shader.SetModelUniform(Matrix4x4.CreateTranslation(-.5f, 0, -.5f));
-            shader.SetUniform("atlas", BlockTexture.Atlas);
-        }
+        // Create world model and task chunk model generations
+        _worldModel = new(_world);
+        foreach (var pos in Circle)
+            _worldModel.AddChunkToModel(pos);
         
+        // Set rendering matrices
+        _worldModel.ProjectionMatrix = _camera.ProjectionMatrix;
+        _worldModel.ViewMatrix = _camera.ViewMatrix;
+        _worldModel.ModelMatrix = Matrix4x4.CreateTranslation(-.5f, 0, -.5f);
+        
+        // TODO: Move into Shader logic
         Window.GL.Enable(EnableCap.DepthTest);
 
+        // Center lock cursor
         Mouse.Mode = MouseMode.LockHidden;
     }
 
@@ -78,18 +84,17 @@ public sealed class GameSession: Scene
     public override void WindowResize(Vector2D<int> newSize)
     {
         _camera.ScreenDimensions = newSize;
-        
-        foreach (var shader in _worldMesh.GetShaders())
-            shader.SetProjectionUniform(_camera.ProjectionMatrix);
+        _worldModel.ProjectionMatrix = _camera.ProjectionMatrix;
     }
     
     public override void RenderUpdate(double delta)
     {
-        _worldMesh.Draw();
+        _worldModel.Draw();
     }
     
     public override void LogicUpdate(double delta)
     {
+        _worldModel.Update();
         if(!_lockedIn)
             return;
         
@@ -118,8 +123,7 @@ public sealed class GameSession: Scene
         
         var mDelta = Mouse.Delta;
         _camera.View = (_camera.Position + move * (float)delta * 5f, _camera.Orientation + -mDelta / 4f);
-        
-        foreach (var shader in _worldMesh.GetShaders())
-            shader.SetViewUniform(_camera.ViewMatrix);
+
+        _worldModel.ViewMatrix = _camera.ViewMatrix;
     }
 }

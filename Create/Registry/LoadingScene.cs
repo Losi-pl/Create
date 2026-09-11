@@ -18,7 +18,7 @@ internal sealed class LoadingScene: Scene
     {
         Title = "Create: Loading";
         LoadIcon();
-        _elementLoading = AsyncLoadGameElements();
+        _elementLoading = Task.RunGraphics(LoadGameElements);
 
         BackgroundColor = Color.FromArgb(255, 27, 72, 8);
     }
@@ -92,35 +92,6 @@ internal sealed class LoadingScene: Scene
         }
     }
     
-    private Task AsyncLoadGameElements()
-    {
-        var task = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        var context = new GraphicContext();
-        
-        var thread = new Thread(() =>
-        {
-            try { context.ThreadBind(); }
-            catch (Exception e) { task.SetException(e); return; }
-                
-            try
-            {
-                LoadGameElements();
-                task.SetResult();
-            }
-            catch (Exception e)
-            {
-                task.SetException(e);
-            }
-            finally
-            {
-                context.Unbind();
-                context.Dispose();
-            }
-        }) { Name = "Loading Game Elements", IsBackground = true };
-        thread.Start();
-        return task.Task;
-    }
-    
     /// <summary>
     /// Loads and parses the Icon from the game resources
     /// </summary>
@@ -150,6 +121,4 @@ internal sealed class LoadingScene: Scene
 
         Icon = icons;
     }
-
-    
 }

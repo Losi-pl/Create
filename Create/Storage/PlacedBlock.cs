@@ -1,4 +1,5 @@
-﻿using Create.Elements;
+﻿using System.Diagnostics;
+using Create.Elements;
 using Create.Registry;
 // ReSharper disable UnusedMember.Global, ConvertToAutoProperty
 // ReSharper disable IntroduceOptionalParameters.Global
@@ -6,7 +7,8 @@ using Create.Registry;
 
 namespace Create.Storage;
 
-public readonly struct PlacedBlock
+[DebuggerDisplay("block=[{Block.Identity}] meta={Meta}")]
+public readonly struct PlacedBlock : IEquatable<PlacedBlock>
 {
     private static GameElements.TypeLibrary<Block> Library => field ??= GameElements.Get<Block>();
     private readonly int _block;
@@ -26,4 +28,12 @@ public readonly struct PlacedBlock
     public int BlockIndex => _full ? _block : Blocks.Air.Index;
     
     public int Meta => _meta;
+
+    public bool Equals(PlacedBlock other) => this == other;
+    public override bool Equals(object? obj) => obj is PlacedBlock other && this == other;
+
+    public override int GetHashCode() => HashCode.Combine(_full ? _block : Blocks.Air.Index, _meta);
+    
+    public static bool operator !=(PlacedBlock a, PlacedBlock b) => !(a == b);
+    public static bool operator ==(PlacedBlock a, PlacedBlock b) => a.BlockIndex == b.BlockIndex && a.Meta == b.Meta;
 }

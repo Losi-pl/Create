@@ -1,35 +1,66 @@
 ﻿using Create.Elements;
 using Create.Storage;
+using static Create.World.IChunk;
 
 namespace Create.World;
 
 public sealed class RealmWorld: IWorld
 {
-    // ReSharper disable MemberCanBePrivate.Global, InconsistentNaming
-    public const int CHUNK_CUBE_SIZE = 16;
-    public const int CHUNK_CUBE_STACK = 16;
-    public const int CHUNK_HEIGHT = CHUNK_CUBE_SIZE * CHUNK_CUBE_STACK;
-    // ReSharper restore MemberCanBePrivate.Global, InconsistentNaming
+    private readonly Dictionary<ChunkPos, IChunk> _chunks = new();
+    
+    public bool IsChunkLoaded(ChunkPos chunkPos) => _chunks.ContainsKey(chunkPos);
 
-    private readonly PlacedBlock[,,] _tmpBlocks = new PlacedBlock[CHUNK_CUBE_SIZE, CHUNK_CUBE_SIZE, CHUNK_CUBE_SIZE];
+    public void CreateChunk(ChunkPos chunkPos)
+    {
+        if(IsChunkLoaded(chunkPos))
+            return;
+
+        var bedrock = new PlacedBlock(Blocks.Bedrock);
+        var stone = new PlacedBlock(Blocks.Stone);
+        var dirt = new PlacedBlock(Blocks.Dirt);
+        var grass = new PlacedBlock(Blocks.GrassyDirt);
+
+        var dirtC = System.Math.Abs(chunkPos.X) + System.Math.Abs(chunkPos.Z) % 2 == 0 ? 3 : 4;
+        
+        IChunk chunk = new Chunk256();
+        foreach (var x in CHUNK_CUBE_SIZE)
+            foreach (var z in CHUNK_CUBE_SIZE)
+            {
+                chunk[x, 0, z] = bedrock;
+                foreach (var y in 10)
+                    chunk[x, 1 + y, z] = stone;
+                foreach (var y in dirtC)
+                    chunk[x, 11 + y, z] = dirt;
+                chunk[x, 11 + dirtC, z] = grass;
+            }
+        _chunks[chunkPos] = chunk;
+
+    }
     
     public PlacedBlock this[long x, long y, long z]
     {
         get
         {
-            if(x is >= CHUNK_CUBE_SIZE or < 0 || y is >= CHUNK_CUBE_SIZE or < 0 || z is >= CHUNK_CUBE_SIZE or < 0)
+            if(y is < 0 or >= CHUNK_HEIGHT)
                 return new(Blocks.Air);
-            return _tmpBlocks[x, y, z];
+            
+            var inChunk = ChunkPos.PerChunkOperation(new(x, y, z), out var chunkPoz);
+            return _chunks.TryGetValue(chunkPoz, out var chunk) ? chunk[inChunk.X, inChunk.Y, inChunk.Z] : new(Blocks.Stone);
         }
         set
         {
-            if(x is >= CHUNK_CUBE_SIZE or < 0 || y is >= CHUNK_CUBE_SIZE or < 0 || z is >= CHUNK_CUBE_SIZE or < 0)
+            if(y is < 0 or >= CHUNK_HEIGHT)
                 return;
-            _tmpBlocks[x, y, z] = value;
+            
+            var inChunk = ChunkPos.PerChunkOperation(new(x, y, z), out var chunkPoz);
+            if(!_chunks.TryGetValue(chunkPoz, out var chunk))
+                return;
+            
+            chunk[inChunk.X, inChunk.Y, inChunk.Z] = value;
         }
     }
 
-    Silk.NET.Direct3D12.RangeUint64 IWorld.RangeByY => new(0, CHUNK_HEIGHT);
-    Silk.NET.Direct3D12.RangeUint64 IWorld.RangeByX => new(uint.MinValue * (long)CHUNK_CUBE_SIZE, uint.MaxValue * (long)CHUNK_CUBE_SIZE);
-    Silk.NET.Direct3D12.RangeUint64 IWorld.RangeByZ => new(uint.MinValue * (long)CHUNK_CUBE_SIZE, uint.MaxValue * (long)CHUNK_CUBE_SIZE);
+    LongRange IWorld.RangeByY => new(0, CHUNK_HEIGHT);
+    LongRange IWorld.RangeByX => new(uint.MinValue * (long)CHUNK_CUBE_SIZE, uint.MaxValue * (long)CHUNK_CUBE_SIZE);
+    LongRange IWorld.RangeByZ => new(uint.MinValue * (long)CHUNK_CUBE_SIZE, uint.MaxValue * (long)CHUNK_CUBE_SIZE);
 }
