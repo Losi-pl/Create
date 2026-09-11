@@ -16,7 +16,7 @@ public sealed class RealmWorld: IWorld
                 return new(Blocks.Air);
             
             var inChunk = ChunkPos.PerChunkOperation(new(x, y, z), out var chunkPoz);
-            return !_chunks.TryGetValue(chunkPoz, out var chunk) ? new(Blocks.Stone) : chunk[inChunk.X, inChunk.Y, inChunk.Z];
+            return _chunks.TryGetValue(chunkPoz, out var chunk) ? chunk[inChunk.X, inChunk.Y, inChunk.Z] : new(Blocks.Stone);
         }
         set
         {
