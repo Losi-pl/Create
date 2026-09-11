@@ -15,9 +15,9 @@ public sealed class GameSession: Scene
     private static RealmModel _worldModel = null!;
     private bool _lockedIn = true;
 
-    private static readonly ChunkPos[] Circle = Enumerable.Range(-4, 8)
-        .SelectMany(x => Enumerable.Range(-4, 8).Select(z => new ChunkPos(x, z)))
-        .Where(pos => (pos.X * pos.X) + (pos.Z * pos.Z) <= 4 * 4)
+    private static readonly ChunkPos[] Circle = Enumerable.Range(-12, 25)
+        .SelectMany(x => Enumerable.Range(-12, 25).Select(z => new ChunkPos(x, z)))
+        .Where(pos => (pos.X * pos.X) + (pos.Z * pos.Z) <= 10 * 10)
         .ToArray().Apply(array =>
         {
             // Sort the full circle in order of closest to farthest
@@ -94,6 +94,7 @@ public sealed class GameSession: Scene
     
     public override void LogicUpdate(double delta)
     {
+        _worldModel.Update();
         if(!_lockedIn)
             return;
         
@@ -124,6 +125,5 @@ public sealed class GameSession: Scene
         _camera.View = (_camera.Position + move * (float)delta * 5f, _camera.Orientation + -mDelta / 4f);
 
         _worldModel.ViewMatrix = _camera.ViewMatrix;
-        _worldModel.Update();
     }
 }
