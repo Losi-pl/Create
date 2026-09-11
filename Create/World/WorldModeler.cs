@@ -13,17 +13,75 @@ public abstract class WorldModeler
     public static CompositeMesh GenerateModel(IWorld world, LongRange x, LongRange y, LongRange z)
     {
         API api = new(world);
-        api.GenerateModel(x, y, z);
+        api.GenerateModel(x, y, z, CancellationToken.None);
         return api.Finish();
+    }
+    
+    public static RawModel GenerateRawModel(IWorld world, LongRange x, LongRange y, LongRange z)
+    {
+        API api = new(world);
+        api.GenerateModel(x, y, z, CancellationToken.None);
+        return api.GetRaw();
     }
 
     public static Task<CompositeMesh> GenerateModelAsync(IWorld world, LongRange x, LongRange y, LongRange z) =>
         Task.RunGraphics(() =>
         {
             API api = new(world);
-            api.GenerateModel(x, y, z);
+            api.GenerateModel(x, y, z, CancellationToken.None);
             return api.Finish();
         });
+    
+    public static Task<RawModel> GenerateRawModelAsync(IWorld world, LongRange x, LongRange y, LongRange z) =>
+        Task.Run(() =>
+        {
+            API api = new(world);
+            api.GenerateModel(x, y, z, CancellationToken.None);
+            return api.GetRaw();
+        });
+    
+    public static Task<CompositeMesh> GenerateModelAsync(IWorld world, LongRange x, LongRange y, LongRange z, CancellationToken token) =>
+        Task.RunGraphics(() =>
+        {
+            API api = new(world);
+            api.GenerateModel(x, y, z, token);
+            return token.IsCancellationRequested ? new([]) : api.Finish();
+        });
+    
+    public static Task<RawModel> GenerateRawModelAsync(IWorld world, LongRange x, LongRange y, LongRange z, CancellationToken token) =>
+        Task.Run(() =>
+        {
+            API api = new(world);
+            api.GenerateModel(x, y, z, token);
+            return api.GetRaw();
+        }, token);
+    
+    private static MethodInfo FindModelTypeMethod(Type type, string name)
+    {
+        return type.GetMethod($"{typeof(IBlockModelFace).FullName}.{name}", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+               ?? type.GetMethod(name, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+               ?? throw  new InvalidOperationException($"No `{name}()` method found");
+    }
+    
+    public readonly struct RawModel
+    {
+        private readonly IWorld _world;
+        private readonly Dictionary<Type, object> _submeshData = [];
+        internal RawModel(IWorld world, Dictionary<Type, object> submeshData) => (_world, _submeshData) = (world, submeshData);
+        
+        public CompositeMesh Finish()
+        {
+            List<Mesh> parts = [];
+            foreach (var modelPart in _submeshData)
+            {
+                var finisher = FindModelTypeMethod(modelPart.Key, "FinishModel");
+                var mesh = finisher.Invoke(null, [modelPart.Value]) as Mesh;
+                parts.Add(mesh ?? throw new InvalidOperationException($"No model created for `{modelPart.Key}()`"));
+            }
+
+            return new(parts);
+        }
+    }
     
     // ReSharper disable once InconsistentNaming
     public class API
@@ -36,13 +94,6 @@ public abstract class WorldModeler
             _world = world;
         }
         
-        private MethodInfo FindModelTypeMethod(Type type, string name)
-        {
-            return type.GetMethod($"{typeof(IBlockModelFace).FullName}.{name}", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
-                   ?? type.GetMethod(name, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
-                   ?? throw  new InvalidOperationException($"No `{name}()` method found");
-        }
-        
         public void AddModelFacet<T>(uint vertexes, uint triangles, IBlockModelFace facet, FillOutData<T> fillOut, Vector3D<long> position, T fillOutArg)
         {
             var type = facet.GetType();
@@ -52,7 +103,7 @@ public abstract class WorldModeler
             facet.AddToModel(model, vertexes, triangles, fillOut, position, fillOutArg);
         }
 
-        internal void GenerateModel(LongRange xRange, LongRange yRange, LongRange zRange)
+        internal void GenerateModel(LongRange xRange, LongRange yRange, LongRange zRange, CancellationToken token)
         {
             var airIndex = Blocks.Air.Index;
 
@@ -66,6 +117,9 @@ public abstract class WorldModeler
                 for (var y = yRange.Start; y < yRange.End; y++)
                     for (var z = zRange.Start; z < zRange.End; z++)
                     {
+                        if(token.IsCancellationRequested)
+                            return;
+                        
                         args.Target = _world[x, y, z];
                         if(args.Target.BlockIndex == airIndex)
                             continue;
@@ -75,6 +129,8 @@ public abstract class WorldModeler
                     }
         }
 
+        internal RawModel GetRaw() => new(_world, _submeshData);
+        
         internal CompositeMesh Finish()
         {
             List<Mesh> parts = [];
