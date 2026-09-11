@@ -45,7 +45,7 @@ public abstract class WorldModeler
         {
             API api = new(world);
             api.GenerateModel(x, y, z, token);
-            return token.IsCancellationRequested ? new([]) : api.Finish();
+            return api.Finish();
         });
     
     public static Task<RawModel> GenerateRawModelAsync(IWorld world, LongRange x, LongRange y, LongRange z, CancellationToken token) =>
@@ -117,8 +117,7 @@ public abstract class WorldModeler
                 for (var y = yRange.Start; y < yRange.End; y++)
                     for (var z = zRange.Start; z < zRange.End; z++)
                     {
-                        if(token.IsCancellationRequested)
-                            return;
+                        token.ThrowIfCancellationRequested();
                         
                         args.Target = _world[x, y, z];
                         if(args.Target.BlockIndex == airIndex)
