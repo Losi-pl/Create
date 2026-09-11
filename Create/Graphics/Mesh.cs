@@ -108,7 +108,8 @@ public sealed partial class Mesh : IDisposable
             gl.DrawArrays(_drawMode, 0, _drawCount);
 
         gl.BindVertexArray(0);
-        Shader.Unbind(gl);
+        // TODO: This is making problems but is still preferred
+        //Shader.Unbind(gl);
     }
 
     public void Draw() => Draw(Window.GL, true);
