@@ -1,11 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Immutable;
 using System.Numerics;
+using Silk.NET.OpenGL;
 
 namespace Create.Graphics;
 
 public class CompositeMesh: IReadOnlySet<Mesh>
 {
+    public static readonly CompositeMesh Empty = new([]);
+    
     private readonly ImmutableSortedSet<Mesh> _parts;
 
     // ReSharper disable once ConvertToPrimaryConstructor
@@ -74,13 +77,14 @@ public class CompositeMesh: IReadOnlySet<Mesh>
             mesh.ThreadBind();
         return this;
     }
-    
-    public void Draw()
+
+    public void Draw() => Draw(Window.GL);
+    internal void Draw(GL gl)
     {
         Shader current = null!;
         foreach (var mesh in this)
         {
-            mesh.Draw(current != mesh.Shader);
+            mesh.Draw(gl, current != mesh.Shader);
             current = mesh.Shader;
         }
     }

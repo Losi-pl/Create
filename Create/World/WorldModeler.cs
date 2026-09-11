@@ -71,6 +71,9 @@ public abstract class WorldModeler
         
         public CompositeMesh Finish()
         {
+            if(_submeshData.Count == 0)
+                return CompositeMesh.Empty;
+            
             List<Mesh> parts = [];
             foreach (var modelPart in _submeshData)
             {
@@ -132,6 +135,9 @@ public abstract class WorldModeler
         
         internal CompositeMesh Finish()
         {
+            if(_submeshData.Count == 0)
+                return CompositeMesh.Empty;
+            
             List<Mesh> parts = [];
             foreach (var modelPart in _submeshData)
             {
