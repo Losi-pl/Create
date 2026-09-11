@@ -1,19 +1,68 @@
-﻿using System.Numerics;
+﻿using System.Collections.Concurrent;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using Create.Graphics;
 using Silk.NET.OpenGL;
 using Shader = Create.Graphics.Shader;
 
 namespace Create.World;
 
-public class RealmModel(RealmWorld world) : IDisposable
+public class RealmModel : IDisposable
 {
+    private readonly RealmWorld _world;
     private readonly Dictionary<Shader, HashSet<Mesh>> _meshes = new();
-    private readonly Dictionary<ChunkPos, CompositeMesh[]> _chunks = new();
-    private readonly Dictionary<ChunkPos, Task<WorldModeler.RawModel[]>> _inProcess = new();
-    private readonly Dictionary<ChunkPos, Task<CompositeMesh[]>> _generated = new();
+    private readonly Dictionary<ChunkPos, CompositeMesh> _chunks = new();
     private readonly Lock _lock = new(), _modelMessing = new();
     private readonly CancellationTokenSource _token = new();
 
+    private readonly HashSet<ChunkPos> _inGeneration = new();
+    private readonly ConcurrentQueue<ChunkPos> _toGenerate = new();
+    // ReSharper disable once FieldCanBeMadeReadOnly.Local
+    private RawModelThreads _modelThreads;
+    // ReSharper disable once NotAccessedField.Local
+    private readonly Thread _modelFinisher;
+    private readonly ConcurrentQueue<(ChunkPos Pos, WorldModeler.RawModel Chunk)> _toFinishGeneration = new();
+    private readonly ConcurrentQueue<(ChunkPos Pos, CompositeMesh Chunk)> _finished = new();
+
+    public RealmModel(RealmWorld world)
+    {
+        _world = world;
+
+        foreach (var i in 5)
+        {
+            var thread = new Thread(RawModelGeneratorThread)
+            {
+                Priority = ThreadPriority.AboveNormal,
+                Name = $"Raw World Model generation #{i}",
+                IsBackground = true
+            };
+            thread.Start();
+            _modelThreads[i] = thread;
+        }
+
+        {
+            var context = new GraphicContext();
+            _modelFinisher = new Thread(() =>
+            {
+                try { context.ThreadBind(); }
+                catch (Exception) { return; }
+                
+                try { ModelFinisherThread(); }
+                finally
+                {
+                    context.Unbind();
+                    context.Dispose();
+                }
+            })
+            {
+                Priority = ThreadPriority.AboveNormal,
+                Name = "Finish World Model generation",
+                IsBackground = true
+            };
+            _modelFinisher.Start();
+        }
+    }
+    
     public Matrix4x4 ModelMatrix
     {
         get;
@@ -76,92 +125,72 @@ public class RealmModel(RealmWorld world) : IDisposable
         {
            if(_chunks.ContainsKey(position))
                return;
-           if(_inProcess.ContainsKey(position))
+           if(_inGeneration.Contains(position))
                return;
-           _inProcess[position] = GenerateModel(position, _token.Token);
+           _toGenerate.Enqueue(position);
+           _inGeneration.Add(position);
         }
     }
 
+    private void RawModelGeneratorThread()
+    {
+        while (!_token.IsCancellationRequested)
+        {
+            if(!_toGenerate.TryDequeue(out var toGenerate))
+                Thread.Sleep(100);
+
+            var raw = WorldModeler.GenerateRawModel(_world,
+                x: new(toGenerate.X * IChunk.CHUNK_CUBE_SIZE, (toGenerate.X + 1) * IChunk.CHUNK_CUBE_SIZE),
+                z: new(toGenerate.Z * IChunk.CHUNK_CUBE_SIZE, (toGenerate.Z + 1) * IChunk.CHUNK_CUBE_SIZE),
+                y: new(0, IChunk.CHUNK_HEIGHT));
+            
+            _toFinishGeneration.Enqueue((toGenerate, raw));
+        }
+    }
+
+    private void ModelFinisherThread()
+    {
+        while (!_token.IsCancellationRequested)
+        {
+            if(!_toFinishGeneration.TryDequeue(out var toFinish))
+                Thread.Sleep(100);
+            
+            _finished.Enqueue((toFinish.Pos, toFinish.Chunk.Finish()));
+        }
+    }
+    
     public void Update()
     {
-        List<KeyValuePair<ChunkPos, Task<CompositeMesh[]>>> toAdd = null!;
-        lock (_lock)
-        {
-            if (_generated.Count > 0)
-            {
-                (toAdd ??= new()).AddRange(_generated);
-                _generated.Clear();
-                foreach (var chunk in toAdd)
-                    _chunks[chunk.Key] = chunk.Value.Result;
-            }
-        }
-
-        lock (_modelMessing)
-        {
-            if(toAdd is not null)
-                foreach (var chunk in toAdd)
-                {
-                    var cubes = chunk.Value.Result;
-                    (Shader me, HashSet<Mesh> parts) current = (null!, null!);
-                    
-                    foreach (var cube in cubes)
-                        foreach (var mesh in cube)
-                        {
-                            if (current.me != mesh.Shader)
-                            {
-                                if (_meshes.TryGetValue(mesh.Shader, out var set))
-                                    current = (mesh.Shader, set);
-                                else
-                                {
-                                    mesh.Shader.TrySetModelUniform(ModelMatrix);
-                                    mesh.Shader.TrySetViewUniform(ViewMatrix);
-                                    mesh.Shader.TrySetProjectionUniform(ProjectionMatrix);
-                                    
-                                    current = (mesh.Shader, _meshes[mesh.Shader] = new());
-                                }
-                            }
-                            current.parts.Add(mesh);
-                            mesh.ThreadBind();
-                        }
-                }
-        }
-    }
-
-    private Task<WorldModeler.RawModel[]> GenerateModel(ChunkPos chunkPos, CancellationToken token)
-    {
-        var task = _inProcess[chunkPos] = Task.Run(async () =>
-        {
-            var parts = Enumerable.Range(0, IChunk.CHUNK_CUBE_STACK).Select(i =>
-                WorldModeler.GenerateRawModel(world,
-                    x: new((long)chunkPos.X * IChunk.CHUNK_CUBE_SIZE, (long)(chunkPos.X + 1) * IChunk.CHUNK_CUBE_SIZE),
-                    y: new((long)i * IChunk.CHUNK_CUBE_SIZE,          (long)(i + 1) * IChunk.CHUNK_CUBE_SIZE),
-                    z: new((long)chunkPos.Z * IChunk.CHUNK_CUBE_SIZE, (long)(chunkPos.Z + 1) * IChunk.CHUNK_CUBE_SIZE))
-            ).ToArray();
-            token.ThrowIfCancellationRequested();
-
-            return parts;
-        }, token);
-        
-        // ReSharper disable once VariableHidesOuterVariable
-        task.ContinueWith(task =>
+        while (_finished.TryDequeue(out var toFinish))
         {
             lock (_lock)
             {
-                _inProcess.Remove(chunkPos);
-                _generated[chunkPos] = Task.RunGraphics(() =>
+                _inGeneration.Remove(toFinish.Pos);
+                _chunks[toFinish.Pos] = toFinish.Chunk;
+                
+                (Shader me, HashSet<Mesh> parts) current = (null!, null!);
+                    
+                foreach (var part in toFinish.Chunk)
                 {
-                    var cubes = new CompositeMesh[IChunk.CHUNK_CUBE_STACK];
-                    for (var i = 0; i < IChunk.CHUNK_CUBE_STACK; i++)
+                    if (current.me != part.Shader)
                     {
-                        token.ThrowIfCancellationRequested();
-                        cubes[i] = task.Result[i].Finish();
+                        if (_meshes.TryGetValue(part.Shader, out var set))
+                            current = (part.Shader, set);
+                        else
+                        {
+                            part.Shader.TrySetModelUniform(ModelMatrix);
+                            part.Shader.TrySetViewUniform(ViewMatrix);
+                            part.Shader.TrySetProjectionUniform(ProjectionMatrix);
+                                    
+                            current = (part.Shader, _meshes[part.Shader] = new());
+                        }
                     }
-
-                    return cubes;
-                });
+                    current.parts.Add(part);
+                    part.ThreadBind();
+                }
             }
-        }, token);
-        
-        return task;
+        }
     }
+
+    [InlineArray(5)] private struct RawModelThreads { private Thread element; }
 }

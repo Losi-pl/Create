@@ -23,6 +23,20 @@ public abstract class WorldModeler
         api.GenerateModel(x, y, z, CancellationToken.None);
         return api.GetRaw();
     }
+    
+    public static CompositeMesh GenerateModel(IWorld world, LongRange x, LongRange y, LongRange z, CancellationToken token)
+    {
+        API api = new(world);
+        api.GenerateModel(x, y, z, token);
+        return api.Finish();
+    }
+    
+    public static RawModel GenerateRawModel(IWorld world, LongRange x, LongRange y, LongRange z, CancellationToken token)
+    {
+        API api = new(world);
+        api.GenerateModel(x, y, z, token);
+        return api.GetRaw();
+    }
 
     public static Task<CompositeMesh> GenerateModelAsync(IWorld world, LongRange x, LongRange y, LongRange z) =>
         Task.RunGraphics(() =>
@@ -65,12 +79,12 @@ public abstract class WorldModeler
     public readonly struct RawModel
     {
         private readonly IWorld _world;
-        private readonly Dictionary<Type, object> _submeshData = [];
+        private readonly Dictionary<Type, object> _submeshData;
         internal RawModel(IWorld world, Dictionary<Type, object> submeshData) => (_world, _submeshData) = (world, submeshData);
         
         public CompositeMesh Finish()
         {
-            if(_submeshData.Count == 0)
+            if(_submeshData is null || _submeshData.Count == 0)
                 return CompositeMesh.Empty;
             
             List<Mesh> parts = [];
