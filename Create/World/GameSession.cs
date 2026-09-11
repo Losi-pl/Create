@@ -66,9 +66,7 @@ public sealed class GameSession: Scene
     public override void WindowResize(Vector2D<int> newSize)
     {
         _camera.ScreenDimensions = newSize;
-        
-        foreach (var shader in _worldMesh.GetShaders())
-            shader.SetProjectionUniform(_camera.ProjectionMatrix);
+        _worldMesh.ProjectionMatrix = _camera.ProjectionMatrix;
     }
     
     public override void RenderUpdate(double delta)
@@ -106,8 +104,7 @@ public sealed class GameSession: Scene
         
         var mDelta = Mouse.Delta;
         _camera.View = (_camera.Position + move * (float)delta * 5f, _camera.Orientation + -mDelta / 4f);
-        
-        foreach (var shader in _worldMesh.GetShaders())
-            shader.SetViewUniform(_camera.ViewMatrix);
+
+        _worldMesh.ViewMatrix = _camera.ViewMatrix;
     }
 }
