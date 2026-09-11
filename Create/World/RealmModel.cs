@@ -19,7 +19,7 @@ public class RealmModel : IDisposable
     private readonly ConcurrentQueue<ChunkPos> _toGenerate = new();
     // ReSharper disable once FieldCanBeMadeReadOnly.Local
     private RawModelThreads _modelThreads;
-    // ReSharper disable once NotAccessedField.Local
+    // ReSharper disable once NotAccessedField.Local, PrivateFieldCanBeConvertedToLocalVariable
     private readonly Thread _modelFinisher;
     private readonly ConcurrentQueue<(ChunkPos Pos, WorldModeler.RawModel Chunk)> _toFinishGeneration = new();
     private readonly ConcurrentQueue<(ChunkPos Pos, CompositeMesh Chunk)> _finished = new();
@@ -136,8 +136,8 @@ public class RealmModel : IDisposable
     {
         while (!_token.IsCancellationRequested)
         {
-            if(!_toGenerate.TryDequeue(out var toGenerate))
-                Thread.Sleep(100);
+            if (!_toGenerate.TryDequeue(out var toGenerate))
+            { Thread.Sleep(100); continue; }
 
             var raw = WorldModeler.GenerateRawModel(_world,
                 x: new(toGenerate.X * IChunk.CHUNK_CUBE_SIZE, (toGenerate.X + 1) * IChunk.CHUNK_CUBE_SIZE),
@@ -153,7 +153,7 @@ public class RealmModel : IDisposable
         while (!_token.IsCancellationRequested)
         {
             if(!_toFinishGeneration.TryDequeue(out var toFinish))
-                Thread.Sleep(100);
+            { Thread.Sleep(100); continue; }
             
             _finished.Enqueue((toFinish.Pos, toFinish.Chunk.Finish()));
         }
