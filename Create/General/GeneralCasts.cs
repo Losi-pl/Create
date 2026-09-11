@@ -21,4 +21,15 @@ public static class GeneralCasts
                                                       color.B / (float)byte.MaxValue, 
                                                    color.A / (float)byte.MaxValue);
     }
+
+    extension(object obj)
+    {
+        [DebuggerHidden]
+        public T ForceUnbox<T>() where T : struct
+        {
+            if(obj.TryUnbox<T>(out var rez))
+                return rez;
+            throw new InvalidCastException();
+        }
+    }
 }
