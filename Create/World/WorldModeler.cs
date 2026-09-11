@@ -16,6 +16,14 @@ public abstract class WorldModeler
         api.GenerateModel(x, y, z);
         return api.Finish();
     }
+
+    public static Task<CompositeMesh> GenerateModelAsync(IWorld world, LongRange x, LongRange y, LongRange z) =>
+        Task.RunGraphics(() =>
+        {
+            API api = new(world);
+            api.GenerateModel(x, y, z);
+            return api.Finish();
+        });
     
     // ReSharper disable once InconsistentNaming
     public class API
