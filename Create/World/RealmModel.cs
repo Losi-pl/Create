@@ -10,7 +10,7 @@ namespace Create.World;
 public class RealmModel : IDisposable
 {
     private readonly RealmWorld _world;
-    private readonly Dictionary<Shader, HashSet<Mesh>> _meshes = new();
+    private readonly Dictionary<Shader, List<Mesh>> _meshes = new();
     private readonly Dictionary<ChunkPos, CompositeMesh> _chunks = new();
     private readonly Lock _lock = new(), _modelMessing = new();
     private readonly CancellationTokenSource _token = new();
@@ -28,7 +28,7 @@ public class RealmModel : IDisposable
     {
         _world = world;
 
-        foreach (var i in 5)
+        foreach (var i in RawModelThreads.COUNT)
         {
             var thread = new Thread(RawModelGeneratorThread)
             {
@@ -161,14 +161,16 @@ public class RealmModel : IDisposable
     
     public void Update()
     {
+        var count = 0;
         while (_finished.TryDequeue(out var toFinish))
         {
+            count++;
             lock (_lock)
             {
                 _inGeneration.Remove(toFinish.Pos);
                 _chunks[toFinish.Pos] = toFinish.Chunk;
                 
-                (Shader me, HashSet<Mesh> parts) current = (null!, null!);
+                (Shader me, List<Mesh> parts) current = (null!, null!);
                     
                 foreach (var part in toFinish.Chunk)
                 {
@@ -190,7 +192,11 @@ public class RealmModel : IDisposable
                 }
             }
         }
+        
+        if(count > 0)
+            Console.WriteLine($"Chunks loaded: {count}");
     }
 
-    [InlineArray(5)] private struct RawModelThreads { private Thread element; }
+    // ReSharper disable once InconsistentNaming
+    [InlineArray(COUNT)] private struct RawModelThreads { private Thread element; public const int COUNT = 2 ;}
 }
