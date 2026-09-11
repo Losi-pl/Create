@@ -23,7 +23,9 @@ public class DoubleColoredTextureFace(BlockTexture top, BlockTexture bottom, Col
     
     private static Shader Shader
     {
-        get => field ??= AssetManager.Find<Shader>("create:blocks/double-colored-texture") is { IsSet: true, AsSet: var set } ? set : throw new Exception("Shader not found");
+        get => field ??= AssetManager.Find<Shader>("create:blocks/double-colored-texture") is { IsSet: true, AsSet: var set } ?
+            set.Apply(s => s.SetUniform("atlas", BlockTexture.Atlas)) :
+            throw new Exception("Shader not found");
     } = null!;
     
     static object IBlockModelFace.CreateNewModelData() => new ModelData([], [], [], [], [], [], []);

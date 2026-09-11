@@ -39,7 +39,6 @@ public sealed class GameSession: Scene
             shader.SetProjectionUniform(_camera.ProjectionMatrix);
             shader.SetViewUniform(_camera.ViewMatrix);
             shader.SetModelUniform(Matrix4x4.CreateTranslation(-.5f, 0, -.5f));
-            shader.SetUniform("atlas", BlockTexture.Atlas);
         }
         
         Window.GL.Enable(EnableCap.DepthTest);

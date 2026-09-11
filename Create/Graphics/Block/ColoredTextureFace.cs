@@ -19,7 +19,9 @@ public class ColoredTextureFace(BlockTexture texture, Color color) : IBlockModel
     
     private static Shader Shader
     {
-        get => field ??= AssetManager.Find<Shader>("create:blocks/colored-texture") is { IsSet: true, AsSet: var set } ? set : throw new Exception("Shader not found");
+        get => field ??= AssetManager.Find<Shader>("create:blocks/colored-texture") is { IsSet: true, AsSet: var set } ?
+            set.Apply(s => s.SetUniform("atlas", BlockTexture.Atlas)) :
+            throw new Exception("Shader not found");
     } = null!;
     
     static object IBlockModelFace.CreateNewModelData() => new ModelData([], [], [], [], []);
