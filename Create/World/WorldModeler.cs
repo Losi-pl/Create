@@ -48,13 +48,12 @@ public abstract class WorldModeler
             return api.Finish();
         });
     
-    public static Task<RawModel> GenerateRawModelAsync(IWorld world, LongRange x, LongRange y, LongRange z, CancellationToken token) =>
-        Task.Run(() =>
-        {
-            API api = new(world);
-            api.GenerateModel(x, y, z, token);
-            return api.GetRaw();
-        }, token);
+    public static async Task<RawModel> GenerateRawModelAsync(IWorld world, LongRange x, LongRange y, LongRange z, CancellationToken token)
+    {
+        API api = new(world);
+        api.GenerateModel(x, y, z, token);
+        return api.GetRaw();
+    }
     
     private static MethodInfo FindModelTypeMethod(Type type, string name)
     {

@@ -6,7 +6,7 @@ namespace Create.World;
 
 public sealed class RealmWorld: IWorld
 {
-    Dictionary<ChunkPos, IChunk> _chunks = new();
+    private readonly Dictionary<ChunkPos, IChunk> _chunks = new();
     
     public bool IsChunkLoaded(ChunkPos chunkPos) => _chunks.ContainsKey(chunkPos);
 
@@ -19,6 +19,8 @@ public sealed class RealmWorld: IWorld
         var stone = new PlacedBlock(Blocks.Stone);
         var dirt = new PlacedBlock(Blocks.Dirt);
         var grass = new PlacedBlock(Blocks.GrassyDirt);
+
+        var dirtC = System.Math.Abs(chunkPos.X) + System.Math.Abs(chunkPos.Z) % 2 == 0 ? 3 : 4;
         
         IChunk chunk = new Chunk256();
         foreach (var x in CHUNK_CUBE_SIZE)
@@ -27,9 +29,9 @@ public sealed class RealmWorld: IWorld
                 chunk[x, 0, z] = bedrock;
                 foreach (var y in 10)
                     chunk[x, 1 + y, z] = stone;
-                foreach (var y in 3)
+                foreach (var y in dirtC)
                     chunk[x, 11 + y, z] = dirt;
-                chunk[x, 14, z] = grass;
+                chunk[x, 11 + dirtC, z] = grass;
             }
         _chunks[chunkPos] = chunk;
 
