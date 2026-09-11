@@ -10,10 +10,11 @@ public abstract class WorldModeler
 {
     public delegate void FillOutData<in T>(Span<Vector3D<float>> positions, Span<Vector2D<float>> uvs, Span<uint> triangles, Vector3D<long> blockPositon, T arg);
 
-    public static CompositeMesh GenerateModel(IWorld world)
+    public static CompositeMesh GenerateModel(IWorld world, LongRange x, LongRange y, LongRange z)
     {
         API api = new(world);
-        return api.GenerateModel();
+        api.GenerateModel(x, y, z);
+        return api.Finish();
     }
     
     // ReSharper disable once InconsistentNaming
@@ -43,7 +44,7 @@ public abstract class WorldModeler
             facet.AddToModel(model, vertexes, triangles, fillOut, position, fillOutArg);
         }
 
-        internal CompositeMesh GenerateModel()
+        internal void GenerateModel(LongRange xRange, LongRange yRange, LongRange zRange)
         {
             var airIndex = Blocks.Air.Index;
 
@@ -53,9 +54,9 @@ public abstract class WorldModeler
                 World = _world
             };
             
-            for (var x = 0; x < IChunk.CHUNK_CUBE_SIZE; x++)
-                for (var y = 0; y < IChunk.CHUNK_CUBE_SIZE; y++)
-                    for (var z = 0; z < IChunk.CHUNK_CUBE_SIZE; z++)
+            for (var x = xRange.Start; x < xRange.End; x++)
+                for (var y = yRange.Start; y < yRange.End; y++)
+                    for (var z = zRange.Start; z < zRange.End; z++)
                     {
                         args.Target = _world[x, y, z];
                         if(args.Target.BlockIndex == airIndex)
@@ -64,7 +65,10 @@ public abstract class WorldModeler
                         args.Position = new(x, y, z);
                         args.Target.Block.CalculateModel(in args);
                     }
+        }
 
+        internal CompositeMesh Finish()
+        {
             List<Mesh> parts = [];
             foreach (var modelPart in _submeshData)
             {

@@ -44,7 +44,10 @@ public sealed class GameSession: Scene
                 }
         }
 
-        _worldMesh = WorldModeler.GenerateModel(_world).ThreadBind();
+        _worldMesh = WorldModeler.GenerateModel(_world,
+            new(0, IChunk.CHUNK_CUBE_SIZE),
+            new(0, IChunk.CHUNK_CUBE_SIZE),
+            new(0, IChunk.CHUNK_CUBE_SIZE)).ThreadBind();
 
         foreach (var shader in _worldMesh.GetShaders())
         {
