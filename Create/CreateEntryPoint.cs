@@ -27,10 +27,14 @@ internal class CreateEntryPoint: IMod
     private void LoadElements(ElementRegister entry)
     {
         Console.WriteLine("Loading elements");
+        
         LoadElements(entry.OpenElementType<Block>(), typeof(Blocks));
-
         foreach (var block in GameElements.Get<Block>())
             Console.WriteLine($" - {block.Identity}");
+        
+        LoadElements(entry.OpenElementType<Realm>(), typeof(Realms));
+        foreach (var realm in GameElements.Get<Realm>())
+            Console.WriteLine($" - {realm.Identity}");
     }
 
     private static void LoadElements<TElement>(ElementRegister.ElementType<TElement> dest, Type source) where TElement : ElementBase

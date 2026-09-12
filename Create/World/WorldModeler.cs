@@ -68,7 +68,7 @@ public abstract class WorldModeler
             API api = new(world);
             api.GenerateModel(x, y, z, token);
             return api.GetRaw();
-        });
+        }, token);
     
     
     private static MethodInfo FindModelTypeMethod(Type type, string name)
@@ -80,6 +80,7 @@ public abstract class WorldModeler
     
     public readonly struct RawModel
     {
+        // ReSharper disable once NotAccessedField.Local
         private readonly IWorld _world;
         private readonly Dictionary<Type, object> _submeshData;
         internal RawModel(IWorld world, Dictionary<Type, object> submeshData) => (_world, _submeshData) = (world, submeshData);
