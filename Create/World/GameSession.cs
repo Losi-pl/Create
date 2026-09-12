@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 using System.Numerics;
-using Create.Assets;
+using Create.Elements;
 using Create.Graphics;
 using Create.Input;
 using Silk.NET.Maths;
@@ -44,7 +44,7 @@ public sealed class GameSession: Scene
         _camera.Orientation = new(0, -40);
 
         // Create world and its chunks
-        _world = new();
+        _world = Realms.Overworld.World;
         foreach (var pos in Circle)
             _world.CreateChunk(pos);
 

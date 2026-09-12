@@ -6,7 +6,10 @@ namespace Create.World;
 
 public sealed class RealmWorld: IWorld
 {
+    private readonly Realm _origin;
     private readonly Dictionary<ChunkPos, IChunk> _chunks = new();
+    
+    internal RealmWorld(Realm origin) => _origin = origin;
     
     public bool IsChunkLoaded(ChunkPos chunkPos) => _chunks.ContainsKey(chunkPos);
 
