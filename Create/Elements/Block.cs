@@ -17,6 +17,7 @@ public abstract partial class Block : ElementBase
         public Vector3D<long> Position;
     }
 
+    // ReSharper disable once InconsistentNaming
     public static readonly SingleTextureFace NO_TEXTURE = new(BlockTexture.NULL);
     protected IBlockModelFace? MainTexture { get; set; }
     public virtual IBlockModelFace GetTexture(in GetTextureArgs args)

@@ -143,7 +143,7 @@ public abstract class WorldModeler
                             continue;
 
                         args.Position = new(x, y, z);
-                        args.Target.Block.CalculateModel(in args);
+                        args.Target.Block.CalculateModel(args);
                     }
         }
 

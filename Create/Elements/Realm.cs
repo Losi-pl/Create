@@ -11,4 +11,11 @@ public abstract partial class Realm : ElementBase
     }
     
     public RealmWorld World { get; }
+    
+    public struct GenerateChunkArgs
+    {
+        public ChunkPos Position;
+    }
+    
+    public abstract IChunk GenerateChunk(in GenerateChunkArgs args);
 }

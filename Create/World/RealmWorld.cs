@@ -18,26 +18,11 @@ public sealed class RealmWorld: IWorld
         if(IsChunkLoaded(chunkPos))
             return;
 
-        var bedrock = new PlacedBlock(Blocks.Bedrock);
-        var stone = new PlacedBlock(Blocks.Stone);
-        var dirt = new PlacedBlock(Blocks.Dirt);
-        var grass = new PlacedBlock(Blocks.GrassyDirt);
-
-        var dirtC = System.Math.Abs(chunkPos.X) + System.Math.Abs(chunkPos.Z) % 2 == 0 ? 3 : 4;
-        
-        IChunk chunk = new Chunk256();
-        foreach (var x in CHUNK_CUBE_SIZE)
-            foreach (var z in CHUNK_CUBE_SIZE)
-            {
-                chunk[x, 0, z] = bedrock;
-                foreach (var y in 10)
-                    chunk[x, 1 + y, z] = stone;
-                foreach (var y in dirtC)
-                    chunk[x, 11 + y, z] = dirt;
-                chunk[x, 11 + dirtC, z] = grass;
-            }
-        _chunks[chunkPos] = chunk;
-
+        var args = new Realm.GenerateChunkArgs
+        {
+            Position = chunkPos
+        };
+        _chunks[chunkPos] = _origin.GenerateChunk(args);
     }
     
     public PlacedBlock this[long x, long y, long z]

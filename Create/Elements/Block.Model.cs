@@ -28,12 +28,12 @@ partial class Block
             World = args.World
         };
                         
-        DoFacet(GeneralDirection.North,  in args, ref texArgs, ref solidArgs, BlockModelFaces.NorthFaced);
-        DoFacet(GeneralDirection.East,   in args, ref texArgs, ref solidArgs, BlockModelFaces.EastFaced);
-        DoFacet(GeneralDirection.South,  in args, ref texArgs, ref solidArgs, BlockModelFaces.SouthFaced);
-        DoFacet(GeneralDirection.West,   in args, ref texArgs, ref solidArgs, BlockModelFaces.WestFaced);
-        DoFacet(GeneralDirection.Top,    in args, ref texArgs, ref solidArgs, BlockModelFaces.TopFaced);
-        DoFacet(GeneralDirection.Bottom, in args, ref texArgs, ref solidArgs, BlockModelFaces.BottomFaced);
+        DoFacet(GeneralDirection.North,  args, ref texArgs, ref solidArgs, BlockModelFaces.NorthFaced);
+        DoFacet(GeneralDirection.East,   args, ref texArgs, ref solidArgs, BlockModelFaces.EastFaced);
+        DoFacet(GeneralDirection.South,  args, ref texArgs, ref solidArgs, BlockModelFaces.SouthFaced);
+        DoFacet(GeneralDirection.West,   args, ref texArgs, ref solidArgs, BlockModelFaces.WestFaced);
+        DoFacet(GeneralDirection.Top,    args, ref texArgs, ref solidArgs, BlockModelFaces.TopFaced);
+        DoFacet(GeneralDirection.Bottom, args, ref texArgs, ref solidArgs, BlockModelFaces.BottomFaced);
         
         // ReSharper disable VariableHidesOuterVariable
         void DoFacet(GeneralDirection direction, in CalculateModelArgs args, ref GetTextureArgs texArgs, ref IsSideSolidArgs solidArgs, WorldModeler.FillOutData<object?> fillOut)
@@ -47,7 +47,7 @@ partial class Block
                 solidArgs.Direction = direction.Inverted;
                 solidArgs.Target = target;
                     
-                if(target.Block.IsSideSolid(in solidArgs))
+                if(target.Block.IsSideSolid(solidArgs))
                     return;
             }
 
